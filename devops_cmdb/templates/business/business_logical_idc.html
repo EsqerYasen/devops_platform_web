@@ -2,17 +2,20 @@
     <div class="row">
         <div class="col-sm-12">
             <div class="ibox float-e-margins">
+{#                <div class="ibox-title">#}
+{#                    区域#}
+{#                </div>#}
                 <div class="ibox-content">
                     <form method="get">
                         <div class="row">
                             <div class="col-sm-2">
-                                <input type="hidden" name="tab" value="0">
-                                <input type="text" name="name" class="form-control m-b" placeholder="品牌名称" id="name">
+                                <input type="hidden" name="tab" value="4">
+                                <input type="text" name="name" class="form-control m-b" placeholder="区域名称" id="name">
                             </div>
                             <div class="col-sm-6">
                                 <div class="input-group">
                                     <button type="submit" class="btn btn-sm btn-primary" style="margin-right: 10px"><i class="fa fa-search"></i> 搜索</button>
-                                    <button type='button' data-toggle='modal' data-target='#business_attributes_modal' data-tab="0" data-isadd="1" class="btn btn-sm btn-primary">
+                                    <button type='button' data-toggle='modal' data-target='#business_attributes_modal' data-isadd="1" data-tab="4" class="btn btn-sm btn-primary">
                                         <span class="glyphicon glyphicon-save" aria-hidden="true"></span>新增
                                     </button>
                                 </div>
@@ -25,10 +28,10 @@
                             <thead>
                                 <tr>
                                     <th style="width:3%;"><input id="checkall" type="checkbox" class="i-checks"></th>
-                                    <th style="width:30%;">名称</th>
-                                    <th style="width:30%;">Key Code</th>
-                                    <th style="width:15%;">创建时间</th>
-                                    <th style="width:15%;">操作</th>
+                                    <th style="width: 25%;">名称</th>
+                                    <th style="width: 25%;">Key Code</th>
+                                    <th style="width: 25%;">创建时间</th>
+                                    <th style="width:10%;">操作</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -41,13 +44,13 @@
                                     <td>{{ o.key_code }}</td>
                                     <td>{{ o.create_time }}</td>
                                     <td>
-                                        <button type='button'  data-toggle='modal' data-target='#business_attributes_modal' data-id ='{{ o.id }}' data-tab="0" data-isadd="0" data-name='{{ o.name }}' data-keycode='{{ o.key_code }}' class="btn btn-sm btn-primary">
+                                        <button type='button'  data-toggle='modal' data-target='#business_attributes_modal' data-id ='{{ o.id }}' data-isadd="0" data-tab="4" data-name='{{ o.name }}' data-keycode='{{ o.key_code }}' class="btn btn-sm btn-primary">
                                             <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>修改
                                         </button>
-                                        <a href="javascript:void(0)" onclick="appProDelAction('{{ o.id }}','0')" class="btn  btn-sm btn-danger"><i class="fa fa-trash"></i>&nbsp;删除</a>
+                                        <a href="javascript:void(0)" onclick="appProDelAction('{{ o.id }}','4')" class="btn  btn-sm btn-danger"><i class="fa fa-trash"></i>&nbsp;删除</a>
                                     </td>
                                 </tr>
-                                {% endfor %}
+                            {% endfor %}
                             </tbody>
                         </table>
                     </div>
@@ -57,4 +60,3 @@
         </div>
     </div>
 </div>
-

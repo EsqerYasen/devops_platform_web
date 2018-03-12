@@ -19,53 +19,181 @@
 
     <div class="wrapper wrapper-content animated fadeInRight">
         <ul id="app_property_tab" class="nav nav-tabs">
-             <li {% if tab == '0' %} class="active" {% endif %}>
+            <li {% if tab == '0' %} class="active" {% endif %}>
                 <a href="#brand" data-toggle="tab" tab="0">
                      品牌
                 </a>
             </li>
             <li {% if tab == '1' %} class="active" {% endif %}>
                 <a href="#group" data-toggle="tab" tab="1">
-                     业务线
+                    业务线
                 </a>
             </li>
             <li {% if tab == '2' %} class="active" {% endif %}>
                 <a href="#module" data-toggle="tab" tab="2">
-                     业务应用
+                    业务应用
+                </a>
+            </li>
+            <li {% if tab == '3' %} class="active" {% endif %}>
+                <a href="#middleware" data-toggle="tab" tab="3">
+                    中间件
+                </a>
+            </li>
+            <li {% if tab == '4' %} class="active" {% endif %}>
+                <a href="#logical_idc" data-toggle="tab" tab="4">
+                    区域
+                </a>
+            </li>
+            <li {% if tab == '5' %} class="active" {% endif %}>
+                <a href="#physical_idc" data-toggle="tab" tab="5">
+                    机房
+                </a>
+            </li>
+            <li {% if tab == '6' %} class="active" {% endif %}>
+                <a href="#deployment_environment" data-toggle="tab" tab="6">
+                    环境
+                </a>
+            </li>
+            <li {% if tab == '7' %} class="active" {% endif %}>
+                <a href="#dns" data-toggle="tab" tab="7">
+                    DNS
                 </a>
             </li>
         </ul>
-
         <div id="app_property_Content" class="tab-content">
             <div class="tab-pane fade{% if tab == '0' %} in active{% endif %}" id="brand">
-            {% if tab == '0' %}
+                {% if tab == '0' %}
                 {% include 'business/business_brand.html' %}
-            {% endif %}
-            </div>
+                {% endif %}
+             </div>
             <div class="tab-pane fade{% if tab == '1' %} in active{% endif %}" id="group">
-            {% if tab == '1' %}
+                {% if tab == '1' %}
                 {% include 'business/business_group.html' %}
-            {% endif %}
+                {% endif %}
             </div>
             <div class="tab-pane fade{% if tab == '2' %} in active{% endif %}" id="module">
-            {% if tab == '2' %}
+                {% if tab == '2' %}
                 {% include 'business/business_module.html' %}
-            {% endif %}
+                {% endif %}
+            </div>
+            <div class="tab-pane fade{% if tab == '3' %} in active{% endif %}" id="middleware">
+                {% if tab == '3' %}
+                {% include 'business/business_middleware.html' %}
+                {% endif %}
+            </div>
+            <div class="tab-pane fade{% if tab == '4' %} in active{% endif %}" id="logical_idc">
+                {% if tab == '4' %}
+                {% include 'business/business_logical_idc.html' %}
+                {% endif %}
+            </div>
+            <div class="tab-pane fade{% if tab == '5' %} in active{% endif %}" id="physical_idc">
+                {% if tab == '5' %}
+                {% include 'business/business_physical_idc.html' %}
+                {% endif %}
+            </div>
+            <div class="tab-pane fade{% if tab == '6' %} in active{% endif %}" id="deployment_environment">
+                {% if tab == '6' %}
+                {% include 'business/business_deployment_environment.html' %}
+                {% endif %}
+            </div>
+            <div class="tab-pane fade{% if tab == '7' %} in active{% endif %}" id="dns">
+                {% if tab == '7' %}
+                {% include 'business/business_dns.html' %}
+                {% endif %}
             </div>
         </div>
     </div>
 
     <script>
-         $(document).ready(function () {
-             $(".i-checks").iCheck({checkboxClass: "icheckbox_square-green", radioClass: "iradio_square-green",})
-             $('#checkall').on('ifChecked', function (event) {
-                 $('.icheck').iCheck('check');
-             });
-             $('#checkall').on('ifUnchecked', function (event) {
-                 $('.icheck').iCheck('uncheck');
-             });
-             tabShowEvent();
-         })
+        $(document).ready(function () {
+            $(".i-checks").iCheck({checkboxClass: "icheckbox_square-green", radioClass: "iradio_square-green",})
+            $('#checkall').on('ifChecked', function (event) {
+                $('.icheck').iCheck('check');
+            });
+            $('#checkall').on('ifUnchecked', function (event) {
+                $('.icheck').iCheck('uncheck');
+            });
+            tabShowEvent();
+            initAppPropertyModal();
+            initFormValidator();
+        })
+        var tabNameDict = {'0':'品牌','1':'业务线','2':'业务应用','3':'中间件','4':'区域','5':'机房','6':'环境','7':'DNS'}
+        function initAppPropertyModal(){
+            var modal = $("#business_attributes_modal");
+            modal.on('show.bs.modal',function(event){
+                var data = $(event.relatedTarget).data();
+                var isadd = data['isadd'];
+                var tab = data['tab'];
+                var t = $(this);
+                t.data('isadd',isadd);
+                t.data('tab',tab)
+                if(isadd == 0){
+                    $("#pro_modal_id").val(data['id']);
+                    $("#pro_modal_name").val(data['name']);
+                    $("#pro_modal_key_code").val(data['keycode']);
+                    if(tab == 1 || tab == 2){
+                        var bizbrandid = data['bizbrandid'];
+                        t.data('bizbrandid',bizbrandid);
+                        $("#pro_modal_biz_brand_id").val(bizbrandid);
+                    }
+                    if(tab == 2){
+                        var bizgroupid = data['bizgroupid'];
+                        t.data('bizgroupid',bizgroupid);
+                        brandChange($("#pro_modal_biz_brand_id"),'pro_modal_biz_group_id');
+                        $("#pro_modal_biz_group_id").val(bizgroupid);
+                    }
+                }
+                $("#labOptName").text(tabNameDict[tab]);
+            })
+            modal.on('hide.bs.modal',function(event){
+                $('#business_attributes_form').data('bootstrapValidator').resetForm(true);
+                //$("#business_attributes_form")[0].reset();
+            })
+        }
+
+        function initFormValidator(){
+            $("#business_attributes_form").bootstrapValidator({
+                feedbackIcons: {
+                    valid: 'glyphicon glyphicon-ok',
+                    invalid: 'glyphicon glyphicon-remove',
+                    validating: 'glyphicon glyphicon-refresh'
+                },
+                fields: {
+                    name:{
+                        validators: {
+                            notEmpty: {
+                                message: '名称不能为空'
+                            }
+                        }
+                    },
+                    key_code:{
+                        validators: {
+                            notEmpty: {
+                                message: 'KeyCode不能为空'
+                            }
+                        }
+                    },
+                    {% if tab == '1' or tab == '2' %}
+                    biz_brand_id:{
+                        validators: {
+                            notEmpty: {
+                                message: '品牌不能为空'
+                            }
+                        }
+                    },
+                    {% endif %}
+                    {% if tab == '2' %}
+                    biz_group_id:{
+                        validators: {
+                            notEmpty: {
+                                message: '业务线不能为空'
+                            }
+                        }
+                    }
+                    {% endif %}
+                }
+            })
+        }
 
         function tabShowEvent(){
             $('a[data-toggle="tab"]').on('show.bs.tab', function (e) {
@@ -74,73 +202,139 @@
             })
         }
 
+        function appProSave(){
+           var form = $("#business_attributes_form")
+           form.bootstrapValidator('validate');
+           var bool = form.data('bootstrapValidator').isValid()
+           if(bool){
+                var modal = $("#app_property_modal");
+                var data = modal.data();
+                var isadd = data['isadd'];
+                var tab = data['tab'];
+
+                var name = $("#pro_modal_name").val();
+                var keyCode = $("#pro_modal_key_code").val();
+
+                var saveJson = {"name":name,"key_code":keyCode}
+                var ajaxUrl = "";
+                if(isadd == 1){
+                    ajaxUrl = "/cmdb/business/attributes_create_view/";
+                }else{
+                    var id = $("#pro_modal_id").val();
+                    saveJson['id'] = id;
+                    ajaxUrl = "/cmdb/business/attributes_update_view/";
+                }
+                if(tab == 1 || tab == 2){
+                    saveJson['biz_brand_id'] = $("#pro_modal_biz_brand_id").val();
+                }
+                if(tab == 2){
+                    saveJson['biz_group_id'] = $("#pro_modal_biz_group_id").val();
+                }
+                $.ajax({
+                    type: "POST",
+                    url: ajaxUrl,
+                    async:true,
+                    data:{"saveJson":JSON.stringify(saveJson),"tab":tab,"csrfmiddlewaretoken": "{{ csrf_token }}"},
+                    error: function (request) {},
+                    success: function (data) {
+                       if(data.status == "SUCCESS"){
+                           modal.modal('hide');
+                           location.reload();
+                       }else{
+                            Alertwin.alert({message:data.msg});
+                       }
+                    }
+                })
+           }
+        }
+        function appProDelAction(ids,tab){
+            Alertwin.confirm({ message: "确认要删除吗？" }).on(function (e) {
+                if (e) {
+                    $.ajax({
+                        type: "POST",
+                        url: '/cmdb/business/attributes_del_view/',
+                        data:{"id":ids,"tab":tab,"csrfmiddlewaretoken": "{{ csrf_token }}"},
+                        error: function (request) {},
+                        success: function (data) {
+                           if(data.status == "SUCCESS"){
+                               location.reload();
+                           }else{
+                                Alertwin.alert({message:data.msg});
+                           }
+                        }
+                    })
+                }
+            })
+        }
     </script>
 
-    <div class="modal fade" id="business_attributes_modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document" style="width: 500px;">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel"><label id="labOptName"></label> 新增</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                 <div class="modal-body" >
-                    <form id="app_property_form" class="form-horizontal">
-                        {% if tab == '1' or tab == '2' %}
-                         <div class="form-group" >
-                             <label class="col-lg-3 control-label" style="width: 22%">
-                                 *品牌
-                             </label>
-                             <div class="col-lg-5" style="width: 78%">
-                                 <select id="pro_modal_biz_brand_id" name="biz_brand_id" class="form-control" onchange="brandChange(this,'pro_modal_biz_group_id')">
-                                      {% for obj in brand_list %}
-                                          {% if forloop.first %}
-                                            <option value="" >----请选择品牌----</option>
-                                          {% endif %}
-                                          <option value="{{ obj.id }}" >{{ obj.name }}</option>
-                                      {% endfor %}
-                                 </select>
-                             </div>
+
+
+<div class="modal fade" id="business_attributes_modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document" style="width: 500px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel"><label id="labOptName"></label> 新增</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+             <div class="modal-body" >
+                <form id="business_attributes_form" class="form-horizontal">
+                    {% if tab == '1' or tab == '2' %}
+                     <div class="form-group" >
+                         <label class="col-lg-3 control-label" style="width: 22%">
+                             *品牌
+                         </label>
+                         <div class="col-lg-5" style="width: 78%">
+                             <select id="pro_modal_biz_brand_id" name="biz_brand_id" class="form-control" onchange="brandChange(this,'pro_modal_biz_group_id')">
+                                  {% for obj in brand_list %}
+                                      {% if forloop.first %}
+                                        <option value="" >----请选择品牌----</option>
+                                      {% endif %}
+                                      <option value="{{ obj.id }}" >{{ obj.name }}</option>
+                                  {% endfor %}
+                             </select>
+                         </div>
+                    </div>
+                    {% endif %}
+                    {% if tab == '2' %}
+                    <div class="form-group" >
+                         <label class="col-lg-3 control-label" style="width: 22%">
+                             *业务线
+                         </label>
+                         <div class="col-lg-5" style="width: 78%">
+                        <select id="pro_modal_biz_group_id" name="biz_group_id" class="form-control" >
+                            <option value="" >----请选择业务线----</option>
+                        </select>
                         </div>
-                        {% endif %}
-                        {% if tab == '2' %}
-                        <div class="form-group" >
-                             <label class="col-lg-3 control-label" style="width: 22%">
-                                 *业务线
-                             </label>
-                             <div class="col-lg-5" style="width: 78%">
-                            <select id="pro_modal_biz_group_id" name="biz_group_id" class="form-control" >
-                                <option value="" >----请选择业务线----</option>
-                            </select>
-                            </div>
-                        </div>
-                        {% endif %}
-                        <div class="form-group" >
-                             <label class="col-lg-3 control-label" style="width: 22%">
-                                 *名称
-                             </label>
-                             <div class="col-lg-5" style="width: 78%">
-                                <input type="hidden" id="pro_modal_id" name="id" value="">
-                                <input type="text" id="pro_modal_name" name="name" class="form-control" value=""/>
-                             </div>
-                        </div>
-                        <div class="form-group">
-                             <label class="col-lg-3 control-label" style="width: 22%">
-                                 *Key Code
-                             </label>
-                             <div class="col-lg-5" style="width: 78%">
-                                <input type="text" id="pro_modal_key_code" name="key_code" class="form-control" value=""/>
-                             </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" title="确定执行" onclick="appProSave()">确定</button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
-                </div>
+                    </div>
+                    {% endif %}
+                    <div class="form-group" >
+                         <label class="col-lg-3 control-label" style="width: 22%">
+                             *名称
+                         </label>
+                         <div class="col-lg-5" style="width: 78%">
+                            <input type="hidden" id="pro_modal_id" name="id" value="">
+                            <input type="text" id="pro_modal_name" name="name" class="form-control" value=""/>
+                         </div>
+                    </div>
+                    <div class="form-group">
+                         <label class="col-lg-3 control-label" style="width: 22%">
+                             *Key Code
+                         </label>
+                         <div class="col-lg-5" style="width: 78%">
+                            <input type="text" id="pro_modal_key_code" name="key_code" class="form-control" value=""/>
+                         </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" title="确定执行" onclick="appProSave()">确定</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
             </div>
         </div>
     </div>
+</div>
 
 {% endblock %}
