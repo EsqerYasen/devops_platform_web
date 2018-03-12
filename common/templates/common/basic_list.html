@@ -1,0 +1,199 @@
+{% extends 'common/basic_layout.html' %}
+{% load widget_tweaks %}
+{% block content %}
+
+    <style>
+        td {
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        tr {
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        th {
+            text-align: center;
+            vertical-align: middle;
+        }
+    </style>
+    <script>
+        $(document).ready(function () {
+            $(".i-checks").iCheck({checkboxClass: "icheckbox_square-green", radioClass: "iradio_square-green",})
+            $('#checkall').on('ifChecked', function (event) {
+                $('.icheck').iCheck('check');
+            });
+            $('#checkall').on('ifUnchecked', function (event) {
+                $('.icheck').iCheck('uncheck');
+            });
+            if (getUrlParam("_msg") != null) {
+                $('#msgdiv').append(' <div class="alert alert-success alert-dismissable"> ' +
+                    '<button aria-hidden="true" data-dismiss="alert" class="close" type="button">× </button>' +
+                    '删除成功 </div>')
+            }
+            setupOrderedColumns('{{ order_by }}', '{{ ordering }}');
+        });
+
+        function deleteBatch() {
+            var obj = getChecked()
+            if (obj == "") {
+                Alertwin.alert({ message: "请选择至少一条记录进行删除"});
+            } else {
+                obj = obj.substring(0, obj.length - 1);
+                $.get('delete_entity/?id=' + obj, function () {
+                    location.reload();
+                })
+            }
+        }
+
+        function setupOrderedColumns(order_by, orderin) {
+            var _self = this;
+            $('.order-by-column').each(function () {
+                var $el = $(this),
+                    column_name = $el.data('column'),
+                    href = location.href,
+                    next_order = 'asc',
+                    has_query_string = (href.indexOf('?') !== -1),
+                    order_by_param,
+                    ordering_param;
+
+                if (order_by === column_name) {
+                    if (orderin === 'asc') {
+                        next_order = 'desc';
+                    }
+
+                    $($el[0].children[0]).removeClass('fa-sort');
+                    if (next_order === 'asc') {
+                        debugger;
+                        $($el[0].children[0]).addClass('fa-sort-desc');
+                    } else {
+                        debugger;
+                        $($el[0].children[0]).addClass('fa-sort-asc');
+                    }
+                }
+
+
+                order_by_param = "order_by=" + column_name;
+                ordering_param = "ordering=" + next_order;
+                if (!has_query_string) {
+                    href = '?' + order_by_param + '&' + ordering_param;
+                } else {
+                    if (href.match(/ordering=(asc|desc)/)) {
+                        href = href.replace(/ordering=(asc|desc)/, ordering_param);
+                    } else {
+                        href += '&' + ordering_param;
+                    }
+
+                    if (href.match(/order_by=[_\w]+/)) {
+                        href = href.replace(/order_by=([_\w]+)/, order_by_param);
+                    } else {
+                        href += '&' + order_by_param;
+                    }
+
+                }
+
+                $el.attr('href', href);
+
+            });
+        }
+
+        function getUrlParam(name) {
+            var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)"); //构造一个含有目标参数的正则表达式对象
+            var r = window.location.search.substr(1).match(reg);  //匹配目标参数
+            if (r != null) return unescape(r[2]);
+            return null; //返回参数值
+        }
+
+        function deleteAction(id) {
+            Alertwin.confirm({ message: "确认要删除选择的数据吗？" }).on(function (e) {
+                if (e) {
+                     $.get('delete_entity/?id=' + id, function () {
+                        if (window.location.href.indexOf("?") == -1) {
+                            window.location.href = window.location.href + "?_msg=1"
+                        } else {
+                            window.location.href = window.location.href + "&_msg=1"
+                        }
+                     })
+                }
+            })
+        }
+
+        function getChecked() {
+            var str = document.getElementsByName("input[]");
+            var objarray = str.length;
+            var chestr = "";
+            for (i = 0; i < objarray; i++) {
+                if (str[i].checked == true) {
+                    chestr += str[i].id + ",";
+                }
+            }
+            return chestr;
+        }
+
+        function checktb(obj, id) {
+            if (obj.name == 'pmenu' && obj.checked == true) {
+                $($("input[type='checkbox']")).each(function () {
+                    $(this).prop('checked', true);
+                });
+            }
+            if (obj.name == 'pmenu' && obj.checked == false) {
+                $($("input[type='checkbox']")).each(function () {
+                    $(this).removeAttr("checked");
+                });
+            }
+
+            var uids = "";
+            $($("input[type='checkbox']")).each(function () {
+                if (this.checked == true && this.name != 'pmenu') {
+                    uids += this.id + ",";
+                }
+            });
+            $("#" + id).val(uids);
+        }
+    </script>
+    <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5>{% block list_title %}{% endblock %}{% block subtitle %}{% endblock %}</h5>
+                    </div>
+                    <div class="ibox-content">
+                        <form method="get">
+                            <div class="row">
+                                {% for field in filter_form %}
+                                    <div class="col-sm-2">
+                                        {% render_field field placeholder=field.label class+='form-control m-b' %}
+                                    </div>
+                                {% endfor %}
+                                {% block list_filter %}
+                                {% endblock %}
+                            </div>
+                        </form>
+                        <div class="dataTables_wrapper form-inline">
+                            <div id="msgdiv">
+                                {% if messages %}
+                                    {% for message in messages %}
+                                        <div
+                                                class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %} alert-dismissable">
+                                            <button aria-hidden="true" data-dismiss="alert" class="close" type="button">
+                                                ×
+                                            </button>
+                                            {{ message }}
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            {% block list_content %}
+                            {% endblock %}
+                        </div>
+                        {% include 'common/pagination.html' %}
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+{% endblock %}

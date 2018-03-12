@@ -1,0 +1,26 @@
+<tr>
+    <td>
+        <input type="checkbox" class="i-checks icheck" id="{{ id }}" name="input[]">
+    </td>
+    {% for o in datas %}
+        <td>{{ o }}</td>
+    {% endfor %}
+    <td>
+        {% if edit_url %}
+            <a href="{{ id }}/{{ edit_url }}"
+               class="btn  btn-sm btn-info"><i class="fa fa-edit"></i>编辑</a>
+        {% endif %}
+        {% for o in extra_action %}
+            <a href="{{ o.url }}/?pk={{ id }}"
+               class="btn btn-sm btn-{{ o.btn_style }}"><i class="fa fa-{{ o.icon }}"></i>{{ o.name }}</a>
+        {% endfor %}
+
+
+        {% if delete_id %}
+            <a href="javascript:void(0)"
+               onclick="deleteAction('{{ delete_id }}')"
+               class="btn  btn-sm btn-danger"><i class="fa fa-trash"></i>删除</a>
+        {% endif %}
+    </td>
+</tr>
+

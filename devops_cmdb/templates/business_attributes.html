@@ -1,0 +1,52 @@
+{% extends 'common/basic_layout.html' %}
+{% block content %}
+    <style>
+        td {
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        tr {
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        th {
+            text-align: center;
+            vertical-align: middle;
+        }
+    </style>
+
+    <div class="wrapper wrapper-content animated fadeInRight">
+        <ul id="app_property_tab" class="nav nav-tabs">
+            <li class="active">
+                <a href="#brand" data-toggle="tab" tab="0">
+                     品牌
+                </a>
+            </li>
+            <li>
+                <a href="#group" data-toggle="tab" tab="1">
+                     业务线
+                </a>
+            </li>
+            <li>
+                <a href="#module" data-toggle="tab" tab="2">
+                     业务应用
+                </a>
+            </li>
+        </ul>
+
+        <div id="app_property_Content" class="tab-content">
+            <div class="tab-pane fade in active" id="brand">
+                {% include 'business/business_brand.html' %}
+            </div>
+            <div class="tab-pane fade" id="group">
+
+            </div>
+            <div class="tab-pane fade" id="module">
+
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
