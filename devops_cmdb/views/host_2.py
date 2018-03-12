@@ -26,7 +26,7 @@ class ListView(LoginRequiredMixin, OrderableListMixin, ListView):
             offset = int(req.GET.get('offset',1))
             offset2 = (offset - 1) * 10
             hu = HttpUtils()
-            resultJson = hu.get(serivceName="cmdb", restName="/rest/host/", datas={'offset': offset2, 'limit': PER_PAGE,'go_live':1})
+            resultJson = hu.get(serivceName="cmdb", restName="/rest/host/", datas={'offset': offset2, 'limit': PER_PAGE,'go_live':2})
             list = resultJson.get("results",[])
 
             paginator = Paginator(resultJson.get("results",[]), PER_PAGE)

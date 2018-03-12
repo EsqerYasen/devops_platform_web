@@ -84,3 +84,14 @@ class BusinesAttributessView(LoginRequiredMixin, TemplateView):
         hu = HttpUtils()
         resultJson = hu.get(serivceName="appcenter", restName="/rest/modules/",datas=getData)
         return resultJson
+
+
+class GetGroupsByBrandId(LoginRequiredMixin, JSONResponseMixin, AjaxResponseMixin, View):
+    def get_ajax(self, request, *args, **kwargs):
+        brand_id = request.GET.get("brand_id", 0)
+
+        hu = HttpUtils()
+        resultJson = hu.get(serivceName="appcenter", restName="/rest/groups",
+                            datas={"biz_brand": brand_id, 'limit': 100, "offset": 0, 'is_enabled': 1})
+
+        return self.render_json_response(resultJson["results"])

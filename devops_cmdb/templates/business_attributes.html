@@ -19,17 +19,17 @@
 
     <div class="wrapper wrapper-content animated fadeInRight">
         <ul id="app_property_tab" class="nav nav-tabs">
-            <li class="active">
+             <li {% if tab == '0' %} class="active" {% endif %}>
                 <a href="#brand" data-toggle="tab" tab="0">
                      品牌
                 </a>
             </li>
-            <li>
+            <li {% if tab == '1' %} class="active" {% endif %}>
                 <a href="#group" data-toggle="tab" tab="1">
                      业务线
                 </a>
             </li>
-            <li>
+            <li {% if tab == '2' %} class="active" {% endif %}>
                 <a href="#module" data-toggle="tab" tab="2">
                      业务应用
                 </a>
@@ -37,14 +37,108 @@
         </ul>
 
         <div id="app_property_Content" class="tab-content">
-            <div class="tab-pane fade in active" id="brand">
+            <div class="tab-pane fade{% if tab == '0' %} in active{% endif %}" id="brand">
+            {% if tab == '0' %}
                 {% include 'business/business_brand.html' %}
+            {% endif %}
             </div>
-            <div class="tab-pane fade" id="group">
-
+            <div class="tab-pane fade{% if tab == '1' %} in active{% endif %}" id="group">
+            {% if tab == '1' %}
+                {% include 'business/business_group.html' %}
+            {% endif %}
             </div>
-            <div class="tab-pane fade" id="module">
+            <div class="tab-pane fade{% if tab == '2' %} in active{% endif %}" id="module">
+            {% if tab == '2' %}
+                {% include 'business/business_module.html' %}
+            {% endif %}
+            </div>
+        </div>
+    </div>
 
+    <script>
+         $(document).ready(function () {
+             $(".i-checks").iCheck({checkboxClass: "icheckbox_square-green", radioClass: "iradio_square-green",})
+             $('#checkall').on('ifChecked', function (event) {
+                 $('.icheck').iCheck('check');
+             });
+             $('#checkall').on('ifUnchecked', function (event) {
+                 $('.icheck').iCheck('uncheck');
+             });
+             tabShowEvent();
+         })
+
+        function tabShowEvent(){
+            $('a[data-toggle="tab"]').on('show.bs.tab', function (e) {
+                var activeTab = $(e.target);  // 获取已激活的标签页
+                window.location.href = "/cmdb/business/attributes_view/?tab="+activeTab.attr("tab");
+            })
+        }
+
+    </script>
+
+    <div class="modal fade" id="business_attributes_modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document" style="width: 500px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel"><label id="labOptName"></label> 新增</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                 <div class="modal-body" >
+                    <form id="app_property_form" class="form-horizontal">
+                        {% if tab == '1' or tab == '2' %}
+                         <div class="form-group" >
+                             <label class="col-lg-3 control-label" style="width: 22%">
+                                 *品牌
+                             </label>
+                             <div class="col-lg-5" style="width: 78%">
+                                 <select id="pro_modal_biz_brand_id" name="biz_brand_id" class="form-control" onchange="brandChange(this,'pro_modal_biz_group_id')">
+                                      {% for obj in brand_list %}
+                                          {% if forloop.first %}
+                                            <option value="" >----请选择品牌----</option>
+                                          {% endif %}
+                                          <option value="{{ obj.id }}" >{{ obj.name }}</option>
+                                      {% endfor %}
+                                 </select>
+                             </div>
+                        </div>
+                        {% endif %}
+                        {% if tab == '2' %}
+                        <div class="form-group" >
+                             <label class="col-lg-3 control-label" style="width: 22%">
+                                 *业务线
+                             </label>
+                             <div class="col-lg-5" style="width: 78%">
+                            <select id="pro_modal_biz_group_id" name="biz_group_id" class="form-control" >
+                                <option value="" >----请选择业务线----</option>
+                            </select>
+                            </div>
+                        </div>
+                        {% endif %}
+                        <div class="form-group" >
+                             <label class="col-lg-3 control-label" style="width: 22%">
+                                 *名称
+                             </label>
+                             <div class="col-lg-5" style="width: 78%">
+                                <input type="hidden" id="pro_modal_id" name="id" value="">
+                                <input type="text" id="pro_modal_name" name="name" class="form-control" value=""/>
+                             </div>
+                        </div>
+                        <div class="form-group">
+                             <label class="col-lg-3 control-label" style="width: 22%">
+                                 *Key Code
+                             </label>
+                             <div class="col-lg-5" style="width: 78%">
+                                <input type="text" id="pro_modal_key_code" name="key_code" class="form-control" value=""/>
+                             </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" title="确定执行" onclick="appProSave()">确定</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                </div>
             </div>
         </div>
     </div>

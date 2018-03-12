@@ -211,3 +211,5 @@ LOGGING = {
 
 
 PER_PAGE = 10
+
+UPLOAD_SCRIPT_PATH = "/opt/devops/filetrunk/"

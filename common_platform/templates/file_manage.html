@@ -1,0 +1,285 @@
+<!-- 文件上传页面 -->
+
+{% extends 'common/basic_layout.html' %}
+
+{% block content %}
+<script type="text/javascript" src="/static/hplus/js/fileinput.min.js"></script>
+<script type="text/javascript" src="/static/hplus/js/fileinput.zh.js"></script>
+<script type="text/javascript" src="/static/hplus/js/zTree/jquery.ztree.core.js"></script>
+<script type="text/javascript" src="/static/hplus/js/zTree/jquery.ztree.excheck.js"></script>
+<script type="text/javascript" src="/static/hplus/js/zTree/jquery.ztree.exedit.js"></script>
+<link href="/static/hplus/css/fileinput.min.css" rel="stylesheet">
+<link href="/static/hplus/css/zTree/bootstrapStyle.css" rel="stylesheet">
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="ibox-content">
+        <form method="post" class="form-horizontal">
+            <table width="100%">
+                <tr>
+                    <td>
+                        <ul id="file_tree" class="ztree"></ul>
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+</div>
+
+
+<div class="modal fade" id="upload_file_modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">选择本地文件</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" style="max-height: 200px;overflow:auto">
+          <div class="form-group">
+              <input id='file_upload' type='file' placeholder='本地文件'>
+          </div>
+          <div class="form-group">
+              <input id='tag_name' class="form-control" type='text' placeholder='请输入Tag名称' value="">
+          </div>
+          <div class="form-group">
+              <input id='script_param' class="form-control" type='text' placeholder='请输入脚本参数' value="">
+          </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+        <button type="button" class="btn btn-primary" title="确定上传" onclick="upload_file()">确定</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="create_folder_modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">选择本地文件</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" style="max-height: 100px;overflow:auto">
+          <form id="create_folder_form">
+              <input id='treeNodeName' name="treeNodeName" class="form-control" type='text' placeholder='请输入文件夹名称' value="">
+          </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+        <button type="button" class="btn btn-primary" title="确定创建文件夹" onclick="create_folder()">确定</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+    <script>
+        var filezNodes = [];
+        $(document).ready(function () {
+            fileTreeDateInit();
+            initUploadFile();
+        })
+
+        function initUploadFile(){
+            $(":file").fileinput({
+                showPreview: false,
+                showUpload: false,
+                elErrorContainer: '#kartik-file-errors',
+                allowedFileExtensions: ['sh', 'py', 'gz','zip','yaml','yml'],
+                maxFilesNum:1,
+                language:'zh'
+            });
+        }
+
+        function fileTreeDateInit() {
+            filezNodes = [];
+            $.ajax({
+                type: "GET",
+                url: '/platform/file_manage/get_fileTree_ajax/',
+                data:{},
+                error: function (request) {},
+                success: function (data) {
+                    readFileTreeNext(data.data,{path:'/'});
+                    filezTreeInit();
+                }
+            })
+        }
+
+        function readFileTreeNext(list,parentNode){
+            $(list).each(function(i,item){
+                var nodeData = {id:item.id,pId:item.parent_id,name:item.name,file_type:item.file_type,node_type:item.type,open:true,title:item.name+'11111111111'} //iconSkin
+                if(parentNode.path)
+                    nodeData.path = parentNode.path+item.name+"/"
+                if(item.appId){
+                    nodeData.appId = item.appId
+                }
+                filezNodes.push(nodeData)
+                if(item.childs){
+                    readFileTreeNext(item.childs,nodeData)
+                }
+            })
+        }
+
+        function filezTreeInit(){
+            var setting = {
+                view: {
+                    addHoverDom: addHoverDom,
+                    removeHoverDom: removeHoverDom,
+                    selectedMulti: false,
+                },
+                check: {
+                    enable: false
+                },
+                data: {
+                    simpleData: {
+                        enable: true
+                    },
+                    showTitle:true,
+                    key: {
+                        title:"title"
+                    }
+                },
+                edit: {
+                    enable: true,
+                    showRenameBtn:false,
+                    removeTitle:'删除'
+                },
+                callback: {
+                    beforeRemove: beforeRemove,
+                }
+            };
+            var tree = $.fn.zTree.init($("#file_tree"), setting, filezNodes);
+        }
+        function addHoverDom(treeId, treeNode) {
+            var sObj = $("#" + treeNode.tId + "_span");
+            if (treeNode.editNameFlag || $("#addBtn_"+treeNode.tId).length>0 || treeNode.node_type == 1) return;
+            var addStr = "<span class='button add' id='addBtn_" + treeNode.tId
+                + "' title='新建文件夹' onfocus='this.blur();'></span>";
+
+            var uploadFile = "<span class='button add' id='uploadBtn_"+ treeNode.tId + "' title='上传文件' onfocus='this.blur();'></span>";
+
+            sObj.after(addStr+uploadFile);
+            var btn = $("#addBtn_"+treeNode.tId);
+            if (btn) btn.bind("click", function(){
+                var modal = $("#create_folder_modal");
+                modal.data('treeNode',treeNode);
+                modal.modal('show');
+
+                $("#addBtn_"+treeNode.tId).unbind().remove();
+                $("#uploadBtn_"+treeNode.tId).unbind().remove();
+            });
+
+            btn = $("#uploadBtn_"+treeNode.tId);
+            if (btn) btn.bind("click", function(){
+                var zTree = $.fn.zTree.getZTreeObj("file_tree");
+                var modal = $("#upload_file_modal");
+                modal.data('treeNode',treeNode);
+                modal.modal('show');
+
+                $("#addBtn_"+treeNode.tId).unbind().remove();
+                $("#uploadBtn_"+treeNode.tId).unbind().remove();
+            });
+        }
+
+        function removeHoverDom(treeId, treeNode) {
+            $("#addBtn_"+treeNode.tId).unbind().remove();
+            $("#uploadBtn_"+treeNode.tId).unbind().remove();
+        }
+
+        function beforeRemove(treeId,treeNode){
+            return true;
+        }
+
+        function upload_file(){
+            var files = $("#file_upload")[0].files
+            if(files.length == 0){
+                Alertwin.alert({message:"请选择需要上传的文件"});
+                return;
+            }
+            var script_param = $("#script_param").val();
+            var tag_name = $("#tag_name").val();
+
+            var modal = $("#upload_file_modal");
+            var treeNode = modal.data('treeNode');
+            var path = treeNode.path;
+            var fileName = files[0].name;
+            var file_type = 1;
+            if(fileName.indexOf('yaml') || fileName.indexOf('yml')){
+                file_type = 2;
+            }
+            var saveJson = {'parent_id':treeNode.id,'name':fileName,"type":1,"tag":tag_name,'default_parameter':script_param,'file_type':file_type}
+
+            var formData = new FormData();
+            formData.append('files',files[0]);
+            formData.append("csrfmiddlewaretoken",'{{ csrf_token }}');
+            formData.append("path",path);
+            formData.append("saveJson",JSON.stringify(saveJson));
+
+            $.ajax({
+                url : '/platform/file_manage/uploadFile/',
+                type : 'POST',
+                processData : false,
+                contentType : false,
+                data: formData,
+                beforeSend:function(){
+                    //Alertwin.alert({ message:"正在进行，请稍候"});
+                },
+                success : function(data) {
+                    if(data.status == 'SUCCESS'){
+{#                        var generateId = new Date().valueOf();#}
+{#                        var zTree = $.fn.zTree.getZTreeObj("file_tree");#}
+{#                        zTree.addNodes(treeNode, {id:generateId, pId:treeNode.id, name:fileName,node_type:1,file_type:file_type});#}
+
+                        Alertwin.alert({message:"上传成功"});
+                        modal.modal('hide');
+                        location.reload()
+                    }else{
+                        Alertwin.alert({message:"上传失败"});
+                    }
+                },
+                error : function(responseStr) {
+                    console.log(responseStr);
+                }
+            });
+
+        }
+
+        function create_folder(){
+            var modal = $("#create_folder_modal");
+            var treeNode = modal.data('treeNode');
+            var treeNodeName = $("#treeNodeName").val();
+            var path = treeNode.path+treeNodeName
+
+            if(!treeNodeName){
+                 Alertwin.alert({message:"请填写新建文件夹名称"});
+                 return;
+            }
+
+            var saveJson = {'parent_id':treeNode.id,'name':treeNodeName,"type":0}
+
+            $.ajax({
+                type: "POST",
+                async:false,
+                url: '/platform/file_manage/create_folder/',
+                data:{'saveJson':JSON.stringify(saveJson),'path':path,"csrfmiddlewaretoken":'{{ csrf_token }}'},
+                error: function (request) {},
+                success: function (data) {
+                    if(data.status == 'SUCCESS'){
+{#                        var generateId = new Date().valueOf();#}
+{#                        var zTree = $.fn.zTree.getZTreeObj("file_tree");#}
+{#                        zTree.addNodes(treeNode, {id:generateId, pId:treeNode.id, name:treeNodeName,node_type:0});#}
+                        modal.modal('hide');
+                        location.reload()
+                    }else{
+                        Alertwin.alert({message:"创建文件夹失败"});
+                    }
+
+                }
+            })
+        }
+
+    </script>
+
+{% endblock %}

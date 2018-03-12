@@ -2,18 +2,32 @@
     <div class="row">
         <div class="col-sm-12">
             <div class="ibox float-e-margins">
-{#                <div class="ibox-title">品牌</div>#}
                 <div class="ibox-content">
                     <form method="get">
                         <div class="row">
                             <div class="col-sm-2">
-                                <input type="hidden" name="tab" value="0">
-                                <input type="text" name="name" class="form-control m-b" placeholder="品牌名称" id="name">
+                                <input type="hidden" name="tab" value="2">
+                                <input type="text" name="name" class="form-control m-b" placeholder="业务应用名称" id="name">
+                            </div>
+                            <div class="col-sm-2">
+                                <select id="biz_brand_id" name="biz_brand_id" class="form-control" onchange="brandChange(this,'biz_group_id')">
+                                  {% for obj in brand_list %}
+                                      {% if forloop.first %}
+                                        <option value="" >----请选择品牌----</option>
+                                      {% endif %}
+                                      <option value="{{ obj.id }}" >{{ obj.name }}</option>
+                                  {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-sm-2">
+                                <select id="biz_group_id" name="biz_group_id" class="form-control" >
+                                    <option value="" >----请选择业务线----</option>
+                                </select>
                             </div>
                             <div class="col-sm-6">
                                 <div class="input-group">
                                     <button type="submit" class="btn btn-sm btn-primary" style="margin-right: 10px"><i class="fa fa-search"></i> 搜索</button>
-                                    <button type='button' data-toggle='modal' data-target='#business_attributes_modal' data-tab="0" data-isadd="1" class="btn btn-sm btn-primary">
+                                    <button type='button' data-toggle='modal' data-target='#business_attributes_modal' data-isadd="1" data-tab="2" class="btn btn-sm btn-primary">
                                         <span class="glyphicon glyphicon-save" aria-hidden="true"></span>新增
                                     </button>
                                 </div>
@@ -42,13 +56,13 @@
                                     <td>{{ o.key_code }}</td>
                                     <td>{{ o.create_time }}</td>
                                     <td>
-                                        <button type='button'  data-toggle='modal' data-target='#business_attributes_modal' data-id ='{{ o.id }}' data-tab="0" data-isadd="0" data-name='{{ o.name }}' data-keycode='{{ o.key_code }}' class="btn btn-sm btn-primary">
+                                        <button type='button'  data-toggle='modal' data-target='#business_attributes_modal' data-id ='{{ o.id }}' data-isadd="0" data-tab="2" data-bizbrandid="{{ o.biz_brand_id }}" data-bizgroupid="{{ o.biz_group_id }}" data-name='{{ o.name }}' data-keycode='{{ o.key_code }}' class="btn btn-sm btn-primary">
                                             <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>修改
                                         </button>
-                                        <a href="javascript:void(0)" onclick="appProDelAction('{{ o.id }}','0')" class="btn  btn-sm btn-danger"><i class="fa fa-trash"></i>&nbsp;删除</a>
+                                        <a href="javascript:void(0)" onclick="appProDelAction('{{ o.id }}','2')" class="btn  btn-sm btn-danger"><i class="fa fa-trash"></i>&nbsp;删除</a>
                                     </td>
                                 </tr>
-                                {% endfor %}
+                            {% endfor %}
                             </tbody>
                         </table>
                     </div>
@@ -58,4 +72,23 @@
         </div>
     </div>
 </div>
+<script>
 
+    function brandChange(sel,g_id){
+            $.ajax({
+                type: "GET",
+                url: '/cmdb/business/get_groups_by_brandId/',
+                async:false,
+                data:{"brand_id":$(sel).val()},
+                error: function (request) {},
+                success: function (data) {
+                    var select_obj = $("#"+g_id);
+                    select_obj.empty();
+                     select_obj.append("<option value=''>-----请选择业务线----</option>");
+                    $(data).each(function(index,item){
+                         select_obj.append("<option value='"+item.id+"' keycode='"+item.key_code+"'>"+item.name+"</option>");
+                    })
+                }
+            })
+    }
+</script>

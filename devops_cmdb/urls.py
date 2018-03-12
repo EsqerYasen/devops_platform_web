@@ -9,5 +9,6 @@ urlpatterns = [
     ])),
     url(r'^business/', include([
         url(r'^attributes_view/', business_brand.BusinesAttributessView.as_view(), name='attributes_view'),
+        url(r'^get_groups_by_brandId/', business_brand.GetGroupsByBrandId.as_view(), name='get_groups_by_brandId'),
     ])),
 ]
