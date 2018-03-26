@@ -16,7 +16,7 @@ class FileManageView(LoginRequiredMixin, TemplateView):
 
 class FileTreeView(LoginRequiredMixin,JSONResponseMixin, AjaxResponseMixin, View):
     def get_ajax(self, request, *args, **kwargs):
-        hu = HttpUtils()
+        hu = HttpUtils(request)
         resultJson = hu.get(serivceName="job", restName="/rest/file/list_tree/", datas={})
         return self.render_json_response(resultJson)
 
@@ -26,7 +26,7 @@ class FileTreeCreateFolder(LoginRequiredMixin,JSONResponseMixin, AjaxResponseMix
         path = request.POST.get('path',None)
         resultJson = {}
         if path:
-            hu = HttpUtils()
+            hu = HttpUtils(request)
             result = hu.post(serivceName="job", restName="/rest/file/add/", datas=saveJson)
             resultJson = result.json()
             if resultJson['status'] == "SUCCESS":
@@ -46,7 +46,7 @@ class FileTreeUploadFile(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin
         resultJson = {}
         if path:
             saveJson = request.POST.get("saveJson",None)
-            hu = HttpUtils()
+            hu = HttpUtils(request)
             result = hu.post(serivceName="job", restName="/rest/file/add/", datas=saveJson)
             resultJson = result.json()
             if resultJson['status'] == "SUCCESS":

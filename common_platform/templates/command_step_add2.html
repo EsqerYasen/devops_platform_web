@@ -1,0 +1,683 @@
+<style>
+    .wrap {
+        /* margin: 10px auto; */
+            padding: 2px;
+            border: 1px solid #ccc;
+            overflow: auto;
+            overflow-x: hidden;
+            position: relative;
+        }
+   .wrap ul {
+            padding: 0;
+            margin: 0;
+        }
+
+   .wrap li {
+        /*padding: 5px;*/
+        margin-top: 2px;
+        border: 1px solid #ccc;
+        /*border-bottom: 1px solid #ccc; */
+        font: 14px/1.5 "微软雅黑";
+        list-style: none;
+        cursor: move;
+    }
+
+    li:hover {
+        background-color: #f6f6f6;
+    }
+
+    .parent{
+        /*position: absolute;*/
+        width: 42px;
+        height: 42px;
+    }
+    .parent .text{
+        display: inline-block;
+        transform: rotate(-45deg);
+        position: absolute;
+        /*padding: 20px; */
+        color: #fff;
+        padding-left: 0px;
+        z-index: 100;
+    }
+    .triangle-topleft{
+        width: 0;
+        height: 0;
+        /*border-top: 42px solid #0d8ddb;
+        position: absolute; */
+        border-right: 42px solid transparent;
+        top: 0;
+        z-index: 5;
+    }
+
+</style>
+
+<div class="form-group">
+     <label class="col-sm-2 control-label" style="width: 10%"> 步骤配置</label>
+     <div class="col-sm-10" style="width: 85%">
+        <div id="step_div" class="wrap">
+            <ul></ul>
+        </div>
+        <div class="btn-group">
+              <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>新增步骤 <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu">
+                <li><a href="javascript:void(0);" onclick="add_step_file_type()">文件传输</a></li>
+                <li><a href="javascript:void(0);" onclick="add_step_Script_type()">脚本命令</a></li>
+              </ul>
+        </div>
+     </div>
+ </div>
+
+ <script>
+    $(document).ready(function () {
+        add_step_Script_type();
+
+        $('#step_div').DDSort({
+             target: 'li',		// 示例而用，默认即 li，
+             delay: 100,         // 延时处理，默认为 50 ms，防止手抖点击 A 链接无效
+             floatStyle: {
+                 'border': '1px solid #ccc',
+                 'background-color': '#fff'
+             }
+        })
+
+        $("#add_tree_modal").on('show.bs.modal',function(event){
+            var datas = $(event.relatedTarget).data();
+            var gid = datas['gid'];
+            $('#add_tree_modal').data('gid',gid);
+
+            var selTreeNodeIds = $("#selTreeNodeIds"+gid);
+            var tabName = selTreeNodeIds.attr("tabName");
+            var appIds = $("#target_app_ids"+gid).val();
+            var host_filter = $("#host_filter"+gid).val();
+            if(host_filter){
+                $("#hostFilterSel").val(host_filter);
+            }
+            if(tabName.indexOf('group')>0){
+                 var chosenSelectGroup = $("#chosen-select_group");
+                 var sleNodeIds = selTreeNodeIds.val();
+                 if(sleNodeIds){
+                     $(sleNodeIds.split(',')).each(function(i,item){
+                        chosenSelectGroup.find("option[value='"+item+"']").attr("selected",true);
+                     })
+                 }
+                 $("#chosen-select_group").trigger("liszt:updated");
+                 $('#myTab a[href="#group"]').tab('show');
+            }else{
+                var selIds = [];
+                var tree = $.fn.zTree.getZTreeObj("tree_ul");
+                if(appIds){
+                    selIds = appIds.split(',');
+                    $(selIds).each(function(i,item){
+                        if(item){
+                            tree.checkNode(tree.getNodeByParam("appId",item), true, true);
+                        }
+                    })
+                }
+                $('#myTab a[href="#tree"]').tab('show')
+            }
+
+             //zTreeInit(event);
+        })
+        $("#add_tree_modal").on('hide.bs.modal',function(event){
+            var select_group =  $("#chosen-select_group");
+             select_group.val('');
+             select_group.trigger("liszt:updated");
+             $.fn.zTree.getZTreeObj("tree_ul").checkAllNodes(false);
+             $("#hostIpTb tbody").empty();
+             $("#hostFilterSel").val(3);
+        })
+
+        $("#select_file_modal").on('show.bs.modal',function(event){
+             var datas = $(event.relatedTarget).data();
+             var gid = datas['gid'];
+             $('#select_file_modal').data('gid',gid);
+        })
+
+        fileTreeDateInit();
+
+        treeDateInit();
+
+        initAppGroup();
+    })
+
+    function renderFileElement(fileId){
+        $("#"+fileId).fileinput({
+            showPreview: false,
+            showUpload: false,
+            elErrorContainer: '#kartik-file-errors',
+            allowedFileExtensions: ['sh', 'py', 'gz','zip'],
+            maxFilesNum:1,
+            msgFilesTooLess:'test.sh',
+            language:'zh',
+            uploadExtraData:''
+        });
+
+        /*
+       $('.collapse').on('hide.bs.collapse', function (e) {
+            debugger
+       })
+       $('.collapse').on('shown.bs.collapse', function () {
+            debugger
+       })
+       */
+
+    }
+
+    function add_step_Script_type(){
+        var generateId = new Date().valueOf();
+
+        var script_html = "<li tag='0' gid='"+generateId+"'>\n" +
+        "                    <div class='panel' style='margin-bottom:0px'>\n" +
+        "                        <div class='panel-heading' style='background-color: #00d95a;padding: 0px 0px;height: 42px'>\n" +
+        "                            <table width='100%' height='100%'>\n" +
+        "                                <tr>\n" +
+        "                                    <td width='8%'>\n" +
+        "                                        <div class='parent'>\n" +
+        "                                            <span class='text'>脚本</span>\n" +
+        "                                            <div class='triangle-topleft' style='border-top: 42px solid #C52727;'></div>\n" +
+        "                                        </div>\n" +
+        "                                    </td>\n" +
+        "                                    <td width='10%'>命令脚本</td>\n" +
+        "                                    <td width='50%'>" +
+        "                                        <input type='text' id='stepName"+generateId+"' value='' class='form-control' style='width: 40%' placeholder='步骤名称'/>" +
+        "                                        <input type='hidden' id='selTreeNodeIds"+generateId+"' tabName='' value=''/>"+
+        "                                        <input type='hidden' id='target_app_ids"+generateId+"' value=''/>"+
+        "                                        <input type='hidden' id='host_filter"+generateId+"' value=''/>"+
+{#        "                                        <input type='hidden' id='step_id' value=''/>" +#}
+        "                                        <input type='hidden' id='ids"+generateId+"' value=''/>" +
+        "                                    </td>\n" +
+        "                                    <td width='32%'>\n" +
+        "                                        <button type='button' class='btn btn-sm btn-warning' data-toggle='modal' data-gid='"+generateId+"' data-target='#add_tree_modal' style='margin-top: 5px;margin-right: 10px'>选机器</button>\n" +
+        "                                        <a data-toggle='collapse' data-parent='' href='#step"+generateId+"' class='btn btn-sm btn-warning' style='margin-top: 5px;margin-right: 10px'><i class='fa fa-chevron-down'></i> 展开</a>\n" +
+        "                                        <a href='javascript:void(0);' class='btn  btn-sm btn-warning' style='margin-top: 5px;margin-right: 10px' onclick='delStepNode(this)'><i class='fa fa-trash'></i> 删除</a>\n" +
+        "                                    </td>\n" +
+        "                                </tr>\n" +
+        "                            </table>\n" +
+        "                        </div>\n" +
+        "                        <div id='step"+generateId+"' class='panel-body accordion-body collapse' style='height: 0px;'>\n" +
+        "                            <table id='tb"+generateId+"' width='100%' style='border-spacing:0px 10px;'>\n" +
+{#        "                               <tr tag='2' gid='"+generateId+"'>" +#}
+{#        "                                   <td width='45%'>" +#}
+{#        "                                       <input id='file_path"+generateId+"' name='script1' type='text' class='form-control' style='width: 99%' placeholder='远程脚本路径'>" +#}
+{#        "                                   </td>" +#}
+{#        "                                   <td width='45%'>"+#}
+{#        "                                       <input type='text' id='param"+generateId+"' value='' class='form-control' style='width: 99%' placeholder='执行参数'>" +#}
+{#        "                                   </td>" +#}
+{#        "                                   <td>" +#}
+{#        "                                       <a href='javascript:void(0);' class='btn  btn-sm btn-warning' style='margin-top: 5px;margin-right: 10px' onclick='delTbTr(this)'><i class='fa fa-trash'></i> 删除</a>" +#}
+{#        "                                   </td>" +#}
+{#        "                               </tr>"+#}
+        "                            </table>\n" +
+        "                            <div>\n" +
+{#        "                               <a href='javascript:void(0);' class='btn btn-sm btn-info' onclick='add_local_script(\""+generateId+"\")'>选择脚本</a>\n" +#}
+        "                                 <button type='button' class='btn btn-sm btn-info' data-toggle='modal' data-gid='"+generateId+"' data-target='#select_file_modal'>选择脚本</button>"+
+        "                               <a href='javascript:void(0);' class='btn btn-sm btn-info' onclick='add_remote_script(\""+generateId+"\")'>远程脚本</a>\n" +
+        "                            </div>" +
+        "                        </div>\n" +
+        "                    </div>\n" +
+        "                </li>";
+        $("#step_div > ul").append(script_html);
+        renderFileElement("file"+generateId);
+    }
+
+    function add_step_file_type(){
+        var generateId = new Date().valueOf();
+        var file_html = "<li tag='1' gid='"+generateId+"'>\n" +
+            "    <div class='panel' style='margin-bottom:0px'>\n" +
+            "       <div class='panel-heading'  style='background-color:#0e9aef ;padding: 0px 0px;height: 42px'>\n" +
+            "           <table width='100%' height='100%' style='border-spacing:0px 10px;'>\n" +
+            "            <tr>\n" +
+            "               <td width='8%'>\n" +
+            "                   <div class='parent'>\n" +
+            "                   <span class='text'>文件</span>\n" +
+            "                   <div class='triangle-topleft' style='border-top: 42px solid #C52727;'></div>\n" +
+            "                   </div>\n" +
+            "               </td>\n" +
+            "               <td width='10%'>文件传输</td>\n" +
+            "               <td width='50%'>" +
+            "                   <input type='text' id='stepName"+generateId+"' value='' class='form-control' style='width: 40%' placeholder='步骤名称'/>" +
+{#            "                   <input type='hidden' id='step_id' value=''" +#}
+            "                   <input type='hidden' id='ids"+generateId+"' value=''/>" +
+            "                   <input type='hidden' id='host_filter"+generateId+"' value=''/>"+
+            "                   <input type='hidden' id='selTreeNodeIds"+generateId+"' tabName='' value=''/>"+
+            "                   <input type='hidden' id='target_app_ids"+generateId+"' value=''/>"+
+            "               </td>\n" +
+            "               <td width='32%'>\n" +
+            "                   <button type='button' class='btn btn-sm btn-warning' data-toggle='modal' data-gid='"+generateId+"' data-target='#add_tree_modal' style='margin-top: 5px;margin-right: 10px'>选机器</button>\n" +
+            "                   <a data-toggle='collapse' data-parent='' href='#step"+generateId+"' class='btn btn-sm btn-warning' style='margin-top: 5px;margin-right: 10px'><i class='fa fa-chevron-down'></i> 展开</a>\n" +
+            "                   <a href='javascript:void(0);' class='btn btn-sm btn-warning' style='margin-top: 5px;margin-right: 10px' onclick='delStepNode(this)'><i class='fa fa-trash'></i> 删除</a>\n" +
+            "               </td>\n" +
+            "              </tr>\n" +
+            "           </table>\n" +
+            "       </div>\n" +
+            "       <div id='step"+generateId+"' class='panel-body accordion-body collapse' style='height: 0px;'>\n" +
+            "            <table id='tb"+generateId+"' width='100%' style='border-spacing:0px 10px;'>\n" +
+            "                <tr tag='0' gid='"+generateId+"'>" +
+            "                   <td width='45%'>" +
+            "                      <input id='file"+generateId+"' type='file' >" +
+            "                   </td>" +
+            "                   <td width='45%'>"+
+            "                      <input type='text' id='file_path"+generateId+"' value='' class='form-control' style='width: 99%' placeholder='目标路径'>" +
+            "                   </td>" +
+            "                   <td>" +
+            "                      <a href='javascript:void(0);' class='btn  btn-sm btn-warning' style='margin-top: 5px;margin-right: 10px' onclick='delTbTr(this)'><i class='fa fa-trash'></i> 删除</a>" +
+            "                   </td>" +
+            "                </tr>"+
+            "           </table>\n" +
+            "           <div>\n" +
+            "             <a href='javascript:void(0);' class='btn btn-sm btn-info' onclick='add_local_file(\""+generateId+"\")'>本地文件</a>\n" +
+            "             <a href='javascript:void(0);' class='btn btn-sm btn-info' onclick='add_remote_file(\""+generateId+"\")'>远程文件</a>\n" +
+            "           </div>" +
+            "       </div>\n" +
+            "     </div>\n" +
+            " </li>";
+        $("#step_div > ul").append(file_html);
+         renderFileElement("file"+generateId);
+    }
+
+    /*
+    function callapseClick(obj){
+        var i = $(obj).find('i')
+        if($(i).hasClass('fa-chevron-down')){
+            $(obj).html("<i class='fa fa-chevron-up'></i> 收起")
+        }else{
+            $(obj).html("<i class='fa fa-chevron-down'></i> 展开")
+        }
+    }
+    */
+
+    function delStepNode(obj){
+        if($(obj).parents('ul').find('li').length > 1){
+            $(obj).parents('li')[0].remove();
+        }
+    }
+
+    function add_local_script(gid,nodes){
+        var generateId = new Date().valueOf();
+        var param = "";
+        if(nodes.default_parameter){
+            param = nodes.default_parameter
+        }
+        var tag = 0;
+        if(nodes.file_type == 2){
+            tag = 2;
+        }
+        var tr_html = "<tr tag='"+tag+"' gid='"+generateId+"'>" +
+        "                <td width='45%'>" +
+        "                   <input id='file"+generateId+"' fileId='"+nodes.id+"' name='script1' type='text' value='"+nodes.name+"' filePath='"+nodes.path+"' class='form-control' readonly >" +
+        "                </td>" +
+        "                <td width='45%'>"+
+        "                   <input type='text' id='param"+generateId+"' name='script2' value='"+param+"' class='form-control' style='width: 99%' placeholder='执行参数'>" +
+        "                </td>" +
+        "                <td>" +
+        "                   <a href='javascript:void(0);' class='btn  btn-sm btn-warning' style='margin-top: 5px;margin-right: 10px' onclick='delTbTr(this)'><i class='fa fa-trash'></i> 删除</a>" +
+        "                </td>" +
+        "           </tr>";
+        $("#tb"+gid).append(tr_html);
+        renderFileElement("file"+generateId);
+    }
+
+    function add_remote_script(gid){
+        var generateId = new Date().valueOf();
+        var tr_html = "<tr tag='1' gid='"+generateId+"'>" +
+        "                <td width='45%'>" +
+        "                   <input id='file_path"+generateId+"' name='script1' type='text' class='form-control' style='width: 99%' placeholder='远程脚本路径'>" +
+        "                </td>" +
+        "                <td width='45%'>"+
+        "                   <input type='text' id='param"+generateId+"' name='script2' value='' class='form-control' style='width: 99%' placeholder='执行参数'>" +
+        "                </td>" +
+        "                <td>" +
+        "                   <a href='javascript:void(0);' class='btn  btn-sm btn-warning' style='margin-top: 5px;margin-right: 10px' onclick='delTbTr(this)'><i class='fa fa-trash'></i> 删除</a>" +
+        "                </td>" +
+        "           </tr>";
+        $("#tb"+gid).append(tr_html);
+    }
+
+    function add_local_file(gid){
+        var generateId = new Date().valueOf();
+        var tr_html = "<tr tag='0' gid='"+generateId+"'>" +
+        "                <td width='45%'>" +
+        "                   <input id='file"+generateId+"' name='script1' type='file' >" +
+        "                </td>" +
+        "                <td width='45%'>"+
+        "                   <input type='text' id='file_path"+generateId+"' name='script2' value='' class='form-control' style='width: 99%' placeholder='目标路径'>" +
+        "                </td>" +
+        "                <td>" +
+        "                   <a href='javascript:void(0);' class='btn  btn-sm btn-warning' style='margin-top: 5px;margin-right: 10px' onclick='delTbTr(this)'><i class='fa fa-trash'></i> 删除</a>" +
+        "                </td>" +
+        "           </tr>";
+        $("#tb"+gid).append(tr_html);
+        renderFileElement("file"+generateId);
+    }
+
+    function add_remote_file(gid){
+        var generateId = new Date().valueOf();
+        var tr_html = "<tr tag='1' gid='"+generateId+"'>" +
+        "                <td colspan='2' width='90%'>" +
+        "                   <input id='ip"+generateId+"' name='script1' type='text' class='form-control' style='width: 20%;display: -webkit-inline-box' placeholder='IP地址'>" +
+        "                   <input id='file_path"+generateId+"' name='script1' type='text' class='form-control' style='width: 38%;display: -webkit-inline-box' placeholder='远程路径'>" +
+        "                   <input id='file_path2"+generateId+"' name='script2' type='text' class='form-control' style='width: 38%;display: -webkit-inline-box' placeholder='目标路径'>" +
+        "                </td>" +
+        "                <td>" +
+        "                   <a href='javascript:void(0);' class='btn  btn-sm btn-warning' style='margin-top: 5px;margin-right: 10px' onclick='delTbTr(this)'><i class='fa fa-trash'></i> 删除</a>" +
+        "                </td>" +
+        "           </tr>";
+        $("#tb"+gid).append(tr_html);
+    }
+
+    function delTbTr(obj){
+        if($(obj).parents('table').find('tr').length > 1){
+            $(obj).parents('tr')[0].remove();
+        }
+    }
+
+ readTreeNext
+
+{#    function S4() {#}
+{#        return (((1+Math.random())*0x10000)|0).toString(16).substring(1);#}
+{#    }#}
+{##}
+{#    function guid() {#}
+{#        return (S4()+S4()+"-"+S4()+"-"+S4()+"-"+S4()+"-"+S4()+S4()+S4());#}
+{#    }#}
+
+    function readTreeNext(list,pid){
+        $(list).each(function(i,item){
+            var is_open = pid == 0?true:false;
+            var nodeData = {id:item.id,pId:item.pId,name:item.name,nodeType:item.type,nodeId:item.nodeId,open:is_open}
+            if(item.appId){
+                nodeData.appId = item.appId
+            }
+            zNodes.push(nodeData)
+            if(item.next){
+                readTreeNext(item.next,item.pId)
+            }
+        })
+    }
+
+    function zTreeInit(){
+{#        var datas = $(event.relatedTarget).data();#}
+{#        var gid = datas['gid'];#}
+{#        $('#add_tree_modal').data('gid',gid);#}
+{#        var target_app_ids = $('#target_app_ids'+gid).val();#}
+        var setting = {
+            view: {
+                selectedMulti: false
+            },
+            check: {
+                enable: true
+            },
+            data: {
+                simpleData: {
+                    enable: true
+                }
+            },
+            edit: {
+                enable: false
+            }
+        };
+
+        var tree = $.fn.zTree.init($("#tree_ul"), setting, zNodes);
+
+{#        var selIds = [];#}
+{#        if(target_app_ids){#}
+{#            selIds = target_app_ids.split(',');#}
+{#             $(selIds).each(function(i,item){#}
+{#                 if(item){#}
+{#                     tree.checkNode(tree.getNodeByParam("appId",item), true, true);#}
+{#                 }#}
+{#             })#}
+{#        }#}
+    }
+
+    function getTreeCheckNodes(){
+        var treeModal = $('#add_tree_modal');
+        var gid = treeModal.data('gid');
+        var host_filter = $("#hostFilterSel").val();
+        $("#host_filter"+gid).val(host_filter);
+        var tabIds = $("#myTab li[class='active'] a").attr('href');
+        if(tabIds.indexOf('tree') > 0){
+            var treeObj=$.fn.zTree.getZTreeObj("tree_ul");
+            var nodes=treeObj.getCheckedNodes(true);
+            var ids = [];
+            $(nodes).each(function(i,item){
+                if(!item.isParent){
+                    ids.push(item.appId);
+                }
+            });
+            var selTreeNodeIds = $("#selTreeNodeIds"+gid);
+            selTreeNodeIds.attr("tabName",tabIds);
+            selTreeNodeIds.val(ids.toString());
+            $("#target_app_ids"+gid).val(ids.toString());
+        }else{
+            var ids = [];
+            var appIds = [];
+            $("#chosen-select_group").find('option:selected').each(function(i,item){
+                var t = $(item);
+                ids.push(t.val());
+                appIds = appIds.concat(t.attr('appIds').split(','));
+            })
+
+            appIds = appIds.distinct();
+
+            var selTreeNodeIds = $("#selTreeNodeIds"+gid);
+            selTreeNodeIds.attr("tabName",tabIds);
+            selTreeNodeIds.val(ids.toString());
+            $("#target_app_ids"+gid).val(appIds.toString());
+        }
+
+        treeModal.modal('hide');
+    }
+
+    function getFileTreeCheckNodes(){
+        var treeModal = $('#select_file_modal');
+        var gid = treeModal.data('gid');
+
+        var treeObj=$.fn.zTree.getZTreeObj("file_tree");
+        nodes=treeObj.getCheckedNodes(true);
+        var ids = [];
+        $(nodes).each(function(i,item){
+            if(!item.isParent){
+                add_local_script(gid,item);
+            }
+        });
+        treeObj.checkAllNodes(false);
+        treeModal.modal('hide');
+    }
+
+    var filezNodes = []
+    function fileTreeDateInit() {
+        filezNodes = [];
+        $.ajax({
+            type: "GET",
+            url: '/platform/file_manage/get_fileTree_ajax/',
+            data:{},
+            error: function (request) {},
+            success: function (data) {
+                readFileTreeNext(data.data,{path:'/opt/devops/filetrunk'});
+                filezTreeInit();
+            }
+        })
+    }
+
+    function readFileTreeNext(list,parentNode){
+        $(list).each(function(i,item){
+            var nodeData = {id:item.id,pId:item.parent_id,name:item.name,file_type:item.file_type,node_type:item.type,open:true,nocheck:true} //iconSkin
+            if(parentNode.path)
+                var path = parentNode.path + item.name;
+                nodeData.path = parentNode.path + item.name;
+                if(item.childs){
+                    path += "/";
+                }
+                nodeData.path = path
+            if(item.appId){
+                nodeData.appId = item.appId;
+            }
+
+            if(item.type == 1 || item.type == '1'){
+                nodeData.default_parameter = item.default_parameter
+                nodeData.nocheck = false;
+            }
+            filezNodes.push(nodeData)
+            if(item.childs){
+                readFileTreeNext(item.childs,nodeData)
+            }
+        })
+    }
+
+    function filezTreeInit(){
+        var setting = {
+            view: {
+                selectedMulti: false,
+            },
+            check: {
+                enable: true
+            },
+            data: {
+                simpleData: {
+                    enable: true
+                }
+            },
+            edit: {
+                enable: true,
+                showRenameBtn:false,
+                removeTitle:'删除'
+            },
+            callback: {
+
+            }
+        };
+        var tree = $.fn.zTree.init($("#file_tree"), setting, filezNodes);
+    }
+
+    function initAppGroup(){
+        var sel = $("#chosen-select_group");
+        $.ajax({
+            type: "GET",
+            async:false,
+            url: '/appcenter/appgroup/list_ajax/',
+            data:{},
+            error: function (request) {},
+            success: function (data) {
+                $(data).each(function(i,item){
+                    sel.append('<option value="'+item.id+'" appIds="'+item.app_id_list+'">'+item.name+'</option>');
+                })
+            }
+        })
+
+        sel.chosen();
+    }
+
+    function command_set_save(){
+        var saveJson = {}
+        var tStr = $("#command_set_name").val();
+        if(!tStr){
+            Alertwin.alert({ message: "请填写模板名称"});
+            return;
+        }
+        saveJson['name'] = tStr;
+        saveJson['is_enabled'] = $("#is_enabled").val();
+        saveJson['comment'] = $("#comment").val();
+
+        var fileList = [];
+
+        var stepList = [];
+
+        var ul = $("#step_div > ul > li");
+        $(ul).each(function(i,item){
+            var tItem = $(item);
+            var gid = tItem.attr("gid");
+            var type = tItem.attr("tag");
+            var stepDict = {}
+
+            stepDict['seq_no'] = i+1;
+            stepDict['type'] = type;
+            stepDict['name'] = $("#stepName"+gid).val();
+                var target_app_ids = $("#target_app_ids"+gid).val();
+            stepDict['target_app_ids'] = target_app_ids;
+            stepDict['host_filter'] = $("#host_filter"+gid).val();
+            var lineList = []
+            var line = $("#tb"+gid).find("tr");
+
+            $(line).each(function(i2,item2){
+                var tItem2 = $(item2);
+                var type2 = tItem2.attr("tag");
+                var gid2 = tItem2.attr("gid");
+                var lineDict = {}
+                lineDict['type'] = type2;
+                lineDict['sub_seq_no'] = i2+1;
+                //lineDict['target_app_ids'] = target_app_ids;
+                if(type == 0){ //
+                    if(type2 == 0 || type2 == 2){
+                        var files = $("#file"+gid2);
+                        lineDict["file_display_name"] = files.val();
+                        lineDict["source_file_name"] = files.attr("filePath");
+                        lineDict["local_file_id"] = files.attr("fileId");
+                        lineDict["file_deploy_path"] = files.attr("filePath");
+                    }else{
+                        var file_path = $("#file_path"+gid2).val();
+                        lineDict["file_display_name"] = file_path;
+                        lineDict["source_file_name"] = file_path;
+                        lineDict["local_file_id"] = -1;
+                        lineDict["file_deploy_path"] = file_path;
+                    }
+                    lineDict["default_script_parameter"] = $("#param"+gid2).val();
+                }else{
+                    if(type2 == 0 || type2 == 2){
+                        var files = $("#file"+gid2)[0].files;
+                        if(files.length > 0){
+                            lineDict["source_file_name"] = files[0].name;
+                            files[0]['seq_no'] = (i)+","+(i2);
+                            fileList.push(files[0])
+                        }
+                        lineDict["file_deploy_path"] = $("#file_path"+gid2).val();
+                    }else{
+                        lineDict["source_remote_host"] = $("#ip"+gid2).val();
+                        lineDict["source_file_name"] = $("#file_path"+gid2).val();
+                        lineDict["file_deploy_path"] = $("#file_path2"+gid2).val();
+                    }
+                }
+                lineList.push(lineDict)
+            })
+            stepDict['lines'] = lineList;
+            stepList.push(stepDict);
+        })
+
+        saveJson['steps'] = stepList;
+
+        var formData = new FormData();
+
+        for(var i in fileList){
+            formData.append(fileList[i]['seq_no'],fileList[i]);
+        }
+
+        formData.append("csrfmiddlewaretoken",'{{ csrf_token }}')
+        formData.append("command_set",JSON.stringify(saveJson))
+
+        $.ajax({
+            url : '/platform/command_set/add/',
+            type : 'POST',
+            processData : false,
+            contentType : false,
+            data: formData,
+            beforeSend:function(){
+                //Alertwin.alert({ message:"正在进行，请稍候"});
+            },
+            success : function(responseStr) {
+                if(responseStr.status===0){
+                    Alertwin.alert({message:"正在进行，请稍候"});
+                    window.history.go(-1);
+                }else{
+                    Alertwin.alert({message:"失败"});
+                }
+            },
+            error : function(responseStr) {
+                console.log(responseStr);
+            }
+        });
+    }
+
+</script>

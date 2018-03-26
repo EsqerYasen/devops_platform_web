@@ -109,7 +109,7 @@
 
         function readFileTreeNext(list,parentNode){
             $(list).each(function(i,item){
-                var nodeData = {id:item.id,pId:item.parent_id,name:item.name,file_type:item.file_type,node_type:item.type,open:true,title:item.name+'11111111111'} //iconSkin
+                var nodeData = {id:item.id,pId:item.parent_id,name:item.name,file_type:item.file_type,node_type:item.type,open:true,title:item.name} //iconSkin
                 if(parentNode.path)
                     nodeData.path = parentNode.path+item.name+"/"
                 if(item.appId){

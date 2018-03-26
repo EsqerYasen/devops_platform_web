@@ -1,0 +1,159 @@
+{% extends 'common/basic_layout.html' %}
+
+{% block content %}
+    <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5>已上线 机器信息查看</h5>
+                    </div>
+                    <div class="ibox-content">
+                        <div class="panel-group" id="accordion">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" data-parent="" href="#collapseOne">
+                                            机器信息
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div id="collapseOne" class="panel-collapse collapse in">
+                                    <div class="panel-body">
+                                        <div class="row" style="margin-bottom: 10px">
+                                            <label class="col-sm-1 control-label">IP：</label>
+                                            <div class="col-sm-3">
+                                                <input type="text" class="form-control" readonly value="{{ host_info.host_ip }}"/>
+                                            </div>
+                                            <label class="col-sm-1 control-label">主机名：</label>
+                                            <div class="col-sm-3">
+                                                <input type="text" class="form-control" readonly value="{{ host_info.host_name }}"/>
+                                            </div>
+                                            <label class="col-sm-1 control-label">内核版本：</label>
+                                            <div class="col-sm-3">
+                                                <input type="text" class="form-control" readonly value="{{ host_info.kernel_release }}"/>
+                                            </div>
+                                        </div>
+                                        <div class="row" style="margin-bottom: 10px">
+                                            <label class="col-sm-1 control-label">内核：</label>
+                                            <div class="col-sm-3">
+                                                <input type="text" class="form-control" readonly value="{{ host_info.kernel }}"/>
+                                            </div>
+                                            <label class="col-sm-1 control-label">系统：</label>
+                                            <div class="col-sm-3">
+                                                <input type="text" class="form-control" readonly value="{{ host_info.os }}"/>
+                                            </div>
+                                            <label class="col-sm-1 control-label">CPU：</label>
+                                            <div class="col-sm-3">
+                                                <input type="text" class="form-control" readonly value="{{ host_info.num_cpus }}"/>
+                                            </div>
+                                        </div>
+                                        <div class="row" style="margin-bottom: 10px">
+                                            <label class="col-sm-1 control-label">内存：</label>
+                                            <div class="col-sm-3">
+                                                <input type="text" class="form-control" readonly value="{{ host_info.mem_total }}"/>
+                                            </div>
+                                            <label class="col-sm-1 control-label">SWAP：</label>
+                                            <div class="col-sm-3">
+                                                <input type="text" class="form-control" readonly value="{{ host_info.swap }}"/>
+                                            </div>
+                                            <label class="col-sm-1 control-label">MAC：</label>
+                                            <div class="col-sm-3">
+                                                <input type="text" class="form-control" readonly value="{{ host_info.mac }}"/>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <label class="col-sm-1 control-label">TAG：</label>
+                                            <div class="col-sm-11">
+                                                <textarea id="tag_2" name="tag"  class="form-control" style="height: 55px;resize:none;" readonly>{{ host_info.tag }}</textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" data-parent="" href="#collapseTwo">
+                                            业务信息
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div id="collapseTwo" class="panel-collapse collapse in">
+                                    <div class="panel-body">
+                                        <div class="row" style="margin-bottom: 10px">
+                                            <label class="col-sm-1 control-label">品牌：</label>
+                                            <div class="col-sm-3">
+                                                <input type="text" class="form-control" readonly value="{{ host_info.biz_brand_name }}"/>
+                                            </div>
+                                            <label class="col-sm-1 control-label">业务线：</label>
+                                            <div class="col-sm-3">
+                                                <input type="text" class="form-control" readonly value="{{ host_info.biz_group_name }}"/>
+                                            </div>
+                                            <label class="col-sm-1 control-label">模块：</label>
+                                            <div class="col-sm-3">
+                                                <input type="text" class="form-control" readonly value="{{ host_info.biz_module_name }}"/>
+                                            </div>
+                                        </div>
+                                        <div class="row" style="margin-bottom: 10px">
+                                            <label class="col-sm-1 control-label">机房：</label>
+                                            <div class="col-sm-3">
+                                                <input type="text" class="form-control" readonly value="{{ host_info.physical_idc_name }}"/>
+                                            </div>
+                                            <label class="col-sm-1 control-label">区域：</label>
+                                            <div class="col-sm-3">
+                                                <input type="text" class="form-control" readonly value="{{ host_info.logical_idc_name }}"/>
+                                            </div>
+                                            <label class="col-sm-1 control-label">环境：</label>
+                                            <div class="col-sm-3">
+                                                <input type="text" class="form-control" readonly value="{{ host_info.deployment_environment_name }}"/>
+                                            </div>
+                                        </div>
+                                        <div class="row" style="margin-bottom: 10px">
+                                            <label class="col-sm-1 control-label">应用：</label>
+                                            <div class="col-sm-3">
+                                                <div class="panel panel-default">
+                                                   <div class="panel-body" style="line-height:22px;height:100px; overflow:auto">
+                                                       {% for field in host_info.apps %}
+                                                           <span class="label label-primary">{{ field|split:","|getListFirst:1 }}</span>
+                                                       {% endfor %}
+                                                   </div>
+                                                </div>
+                                            </div>
+                                            <label class="col-sm-1 control-label">中间件：</label>
+                                            <div class="col-sm-3">
+                                                <div class="panel panel-default">
+                                                   <div class="panel-body" style="line-height:22px;height:100px; overflow:auto">
+                                                      {% for field in host_info.middlewares %}
+                                                           <span class="label label-primary">{{ field|split:","|getListFirst:1 }}</span>
+                                                      {% endfor %}
+                                                   </div>
+                                                </div>
+                                            </div>
+                                            <label class="col-sm-1 control-label">DNS：</label>
+                                            <div class="col-sm-3">
+                                                <div class="panel panel-default">
+                                                   <div class="panel-body" style="line-height:22px;height:100px; overflow:auto">
+                                                      {% for field in host_info.dnses %}
+                                                           <span class="label label-primary">{{ field|split:","|getListFirst:1 }}</span>
+                                                      {% endfor %}
+                                                   </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+
+        });
+    </script>
+{% endblock %}

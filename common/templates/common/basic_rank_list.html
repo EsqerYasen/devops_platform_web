@@ -120,7 +120,7 @@
         }
 
         function getChecked() {
-            var str = document.getElementsByName("input[]");
+            var str = document.getElementsByName("trCheckbox");
             var objarray = str.length;
             var chestr = "";
             for (i = 0; i < objarray; i++) {
@@ -162,8 +162,12 @@
                         <h5>{% block list_title %}{% endblock %}{% block subtitle %}{% endblock %}</h5>
                     </div>
                     <div class="ibox-content">
+                        <div class="row" style="margin-bottom: 20px">
+                            {% block group_count %}
+                             {% endblock %}
+                        </div>
                         <form method="get">
-                            <div class="row">
+                            <div class="row" style="margin-bottom: 20px">
                                 {% block list_search %}
                                 {% endblock %}
                                 {% block list_filter %}

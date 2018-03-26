@@ -25,7 +25,7 @@ SECRET_KEY = '6vxuw+&sqct(*0aa5r$3wtfk&lludc(19g1vzax5lfvuy23vvn'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -51,6 +51,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'common.FilterGroup.Filter'
 ]
 
 ROOT_URLCONF = 'devops_platform_web.urls'
@@ -150,6 +151,7 @@ STATICFILES_DIRS = (
 
 
 REST_API_CONFIG = {
+        #本地
         'cmdb': {
             'ip_prot': '172.29.164.92:8000'
         },
@@ -162,6 +164,20 @@ REST_API_CONFIG = {
         'presrb':{
             'ip_prot': '172.29.164.92:8004'
         }
+        #测试
+        # 'cmdb': {
+        #     'ip_prot': '172.29.164.92:8000'
+        # },
+        # 'job':{
+        #     'ip_prot': '172.29.164.92:8001'
+        # },
+        # 'appcenter':{
+        #     'ip_prot': '172.29.164.92:8002'
+        # },
+        # 'presrb':{
+        #     'ip_prot': '172.29.164.92:8004'
+        # }
+        #生产
         # 'cmdb': {
         #     'ip_prot': '172.16.226.101:9000'
         # },
@@ -209,6 +225,7 @@ LOGGING = {
     },
 }
 
+LOGIN_URL = "/"
 
 PER_PAGE = 10
 

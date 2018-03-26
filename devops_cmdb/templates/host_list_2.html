@@ -5,9 +5,65 @@
     待上线主机
 {% endblock %}
 
+{% block  group_count %}
+    <div class="col-sm-10">
+    {% if user.is_superuser %}
+        <a href="../add/" class="btn btn-sm btn-info" style="margin-right: 10px">全部：300</a>
+        <a href="../add/" class="btn btn-sm btn-info" style="margin-right: 10px">EC：100</a>
+        <a href="../add/" class="btn btn-sm btn-info" style="margin-right: 10px">Brand：100</a>
+        <a href="../add/" class="btn btn-sm btn-info" style="margin-right: 10px">Store：100</a>
+    {% endif %}
+    </div>
+{% endblock %}
+
 {% block  list_search %}
-    <div class="col-sm-2">
+    <div class="col-sm-1" style="width: 10%">
         <input type="text" class="form-control" placeholder="请输入IP">
+    </div>
+    <div class="col-sm-1" style="width: 15%">
+        <div class="input-group">
+            <input id="host_list2_treeText" type="text" class="form-control">
+            <div id="search_hid_div" style="display: block"></div>
+            <span class="input-group-btn">
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" id="host_list2_dropdownMenu" aria-haspopup="true" aria-expanded="false">
+                    <span class="caret"></span>
+                    <span class="sr-only">Toggle Dropdown</span>
+                </button>
+                <ul id="host_list2_dropdownMenuUl" class="dropdown-menu" aria-labelledby="host_list2_dropdownMenu">
+                    <li data-stopPropagation="true">
+                        <ul id="host_list2_tree" name="host_list2_tree" class="ztree"></ul>
+                    </li>
+                    <li style="text-align: center;margin:10px 0px 0px 0px">
+                        <button type="button" class="btn btn-sm btn-success" style="width: 50%" onclick="searchGetTreeNodeOk()">确定</button>
+                        <button type="button" class="btn btn-sm btn-default" style="width: 50%" onclick="searchGetTreeNodeCancel()">取消</button>
+                    </li>
+                </ul>
+            </span>
+        </div>
+    </div>
+    <div class="col-sm-1">
+        <select id="physical_idc_search" name="physical_idc" class="form-control">
+            <option value="" selected>机房</option>
+            {% for o in pidc_list %}
+                <option value="{{ o.id }}" >{{ o.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-sm-1">
+        <select id="logical_idc_search" name="logical_idc" class="form-control">
+            <option value="" selected>区域</option>
+            {% for o in lidc_list %}
+                <option value="{{ o.id }}" >{{ o.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-sm-1">
+        <select id="deployment_environment_search" name="deployment_environment"  class="form-control">
+            <option value="" selected>环境</option>
+            {% for o in env_list %}
+                <option value="{{ o.id }}" >{{ o.name }}</option>
+            {% endfor %}
+        </select>
     </div>
 {% endblock %}
 
@@ -15,24 +71,140 @@
     <div class="col-sm-6">
         <div class="input-group">
             <button type="submit" class="btn btn-sm btn-primary" style="margin-right: 10px"><i class="fa fa-search"></i> 搜索</button>
-            <a href="../add/" class="btn btn-sm btn-primary" style="margin-right: 10px"> 高级查询</a>
-            <a href="../add/" class="btn btn-sm btn-success" style="margin-right: 10px"> 新增</a>
-            <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='#import_host_modal' style="margin-right: 10px"><i class="glyphicon glyphicon-import"></i> 导入</button>
-            <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='#import_host_modal' style="margin-right: 10px"><i class="glyphicon glyphicon-import"></i> 导出</button>
-            <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='#allot_modal'  style="margin-right: 10px"><i class="glyphicon glyphicon-list-alt"></i> 分配</button>
-            <a href="../add/" class="btn btn-sm btn-success" style="margin-right: 10px"> 待分配</a>
-            <a href="../add/" class="btn btn-sm btn-success" style="margin-right: 10px"> 未分配</a>
+            <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='#advanced_query_modal' style="margin-right: 10px"><i class="glyphicon glyphicon-search"></i> 高级查询</button>
+            <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='' style="margin-right: 10px"><i class="glyphicon glyphicon-floppy-disk"></i> 保存高级查询</button>
+            <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='#redistribution_modal' style="margin-right: 10px"><i class="glyphicon glyphicon-pencil"></i> 重新分配</button>
+            <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='#allot_modal' style="margin-right: 10px"><i class="glyphicon glyphicon-play"></i> 上线准备</button>
+            <button type="button" class="btn btn-sm btn-success" style="margin-right: 10px" onclick="host2UpldateStatus(3)"><i class="glyphicon glyphicon-cloud-upload"></i> 上线</button>
+            <button type="button" class="btn btn-sm btn-success" style="margin-right: 10px" onclick="host2UpldateStatus(1)"><i class="glyphicon glyphicon-log-out"></i> 未分配</button>
+            <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='#export_host_modal' style="margin-right: 10px"><i class="glyphicon glyphicon-export"></i> 导出</button>
         </div>
     </div>
 
     <script>
         $(document).ready(function () {
-
+            treeDateInit();
+            multSelectInit();
+            redistributionCheckBindEvent();
         });
+
+        var zNodes = [];
+        function treeDateInit() {
+            var treeList = {{ tree_list|safe }};
+            readTreeNext(treeList,0);
+            zTreeInit();
+        }
+
+        function readTreeNext(list,pid){
+            $(list).each(function(i,item){
+                var is_open = pid == 0?true:false;
+                var ids = item.name+item.id;
+                var nodeData = {id:ids,pId:pid,name:item.name,keyCode:item.key_code,nodeId:item.id,open:is_open,bizType:item.biz_type};
+                zNodes.push(nodeData);
+                if(item.childs){
+                    readTreeNext(item.childs,ids);
+                }
+            });
+        }
+
+        function zTreeInit(){
+            var setting = {
+                view: {
+                    selectedMulti: false
+                },
+                check: {
+                    enable: true,
+                    chkboxType:  { "Y": "", "N": "" }
+                },
+                data: {
+                    simpleData: {
+                        enable: true
+                    }
+                },
+                edit: {
+                    enable: false
+                }
+            };
+            var tree = $.fn.zTree.init($("#host_list2_tree"), setting, zNodes);
+            $("#host_list2_dropdownMenuUl").on("click","[data-stopPropagation]",function(e){
+                e.stopPropagation();
+            });
+        }
+
+        function multSelectInit(){
+            var biz_service = $("select[name='biz_service']");
+            biz_service.chosen();
+
+            var middleware = $("select[name='middleware']");
+            middleware.chosen();
+
+            var dns = $("select[name='dns']");
+            dns.chosen();
+        }
+
+        function redistributionCheckBindEvent(){
+            $("input[name='redistribution_check']").on("ifChecked",function(event) {
+                var selid = $(this).attr("selid");
+                $("#"+selid).attr("disabled",false);
+                if(selid == "biz_brand_2"){
+                    $("#biz_group_2").attr("disabled",false);
+                    $("#biz_module_2").attr("disabled",false);
+                    $("#biz_service_2").attr("disabled",false);
+                }
+            });
+            $("input[name='redistribution_check']").on("ifUnchecked",function(event) {
+                var selid = $(this).attr("selid");
+                $("#"+selid).attr("disabled",true);
+                if(selid == "biz_brand_2"){
+                    $("#biz_group_2").attr("disabled",true);
+                    $("#biz_module_2").attr("disabled",true);
+                    $("#biz_service_2").attr("disabled",true);
+                }
+            });
+        }
+
+        function searchGetTreeNodeOk(){
+            var treeObj=$.fn.zTree.getZTreeObj("host_list2_tree");
+            var nodes = treeObj.getCheckedNodes(true);
+            var textStr = "";
+            var hidDict = {};
+            $(nodes).each(function(i,item){
+                textStr+=item.name+',';
+                if(hidDict[item.bizType]){
+                    hidDict[item.bizType] = hidDict[item.bizType]+","+item.nodeId
+                }else{
+                    hidDict[item.bizType] = item.nodeId;
+                }
+            });
+            var search_hid_div = $("#search_hid_div");
+            search_hid_div.empty();
+            var text = $("#host_list2_treeText");
+            if(!$.isEmptyObject(hidDict)){
+                for(var i in hidDict){
+                    search_hid_div.append('<input name="'+i+'" type="hidden" value="'+hidDict[i]+'"/>')
+                }
+                textStr = textStr.substring(0,textStr.length-1);
+            }
+            text.val(textStr);
+        }
+
+        function searchGetTreeNodeCancel(){
+            $.fn.zTree.getZTreeObj("host_list2_tree").checkAllNodes(false);
+            $("#host_list2_treeText").val('');
+            $("#search_hid_div").empty();
+        }
+
     </script>
 {% endblock %}
 
 {% block list_content %}
+    <script type="text/javascript" src="/static/hplus/js/zTree/jquery.ztree.core.js"></script>
+    <script type="text/javascript" src="/static/hplus/js/zTree/jquery.ztree.excheck.js"></script>
+    <script type="text/javascript" src="/static/hplus/js/zTree/jquery.ztree.exedit.js"></script>
+    <script type="text/javascript" src="/static/hplus/js/chosen/chosen.jquery.js"></script>
+    <link href="/static/hplus/css/zTree/bootstrapStyle.css" rel="stylesheet">
+    <link href="/static/hplus/css/chosen/chosen.css" rel="stylesheet">
+
     <div class="ibox " style="display: none;" id="loading_div">
         <div class="spiner-example">
             <div class="sk-spinner sk-spinner-three-bounce">
@@ -44,69 +216,553 @@
     </div>
     <table id="tb" class="table table-striped table-bordered table-hover dataTables-example dataTable">
         <thead>
-        <tr>
-            <th style="width:3%;"><input id="checkall" type="checkbox" class="i-checks"></th>
-            <th style="width: 8%;">
-                <a class="order-by-column" data-column="host" href="#">
-                    <i class="fa fa-sort order-by-column_icon"></i>
-                    主机名
-                </a>
-            </th>
-            <th style="width: 8%;">
-                IP
-            </th>
-            <th style="width: 8%;">
-                <a class="order-by-column" data-column="idc" href="#">
-                    <i class="fa fa-sort order-by-column_icon"></i>
-                    内核
-                </a>
-            </th>
-            <th style="width: 8%;">
-                <a class="order-by-column" data-column="biz_area" href="#">
-                    <i class="fa fa-sort order-by-column_icon"></i>
-                    系统
-                </a>
-            </th>
-            <th style="width: 11%;">
-                <a class="order-by-column" data-column="biz_group" href="#">
-                    <i class="fa fa-sort order-by-column_icon"></i>
-                   内存
-                </a>
-            </th>
-            <th style="width: 12%;">
-                <a class="order-by-column" data-column="biz_module" href="#">
-                    <i class="fa fa-sort order-by-column_icon"></i>
-                    CPU核数
-                </a>
-            </th>
-            <th style="width: 8%;">
-                <a class="order-by-column" data-column="biz_module_cluster" href="#">
-                    <i class="fa fa-sort order-by-column_icon"></i>
-                    创建时间
-                </a>
-            </th>
-            <th style="width:8%;">操作</th>
-        </tr>
+            <tr>
+                <th style="width:3%;"><input id="checkall" type="checkbox" class="i-checks"></th>
+                <th style="width: 8%;">
+                    Owner
+                </th>
+                <th style="width: 8%;">
+                    机房
+                </th>
+                <th style="width: 8%;">
+                    区域
+                </th>
+                <th style="width: 8%;">
+                    IP
+                </th>
+                <th style="width: 11%;">
+                    品牌
+                </th>
+                <th style="width: 6%;">
+                    业务线
+                </th>
+                <th style="width: 14%;">
+                    模块
+                </th>
+                <th style="width: 14%;">
+                    应用
+                </th>
+                <th style="width:8%;">操作</th>
+            </tr>
         </thead>
         <tbody>
         {% for o in result_list %}
             <tr>
                 <td>
-                    <input type="checkbox" class="i-checks icheck" id="{{ o.id }}" name="input[]">
+                    <input type="checkbox" class="i-checks icheck" id="{{ o.id }}" hostip="{{ o.host_ip }}" name="trCheckbox">
                 </td>
-                <td>{{ o.host_name }}</td>
+                <td>{{ o.owner }}</td>
+                <td>{{ o.physical_idc_name }}</td>
+                <td>{{ o.logical_idc_name }}</td>
                 <td>{{ o.host_ip }}</td>
-                <td>{{ o.kernel }}</td>
-                <td>{{ o.os }}</td>
-                <td>{{ o.mem_total }} MB</td>
-                <td>{{ o.num_cpus }}</td>
-                <td>{{ o.create_time }}</td>
+                <td>{{ o.biz_brand_name }}</td>
+                <td>{{ o.biz_group_name }}</td>
+                <td>{{ o.biz_module_name }}</td>
                 <td>
-{#                    <a href="javascript:void(0)" onclick="degradeAction('{{ o.id }}')" class="btn  btn-sm btn-danger"><i class="fa fa-cloud-download"></i> 下线</a>#}
-                    <a href="../{{ o.id }}/edit/" class="btn btn-sm btn-success"><i class="fa fa-edit"></i> 编辑</a>
+                    {% for field in o.apps %}
+                        <span class="label label-primary">{{ field|split:","|getListFirst:1 }}</span>
+                    {% endfor %}
+                </td>
+                <td>
+                    <a href="../{{ o.id }}/detail2/" class="btn btn-sm btn-success"><i class="fa fa-book"></i> 查看</a>
                 </td>
             </tr>
         {% endfor %}
         </tbody>
     </table>
+
+{% endblock %}
+
+
+{% block modal_div %}
+
+    <div class="modal fade" id="advanced_query_modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">高级查询</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" style="max-height: 500px;overflow:auto">
+                    <form id="advanced_query_form" method="get">
+                        <div class="row" style="margin-bottom: 10px">
+                            <label class="col-sm-1 control-label">品牌</label>
+                            <div class="col-sm-3">
+                                <select id="biz_brand_1" name="biz_brand" class="form-control" onchange="brandChange(this,'biz_group_1')">
+                                    <option value="" selected>品牌</option>
+                                    {% for o in brand_list %}
+                                        <option value="{{ o.id }}" >{{ o.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <label class="col-sm-1 control-label">业务线</label>
+                            <div class="col-sm-3">
+                                <select id="biz_group_1" name="biz_group" class="form-control" onchange="groupChange(this,'biz_brand_1','biz_module_1')">
+                                    <option value="" selected>业务线</option>
+                                </select>
+                            </div>
+                            <label class="col-sm-1 control-label">机房</label>
+                            <div class="col-sm-3">
+                                <select id="physical_idc_1" name="physical_idc" class="form-control">
+                                    <option value="" selected>请选择机房</option>
+                                    {% for o in pidc_list %}
+                                        <option value="{{ o.id }}" >{{ o.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row" style="margin-bottom: 10px">
+                            <label class="col-sm-1 control-label">模块</label>
+                            <div class="col-sm-3">
+                                <select id="biz_module_1" name="biz_module" class="form-control" onchange="moduleChange(this,'biz_brand_1','biz_group_1','biz_service_1')">
+                                </select>
+                            </div>
+                            <label class="col-sm-1 control-label">应用</label>
+                            <div class="col-sm-3">
+                                <select id="biz_service_1" name="biz_service" data-placeholder="请选择应用" class="chosen-select form-control" style="width:213px"  multiple tabindex="1">
+                                </select>
+                            </div>
+                            <label class="col-sm-1 control-label">区域</label>
+                            <div class="col-sm-3">
+                                <select id="logical_idc_1" name="logical_idc" class="form-control" style="width: 100%">
+                                    <option value="" selected>区域</option>
+                                    {% for o in lidc_list %}
+                                        <option value="{{ o.id }}" >{{ o.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row" style="margin-bottom: 10px">
+                            <label class="col-sm-1 control-label">中间件</label>
+                            <div class="col-sm-3">
+                                <select id="middleware_1" name="middleware" data-placeholder="请选择中间件" class="chosen-select form-control" style="width:213px"  multiple tabindex="1">
+                                    {% for o in mw_list %}
+                                        <option value="{{ o.id }}" >{{ o.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <label class="col-sm-1 control-label">域名</label>
+                            <div class="col-sm-3">
+                                <select id="dns_1" name="dns" data-placeholder="请选择域名" class="chosen-select form-control" style="width:213px"  multiple tabindex="1">
+                                    {% for o in dns_list %}
+                                        <option value="{{ o.id }}" >{{ o.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <label class="col-sm-1 control-label">环境</label>
+                            <div class="col-sm-3">
+                                <select id="deployment_environment_1" name="deployment_environment" class="form-control" style="width: 100%">
+                                    <option value="" selected>环境</option>
+                                    {% for o in env_list %}
+                                        <option value="{{ o.id }}" >{{ o.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row" style="margin-bottom: 10px">
+                            <label class="col-sm-1 control-label">标签</label>
+                            <div class="col-sm-11">
+                                <textarea id="tag_1" name="tag"  class="form-control" style="height: 55px;resize:none;"></textarea>
+                            </div>
+                        </div>
+                        <div class="row" style="margin-bottom: 10px">
+                            <label class="col-sm-1 control-label">CPU核数</label>
+                            <div class="col-sm-3">
+                                <input id="num_cpus_1" name="num_cpus" type="number" class="form-control" min="1" max="100"/>
+                            </div>
+                            <label class="col-sm-1 control-label">内存(MB)</label>
+                            <div class="col-sm-3">
+                                <input id="mem_total_1" name="mem_total" type="number" class="form-control" min="1" max="10000"/>
+                            </div>
+                            <label class="col-sm-1 control-label">操作系统</label>
+                            <div class="col-sm-3">
+                                <input id="os_1" name="os" type="text" class="form-control"/>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <label class="col-sm-1 control-label">系统类型</label>
+                            <div class="col-sm-3">
+                                <input id="os_family_1" name="os_family" type="text" class="form-control"/>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" title="确定" onclick="advancedQueryFun()">确定</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="redistribution_modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content" style="width: 1000px">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">重新分配</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" style="max-height: 500px;overflow:auto">
+                    <form id="redistribution_form" method="get">
+                        <div class="row" style="margin-bottom: 10px">
+                            <label class="col-sm-1 control-label">品牌</label>
+                            <div class="col-sm-3">
+                                <div class="input-group">
+                                    <select id="biz_brand_2" name="biz_brand" class="form-control"  onchange="brandChange(this,'biz_group_2')" disabled>
+                                        <option value="" selected>请选择品牌</option>
+                                        {% for o in brand_list %}
+                                            <option value="{{ o.id }}" >{{ o.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="input-group-addon" id="basic-addon1">
+                                        <input name="redistribution_check" selid="biz_brand_2" type="checkbox" class="i-checks" form="11111">
+                                    </span>
+                                </div>
+                            </div>
+                            <label class="col-sm-1 control-label">业务线</label>
+                            <div class="col-sm-3">
+                                <select id="biz_group_2" name="biz_group" class="form-control" onchange="groupChange(this,'biz_brand_2','biz_module_2')" disabled>
+                                    <option value="" selected>请选择业务线</option>
+                                </select>
+                            </div>
+                            <label class="col-sm-1 control-label">机房</label>
+                            <div class="col-sm-3">
+                                <div class="input-group">
+                                    <select id="physical_idc_2" name="physical_idc" class="form-control" disabled>
+                                        <option value="" selected>请选择机房</option>
+                                        {% for o in pidc_list %}
+                                            <option value="{{ o.id }}" >{{ o.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="input-group-addon" id="basic-addon1">
+                                        <input name="redistribution_check" selid="physical_idc_2" type="checkbox" class="i-checks" form="11111">
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" style="margin-bottom: 10px">
+                            <label class="col-sm-1 control-label">模块</label>
+                            <div class="col-sm-3">
+                                <select id="biz_module_2" name="biz_module" class="form-control" disabled onchange="moduleChange(this,'biz_brand_2','biz_group_2','biz_service_2')">
+                                </select>
+                            </div>
+                            <label class="col-sm-1 control-label">应用</label>
+                            <div class="col-sm-3">
+                                <div class="input-group">
+                                    <select id="biz_service_2" name="biz_service" data-placeholder="请选择应用" class="chosen-select form-control" style="width:238px;"  multiple tabindex="1">
+                                    </select>
+                                </div>
+                            </div>
+                            <label class="col-sm-1 control-label">区域</label>
+                            <div class="col-sm-3">
+                                <div class="input-group">
+                                    <select id="logical_idc_2" name="logical_idc" class="form-control" disabled>
+                                        <option value="" selected>请选择区域</option>
+                                        {% for o in lidc_list %}
+                                            <option value="{{ o.id }}" >{{ o.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="input-group-addon" id="basic-addon1">
+                                        <input name="redistribution_check" selid="logical_idc_2" type="checkbox" class="i-checks" form="11111">
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" style="margin-bottom: 10px">
+                            <label class="col-sm-1 control-label">中间件</label>
+                            <div class="col-sm-3">
+                                <div class="input-group">
+                                    <select id="middleware_2" name="middleware" data-placeholder="请选择中间件" class="chosen-select form-control" style="width:191px"  multiple tabindex="1">
+                                        {% for o in mw_list %}
+                                            <option value="{{ o.id }}" >{{ o.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="input-group-addon" id="basic-addon1">
+                                        <input name="redistribution_check" selid="middleware_2" type="checkbox" class="i-checks" form="11111">
+                                    </span>
+                                </div>
+                            </div>
+                            <label class="col-sm-1 control-label">域名</label>
+                            <div class="col-sm-3">
+                                <div class="input-group">
+                                    <select id="dns_2" name="dns" data-placeholder="请选择域名" class="chosen-select form-control" style="width:191px"  multiple tabindex="1">
+                                        {% for o in dns_list %}
+                                            <option value="{{ o.id }}" >{{ o.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="input-group-addon" id="basic-addon1">
+                                        <input name="redistribution_check" selid="dns_2" type="checkbox" class="i-checks" form="11111">
+                                    </span>
+                                </div>
+                            </div>
+                            <label class="col-sm-1 control-label">环境</label>
+                            <div class="col-sm-3">
+                                <div class="input-group">
+                                    <select id="deployment_environment_2" name="deployment_environment" class="form-control" disabled>
+                                        <option value="" selected>环境</option>
+                                        {% for o in env_list %}
+                                            <option value="{{ o.id }}" >{{ o.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <span class="input-group-addon" id="basic-addon1">
+                                        <input name="redistribution_check" selid="deployment_environment_2" type="checkbox" class="i-checks" form="11111">
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <label class="col-sm-1 control-label">标签</label>
+                            <div class="col-sm-11">
+                                <div class="input-group">
+                                    <textarea id="tag_2" name="tag"  class="form-control" style="height: 55px;resize:none;" disabled></textarea>
+                                    <span class="input-group-addon" id="basic-addon1">
+                                        <input name="redistribution_check" selid="tag_2" type="checkbox" class="i-checks" form="11111">
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" title="确定重新分配" onclick="redistribution()">确定</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="export_host_modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true" >
+        <div class="modal-dialog modal-lg" role="document" style="width: 400px">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">导出</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" style="max-height: 500px;overflow:auto">
+                    <div class="row">
+                        <div class="col-sm-10" style="width: 100%;">
+                            导出说明：导出数据是您当前搜索的所有数据
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-10" style="width: 100%;">
+                            导出条数：{{ paginator.count|emptyValueConversion }}
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                      <button type="button" class="btn btn-primary" title="Your custom upload logic" onclick="">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        function advancedQueryFun(){
+            var param = "";
+            var tempDict = {}
+            $($("#advanced_query_form").serializeArray()).each(function(index,item){
+                if(item.value){
+                    if(item.name == "biz_service" || item.name == "middleware" || item.name == "dns"){
+                        if(tempDict[item.name]){
+                            tempDict[item.name] = tempDict[item.name]+","+item.value;
+                        }else{
+                            tempDict[item.name] = item.value;
+                        }
+                    }else{
+                        tempDict[item.name] = item.value;
+                    }
+                }
+            });
+            for(i in tempDict){
+                param +=i+"="+tempDict[i]+"&";
+            }
+            if(param.length>0){
+                param = param.substring(0,param.length-1);
+                $(location).attr('href', '/cmdb/host/list2/?'+param);
+            }
+        }
+
+        function brandChange(sel,g_id){
+            $.ajax({
+                type: "GET",
+                url: '/cmdb/business/get_groups_by_brandId/',
+                async:false,
+                data:{"brand_id":$(sel).val()},
+                error: function (request) {},
+                success: function (data) {
+                    var select_obj = $("#"+g_id);
+                    select_obj.empty();
+                     select_obj.append("<option value=''>请选择业务线</option>");
+                    $(data).each(function(index,item){
+                         select_obj.append("<option value='"+item.id+"' keycode='"+item.key_code+"'>"+item.name+"</option>");
+                    })
+                }
+            })
+        }
+
+        function groupChange(sel,b_id,m_id){
+            $.ajax({
+                type: "GET",
+                url: '/cmdb/business/get_module_by_bIdgId/',
+                async:false,
+                data:{"brand_id":$("#"+b_id).val(),'group_id':$(sel).val()},
+                error: function (request) {},
+                success: function (data) {
+                    var select_obj = $("#"+m_id);
+                    select_obj.empty();
+                     select_obj.append("<option value=''>请选择模块</option>");
+                    $(data).each(function(index,item){
+                         select_obj.append("<option value='"+item.id+"' keycode='"+item.key_code+"'>"+item.name+"</option>");
+                    })
+                }
+            })
+        }
+
+        function moduleChange(sel,b_id,g_id,s_id){
+            $.ajax({
+                type: "GET",
+                url: '/cmdb/business/get_service_by_bIdgIdMid/',
+                async:false,
+                data:{"brand_id":$("#"+b_id).val(),'group_id':$("#"+g_id).val(),'biz_module':$(sel).val()},
+                error: function (request) {},
+                success: function (data) {
+                    var select_obj = $("#"+s_id);
+                    select_obj.empty();
+                    $(data).each(function(index,item){
+                         select_obj.append("<option value='"+item.id+"' keycode='"+item.key_code+"'>"+item.name+"</option>");
+                    })
+                    select_obj.trigger("liszt:updated");
+                }
+            })
+        }
+
+        function getCheckedHostIP() {
+            var str = document.getElementsByName("trCheckbox");
+            var objarray = str.length;
+            var chestr = "";
+            for (i = 0; i < objarray; i++) {
+                if (str[i].checked == true) {
+                    chestr += $(str[i]).attr('hostip') + ",";
+                }
+            }
+            return chestr;
+        }
+
+        function getHostIPOrSearch(){
+            var result = {};
+            var ids = getCheckedHostIP();
+            if(!ids){
+                var searchStr = location.search;
+                searchStr = searchStr.substring(1,searchStr.length);
+                var list = searchStr.split('&');
+                var dict = {};
+                $(list).each(function(i,item){
+                    if(item.indexOf('offset')<0 || item.indexOf('limit')<0){
+                        var s = item.split('=');
+                        if(s[1]){
+                            dict[s[0]]=s[1];
+                        }
+                    }
+                });
+                if(!$.isEmptyObject(dict)){
+                    result['flag'] = 2;
+                    result['seach'] = JSON.stringify(dict);
+                }
+            }else{
+                result['flag'] = 1;
+                result['ip_list'] = JSON.stringify(ids.substring(0,ids.length-1).split(','));
+            }
+            return result;
+        }
+
+        function redistribution(){
+             var param = getHostIPOrSearch();
+             if($("#tb tr").length > 1) {
+                if ($.isEmptyObject(param)) {
+                    Alertwin.alert({message: "请选择机器或条件查询"});
+                    return;
+                } else {
+                    var redistribution = {};
+                    $($("#redistribution_form").serializeArray()).each(function(index,item){
+                        if(item.value){
+                            if(item.name == "biz_service" || item.name == "middleware" || item.name == "dns"){
+                                if(redistribution[item.name]){
+                                    redistribution[item.name].push(item.value);
+                                }else{
+                                    redistribution[item.name] = [item.value];
+                                }
+                            }else{
+                                redistribution[item.name] = item.value;
+                            }
+                        }
+                    });
+                    param['redistribution'] = JSON.stringify(redistribution);
+                    param['csrfmiddlewaretoken'] = '{{ csrf_token }}';
+                    layer.load();
+                    $.ajax({
+                        type: "POST",
+                        url: '/cmdb/host/host2Redistribution/',
+                        data:param,
+                        error: function (request) {
+                            layer.closeAll('loading');
+                        },
+                        success: function (data) {
+                            location.reload();
+                            layer.closeAll('loading');
+                        }
+                    });
+                }
+             }else{
+                Alertwin.alert({message:"查询结果为空"});
+             }
+        }
+
+        function host2UpldateStatus(flag){
+            var param = getHostIPOrSearch();
+             if($("#tb tr").length > 1) {
+                 var msg = "";
+                 var count = 0;
+                 if(param['flag'] == 1){
+                    count = param['ip_list'].split().length
+                 }else{
+                    count = {{ paginator.count|emptyValueConversion }};
+                 }
+                if(flag==3){ //上线
+                    msg = "确认要上线"+count+"台机器吗？";
+                }else{
+                    msg = "确认要"+count+"台机器修改为未分配吗？";
+                }
+                Alertwin.confirm({ message: msg }).on(function (e) {
+                    if (e) {
+                        layer.load();
+                        param['status'] = flag;
+                        param['csrfmiddlewaretoken'] = '{{ csrf_token }}';
+                        $.ajax({
+                            type: "POST",
+                            url: '/cmdb/host/host2UpdateStatus/',
+                            data:param,
+                            error: function (request) {
+                                layer.closeAll('loading');
+                            },
+                            success: function (data) {
+                                location.reload();
+                                layer.closeAll('loading');
+                            }
+                        });
+                    }
+                });
+             }
+        }
+
+    </script>
+
 {% endblock %}

@@ -191,16 +191,20 @@
                 },
                 series: [{
                     name: 'CPU idle',
-                    data: [{'y': {{ module.cpu_idel }}, 'color': '#EBEBEB'}, {'y': 0}],
+                    //data: [{'y': {{ module.cpu_idel }}, 'color': '#EBEBEB'}, {'y': 0}],
+                    data: [{'y': 0, 'color': '#EBEBEB'}, {'y': 0}],
                 }, {
                     name: 'CPU used',
-                    data: [{'y': {{ module.cpu }}, 'color': '{{ module.cpu_color }}'}, {'y': 0}],
+                    //data: [{'y': {{ module.cpu }}, 'color': '{{ module.cpu_color }}'}, {'y': 0}],
+                    data: [{'y': 0, 'color': 'red'}, {'y': 0}],
                 }, {
                     name: 'RAM free',
-                    data: [{'y': 0}, {'y': {{ module.ram }}, 'color': '#EBEBEB'}],
+                    //data: [{'y': 0}, {'y': {{ module.ram }}, 'color': '#EBEBEB'}],
+                    data: [{'y': 0}, {'y': 0, 'color': '#EBEBEB'}],
                 }, {
                     name: 'RAM used',
-                    data: [{'y': 0}, {'y': {{ module.ram_used }}, 'color': '{{module.ram_color}}'}],
+                    //data: [{'y': 0}, {'y': {{ module.ram_used }}, 'color': '{{module.ram_color}}'}],
+                    data: [{'y': 0}, {'y': 0, 'color': 'red'}],
                 }]
 
             });

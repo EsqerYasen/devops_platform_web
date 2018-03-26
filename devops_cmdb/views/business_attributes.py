@@ -28,14 +28,17 @@ class BusinesAttributessView(LoginRequiredMixin, TemplateView):
             resultJson = self.moduleList(reqGet)
             context['brand_list'] = self.brandList({'offset': 1, 'limit': 1000, 'is_enabled': 1}).get("results", [])
         elif tab == "3":
-            resultJson = self.middlewareList(reqGet)
+            resultJson = self.serviceList(reqGet)
+            context['brand_list'] = self.brandList({'offset': 1, 'limit': 1000, 'is_enabled': 1}).get("results", [])
         elif tab == "4":
-            resultJson = self.logical_idcList(reqGet)
+            resultJson = self.middlewareList(reqGet)
         elif tab == "5":
-            resultJson = self.physical_idcList(reqGet)
+            resultJson = self.logical_idcList(reqGet)
         elif tab == "6":
-            resultJson = self.deployment_environmentList(reqGet)
+            resultJson = self.physical_idcList(reqGet)
         elif tab == "7":
+            resultJson = self.deployment_environmentList(reqGet)
+        elif tab == "8":
             resultJson = self.dns(reqGet)
 
         list = resultJson.get("results", [])
@@ -61,7 +64,7 @@ class BusinesAttributessView(LoginRequiredMixin, TemplateView):
         if name:
             getData['name'] = name
         hu = HttpUtils()
-        resultJson = hu.get(serivceName="appcenter", restName="/rest/brands/", datas=getData)
+        resultJson = hu.get(serivceName="cmdb", restName="/rest/brands/", datas=getData)
         return resultJson
 
     def groupList(self, args):
@@ -75,7 +78,7 @@ class BusinesAttributessView(LoginRequiredMixin, TemplateView):
         if biz_brand_id:
             getData['biz_brand'] = biz_brand_id
         hu = HttpUtils()
-        resultJson = hu.get(serivceName="appcenter", restName="/rest/groups/", datas=getData)
+        resultJson = hu.get(serivceName="cmdb", restName="/rest/groups/", datas=getData)
         return resultJson
 
     def moduleList(self, args):
@@ -92,7 +95,27 @@ class BusinesAttributessView(LoginRequiredMixin, TemplateView):
         if biz_group_id:
             getData['biz_group'] = biz_group_id
         hu = HttpUtils()
-        resultJson = hu.get(serivceName="appcenter", restName="/rest/modules/", datas=getData)
+        resultJson = hu.get(serivceName="cmdb", restName="/rest/modules/", datas=getData)
+        return resultJson
+
+    def serviceList(self, args):
+        offset = int(args.get('offset', 1))
+        offset2 = (offset - 1) * PER_PAGE
+        getData = {'offset': offset2, 'limit': PER_PAGE, 'is_enabled': 1}
+        name = args.get('name', None)
+        if name:
+            getData['name'] = name
+        biz_brand_id = args.get('biz_brand_id', None)
+        if biz_brand_id:
+            getData['biz_brand'] = biz_brand_id
+        biz_group_id = args.get('biz_group_id', None)
+        if biz_group_id:
+            getData['biz_group'] = biz_group_id
+        biz_module_id = args.get('biz_module_id', None)
+        if biz_module_id:
+            getData['biz_module'] = biz_module_id
+        hu = HttpUtils()
+        resultJson = hu.get(serivceName="cmdb", restName="/rest/services/", datas=getData)
         return resultJson
 
     def middlewareList(self, args):
@@ -103,7 +126,7 @@ class BusinesAttributessView(LoginRequiredMixin, TemplateView):
         if name:
             getData['name'] = name
         hu = HttpUtils()
-        resultJson = hu.get(serivceName="appcenter", restName="/rest/mw/", datas=getData)
+        resultJson = hu.get(serivceName="cmdb", restName="/rest/mw/", datas=getData)
         return resultJson
 
     def logical_idcList(self, args):
@@ -114,7 +137,7 @@ class BusinesAttributessView(LoginRequiredMixin, TemplateView):
         if name:
             getData['name'] = name
         hu = HttpUtils()
-        resultJson = hu.get(serivceName="appcenter", restName="/rest/lidc/", datas=getData)
+        resultJson = hu.get(serivceName="cmdb", restName="/rest/lidc/", datas=getData)
         return resultJson
 
     def physical_idcList(self, args):
@@ -125,7 +148,7 @@ class BusinesAttributessView(LoginRequiredMixin, TemplateView):
         if name:
             getData['name'] = name
         hu = HttpUtils()
-        resultJson = hu.get(serivceName="appcenter", restName="/rest/pidc/", datas=getData)
+        resultJson = hu.get(serivceName="cmdb", restName="/rest/pidc/", datas=getData)
         return resultJson
 
     def deployment_environmentList(self, args):
@@ -136,7 +159,7 @@ class BusinesAttributessView(LoginRequiredMixin, TemplateView):
         if name:
             getData['name'] = name
         hu = HttpUtils()
-        resultJson = hu.get(serivceName="appcenter", restName="/rest/env/", datas=getData)
+        resultJson = hu.get(serivceName="cmdb", restName="/rest/env/", datas=getData)
         return resultJson
 
     def dns(self, args):
@@ -147,7 +170,7 @@ class BusinesAttributessView(LoginRequiredMixin, TemplateView):
         if name:
             getData['name'] = name
         hu = HttpUtils()
-        resultJson = hu.get(serivceName="appcenter", restName="/rest/env/", datas=getData)
+        resultJson = hu.get(serivceName="cmdb", restName="/rest/dns/", datas=getData)
         return resultJson
 
 class BusinesAttributessCreateAjaxView(LoginRequiredMixin,JSONResponseMixin, AjaxResponseMixin, View):
@@ -418,7 +441,7 @@ class BusinesAttributessUpdateAjaxView(LoginRequiredMixin,JSONResponseMixin, Aja
         result = {}
         saveJson = req.POST.get("saveJson", None)
         if saveJson:
-            hu = HttpUtils()
+            hu = HttpUtils(req)
             resultJson = hu.post(serivceName="appcenter", restName="/rest/physicalIDC_edit/", datas=saveJson)
             resultJson = resultJson.json()
             if resultJson['status'] == 'SUCCESS':
@@ -434,7 +457,7 @@ class BusinesAttributessUpdateAjaxView(LoginRequiredMixin,JSONResponseMixin, Aja
         result = {}
         saveJson = req.POST.get("saveJson", None)
         if saveJson:
-            hu = HttpUtils()
+            hu = HttpUtils(req)
             resultJson = hu.post(serivceName="appcenter", restName="/rest/deploymentEnv_edit/", datas=saveJson)
             resultJson = resultJson.json()
             if resultJson['status'] == 'SUCCESS':
@@ -478,7 +501,7 @@ class BusinesAttributessDelAjaxView(LoginRequiredMixin,JSONResponseMixin, AjaxRe
         result = {}
         id = req.POST.get("id",None)
         if id:
-            hu = HttpUtils()
+            hu = HttpUtils(req)
             resultJson = hu.post(serivceName="appcenter", restName=url, datas={"id":id,"is_enabled":False})
             resultJson = resultJson.json()
             if resultJson['status'] == 'SUCCESS':
@@ -495,9 +518,41 @@ class BusinesAttributessDelAjaxView(LoginRequiredMixin,JSONResponseMixin, AjaxRe
 class GetGroupsByBrandId(LoginRequiredMixin, JSONResponseMixin, AjaxResponseMixin, View):
     def get_ajax(self, request, *args, **kwargs):
         brand_id = request.GET.get("brand_id", 0)
-
-        hu = HttpUtils()
-        resultJson = hu.get(serivceName="appcenter", restName="/rest/groups",
+        if brand_id == "":
+            brand_id = 0
+        hu = HttpUtils(request)
+        resultJson = hu.get(serivceName="cmdb", restName="/rest/groups",
                             datas={"biz_brand": brand_id, 'limit': 100, "offset": 0, 'is_enabled': 1})
+
+        return self.render_json_response(resultJson["results"])
+
+class GetModulesByBIdGId(LoginRequiredMixin, JSONResponseMixin, AjaxResponseMixin, View):
+    def get_ajax(self, request, *args, **kwargs):
+        brand_id = request.GET.get("brand_id", 0)
+        if brand_id == "":
+            brand_id = 0
+        group_id = request.GET.get("group_id", 0)
+        if group_id == "":
+            group_id = 0
+        hu = HttpUtils(request)
+        resultJson = hu.get(serivceName="cmdb", restName="/rest/modules",
+                            datas={"biz_brand": brand_id,'biz_group':group_id, 'limit': 100, "offset": 0, 'is_enabled': 1})
+
+        return self.render_json_response(resultJson["results"])
+
+class GetServiceByBIdGIdMid(LoginRequiredMixin, JSONResponseMixin, AjaxResponseMixin, View):
+    def get_ajax(self, request, *args, **kwargs):
+        brand_id = request.GET.get("brand_id", 0)
+        if brand_id == "":
+            brand_id = 0
+        group_id = request.GET.get("group_id", 0)
+        if group_id == "":
+            group_id = 0
+        biz_module = request.GET.get("biz_module", 0)
+        if biz_module == "":
+            biz_module = 0
+        hu = HttpUtils(request)
+        resultJson = hu.get(serivceName="cmdb", restName="/rest/services",
+                            datas={"biz_brand": brand_id,'biz_group':group_id,'biz_module':biz_module, 'limit': 100, "offset": 0, 'is_enabled': 1})
 
         return self.render_json_response(resultJson["results"])

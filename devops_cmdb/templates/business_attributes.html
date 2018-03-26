@@ -31,31 +31,36 @@
             </li>
             <li {% if tab == '2' %} class="active" {% endif %}>
                 <a href="#module" data-toggle="tab" tab="2">
-                    业务应用
+                    业务模块
                 </a>
             </li>
             <li {% if tab == '3' %} class="active" {% endif %}>
                 <a href="#middleware" data-toggle="tab" tab="3">
-                    中间件
+                    业务应用
                 </a>
             </li>
             <li {% if tab == '4' %} class="active" {% endif %}>
-                <a href="#logical_idc" data-toggle="tab" tab="4">
-                    区域
+                <a href="#middleware" data-toggle="tab" tab="4">
+                    中间件
                 </a>
             </li>
             <li {% if tab == '5' %} class="active" {% endif %}>
-                <a href="#physical_idc" data-toggle="tab" tab="5">
-                    机房
+                <a href="#logical_idc" data-toggle="tab" tab="5">
+                    区域
                 </a>
             </li>
             <li {% if tab == '6' %} class="active" {% endif %}>
-                <a href="#deployment_environment" data-toggle="tab" tab="6">
-                    环境
+                <a href="#physical_idc" data-toggle="tab" tab="6">
+                    机房
                 </a>
             </li>
             <li {% if tab == '7' %} class="active" {% endif %}>
-                <a href="#dns" data-toggle="tab" tab="7">
+                <a href="#deployment_environment" data-toggle="tab" tab="7">
+                    环境
+                </a>
+            </li>
+            <li {% if tab == '8' %} class="active" {% endif %}>
+                <a href="#dns" data-toggle="tab" tab="8">
                     DNS
                 </a>
             </li>
@@ -76,28 +81,33 @@
                 {% include 'business/business_module.html' %}
                 {% endif %}
             </div>
-            <div class="tab-pane fade{% if tab == '3' %} in active{% endif %}" id="middleware">
+            <div class="tab-pane fade{% if tab == '3' %} in active{% endif %}" id="module">
                 {% if tab == '3' %}
+                {% include 'business/business_service.html' %}
+                {% endif %}
+            </div>
+            <div class="tab-pane fade{% if tab == '4' %} in active{% endif %}" id="middleware">
+                {% if tab == '4' %}
                 {% include 'business/business_middleware.html' %}
                 {% endif %}
             </div>
-            <div class="tab-pane fade{% if tab == '4' %} in active{% endif %}" id="logical_idc">
-                {% if tab == '4' %}
+            <div class="tab-pane fade{% if tab == '5' %} in active{% endif %}" id="logical_idc">
+                {% if tab == '5' %}
                 {% include 'business/business_logical_idc.html' %}
                 {% endif %}
             </div>
-            <div class="tab-pane fade{% if tab == '5' %} in active{% endif %}" id="physical_idc">
-                {% if tab == '5' %}
+            <div class="tab-pane fade{% if tab == '6' %} in active{% endif %}" id="physical_idc">
+                {% if tab == '6' %}
                 {% include 'business/business_physical_idc.html' %}
                 {% endif %}
             </div>
-            <div class="tab-pane fade{% if tab == '6' %} in active{% endif %}" id="deployment_environment">
-                {% if tab == '6' %}
+            <div class="tab-pane fade{% if tab == '7' %} in active{% endif %}" id="deployment_environment">
+                {% if tab == '7' %}
                 {% include 'business/business_deployment_environment.html' %}
                 {% endif %}
             </div>
-            <div class="tab-pane fade{% if tab == '7' %} in active{% endif %}" id="dns">
-                {% if tab == '7' %}
+            <div class="tab-pane fade{% if tab == '8' %} in active{% endif %}" id="dns">
+                {% if tab == '8' %}
                 {% include 'business/business_dns.html' %}
                 {% endif %}
             </div>
@@ -117,7 +127,7 @@
             initAppPropertyModal();
             initFormValidator();
         })
-        var tabNameDict = {'0':'品牌','1':'业务线','2':'业务应用','3':'中间件','4':'区域','5':'机房','6':'环境','7':'DNS'}
+        var tabNameDict = {'0':'品牌','1':'业务线','2':'业务应用','3':'业务模块','4':'中间件','5':'区域','6':'机房','7':'环境','8':'DNS'}
         function initAppPropertyModal(){
             var modal = $("#business_attributes_modal");
             modal.on('show.bs.modal',function(event){

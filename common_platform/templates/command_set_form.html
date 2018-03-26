@@ -1,0 +1,857 @@
+{% extends 'common/basic_layout.html' %}
+
+{% block content %}
+<script type="text/javascript" src="/static/hplus/js/fileinput.min.js"></script>
+<script type="text/javascript" src="/static/hplus/js/fileinput.zh.js"></script>
+<script type="text/javascript" src="/static/hplus/js/zTree/jquery.ztree.core.js"></script>
+<script type="text/javascript" src="/static/hplus/js/zTree/jquery.ztree.excheck.js"></script>
+<script type="text/javascript" src="/static/hplus/js/zTree/jquery.ztree.exedit.js"></script>
+<script type="text/javascript" src="/static/hplus/js/chosen/chosen.jquery.js"></script>
+<link href="/static/hplus/css/fileinput.min.css" rel="stylesheet">
+<link href="/static/hplus/css/zTree/bootstrapStyle.css" rel="stylesheet">
+<link href="/static/hplus/css/chosen/chosen.css" rel="stylesheet">
+
+<div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5>常用作业 {% if view_num == 0 %}新增{% elif view_num == 1 %}编辑{% else %}执行{% endif %}</h5>
+                    </div>
+                    <div class="ibox-content">
+                        <form method="post" class="form-horizontal">
+                            {% csrf_token %}
+                            <input type="hidden" id="command_set_id" name="id" value="{{ result_dict.id }}"/>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label" style="width: 10%"> 作业名称</label>
+                                <div class="col-sm-10" style="width: 85%">
+                                    <input type="text" id="command_set_name" name="name" {{ readOnly }} class="form-control" value="{{ result_dict.name }}"/>
+                                </div>
+                            </div>
+                            {% ifnotequal view_num '2' %}
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label" style="width: 10%"> 是否有效</label>
+                                <div class="col-sm-10" style="width: 85%">
+                                    <div class="switch">
+                                        <input type="checkbox" id="switch_checkbox" data-on-color="success" data-off-color="danger" checked data-on-text="是" data-off-text="否"/>
+                                    </div>
+                                    <input type="hidden" id="is_enabled" name="is_enabled" value="True"/>
+                                </div>
+                            </div>
+                            {% endifnotequal %}
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label" style="width: 10%"> 备注</label>
+                                <div class="col-sm-10" style="width: 85%">
+                                    <textarea id="comment" name="comment"  class="form-control" {{ readOnly }} style="height: 100px;resize:none;">{{ result_dict.comment }}</textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label" style="width: 10%"> </label>
+                                <div class="col-sm-10" style="width: 85%">
+                                    <div class="panel-group" id="accordion">
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading">
+                                                <h4 class="panel-title">
+                                                    <a data-toggle="collapse" data-parent="" href="#collapseOne">
+                                                        本地参数
+                                                    </a>
+                                                </h4>
+                                            </div>
+                                            <div id="collapseOne" class="panel-collapse collapse in">
+                                                <div class="row">
+                                                    <div class="col-sm-12" style="margin-left: 10px;margin-top: 10px">
+                                                        <table id="localParamTb" width="100%" style="border-spacing:10px 10px;border-collapse:separate">
+                                                            {% for localParam in localParam_list %}
+                                                                <tr>
+                                                                   <td width='30%'>
+                                                                       <input name='localParamKey' type='text' class='form-control' placeholder='参数名' readOnly value="{{ localParam.name }}"/>
+                                                                   </td>
+                                                                   <td width='60%'>
+                                                                       <input name='localParamValue' type='text' class='form-control' placeholder='参数值' value="{{ localParam.value }}"/>
+                                                                   </td>
+                                                                   <td width='10%'>
+                                                                       <button name='localParamBtn' type='button' class='btn btn-danger' onclick='delLocalParam(this)' disabled><i class='fa fa-trash'></i> 删除</button>
+                                                                   </td>
+                                                                </tr>
+                                                            {% endfor %}
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-sm-2" style="margin-left: 20px">
+                                                        <button type='button' class='btn btn-sm btn-info' onclick="addLocalParam()">添加本地参数</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% if view_num == '0' or view_num == 0 %}
+                                {% include 'command_step_add.html' %}
+                            {% elif view_num == '1' or view_num == 1 %}
+                                {% include 'command_step_edit.html' %}
+                            {% else %}
+                                {% include 'command_step_execute.html' %}
+                            {% endif %}
+                            <div class="form-group">
+                                <div class="col-sm-8 col-sm-offset-2">
+                                    {% ifnotequal view_num '2' %}
+                                    <button class="btn btn-primary" type="button" onclick="command_set_save()"><span class="glyphicon glyphicon-floppy-saved" aria-hidden="true"></span> 保存</button>
+                                    <a class="btn btn-white" href="javascript:history.go(-1)">取消</a>
+                                    {% else %}
+                                    <button class="btn btn-primary" type="button" onclick="command_set_exec()"><span class="glyphicon glyphicon-play" aria-hidden="true"></span> 执行</button>
+                                    <a class="btn btn-white" href="javascript:history.go(-1)">取消</a>
+                                    <a class="btn btn-primary" href="../execLog?setId={{ result_dict.id }}&name={{ result_dict.name }}" style="margin-left: 200px"><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> 执行日志</a>
+                                    {% endifnotequal %}
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $("#switch_checkbox").bootstrapSwitch("onSwitchChange",function(event,state) {
+            var val = '';
+           if(state){
+               val = 'True';
+           }else{
+               val = 'False';
+           }
+            $('#is_enabled').val(val);
+        });
+        {% if view_num == 1 %}
+            var state = false;
+            {% if result_dict.is_enabled %}
+                state = true;
+            {% endif %}
+            $("#switch_checkbox").bootstrapSwitch('state',state);
+        {% endif %}
+
+        $(".i-checks").iCheck({checkboxClass: "icheckbox_square-green", radioClass: "iradio_square-green",})
+        $('#checkall').on('ifChecked', function (event) {
+            $('.icheck').iCheck('check');
+        });
+        $('#checkall').on('ifUnchecked', function (event) {
+            $('.icheck').iCheck('uncheck');
+        });
+
+        multSelectInit();
+        treeDateInit();
+        initSelectHostModal();
+        initSelectFileModal();
+    });
+
+
+    function multSelectInit(){
+        var biz_service = $("select[name='biz_service']");
+        biz_service.chosen();
+
+        var middleware = $("select[name='middleware']");
+        middleware.chosen();
+
+        var dns = $("select[name='dns']");
+        dns.chosen();
+    }
+
+    function initSelectHostModal(){
+        $("#select_host_modal").on('show.bs.modal',function(event){
+            var datas = $(event.relatedTarget).data();
+            var gid = datas['gid'];
+            $(this).data('gid',gid);
+            var selectHostValue = $("#selectHostValue"+gid);
+            var hostValue = selectHostValue.val();
+            if(hostValue){
+                hostValue = hostValue.replace(/\'/g,"\"");
+                var obj = JSON.parse(hostValue);
+                var tabName = selectHostValue.attr('tabName');
+                var tabType = selectHostValue.attr('tabType');
+                $('#select_host_tab a[href="'+tabName+'"]').tab('show');
+                if(tabName.indexOf('biz_tab') > 0){
+                    var tree = $.fn.zTree.getZTreeObj('biz_tree');
+                    var host_filter = obj['host_filter'];
+                    $("#host_go_live").val(host_filter['go_live']);
+                    delete host_filter['go_live'];
+                    for(var d in host_filter){
+                        $((host_filter[d]+"").split(',')).each(function(i,item){
+                            tree.checkNode(tree.getNodeByParam('id',d+item), true, true);
+                        })
+                    }
+                }else if(tabName.indexOf('host_group_tab') > 0){
+                    var tree = $.fn.zTree.getZTreeObj('host_group_tree');
+                    $(obj['target_group'].split(',')).each(function(i,item){
+                        tree.checkNode(tree.getNodeByParam('id',item), true, true);
+                    })
+                }else if(tabName.indexOf('advanced_query_tab') > 0){
+                    var host_filter = obj['host_filter'];
+                    for(var d in host_filter){
+                        if(d == 'biz_brand'){
+                            $("#biz_brand_1").val(host_filter[d]);
+                            $("#biz_brand_1").trigger("change");
+                        }else if(d == 'biz_group'){
+                            $("#biz_group_1").val(host_filter[d]);
+                            $("#biz_group_1").trigger("change");
+                        }else if(d == 'biz_module'){
+                            $("#biz_module_1").val(host_filter[d]);
+                            $("#biz_module_1").trigger("change");
+                        }else if(d == 'biz_service' || d == 'middleware'|| d == 'dns'){
+                            selectedMultSelect(host_filter[d].split(','),d+'_1');
+                        }else{
+                            $("#"+d+"_1").val(host_filter[d]);
+                        }
+                    }
+                }
+                if(tabType == 3){
+                    createSelectHostIpTable({'flag':2,'host_list':obj['target_host_list'].split(',')});
+                }
+            }
+        });
+
+        $("#select_host_modal").on('hide.bs.modal',function(event){
+            var datas = $(this).data();
+            var gid = datas['gid'];
+            $.fn.zTree.getZTreeObj("biz_tree").checkAllNodes(false);
+            $.fn.zTree.getZTreeObj("host_group_tree").checkAllNodes(false);
+            $("#advanced_query_form")[0].reset();
+            $("#biz_service_1").empty().trigger("liszt:updated");
+            $("#middleware_1").empty().trigger("liszt:updated");
+            $("#dns_1").empty().trigger("liszt:updated");
+        });
+    }
+
+    function initSelectFileModal(){
+        $("#select_file_modal").on('show.bs.modal',function(event){
+             var datas = $(event.relatedTarget).data();
+             var gid = datas['gid'];
+             $(this).data('gid',gid);
+        })
+    }
+
+
+</script>
+
+<div class="modal fade" id="select_host_modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+          <div class="modal-content" style="width: 1100px;margin-left: -100px">
+              <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLabel">选择机器</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                   </button>
+              </div>
+              <div class="modal-body">
+                  <div class="row">
+                      <div class="col-sm-10" style="width:80%;max-height: 400px;overflow:auto">
+                          <ul id="select_host_tab" class="nav nav-tabs">
+                              <li class="active">
+                                  <a href="#biz_tab" data-toggle="tab">业务树</a>
+                              </li>
+                              <li>
+                                  <a href="#host_group_tab" data-toggle="tab">主机组</a>
+                              </li>
+                              <li>
+                                  <a href="#advanced_query_tab" data-toggle="tab">高级查询</a>
+                              </li>
+                          </ul>
+                          <div id="myTabContent" class="tab-content">
+                              <div class="tab-pane fade in active" id="biz_tab">
+                                  <ul id="biz_tree" name="biz_tree" class="ztree"></ul>
+                              </div>
+                              <div class="tab-pane fade" id="host_group_tab">
+                                  <ul id="host_group_tree" name="host_group_tree" class="ztree"></ul>
+                              </div>
+                              <div class="tab-pane fade" id="advanced_query_tab" style="padding-top:10px;padding-right: 10px">
+                                  <form id="advanced_query_form" method="get">
+                                        <div class="row" style="margin-bottom: 10px">
+                                            <label class="col-sm-1 control-label">品牌</label>
+                                            <div class="col-sm-3">
+                                                <select id="biz_brand_1" name="biz_brand" class="form-control" onchange="brandChange(this,'biz_group_1')">
+                                                    <option value="" selected>品牌</option>
+                                                    {% for o in brand_list %}
+                                                        <option value="{{ o.id }}" >{{ o.name }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <label class="col-sm-1 control-label">业务线</label>
+                                            <div class="col-sm-3">
+                                                <select id="biz_group_1" name="biz_group" class="form-control" onchange="groupChange(this,'biz_brand_1','biz_module_1')">
+                                                </select>
+                                            </div>
+                                            <label class="col-sm-1 control-label">机房</label>
+                                            <div class="col-sm-3">
+                                                <select id="physical_idc_1" name="physical_idc" class="form-control" style="width: 100%">
+                                                    <option value="" selected>请选择</option>
+                                                    {% for obj in pidc_list %}
+                                                        <option value="{{ obj.id }}" >{{ obj.name }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="row" style="margin-bottom: 10px">
+                                            <label class="col-sm-1 control-label">模块</label>
+                                            <div class="col-sm-3">
+                                                <select id="biz_module_1" name="biz_module" class="form-control" onchange="moduleChange(this,'biz_brand_1','biz_group_1','biz_service_1')">
+                                                </select>
+                                            </div>
+                                            <label class="col-sm-1 control-label">应用</label>
+                                            <div class="col-sm-3">
+                                                <select id="biz_service_1" name="biz_service" data-placeholder="请选择应用" class="chosen-select form-control" style="width:207px"  multiple tabindex="1">
+                                                </select>
+                                            </div>
+                                            <label class="col-sm-1 control-label">区域</label>
+                                            <div class="col-sm-3">
+                                                <select id="logical_idc_1" name="logical_idc" class="form-control">
+                                                    <option value="" selected>区域</option>
+                                                    {% for o in lidc_list %}
+                                                        <option value="{{ o.id }}" >{{ o.name }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="row" style="margin-bottom: 10px">
+                                            <label class="col-sm-1 control-label">中间件</label>
+                                            <div class="col-sm-3">
+                                                <select id="middleware_1" name="middleware" data-placeholder="请选择中间件" class="chosen-select form-control" style="width:207px"  multiple tabindex="1">
+                                                    {% for o in mw_list %}
+                                                        <option value="{{ o.id }}" >{{ o.name }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <label class="col-sm-1 control-label">域名</label>
+                                            <div class="col-sm-3">
+                                                <select id="dns_1" name="dns" data-placeholder="请选择域名" class="chosen-select form-control" style="width:207px"  multiple tabindex="1">
+                                                    {% for o in dns_list %}
+                                                        <option value="{{ o.id }}" >{{ o.name }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <label class="col-sm-1 control-label">环境</label>
+                                            <div class="col-sm-3">
+                                                <select id="deployment_environment_1" name="deployment_environment" class="form-control" style="width: 100%">
+                                                    <option value="" selected>请选择</option>
+                                                    {% for obj in env_list %}
+                                                        <option value="{{ obj.id }}" >{{ obj.name }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="row" style="margin-bottom: 10px">
+                                            <label class="col-sm-1 control-label">标签</label>
+                                            <div class="col-sm-11">
+                                                <textarea id="tag_1" name="tag"  class="form-control" style="height: 55px;resize:none;"></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="row" style="margin-bottom: 10px">
+                                            <label class="col-sm-1 control-label">CPU核数</label>
+                                            <div class="col-sm-3">
+                                                <input id="num_cpus_1" name="num_cpus" type="number" class="form-control" min="1" max="100"/>
+                                            </div>
+                                            <label class="col-sm-1 control-label">内存(MB)</label>
+                                            <div class="col-sm-3">
+                                                <input id="mem_total_1" name="mem_total" type="number" class="form-control" min="1" max="10000"/>
+                                            </div>
+                                            <label class="col-sm-1 control-label">操作系统</label>
+                                            <div class="col-sm-3">
+                                                <input id="os_1" name="os" type="text" class="form-control"/>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <label class="col-sm-1 control-label">系统类型</label>
+                                            <div class="col-sm-3">
+                                                <input id="os_family_1" name="os_family" type="text" class="form-control"/>
+                                            </div>
+                                        </div>
+                                  </form>
+                              </div>
+                          </div>
+                      </div>
+                      <div class="col-sm-2" style="width:20%;max-height: 400px;overflow:auto">
+                          <div style="max-height: 400px;overflow: auto">
+                              <table id="hostIpTb" class="table table-striped table-bordered table-hover dataTables-example dataTable">
+                                  <thead>
+                                    <tr style="width:5px">
+                                        <th><input id="checkall" type="checkbox" class="i-checks"></th>
+                                        <th>IP<span id="hostIpBadge" class="badge" style="margin-left: 20px;background-color: green;color: white">总：0台</span></th>
+                                    </tr>
+                                  </thead>
+                                  <tbody></tbody>
+                              </table>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+              <div class="modal-footer">
+                  <div class="row">
+                      <div class="col-sm-3" style="margin-left: 15px">
+                          <div class="input-group">
+                              <select id="host_go_live" class="form-control">
+                                  <option value="2" selected>待上线主机</option>
+                                  <option value="3">已上线主机</option>
+                              </select>
+                              <span class="input-group-btn">
+                                  <button type="button" class="btn btn-primary" onclick="queryHostIp()">查询</button>
+                              </span>
+                          </div>
+                      </div>
+                      <div class="col-sm-8">
+                          <button type="button" class="btn btn-primary" title="确定" onclick="determineSelectHost()">确定</button>
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                      </div>
+                  </div>
+              </div>
+          </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="exec_log" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">运行日志</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                 <textarea style="width: 100%;height: 500px;resize: none;background: black;font: caption;color: white;" id="textarea_log" readonly value=""></textarea>
+                 <img id="log_modal_img" src="/static/hplus/img/5-121204194103.gif">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+             </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="select_file_modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+              <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLabel">选择本地脚本</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                  </button>
+              </div>
+              <div class="modal-body" style="max-height: 500px;overflow:auto">
+                  <ul id="file_tree" class="ztree"></ul>
+              </div>
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-primary" title="确定" onclick="getFileTreeCheckNodes()">确定</button>
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+              </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function brandChange(sel,g_id){
+        $.ajax({
+            type: "GET",
+            url: '/cmdb/business/get_groups_by_brandId/',
+            async:false,
+            data:{"brand_id":$(sel).val()},
+            error: function (request) {},
+            success: function (data) {
+                var select_obj = $("#"+g_id);
+                select_obj.empty();
+                 select_obj.append("<option value=''>请选择业务线</option>");
+                $(data).each(function(index,item){
+                     select_obj.append("<option value='"+item.id+"' keycode='"+item.key_code+"'>"+item.name+"</option>");
+                });
+            }
+        });
+    }
+
+    function groupChange(sel,b_id,m_id){
+        $.ajax({
+            type: "GET",
+            url: '/cmdb/business/get_module_by_bIdgId/',
+            async:false,
+            data:{"brand_id":$("#"+b_id).val(),'group_id':$(sel).val()},
+            error: function (request) {},
+            success: function (data) {
+                var select_obj = $("#"+m_id);
+                select_obj.empty();
+                 select_obj.append("<option value=''>请选择模块</option>");
+                $(data).each(function(index,item){
+                     select_obj.append("<option value='"+item.id+"' keycode='"+item.key_code+"'>"+item.name+"</option>");
+                });
+            }
+        });
+    }
+
+    function moduleChange(sel,b_id,g_id,s_id){
+        $.ajax({
+            type: "GET",
+            url: '/cmdb/business/get_service_by_bIdgIdMid/',
+            async:false,
+            data:{"brand_id":$("#"+b_id).val(),'group_id':$("#"+g_id).val(),'biz_module':$(sel).val()},
+            error: function (request) {},
+            success: function (data) {
+                var select_obj = $("#"+s_id);
+                select_obj.empty();
+                $(data).each(function(index,item){
+                     select_obj.append("<option value='"+item.id+"' keycode='"+item.key_code+"'>"+item.name+"</option>");
+                });
+                select_obj.trigger("liszt:updated");
+            }
+        });
+    }
+
+    var zBizNodes = [];
+    var zHostGroupNodes = [];
+    var zFileListNodes = [];
+    function treeDateInit() {
+        var treeList = {{ tree_list|safe }};
+        readBizTreeNext(treeList,0);
+        var hostGroupTreeList = {{ hostGroup_list|safe }};
+        readHostGroupTreeNext(hostGroupTreeList,0);
+        var fileTreeList = {{ file_tree|safe }};
+        readFileTreeNext(fileTreeList,{path:'/opt/devops/filetrunk'});
+        zBizTreeInit();
+        zHostGroupTreeInit();
+        filezTreeInit();
+    }
+
+    function readBizTreeNext(list,pid){
+        $(list).each(function(i,item){
+            var is_open = pid == 0?true:false;
+            var ids = item.biz_type+item.id;
+            var nodeData = {id:ids,pId:pid,name:item.name,keyCode:item.key_code,nodeId:item.id,open:is_open,bizType:item.biz_type};
+            zBizNodes.push(nodeData);
+            if(item.childs){
+                readBizTreeNext(item.childs,ids);
+            }
+        });
+    }
+
+    function readHostGroupTreeNext(list,pid){
+        $(list).each(function(i,item){
+            var is_open = pid == 0?true:false;
+            var ids = item.id;
+            var nodeData = {id:ids,pId:pid,name:item.name,nodeId:ids,open:is_open,hasIp:item.has_ip};
+            zHostGroupNodes.push(nodeData);
+            if(item.childs){
+                readHostGroupTreeNext(item.childs,ids);
+            }
+        });
+    }
+
+    function readFileTreeNext(list,parentNode){
+        $(list).each(function(i,item){
+            var nodeData = {id:item.id,pId:item.parent_id,name:item.name,file_type:item.file_type,node_type:item.type,open:true,nocheck:true} //iconSkin
+            if(parentNode.path)
+                var path = parentNode.path + item.name;
+                nodeData.path = parentNode.path + item.name;
+                if(item.childs){
+                    path += "/";
+                }
+                nodeData.path = path
+            if(item.appId){
+                nodeData.appId = item.appId;
+            }
+
+            if(item.type == 1 || item.type == '1'){
+                nodeData.default_parameter = item.default_parameter
+                nodeData.nocheck = false;
+            }
+            zFileListNodes.push(nodeData)
+            if(item.childs){
+                readFileTreeNext(item.childs,nodeData)
+            }
+        })
+    }
+
+    function zBizTreeInit(){
+        var setting = {
+            view: {
+                selectedMulti: false
+            },
+            check: {
+                enable: true,
+                chkboxType:  { "Y": "", "N": "" }
+            },
+            data: {
+                simpleData: {
+                    enable: true
+                }
+            },
+            edit: {
+                enable: false
+            }
+        };
+        $.fn.zTree.init($("#biz_tree"), setting, zBizNodes);
+    }
+
+     function zHostGroupTreeInit(){
+        var setting = {
+            view: {
+                selectedMulti: false,
+                addDiyDom: addDiyDom
+            },
+            check: {
+                enable: true,
+                chkboxType:  { "Y": "", "N": "" }
+            },
+            data: {
+                simpleData: {
+                    enable: true
+                }
+            },
+            edit: {
+                enable: false
+            }
+        };
+        $.fn.zTree.init($("#host_group_tree"), setting, zHostGroupNodes);
+    }
+
+    function filezTreeInit(){
+        var setting = {
+            view: {
+                selectedMulti: false,
+            },
+            check: {
+                enable: true
+            },
+            data: {
+                simpleData: {
+                    enable: true
+                }
+            },
+            edit: {
+                enable: true,
+                showRenameBtn:false,
+                removeTitle:'删除'
+            },
+            callback: {
+
+            }
+        };
+        var tree = $.fn.zTree.init($("#file_tree"), setting, zFileListNodes);
+    }
+
+    function addDiyDom(treeId, treeNode) {
+         var aObj = $("#" + treeNode.tId + "_a");
+
+         if($("#badge"+treeNode.id).length==0){
+              var spanStr = "<span id='badge"+treeNode.id+"' class='label label-info' style='margin-left:20px' title='编号: "+treeNode.nodeId+"'>#group:"+treeNode.nodeId+"</span>";
+              aObj.append(spanStr);
+         }
+         if(treeNode.hasIp == 1){
+             if($("#diyBtn_"+treeNode.id).length==0){
+                 var editStr = "<button class='btn btn-sm btn-warning' id='diyBtn_" +treeNode.id+ "' title='"+treeNode.name+"节点下绑定的IP' type='button' style='margin-left:10px'>IP查看</button>";
+                 aObj.append(editStr);
+                 var btn = $("#diyBtn_"+treeNode.id);
+                 if (btn){
+                     btn.bind("click", function(){
+                         alert("diy Button for " + treeNode.name + " "+treeNode.nodeId);
+                     });
+                 }
+             }
+         }
+    }
+
+    function addLocalParam(){
+        var tr_html = "<tr>" +
+            "   <td width='30%'>" +
+            "       <input name='localParamKey' type='text' class='form-control' placeholder='参数名'/>" +
+            "   </td>" +
+            "   <td width='60%'>" +
+            "       <input name='localParamValue' type='text' class='form-control' placeholder='参数值'/>" +
+            "   </td>" +
+            "   <td width='10%'>" +
+            "       <button name='localParamBtn' type='button' class='btn btn-danger' onclick='delLocalParam(this)'><i class='fa fa-trash'></i> 删除</button>" +
+            "   </td>" +
+            "</tr>";
+        $("#localParamTb").append(tr_html);
+    }
+
+    function delLocalParam(btn){
+        $(btn).parents("tr").remove();
+    }
+
+    function getSelectHost(){
+        var result = {};
+        var tabIds = $("#select_host_tab li[class='active'] a").attr('href');
+        if(tabIds.indexOf('biz_tab') > 0){
+            var biz_tree=$.fn.zTree.getZTreeObj("biz_tree");
+            var nodes = biz_tree.getCheckedNodes(true);
+            //var bizDict = {};
+            $(nodes).each(function(i,item){
+                if(result[item.bizType]){
+                    result[item.bizType] = result[item.bizType]+","+item.nodeId;
+                }else{
+                    result[item.bizType] = item.nodeId;
+                }
+            });
+            if(!$.isEmptyObject(result)){
+                result["go_live"] = $("#host_go_live").val();
+            }
+            result["tabType"] = 2;
+            result['tabName'] = tabIds;
+        }else if(tabIds.indexOf('host_group_tab') > 0){
+            var host_group_tree=$.fn.zTree.getZTreeObj("host_group_tree");
+            var nodes = host_group_tree.getCheckedNodes(true);
+            var groupIds = "";
+            $(nodes).each(function(i,item){
+                groupIds += item.nodeId+",";
+            });
+            if(groupIds){
+                groupIds = groupIds.substring(0,groupIds.length-1);
+            }
+            result['tabType'] = 1;
+            result['tabName'] = tabIds;
+            result['id'] = groupIds;
+        }else if(tabIds.indexOf('advanced_query_tab') > 0){
+            //var queryDict = {}
+            $($("#advanced_query_form").serializeArray()).each(function(index,item){
+                if(item.value){
+                    if(item.name == "biz_service" || item.name == "middleware" || item.name == "dns"){
+                        if(result[item.name]){
+                            result[item.name] = result[item.name]+","+item.value;
+                        }else{
+                            result[item.name] = item.value;
+                        }
+                    }else{
+                        result[item.name] = item.value;
+                    }
+                }
+            });
+            if(!$.isEmptyObject(result)){
+                result['go_live'] = $("#host_go_live").val();
+            }
+            result['tabType'] = 2;
+            result['tabName'] = tabIds;
+        }
+        return result;
+    }
+
+{#    function getCheckedHostId() {#}
+{#        var str = document.getElementsByName("trCheckbox");#}
+{#        var objarray = str.length;#}
+{#        var chestr = "";#}
+{#        for (i = 0; i < objarray; i++) {#}
+{#            if (str[i].checked == true) {#}
+{#                chestr += str[i].id + ",";#}
+{#            }#}
+{#        }#}
+{#        return chestr;#}
+{#    }#}
+
+    function getCheckedHostIP() {
+        var str = document.getElementsByName("trCheckbox");
+        var objarray = str.length;
+        var idList = [];
+        for (i = 0; i < objarray; i++) {
+            if (str[i].checked == true) {
+                idList.push($(str[i]).attr('hostip'));
+            }
+        }
+        return idList;
+    }
+
+    function queryHostIp(){
+        var values = getSelectHost();
+        if(!$.isEmptyObject(values)){
+            values['csrfmiddlewaretoken'] = '{{ csrf_token }}';
+            values['limit'] = 100;
+            $.ajax({
+                type: "POST",
+                url: '/platform/command_set/listByQueryCriteria/',
+                data:values,
+                error: function (request) {
+                    layer.closeAll('loading');
+                },
+                success: function (data) {
+                    createSelectHostIpTable(data);
+                    layer.closeAll('loading');
+                }
+            });
+        }else{
+            Alertwin.alert({message:"选择机器功能异常"});
+        }
+{#        var ids = getCheckedHostIP();#}
+{#        if(ids.length == 0){#}
+{#          #}
+{#        }else{#}
+{#            layer.load();#}
+{#            var param = {"csrfmiddlewaretoken":'{{ csrf_token }}',"host_id":JSON.stringify(ids)};#}
+{#            $.ajax({#}
+{#                type: "POST",#}
+{#                url: '/platform/command_set/listByIds/',#}
+{#                data:param,#}
+{#                error: function (request) {#}
+{#                    layer.closeAll('loading');#}
+{#                },#}
+{#                success: function (data) {#}
+{#                    createSelectHostIpTable(data.host_list);#}
+{#                    layer.closeAll('loading');#}
+{#                }#}
+{#            });#}
+{##}
+{#        }#}
+    }
+
+    function createSelectHostIpTable(data){
+        var hostIpTb = $("#hostIpTb tbody");
+        hostIpTb.empty();
+        $("#hostIpBadge").text('总：0台');
+        $("#checkall").unbind();
+        var flag = data.flag;
+        if(data.host_list){
+            $(data.host_list).each(function(i,item){
+                var id = 0;
+                var host_ip = "";
+                if(flag != 2){
+                    id = item.id;
+                    host_ip = item.host_ip;
+                }else{
+                    id = i;
+                    host_ip = item;
+                }
+                var htmlStr =  htmlStr = "<tr>" +
+                    "   <td>" +
+                    "       <input type='checkbox' class='i-checks icheck' id='"+id+"' hostip='"+host_ip+"' name='trCheckbox'>" +
+                    "   </td>" +
+                    "   <td>" + host_ip +"</td>"
+                    "</tr>";
+                hostIpTb.append(htmlStr);
+            });
+            $("#hostIpBadge").text('总：'+data.host_list.length+'台');
+            $(".i-checks").iCheck({checkboxClass: "icheckbox_square-green", radioClass: "iradio_square-green",});
+            $('#checkall').on('ifChecked', function (event) {
+                $('.icheck').iCheck('check');
+            });
+            $('#checkall').on('ifUnchecked', function (event) {
+                $('.icheck').iCheck('uncheck');
+            });
+        }
+    }
+
+    function selectedMultSelect(list,id){
+        var multSelect = $("#"+id);
+        if(list){
+            $(list).each(function(i,item){
+                multSelect.find("option[value='"+item+"']").attr("selected",true);
+            });
+            multSelect.trigger("liszt:updated");
+        }
+    }
+
+    function getLocalParam(){
+        var result = []
+        $($("#localParamTb tr")).each(function(i,item){
+           var tr = $(item);
+           result.push({'name':tr.find("input[name='localParamKey']").val(),'value':tr.find("input[name='localParamValue']").val()});
+        });
+        return result;
+    }
+
+</script>
+
+{% endblock %}

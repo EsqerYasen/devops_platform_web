@@ -1,0 +1,136 @@
+{% extends 'common/basic_layout.html' %}
+
+{% block content %}
+<div class="wrapper wrapper-content animated fadeInRight" style="height: 100%;">
+    <div class="row" style="height: 100%;">
+        <div class="col-sm-12" style="height: 100%;">
+            <div class="ibox float-e-margins" style="height: 100%;">
+                <div class="ibox-title" style="height: 5%;">
+                    <h5>{{ name }}   执行日志</h5>
+                </div>
+                <div class="ibox-content" style="height: 95%;">
+                    <div class="row" style="height: 100%;">
+                        <div class="col-sm-2" style="border-style: groove;height: 100%;" >
+                            <div class="row" style="height: 5%;">
+                                <label class="control-label"> 执行历史</label>
+                            </div>
+                            <div class="row" style="height: 95%;">
+                                <table style="width: 100%;height: 100%;text-align:center;table-layout: fixed;overflow-y: auto; ">
+                                    {% if job_id %}
+                                        <tr>
+                                            <td style="height:15px">
+                                                <a href="javascript:void(0)" onclick="initInterval()" >当前日志</a>
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                    {% for history in list_history %}
+                                        <tr>
+                                            <td style="height:15px">
+                                                <a href="javascript:void(0)" onclick="showLogInfo({{ history.job_id }})" >{{ history.start_time }}</a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </table>
+                            </div>
+                        </div>
+                        <div class="col-sm-10" style="border-style: groove;height: 100%;">
+                           <div class="row" style="height: 5%;">
+                                <label class="col-sm-2 control-label"> 执行日志</label>
+                               <input id="command_set_id" type="hidden" value="{{ set_id }}"/>
+                               <input id="command_job_id" type="hidden" value="{{ job_id }}"/>
+                           </div>
+                           <div class="row" style="height: 95%;">
+                               <textarea style="width: 100%;height: 95%;resize: none;background: black;font: caption;color: white;" id="textarea_log" readonly value=""></textarea>
+                               <img id="log_modal_img" src="/static/hplus/img/5-121204194103.gif">
+                           </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var sh = null;
+    $(document).ready(function () {
+        initInterval();
+    })
+    function initInterval(){
+        get_job_output();
+        clearInterval(sh);
+        sh = null;
+        sh = setInterval(get_job_output,3000);
+    }
+
+    function get_job_output(){
+        var job_id = $("#command_job_id").val()
+        if(job_id){
+            $.ajax({
+                  type: "GET",
+                  url: '../getExecLog',
+                  data:{"jobId":job_id},
+                  error: function (request) {
+                      clearInterval(sh);
+                      sh = null;
+                  },
+                  success: function (data) {
+                     var jsonObj = data.log_info;
+                     var textArea = $("#textarea_log");
+                     textArea.text("");
+                     if(jsonObj){
+                        var steps = jsonObj["command_steps"]
+                         $(steps).each(function(i,item){
+                             textArea.append("----------------------------------------------------------------"+item.name+"-----------------------------------------------------------------\n");
+                             var lines = item["command_lines"]
+                             $(lines).each(function(i2,item2){
+                                textArea.append(item2["result_message"]);
+                                textArea.append("\n***********************\n\n")
+                             })
+                             textArea.append("----------------------------------------------------------------------------------------------------------------------------------------------\n");
+                         })
+                     }
+                     if(jsonObj["status"] != 1){
+                        clearInterval(sh);
+                        $("#log_modal_img").hide();
+                        sh = null;
+                     }
+                  }
+            });
+        }else{
+            clearInterval(sh);
+            $("#log_modal_img").hide();
+            sh = null;
+        }
+    }
+
+    function showLogInfo(jobId){
+         clearInterval(sh);
+         $("#log_modal_img").hide();
+         sh = null;
+        $.ajax({
+            type: "GET",
+            url: '../getExecLog',
+            data:{"jobId":jobId},
+            error: function (request) {},
+            success: function (data) {
+                var jsonObj = data.log_info;
+                var textArea = $("#textarea_log");
+                textArea.text("");
+                if(jsonObj){
+                    var steps = jsonObj["command_steps"]
+                     $(steps).each(function(i,item){
+                         textArea.append("----------------------------------------------------------------"+item.name+"-----------------------------------------------------------------\n");
+                         var lines = item["command_lines"]
+                         $(lines).each(function(i2,item2){
+                            textArea.append(item2["result_message"]);
+                            textArea.append("\n***********************\n\n")
+                         })
+                         textArea.append("----------------------------------------------------------------------------------------------------------------------------------------------\n");
+                     })
+                }
+            }
+        });
+    }
+</script>
+{% endblock %}

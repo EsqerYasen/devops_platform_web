@@ -134,3 +134,19 @@ def ts_to_date(ts):
     dt = timezone.datetime.fromtimestamp(ts). \
         replace(tzinfo=timezone.get_current_timezone())
     return dt.strftime('%Y-%m-%d %H:%M:%S')
+
+
+@register.filter(name='split')
+def split(value, arg):
+    return value.split(arg)
+
+@register.filter(name='getListFirst')
+def getListFirst(value, arg):
+    return value[arg]
+
+@register.filter(name='emptyValueConversion')
+def emptyValueConversion(value,arg="0"):
+    if value:
+        return value;
+    else:
+        return arg;
