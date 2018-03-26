@@ -429,7 +429,6 @@
 
         formData.append("csrfmiddlewaretoken",'{{ csrf_token }}')
         formData.append("command_set",JSON.stringify(saveJson))
-        debugger;
 
         $.ajax({
             url : '/platform/command_set/add/',
