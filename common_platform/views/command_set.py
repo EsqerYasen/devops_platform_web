@@ -255,7 +255,7 @@ class CommandExecuteLogView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMi
             historyResults = []
             log_info = {}
             if setId:
-                historyResults = hu.get(serivceName="job", restName="/rest/job/list_history/", datas={'set_id':setId})
+                historyResults = hu.get(serivceName="job", restName="/rest/job/list_history/", datas={'set_id':setId,'count':50})
             # if jobId:
             #     log_info = hu.get(serivceName="job", restName="/rest/job/list_history/", datas={'job_id': jobId})
             context['list_history'] = historyResults
