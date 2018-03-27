@@ -228,10 +228,6 @@
                 },
                 success : function(data) {
                     if(data.status == 'SUCCESS'){
-{#                        var generateId = new Date().valueOf();#}
-{#                        var zTree = $.fn.zTree.getZTreeObj("file_tree");#}
-{#                        zTree.addNodes(treeNode, {id:generateId, pId:treeNode.id, name:fileName,node_type:1,file_type:file_type});#}
-
                         Alertwin.alert({message:"上传成功"});
                         modal.modal('hide');
                         location.reload()
