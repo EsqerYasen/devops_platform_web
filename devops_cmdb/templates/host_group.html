@@ -1,10 +1,110 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'common/basic_layout.html' %}
 
-</body>
-</html>
+{% block content %}
+<script type="text/javascript" src="/static/hplus/js/zTree/jquery.ztree.core.js"></script>
+<script type="text/javascript" src="/static/hplus/js/zTree/jquery.ztree.excheck.js"></script>
+<script type="text/javascript" src="/static/hplus/js/zTree/jquery.ztree.exedit.js"></script>
+<script type="text/javascript" src="/static/hplus/js/chosen/chosen.jquery.js"></script>
+<link href="/static/hplus/css/fileinput.min.css" rel="stylesheet">
+<link href="/static/hplus/css/zTree/bootstrapStyle.css" rel="stylesheet">
+<link href="/static/hplus/css/chosen/chosen.css" rel="stylesheet">
+
+
+    <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5>主机组</h5>
+                    </div>
+                    <div class="ibox-content">
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <ul id="host_group_tree" name="host_group_tree" class="ztree"></ul>
+                            </div>
+                            <div class="col-sm-9">
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <label class="col-sm-2 control-label" style="width: 10%"> 节点名称</label>
+                                            <div class="col-sm-10" style="width: 85%">
+                                                <input type="text" id="host_group_name" name="host_group_name" class="form-control" value=""/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            groupTreeDataInit();
+        });
+        var zHostGroupNodes = [];
+        function groupTreeDataInit(){
+            var hostGroupTreeList = {{ hostGroup_list|safe }};
+            readHostGroupTreeNext(hostGroupTreeList,0);
+            zHostGroupTreeInit();
+        }
+        function readHostGroupTreeNext(list,pid){
+            $(list).each(function(i,item){
+                var is_open = pid == 0?true:false;
+                var ids = item.id;
+                var nodeData = {id:ids,pId:pid,name:item.name,nodeId:ids,open:is_open,hasIp:item.has_ip};
+                zHostGroupNodes.push(nodeData);
+                if(item.childs){
+                    readHostGroupTreeNext(item.childs,ids);
+                }
+            });
+        }
+        function zHostGroupTreeInit(){
+            var setting = {
+                view: {
+                    selectedMulti: false,
+                    addDiyDom: hostGroupTreeAddDiy
+                },
+                check: {
+                    enable: true,
+                    chkboxType:  { "Y": "", "N": "" }
+                },
+                data: {
+                    simpleData: {
+                        enable: true
+                    }
+                },
+                edit: {
+                    enable: false
+                }
+            };
+            $.fn.zTree.init($("#host_group_tree"), setting, zHostGroupNodes);
+        }
+        function hostGroupTreeAddDiy(treeId, treeNode) {
+             var aObj = $("#" + treeNode.tId + "_a");
+
+             if($("#badge"+treeNode.id).length==0){
+                  var spanStr = "<span id='badge"+treeNode.id+"' class='label label-info' style='margin-left:20px' title='编号: "+treeNode.nodeId+"'>#group:"+treeNode.nodeId+"</span>";
+                  aObj.append(spanStr);
+             }
+             if(treeNode.hasIp == 1){
+                 if($("#diyBtn_"+treeNode.id).length==0){
+                     var editStr = "<button class='btn btn-sm btn-warning' id='diyBtn_" +treeNode.id+ "' title='"+treeNode.name+"节点下绑定的IP' type='button' style='margin-left:10px'>IP查看</button>";
+                     aObj.append(editStr);
+                     var btn = $("#diyBtn_"+treeNode.id);
+                     if (btn){
+                         btn.bind("click", function(){
+                             alert("diy Button for " + treeNode.name + " "+treeNode.nodeId);
+                         });
+                     }
+                 }
+             }
+        }
+    </script>
+{% endblock %}

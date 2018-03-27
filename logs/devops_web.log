@@ -203,3 +203,18 @@
 [2018-03-26 21:52:23,231] [ERROR] [business_attributes] [process:6532] [thread:3800] Expecting value: line 2 column 1 (char 1)
 [2018-03-26 22:14:53,863] [ERROR] [business_attributes] [process:8940] [thread:8580] Expecting value: line 2 column 1 (char 1)
 [2018-03-26 22:16:08,700] [ERROR] [business_attributes] [process:8940] [thread:7872] Expecting value: line 2 column 1 (char 1)
+[2018-03-27 12:01:48,882] [ERROR] [business_attributes] [process:3820] [thread:9184] 'status'
+[2018-03-27 12:02:30,113] [ERROR] [business_attributes] [process:3820] [thread:8396] 'status'
+[2018-03-27 12:31:30,270] [ERROR] [host_1] [process:6748] [thread:5480] list indices must be integers or slices, not str
+[2018-03-27 12:33:46,716] [ERROR] [host_1] [process:6748] [thread:4324] list indices must be integers or slices, not str
+[2018-03-27 12:34:27,718] [ERROR] [host_1] [process:6748] [thread:1852] list indices must be integers or slices, not str
+[2018-03-27 12:34:41,023] [ERROR] [host_1] [process:6748] [thread:5024] list indices must be integers or slices, not str
+[2018-03-27 12:34:53,899] [ERROR] [host_1] [process:6748] [thread:8632] list indices must be integers or slices, not str
+[2018-03-27 12:35:17,105] [ERROR] [host_1] [process:6748] [thread:9164] list indices must be integers or slices, not str
+[2018-03-27 12:35:54,519] [ERROR] [host_1] [process:6748] [thread:8892] list indices must be integers or slices, not str
+[2018-03-27 12:36:44,010] [ERROR] [host_1] [process:2656] [thread:8236] list indices must be integers or slices, not str
+[2018-03-27 12:36:47,866] [ERROR] [host_1] [process:2656] [thread:1212] list indices must be integers or slices, not str
+[2018-03-27 12:36:52,143] [ERROR] [host_1] [process:2656] [thread:8804] list indices must be integers or slices, not str
+[2018-03-27 12:37:24,759] [ERROR] [host_1] [process:2656] [thread:9024] list indices must be integers or slices, not str
+[2018-03-27 12:38:21,060] [ERROR] [host_1] [process:8964] [thread:3200] object of type 'Response' has no len()
+[2018-03-27 12:38:58,104] [ERROR] [host_1] [process:8964] [thread:8128] object of type 'Response' has no len()

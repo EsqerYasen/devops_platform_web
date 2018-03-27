@@ -87,14 +87,29 @@ class Host1Import(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, View)
             assert_file = request.FILES.get('files',None)
             wb = xlrd.open_workbook(filename=None, file_contents=assert_file.read())
             req_list = []
+            hu = HttpUtils(request)
             for i in range(1, wb.sheets()[0].nrows):
                 row = wb.sheets()[0].row_values(i)
-                dict = {'host_ip': row[0], 'biz_brand': row[1], 'biz_group': row[2], 'physical_idc': row[3],'logical_idc': row[4]}
-                req_list.append(dict)
-            hu = HttpUtils(request)
-            addResult = hu.post(serivceName="cmdb", restName="/rest/host/add/", datas=req_list)
 
-            result_json = {"status": 0}
+                brandResult = hu.get(serivceName="cmdb", restName="/rest/brands/", datas={'key_code': row[1]}).get("results", [])
+                if len(brandResult) > 0:
+                    groupResult = hu.get(serivceName="cmdb", restName="/rest/groups/", datas={'key_code':row[2]}).get("results", [])
+                    if len(groupResult):
+                        pidcResult = hu.get(serivceName="cmdb", restName="/rest/pidc/", datas={'key_code':row[3]}).get("results", [])
+                        if len(pidcResult):
+                            lidcResult = hu.get(serivceName="cmdb", restName="/rest/lidc/", datas={'key_code':row[4]}).get("results", [])
+                            if len(lidcResult):
+                                dict = {'host_ip': row[0], 'biz_brand': brandResult[0]['id'], 'biz_group': groupResult[0]['id'], 'physical_idc': pidcResult[0]['id'],'logical_idc': lidcResult[0]['id']}
+                                req_list.append(dict)
+
+
+            addResult = hu.post(serivceName="cmdb", restName="/rest/host/add/", datas=req_list)
+            addResult = addResult.json()
+            if len(addResult) > 0:
+                updateResult = hu.post(serivceName="cmdb", restName="/rest/host/update/", datas=req_list)
+                updateResult = updateResult.json()
+                if len(updateResult) > 0:
+                    result_json = {"status": 0}
         except Exception as e:
             result_json = {"status": 1}
             logger.error(e)

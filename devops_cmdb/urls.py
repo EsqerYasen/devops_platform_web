@@ -3,6 +3,7 @@ from devops_cmdb.views.host_1 import *
 from devops_cmdb.views.host_2 import *
 from devops_cmdb.views.host_3 import *
 from devops_cmdb.views.business_attributes import *
+from devops_cmdb.views.host_group import *
 
 urlpatterns = [
     url(r'^host/', include([
@@ -29,6 +30,8 @@ urlpatterns = [
         url(r'^get_groups_by_brandId/', GetGroupsByBrandId.as_view(), name='get_groups_by_brandId'),
         url(r'^get_module_by_bIdgId/', GetModulesByBIdGId.as_view(), name='get_module_by_bIdgId'),
         url(r'^get_service_by_bIdgIdMid/', GetServiceByBIdGIdMid.as_view(), name='get_service_by_bIdgIdMid'),
-
     ])),
+    url(r'^host_group/', include([
+        url(r'^tree_list/', HostGroupView.as_view(), name='tree_list'),
+    ]))
 ]
