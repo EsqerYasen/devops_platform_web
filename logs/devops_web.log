@@ -198,3 +198,8 @@
 或批处理文件。
 [2018-03-26 12:03:59,223] [ERROR] [file_manage] [process:9804] [thread:9716] 'sed' 不是内部或外部命令，也不是可运行的程序
 或批处理文件。
+[2018-03-26 21:48:02,274] [ERROR] [business_attributes] [process:6532] [thread:7292] Expecting value: line 2 column 1 (char 1)
+[2018-03-26 21:51:43,004] [ERROR] [business_attributes] [process:6532] [thread:7876] Expecting value: line 2 column 1 (char 1)
+[2018-03-26 21:52:23,231] [ERROR] [business_attributes] [process:6532] [thread:3800] Expecting value: line 2 column 1 (char 1)
+[2018-03-26 22:14:53,863] [ERROR] [business_attributes] [process:8940] [thread:8580] Expecting value: line 2 column 1 (char 1)
+[2018-03-26 22:16:08,700] [ERROR] [business_attributes] [process:8940] [thread:7872] Expecting value: line 2 column 1 (char 1)

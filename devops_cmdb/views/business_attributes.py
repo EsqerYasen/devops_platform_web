@@ -63,7 +63,7 @@ class BusinesAttributessView(LoginRequiredMixin, TemplateView):
         name = args.get('name', None)
         if name:
             getData['name'] = name
-        hu = HttpUtils()
+        hu = HttpUtils(self.request)
         resultJson = hu.get(serivceName="cmdb", restName="/rest/brands/", datas=getData)
         return resultJson
 
@@ -77,7 +77,7 @@ class BusinesAttributessView(LoginRequiredMixin, TemplateView):
         biz_brand_id = args.get('biz_brand_id', None)
         if biz_brand_id:
             getData['biz_brand'] = biz_brand_id
-        hu = HttpUtils()
+        hu = HttpUtils(self.request)
         resultJson = hu.get(serivceName="cmdb", restName="/rest/groups/", datas=getData)
         return resultJson
 
@@ -94,7 +94,7 @@ class BusinesAttributessView(LoginRequiredMixin, TemplateView):
         biz_group_id = args.get('biz_group_id', None)
         if biz_group_id:
             getData['biz_group'] = biz_group_id
-        hu = HttpUtils()
+        hu = HttpUtils(self.request)
         resultJson = hu.get(serivceName="cmdb", restName="/rest/modules/", datas=getData)
         return resultJson
 
@@ -114,7 +114,7 @@ class BusinesAttributessView(LoginRequiredMixin, TemplateView):
         biz_module_id = args.get('biz_module_id', None)
         if biz_module_id:
             getData['biz_module'] = biz_module_id
-        hu = HttpUtils()
+        hu = HttpUtils(self.request)
         resultJson = hu.get(serivceName="cmdb", restName="/rest/services/", datas=getData)
         return resultJson
 
@@ -125,7 +125,7 @@ class BusinesAttributessView(LoginRequiredMixin, TemplateView):
         name = args.get('name', None)
         if name:
             getData['name'] = name
-        hu = HttpUtils()
+        hu = HttpUtils(self.request)
         resultJson = hu.get(serivceName="cmdb", restName="/rest/mw/", datas=getData)
         return resultJson
 
@@ -136,7 +136,7 @@ class BusinesAttributessView(LoginRequiredMixin, TemplateView):
         name = args.get('name', None)
         if name:
             getData['name'] = name
-        hu = HttpUtils()
+        hu = HttpUtils(self.request)
         resultJson = hu.get(serivceName="cmdb", restName="/rest/lidc/", datas=getData)
         return resultJson
 
@@ -147,7 +147,7 @@ class BusinesAttributessView(LoginRequiredMixin, TemplateView):
         name = args.get('name', None)
         if name:
             getData['name'] = name
-        hu = HttpUtils()
+        hu = HttpUtils(self.request)
         resultJson = hu.get(serivceName="cmdb", restName="/rest/pidc/", datas=getData)
         return resultJson
 
@@ -158,7 +158,7 @@ class BusinesAttributessView(LoginRequiredMixin, TemplateView):
         name = args.get('name', None)
         if name:
             getData['name'] = name
-        hu = HttpUtils()
+        hu = HttpUtils(self.request)
         resultJson = hu.get(serivceName="cmdb", restName="/rest/env/", datas=getData)
         return resultJson
 
@@ -169,7 +169,7 @@ class BusinesAttributessView(LoginRequiredMixin, TemplateView):
         name = args.get('name', None)
         if name:
             getData['name'] = name
-        hu = HttpUtils()
+        hu = HttpUtils(self.request)
         resultJson = hu.get(serivceName="cmdb", restName="/rest/dns/", datas=getData)
         return resultJson
 
@@ -186,13 +186,17 @@ class BusinesAttributessCreateAjaxView(LoginRequiredMixin,JSONResponseMixin, Aja
             elif tab == "2":
                 resultJson = self.createModule(request)
             elif tab == "3":
-                resultJson = self.createMiddleware(request)
+                resultJson = self.createService(request)
             elif tab == "4":
-                resultJson = self.createLogical_idc(request)
+                resultJson = self.createMiddleware(request)
             elif tab == "5":
-                resultJson = self.createPhysical_idc(request)
+                resultJson = self.createLogical_idc(request)
             elif tab == "6":
+                resultJson = self.createPhysical_idc(request)
+            elif tab == "7":
                 resultJson = self.createDeployment_environment(request)
+            elif tab == "8":
+                resultJson = self.createDns(request)
 
         except Exception as e:
             logger.error(e)
@@ -207,8 +211,8 @@ class BusinesAttributessCreateAjaxView(LoginRequiredMixin,JSONResponseMixin, Aja
             saveJson['created_by'] = user.username
             saveJson['updated_by'] = user.username
             saveJson['is_enabled'] = True
-            hu = HttpUtils()
-            resultJson = hu.post(serivceName="appcenter", restName="/rest/brands/", datas=saveJson)
+            hu = HttpUtils(req)
+            resultJson = hu.post(serivceName="cmdb", restName="/rest/brands/", datas=saveJson)
             resultJson = resultJson.json()
             if resultJson['id'] > 0:
                 result['status'] = 'SUCCESS';
@@ -228,8 +232,8 @@ class BusinesAttributessCreateAjaxView(LoginRequiredMixin,JSONResponseMixin, Aja
                 saveJson['created_by'] = user.username
                 saveJson['updated_by'] = user.username
                 saveJson['is_enabled'] = True
-                hu = HttpUtils()
-                resultJson = hu.post(serivceName="appcenter", restName="/rest/group_add/", datas=saveJson)
+                hu = HttpUtils(req)
+                resultJson = hu.post(serivceName="cmdb", restName="/rest/group_add/", datas=saveJson)
                 resultJson = resultJson.json()
                 if resultJson['status'] == 'SUCCESS':
                     result['status'] = 'SUCCESS';
@@ -252,8 +256,8 @@ class BusinesAttributessCreateAjaxView(LoginRequiredMixin,JSONResponseMixin, Aja
             brand_id = int(saveJson.get("biz_brand_id", 0))
             group_id = int(saveJson.get("biz_group_id", 0))
             if brand_id > 0 and group_id > 0:
-                hu = HttpUtils()
-                resultJson = hu.post(serivceName="appcenter", restName="/rest/module_add/", datas=saveJson)
+                hu = HttpUtils(req)
+                resultJson = hu.post(serivceName="cmdb", restName="/rest/module_add/", datas=saveJson)
                 resultJson = resultJson.json()
                 if resultJson['status'] == 'SUCCESS':
                     result['status'] = 'SUCCESS';
@@ -267,12 +271,37 @@ class BusinesAttributessCreateAjaxView(LoginRequiredMixin,JSONResponseMixin, Aja
             result['status'] = 'FAILURE';
         return result
 
+    def createService(self,req):
+        result = {}
+        saveJson = req.POST.get("saveJson", None)
+        if saveJson:
+            user = req.user
+            saveJson = eval(saveJson)
+            brand_id = int(saveJson.get("biz_brand_id", 0))
+            group_id = int(saveJson.get("biz_group_id", 0))
+            module_id = int(saveJson.get("biz_module_id", 0))
+            if brand_id > 0 and group_id > 0 and module_id > 0:
+                hu = HttpUtils(req)
+                resultJson = hu.post(serivceName="cmdb", restName="/rest/service_add/", datas=saveJson)
+                resultJson = resultJson.json()
+                if resultJson['status'] == 'SUCCESS':
+                    result['status'] = 'SUCCESS';
+                else:
+                    result['status'] = 'FAILURE';
+                    result['msg'] = resultJson['msg'];
+            else:
+                result['status'] = 'FAILURE';
+                result['msg'] = '品牌、业务线或模块为空';
+        else:
+            result['status'] = 'FAILURE';
+        return result
+
     def createMiddleware(self,req):
         result = {}
         saveJson = req.POST.get("saveJson", None)
         if saveJson:
-            hu = HttpUtils()
-            resultJson = hu.post(serivceName="appcenter", restName="/rest/middleWare_add/", datas=saveJson)
+            hu = HttpUtils(req)
+            resultJson = hu.post(serivceName="cmdb", restName="/rest/middleWare_add/", datas=saveJson)
             resultJson = resultJson.json()
             if resultJson['status'] == 'SUCCESS':
                 result['status'] = 'SUCCESS';
@@ -287,8 +316,8 @@ class BusinesAttributessCreateAjaxView(LoginRequiredMixin,JSONResponseMixin, Aja
         result = {}
         saveJson = req.POST.get("saveJson", None)
         if saveJson:
-            hu = HttpUtils()
-            resultJson = hu.post(serivceName="appcenter", restName="/rest/logicalIDC_add/", datas=saveJson)
+            hu = HttpUtils(req)
+            resultJson = hu.post(serivceName="cmdb", restName="/rest/logicalIDC_add/", datas=saveJson)
             resultJson = resultJson.json()
             if resultJson['status'] == 'SUCCESS':
                 result['status'] = 'SUCCESS';
@@ -303,8 +332,8 @@ class BusinesAttributessCreateAjaxView(LoginRequiredMixin,JSONResponseMixin, Aja
         result = {}
         saveJson = req.POST.get("saveJson", None)
         if saveJson:
-            hu = HttpUtils()
-            resultJson = hu.post(serivceName="appcenter", restName="/rest/physicalIDC_add/", datas=saveJson)
+            hu = HttpUtils(req)
+            resultJson = hu.post(serivceName="cmdb", restName="/rest/physicalIDC_add/", datas=saveJson)
             resultJson = resultJson.json()
             if resultJson['status'] == 'SUCCESS':
                 result['status'] = 'SUCCESS';
@@ -319,8 +348,24 @@ class BusinesAttributessCreateAjaxView(LoginRequiredMixin,JSONResponseMixin, Aja
         result = {}
         saveJson = req.POST.get("saveJson", None)
         if saveJson:
-            hu = HttpUtils()
-            resultJson = hu.post(serivceName="appcenter", restName="/rest/deploymentEnv_add/", datas=saveJson)
+            hu = HttpUtils(req)
+            resultJson = hu.post(serivceName="cmdb", restName="/rest/deploymentEnv_add/", datas=saveJson)
+            resultJson = resultJson.json()
+            if resultJson['status'] == 'SUCCESS':
+                result['status'] = 'SUCCESS';
+            else:
+                result['status'] = 'FAILURE';
+                result['msg'] = resultJson['msg'];
+        else:
+            result['status'] = 'FAILURE';
+        return result
+
+    def createDns(self, req):
+        result = {}
+        saveJson = req.POST.get("saveJson", None)
+        if saveJson:
+            hu = HttpUtils(req)
+            resultJson = hu.post(serivceName="cmdb", restName="/rest/dns_add/", datas=saveJson)
             resultJson = resultJson.json()
             if resultJson['status'] == 'SUCCESS':
                 result['status'] = 'SUCCESS';
@@ -345,13 +390,17 @@ class BusinesAttributessUpdateAjaxView(LoginRequiredMixin,JSONResponseMixin, Aja
             elif tab == "2":
                 resultJson = self.updateModule(request)
             elif tab == "3":
-                resultJson = self.updateMiddleware(request)
+                resultJson = self.updateService(request)
             elif tab == "4":
-                resultJson = self.updateLogical_idc(request)
+                resultJson = self.updateMiddleware(request)
             elif tab == "5":
-                resultJson = self.updatePhysical_idc(request)
+                resultJson = self.updateLogical_idc(request)
             elif tab == "6":
+                resultJson = self.updatePhysical_idc(request)
+            elif tab == "7":
                 resultJson = self.updateDeployment_environment(request)
+            elif tab == "8":
+                resultJson = self.updateDns(request)
 
         except Exception as e:
             logger.error(e)
@@ -361,8 +410,8 @@ class BusinesAttributessUpdateAjaxView(LoginRequiredMixin,JSONResponseMixin, Aja
         result = {}
         saveJson = req.POST.get("saveJson",None)
         if saveJson:
-            hu = HttpUtils()
-            resultJson = hu.post(serivceName="appcenter", restName="/rest/brand_edit/", datas=saveJson)
+            hu = HttpUtils(req)
+            resultJson = hu.post(serivceName="cmdb", restName="/rest/brand_edit/", datas=saveJson)
             resultJson = resultJson.json()
             if resultJson['status'] == 'SUCCESS':
                 result['status'] = 'SUCCESS';
@@ -377,8 +426,8 @@ class BusinesAttributessUpdateAjaxView(LoginRequiredMixin,JSONResponseMixin, Aja
         result = {}
         saveJson = req.POST.get("saveJson", None)
         if saveJson:
-            hu = HttpUtils()
-            resultJson = hu.post(serivceName="appcenter", restName="/rest/group_edit/", datas=saveJson)
+            hu = HttpUtils(req)
+            resultJson = hu.post(serivceName="cmdb", restName="/rest/group_edit/", datas=saveJson)
             resultJson = resultJson.json()
             if resultJson['status'] == 'SUCCESS':
                 result['status'] = 'SUCCESS';
@@ -393,8 +442,24 @@ class BusinesAttributessUpdateAjaxView(LoginRequiredMixin,JSONResponseMixin, Aja
         result = {}
         saveJson = req.POST.get("saveJson", None)
         if saveJson:
-            hu = HttpUtils()
-            resultJson = hu.post(serivceName="appcenter", restName="/rest/module_edit/", datas=saveJson)
+            hu = HttpUtils(req)
+            resultJson = hu.post(serivceName="cmdb", restName="/rest/module_edit/", datas=saveJson)
+            resultJson = resultJson.json()
+            if resultJson['status'] == 'SUCCESS':
+                result['status'] = 'SUCCESS';
+            else:
+                result['status'] = 'FAILURE';
+                result['msg'] = resultJson['msg'];
+        else:
+            result['status'] = 'FAILURE';
+        return result
+
+    def updateService(self, req):
+        result = {}
+        saveJson = req.POST.get("saveJson", None)
+        if saveJson:
+            hu = HttpUtils(req)
+            resultJson = hu.post(serivceName="cmdb", restName="/rest/service_edit/", datas=saveJson)
             resultJson = resultJson.json()
             if resultJson['status'] == 'SUCCESS':
                 result['status'] = 'SUCCESS';
@@ -409,8 +474,8 @@ class BusinesAttributessUpdateAjaxView(LoginRequiredMixin,JSONResponseMixin, Aja
         result = {}
         saveJson = req.POST.get("saveJson", None)
         if saveJson:
-            hu = HttpUtils()
-            resultJson = hu.post(serivceName="appcenter", restName="/rest/middleWare_edit/", datas=saveJson)
+            hu = HttpUtils(req)
+            resultJson = hu.post(serivceName="cmdb", restName="/rest/middleWare_edit/", datas=saveJson)
             resultJson = resultJson.json()
             if resultJson['status'] == 'SUCCESS':
                 result['status'] = 'SUCCESS';
@@ -425,8 +490,8 @@ class BusinesAttributessUpdateAjaxView(LoginRequiredMixin,JSONResponseMixin, Aja
         result = {}
         saveJson = req.POST.get("saveJson", None)
         if saveJson:
-            hu = HttpUtils()
-            resultJson = hu.post(serivceName="appcenter", restName="/rest/logicalIDC_edit/", datas=saveJson)
+            hu = HttpUtils(req)
+            resultJson = hu.post(serivceName="cmdb", restName="/rest/logicalIDC_edit/", datas=saveJson)
             resultJson = resultJson.json()
             if resultJson['status'] == 'SUCCESS':
                 result['status'] = 'SUCCESS';
@@ -442,7 +507,7 @@ class BusinesAttributessUpdateAjaxView(LoginRequiredMixin,JSONResponseMixin, Aja
         saveJson = req.POST.get("saveJson", None)
         if saveJson:
             hu = HttpUtils(req)
-            resultJson = hu.post(serivceName="appcenter", restName="/rest/physicalIDC_edit/", datas=saveJson)
+            resultJson = hu.post(serivceName="cmdb", restName="/rest/physicalIDC_edit/", datas=saveJson)
             resultJson = resultJson.json()
             if resultJson['status'] == 'SUCCESS':
                 result['status'] = 'SUCCESS';
@@ -458,7 +523,23 @@ class BusinesAttributessUpdateAjaxView(LoginRequiredMixin,JSONResponseMixin, Aja
         saveJson = req.POST.get("saveJson", None)
         if saveJson:
             hu = HttpUtils(req)
-            resultJson = hu.post(serivceName="appcenter", restName="/rest/deploymentEnv_edit/", datas=saveJson)
+            resultJson = hu.post(serivceName="cmdb", restName="/rest/deploymentEnv_edit/", datas=saveJson)
+            resultJson = resultJson.json()
+            if resultJson['status'] == 'SUCCESS':
+                result['status'] = 'SUCCESS';
+            else:
+                result['status'] = 'FAILURE';
+                result['msg'] = resultJson['msg'];
+        else:
+            result['status'] = 'FAILURE';
+        return result
+
+    def updateDns(self,req):
+        result = {}
+        saveJson = req.POST.get("saveJson", None)
+        if saveJson:
+            hu = HttpUtils(req)
+            resultJson = hu.post(serivceName="cmdb", restName="/rest/dns_edit/", datas=saveJson)
             resultJson = resultJson.json()
             if resultJson['status'] == 'SUCCESS':
                 result['status'] = 'SUCCESS';
@@ -484,14 +565,17 @@ class BusinesAttributessDelAjaxView(LoginRequiredMixin,JSONResponseMixin, AjaxRe
             elif tab == "2":
                 url = "/rest/module_edit/"
             elif tab == "3":
-                url = "/rest/middleWare_edit/"
+                url = "/rest/service_edit/"
             elif tab == "4":
-                url = "/rest/logicalIDC_edit/"
+                url = "/rest/middleWare_edit/"
             elif tab == "5":
-                url = "/rest/physicalIDC_edit/"
+                url = "/rest/logicalIDC_edit/"
             elif tab == "6":
+                url = "/rest/physicalIDC_edit/"
+            elif tab == "7":
                 url = "/rest/deploymentEnv_edit/"
-
+            elif tab == "8":
+                url = "/rest/dns_edit/"
             resultJson = self.delPub(url,request)
         except Exception as e:
             logger.error(e)
@@ -502,7 +586,7 @@ class BusinesAttributessDelAjaxView(LoginRequiredMixin,JSONResponseMixin, AjaxRe
         id = req.POST.get("id",None)
         if id:
             hu = HttpUtils(req)
-            resultJson = hu.post(serivceName="appcenter", restName=url, datas={"id":id,"is_enabled":False})
+            resultJson = hu.post(serivceName="cmdb", restName=url, datas={"id":id,"is_enabled":False})
             resultJson = resultJson.json()
             if resultJson['status'] == 'SUCCESS':
                 result['status'] = 'SUCCESS';

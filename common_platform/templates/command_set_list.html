@@ -7,7 +7,7 @@
 
 {% block  list_search %}
     <div class="col-sm-2">
-        <input type="text" name="name" class="form-control m-b" placeholder="作业名称" id="name">
+        <input type="text" id="name" name="name" class="form-control m-b" placeholder="作业名称" />
     </div>
 {% endblock %}
 
@@ -81,15 +81,17 @@
 
     <script>
         function deleteCommandSet(id){
-            $.ajax({
-                type: "GET",
-                url: '../delete',
-                data:{"id":id},
-                error: function (request) {},
-                success: function (data) {
-                    location.reload();
-                }
-            });
+             Alertwin.confirm({ message: "确认要删除选择的数据吗？" }).on(function (e) {
+                 $.ajax({
+                    type: "GET",
+                    url: '../delete',
+                    data:{"id":id},
+                    error: function (request) {},
+                    success: function (data) {
+                        location.reload();
+                    }
+                });
+             });
         }
     </script>
 

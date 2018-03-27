@@ -141,17 +141,30 @@
                     $("#pro_modal_id").val(data['id']);
                     $("#pro_modal_name").val(data['name']);
                     $("#pro_modal_key_code").val(data['keycode']);
-                    if(tab == 1 || tab == 2){
+
+                    if(tab == 1 || tab == 2 || tab == 3){
                         var bizbrandid = data['bizbrandid'];
                         t.data('bizbrandid',bizbrandid);
                         $("#pro_modal_biz_brand_id").val(bizbrandid);
                     }
-                    if(tab == 2){
+                    if(tab == 2 ||tab == 3){
                         var bizgroupid = data['bizgroupid'];
                         t.data('bizgroupid',bizgroupid);
                         brandChange($("#pro_modal_biz_brand_id"),'pro_modal_biz_group_id');
                         $("#pro_modal_biz_group_id").val(bizgroupid);
                     }
+                    if(tab == 3){
+                        var bizmodule = data['bizmodule'];
+                        t.data('bizmodule',bizmodule);
+                        groupChange($("#pro_modal_biz_group_id"),'pro_modal_biz_brand_id','pro_modal_biz_module_id');
+                        $("#pro_modal_biz_module_id").val(bizmodule);
+                    }
+                    if(tab == 4){
+                        var port = data['port'];
+                        t.data('port',port);
+                        $("#pro_modal_port").val(port);
+                    }
+
                 }
                 $("#labOptName").text(tabNameDict[tab]);
             })
@@ -201,6 +214,15 @@
                         }
                     }
                     {% endif %}
+                    {% if tab == '3' %}
+                    biz_module_id:{
+                        validators: {
+                            notEmpty: {
+                                message: '业务应用不能为空'
+                            }
+                        }
+                    }
+                    {% endif %}
                 }
             })
         }
@@ -217,7 +239,7 @@
            form.bootstrapValidator('validate');
            var bool = form.data('bootstrapValidator').isValid()
            if(bool){
-                var modal = $("#app_property_modal");
+                var modal = $("#business_attributes_modal");
                 var data = modal.data();
                 var isadd = data['isadd'];
                 var tab = data['tab'];
@@ -234,11 +256,18 @@
                     saveJson['id'] = id;
                     ajaxUrl = "/cmdb/business/attributes_update_view/";
                 }
-                if(tab == 1 || tab == 2){
+                if(tab == 1 || tab == 2 || tab == 3){
                     saveJson['biz_brand_id'] = $("#pro_modal_biz_brand_id").val();
                 }
                 if(tab == 2){
                     saveJson['biz_group_id'] = $("#pro_modal_biz_group_id").val();
+                }
+                if(tab == 3){
+                    saveJson['biz_group_id'] = $("#pro_modal_biz_group_id").val();
+                    saveJson['biz_module_id'] = $("#pro_modal_biz_module_id").val();
+                }
+                if(tab == 4){
+                    saveJson['port'] = $("#pro_modal_port").val();
                 }
                 $.ajax({
                     type: "POST",
@@ -291,7 +320,7 @@
             </div>
              <div class="modal-body" >
                 <form id="business_attributes_form" class="form-horizontal">
-                    {% if tab == '1' or tab == '2' %}
+                    {% if tab == '1' or tab == '2' or tab == '3' %}
                      <div class="form-group" >
                          <label class="col-lg-3 control-label" style="width: 22%">
                              *品牌
@@ -320,6 +349,28 @@
                         </div>
                     </div>
                     {% endif %}
+                    {% if tab == '3' %}
+                    <div class="form-group" >
+                         <label class="col-lg-3 control-label" style="width: 22%">
+                             *业务线
+                         </label>
+                         <div class="col-lg-5" style="width: 78%">
+                        <select id="pro_modal_biz_group_id" name="biz_group_id" class="form-control" onchange="groupChange(this,'pro_modal_biz_brand_id','pro_modal_biz_module_id')">
+                            <option value="" >----请选择业务线----</option>
+                        </select>
+                        </div>
+                    </div>
+                    <div class="form-group" >
+                         <label class="col-lg-3 control-label" style="width: 22%">
+                             *业务应用
+                         </label>
+                         <div class="col-lg-5" style="width: 78%">
+                        <select id="pro_modal_biz_module_id" name="biz_module_id" class="form-control" >
+                            <option value="" >----请选择应用----</option>
+                        </select>
+                        </div>
+                    </div>
+                    {% endif %}
                     <div class="form-group" >
                          <label class="col-lg-3 control-label" style="width: 22%">
                              *名称
@@ -337,6 +388,16 @@
                             <input type="text" id="pro_modal_key_code" name="key_code" class="form-control" value=""/>
                          </div>
                     </div>
+                {% if tab == '4' %}
+                    <div class="form-group" >
+                         <label class="col-lg-3 control-label" style="width: 22%">
+                             端口
+                         </label>
+                         <div class="col-lg-5" style="width: 78%">
+                         <input type="text" id="pro_modal_port" name="port" class="form-control" value="80"/>
+                        </div>
+                    </div>
+                {% endif %}
                 </form>
             </div>
             <div class="modal-footer">

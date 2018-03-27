@@ -12,7 +12,7 @@
                             <div class="col-sm-6">
                                 <div class="input-group">
                                     <button type="submit" class="btn btn-sm btn-primary" style="margin-right: 10px"><i class="fa fa-search"></i> 搜索</button>
-                                    <button type='button' data-toggle='modal' data-target='#business_attributes_modal' data-isadd="1" data-tab="3" class="btn btn-sm btn-primary">
+                                    <button type='button' data-toggle='modal' data-target='#business_attributes_modal' data-isadd="1" data-tab="4" class="btn btn-sm btn-primary">
                                         <span class="glyphicon glyphicon-save" aria-hidden="true"></span>新增
                                     </button>
                                 </div>
@@ -25,8 +25,9 @@
                             <thead>
                                 <tr>
                                     <th style="width:3%;"><input id="checkall" type="checkbox" class="i-checks"></th>
-                                    <th style="width: 25%;">名称</th>
-                                    <th style="width: 25%;">Key Code</th>
+                                    <th style="width: 20%;">名称</th>
+                                    <th style="width: 20%;">Key Code</th>
+                                    <th style="width: 10%;">端口</th>
                                     <th style="width: 25%;">创建时间</th>
                                     <th style="width:10%;">操作</th>
                                 </tr>
@@ -39,12 +40,13 @@
                                     </td>
                                     <td>{{ o.name }}</td>
                                     <td>{{ o.key_code }}</td>
+                                    <td>{{ o.port }}</td>
                                     <td>{{ o.create_time }}</td>
                                     <td>
-                                        <button type='button'  data-toggle='modal' data-target='#business_attributes_modal' data-id ='{{ o.id }}' data-tab="3" data-isadd="0" data-name='{{ o.name }}' data-keycode='{{ o.key_code }}' class="btn btn-sm btn-primary">
+                                        <button type='button'  data-toggle='modal' data-target='#business_attributes_modal' data-id ='{{ o.id }}' data-tab="4" data-isadd="0" data-name='{{ o.name }}' data-keycode='{{ o.key_code }}' data-port="{{ o.port }}" class="btn btn-sm btn-primary">
                                             <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>修改
                                         </button>
-                                        <a href="javascript:void(0)" onclick="appProDelAction('{{ o.id }}','3')" class="btn  btn-sm btn-danger"><i class="fa fa-trash"></i>&nbsp;删除</a>
+                                        <a href="javascript:void(0)" onclick="appProDelAction('{{ o.id }}','4')" class="btn  btn-sm btn-danger"><i class="fa fa-trash"></i>&nbsp;删除</a>
                                     </td>
                                 </tr>
                             {% endfor %}

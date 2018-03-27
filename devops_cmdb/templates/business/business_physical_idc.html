@@ -15,7 +15,7 @@
                             <div class="col-sm-6">
                                 <div class="input-group">
                                     <button type="submit" class="btn btn-sm btn-primary" style="margin-right: 10px"><i class="fa fa-search"></i> 搜索</button>
-                                    <button type='button' data-toggle='modal'  data-target='#business_attributes_modal' data-isadd="1" data-tab="5" class="btn btn-sm btn-primary">
+                                    <button type='button' data-toggle='modal'  data-target='#business_attributes_modal' data-isadd="1" data-tab="6" class="btn btn-sm btn-primary">
                                         <span class="glyphicon glyphicon-save" aria-hidden="true"></span>新增
                                     </button>
                                 </div>
@@ -44,10 +44,10 @@
                                     <td>{{ o.key_code }}</td>
                                     <td>{{ o.create_time }}</td>
                                     <td>
-                                        <button type='button'  data-toggle='modal' data-target='#business_attributes_modal' data-id ='{{ o.id }}' data-isadd="0" data-tab="5" data-name='{{ o.name }}' data-keycode='{{ o.key_code }}' class="btn btn-sm btn-primary">
+                                        <button type='button'  data-toggle='modal' data-target='#business_attributes_modal' data-id ='{{ o.id }}' data-isadd="0" data-tab="6" data-name='{{ o.name }}' data-keycode='{{ o.key_code }}' class="btn btn-sm btn-primary">
                                             <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>修改
                                         </button>
-                                        <a href="javascript:void(0)" onclick="appProDelAction('{{ o.id }}','5')" class="btn  btn-sm btn-danger"><i class="fa fa-trash"></i>&nbsp;删除</a>
+                                        <a href="javascript:void(0)" onclick="appProDelAction('{{ o.id }}','6')" class="btn  btn-sm btn-danger"><i class="fa fa-trash"></i>&nbsp;删除</a>
                                     </td>
                                 </tr>
                             {% endfor %}
