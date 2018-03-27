@@ -206,7 +206,7 @@
             var path = treeNode.path;
             var fileName = files[0].name;
             var file_type = 1;
-            if(fileName.indexOf('yaml') || fileName.indexOf('yml')){
+            if(fileName.indexOf('yaml')>=0 || fileName.indexOf('yml')>=0){
                 file_type = 2;
             }
             var saveJson = {'parent_id':treeNode.id,'name':fileName,"type":1,"tag":tag_name,'default_parameter':script_param,'file_type':file_type}
