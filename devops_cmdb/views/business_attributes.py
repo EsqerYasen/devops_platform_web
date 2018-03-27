@@ -212,9 +212,9 @@ class BusinesAttributessCreateAjaxView(LoginRequiredMixin,JSONResponseMixin, Aja
             saveJson['updated_by'] = user.username
             saveJson['is_enabled'] = True
             hu = HttpUtils(req)
-            resultJson = hu.post(serivceName="cmdb", restName="/rest/brands/", datas=saveJson)
+            resultJson = hu.post(serivceName="cmdb", restName="/rest/brand_add/", datas=saveJson)
             resultJson = resultJson.json()
-            if resultJson['id'] > 0:
+            if resultJson['status'] == 'SUCCESS':
                 result['status'] = 'SUCCESS';
             else:
                 result['status'] = 'FAILURE';
