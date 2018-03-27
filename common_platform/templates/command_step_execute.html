@@ -81,12 +81,13 @@
                                                         <input type='text' id='stepName{{ step.seq_no }}' value='{{ step.name }}' readonly class='form-control' style='width: 40%' placeholder='步骤名称'/>
                                                         <input type='hidden' id='selectHostValue{{ step.seq_no }}' tabName='{{ step.tab_name }}' tabType='{{ step.target_type }}'
                                                                {% if step.host_filter %}
-                                                               value='{"host_filter":{{ step.host_filter }}}'
+                                                               value='{"host_filter":{{ step.host_filter }},"target_host_list":{{ step.target_host_list }}}'
                                                                {% elif step.target_group_ids %}
-                                                               value='{"target_group":"{{ step.target_group_ids }}"}'
-                                                               {% else %}
-                                                               value='{"target_host_list":"{{ step.target_host_list }}"}'
+                                                               value='{"target_group":"{{ step.target_group_ids }}","target_host_list":{{ step.target_host_list }}}'
                                                                {% endif %}
+{#                                                               {% if step.target_host_list%}#}
+{#                                                               value='{"target_host_list":{{ step.target_host_list }}}'#}
+{#                                                               {% endif %}#}
                                                         />
                                                     </td>
                                                     <td width='32%'>
@@ -154,12 +155,10 @@
                                                  <td width='50%'>
                                                      <input type='text' id='stepName{{ step.seq_no }}' value='{{ step.name }}' readonly class='form-control' style='width: 40%' placeholder='步骤名称'/>
                                                      <input type='hidden' id='selectHostValue{{ step.seq_no }}' tabName='{{ step.tab_name }}' tabType='{{ step.target_type }}'
-                                                               {% if step.host_filter %}
-                                                               value='{"host_filter":{{ step.host_filter }}}'
+                                                              {% if step.host_filter %}
+                                                               value='{"host_filter":{{ step.host_filter }},"target_host_list":{{ step.target_host_list }}}'
                                                                {% elif step.target_group_ids %}
-                                                               value='{"host_filter":{{ step.target_group_ids }}}'
-                                                               {% else %}
-                                                               value='{"target_host_list":"{{ step.target_host_list }}"}'
+                                                               value='{"target_group":"{{ step.target_group_ids }}","target_host_list":{{ step.target_host_list }}}'
                                                                {% endif %}
                                                         />
                                                  </td>

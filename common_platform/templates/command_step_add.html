@@ -360,11 +360,20 @@
             var tabType = selectHostValue.attr('tabType');
             stepDict['tab_name'] = tabName;
             stepDict['target_type'] = tabType;
-            if(tabType+"" == '2'){
+{#            if(tabType+"" == '2'){#}
+{#                stepDict['host_filter'] = selectHostValueObj['host_filter'];#}
+{#            }else if(tabType+"" == '1'){#}
+{#                stepDict['target_group_ids'] = selectHostValueObj['target_group'];#}
+{#            }else{#}
+{#                stepDict['target_host_list'] = selectHostValueObj['target_host_list'];#}
+{#            }#}
+            if(selectHostValueObj['host_filter']){
                 stepDict['host_filter'] = selectHostValueObj['host_filter'];
-            }else if(tabType+"" == '1'){
+            }
+            if(selectHostValueObj['target_group']){
                 stepDict['target_group_ids'] = selectHostValueObj['target_group'];
-            }else{
+            }
+            if(selectHostValueObj['target_host_list']){
                 stepDict['target_host_list'] = selectHostValueObj['target_host_list'];
             }
             // 业务树   target_type=2  host_filter   tab_name 储存 前端选项卡Id
