@@ -169,7 +169,7 @@
                                         <div id='step{{ step.seq_no }}' class='panel-body accordion-body collapse' style='height: 0px;'>
                                               <table id='tb{{ step.seq_no }}' width='100%' style='border-collapse: separate;border-spacing:0px 10px;'>
                                               {% for line in step.lines %}
-                                                  {% if line.type == 1 or line.type == '1' %}
+                                                  {% if line.type == 0 or line.type == '0' %}
                                                   <tr tag='0' gid='{{ line.sub_seq_no }}'>
                                                      <td width='49%'>
                                                         <input id='file{{ line.sub_seq_no }}' type='text' readonly class='form-control' style='width: 99%' value="{{ line.source_file_name }}"/>
@@ -184,9 +184,9 @@
                                                   {% else %}
                                                    <tr tag='1' gid='{{ line.sub_seq_no }}'>
                                                         <td colspan='2' width='98%'>
-                                                           <input id='ip{{ line.sub_seq_no }}' name='script1' type='text' class='form-control' value="{{ line.source_remote_host }}" style='width: 20%;display: -webkit-inline-box' placeholder='IP地址'>
-                                                           <input id='file_path{{ line.sub_seq_no }}' name='script1' type='text' value="{{ line.source_file_name }}" class='form-control' style='width: 39%;display: -webkit-inline-box' placeholder='远程路径'>
-                                                           <input id='file_path2{{ line.sub_seq_no }}' name='script2' type='text' value="{{ line.file_deploy_path }}" class='form-control' style='width: 39%;display: -webkit-inline-box' placeholder='目标路径'>
+                                                           <input id='ip{{ line.sub_seq_no }}' name='script1' type='text' class='form-control' readonly value="{{ line.source_remote_host }}" style='width: 20%;display: -webkit-inline-box' placeholder='IP地址'>
+                                                           <input id='file_path{{ line.sub_seq_no }}' name='script1' type='text' readonly value="{{ line.source_file_name }}" class='form-control' style='width: 39%;display: -webkit-inline-box' placeholder='远程路径'>
+                                                           <input id='file_path2{{ line.sub_seq_no }}' name='script2' type='text' readonly value="{{ line.file_deploy_path }}" class='form-control' style='width: 39%;display: -webkit-inline-box' placeholder='目标路径'>
                                                         </td>
                                                         <td align="center">
                                                            <input type="checkbox" class="i-checks icheck" id="icheck{{ line.sub_seq_no }}" checked />
@@ -283,6 +283,34 @@
                         }
                      })
 
+                     if(tabName.indexOf('host_group_tab') > 0){
+                         lineDict['target_type'] = 1;
+                         lineDict['target_group_ids'] = selectHostValueObj['target_group'];
+                     }else{
+                         lineDict['target_type'] = 2;
+                         lineDict['host_filter'] = selectHostValueObj['host_filter'];
+                     }
+                     if(tabType == 3){
+                         lineDict['target_type'] = 3;
+                         var ips = "";
+                         $(selectHostValueObj['target_host_list']).each(function(i,item){
+                              ips += item+",";
+                         });
+                         ips = ips.substring(0,ips.length-1);
+                         lineDict['target_host_list'] = ips;
+                     }
+                     paraDict[i+1] = lineDict
+                 }else if(type == 1){
+                     var lineDict = {}
+                     var line = $("#tb"+gid).find("tr");
+                     var selectHostValue = $("#selectHostValue"+gid);
+                     var hostValue = selectHostValue.val();
+                     if(hostValue){
+                          hostValue = hostValue.replace(/\'/g,"\"");
+                     }
+                     var selectHostValueObj = JSON.parse(hostValue);
+                     var tabName = selectHostValue.attr('tabName');
+                     var tabType = selectHostValue.attr('tabType');
                      if(tabName.indexOf('host_group_tab') > 0){
                          lineDict['target_type'] = 1;
                          lineDict['target_group_ids'] = selectHostValueObj['target_group'];

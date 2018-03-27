@@ -678,6 +678,7 @@
     function getSelectHost(){
         var result = {};
         var tabIds = $("#select_host_tab li[class='active'] a").attr('href');
+
         if(tabIds.indexOf('biz_tab') > 0){
             var biz_tree=$.fn.zTree.getZTreeObj("biz_tree");
             var nodes = biz_tree.getCheckedNodes(true);
