@@ -92,10 +92,10 @@ DATABASES = {
     # }
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'devops_workshop_dev_web',
+        'NAME': 'devops_workshop_prod_web',
         'USER': 'root',
         'PASSWORD': 'devops',
-        'HOST': '172.29.164.91',
+        'HOST': '172.17.144.150',
         'PORT': '3306',
         'OPTIONS': {
             'init_command': 'SET default_storage_engine=INNODB',
@@ -163,18 +163,18 @@ STATICFILES_DIRS = (
 
 REST_API_CONFIG = {
         #本地
-        'cmdb': {
-            'ip_prot': '172.29.164.92:8000'
-        },
-        'job':{
-            'ip_prot': '172.29.164.92:8001'
-        },
-        'appcenter':{
-            'ip_prot': '172.29.164.92:8002'
-        },
-        'presrb':{
-            'ip_prot': '172.29.164.92:8004'
-        }
+        # 'cmdb': {
+        #     'ip_prot': '172.29.164.92:8000'
+        # },
+        # 'job':{
+        #     'ip_prot': '172.29.164.92:8001'
+        # },
+        # 'appcenter':{
+        #     'ip_prot': '172.29.164.92:8002'
+        # },
+        # 'presrb':{
+        #     'ip_prot': '172.29.164.92:8004'
+        # }
         #测试
         # 'cmdb': {
         #     'ip_prot': '172.29.164.92:8000'
@@ -189,18 +189,12 @@ REST_API_CONFIG = {
         #     'ip_prot': '172.29.164.92:8004'
         # }
         #生产
-        # 'cmdb': {
-        #     'ip_prot': '172.16.226.101:9000'
-        # },
-        # 'job': {
-        #     'ip_prot': '172.16.226.101:9001'
-        # },
-        # 'appcenter': {
-        #     'ip_prot': '172.16.226.101:9002'
-        # },
-        # 'presrb': {
-        #     'ip_prot': '172.16.226.101:9004'
-        # }
+        'cmdb': {
+            'ip_prot': '172.17.144.150:8000'
+        },
+        'job': {
+            'ip_prot': '172.17.144.150:8001'
+        }
     }
 
 
