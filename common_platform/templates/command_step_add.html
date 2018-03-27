@@ -451,7 +451,7 @@
             success : function(responseStr) {
                 if(responseStr.status===0){
                     Alertwin.alert({message:"正在进行，请稍候"});
-                    window.history.go(-1);
+                    window.location.href="/platform/command_set/list/"
                 }else{
                     Alertwin.alert({message:"失败"});
                 }
