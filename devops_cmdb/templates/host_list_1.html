@@ -60,6 +60,7 @@
             <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='#edit_modal' style="margin-right: 10px"><i class="glyphicon glyphicon-edit"></i> 修改</button>
             <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='#import_host_modal' style="margin-right: 10px"><i class="glyphicon glyphicon-import"></i> 导入</button>
             <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='#export_host_modal' style="margin-right: 10px"><i class="glyphicon glyphicon-export"></i> 导出</button>
+            <button type="button" class="btn btn-sm btn-success" onclick="scanBatch()" style="margin-right: 10px"><i class="glyphicon glyphicon-search"></i> 扫描</button>
             <button type="button" class="btn btn-sm btn-success" title="删除" onclick="deleteBatch()"><i class="glyphicon glyphicon-trash"></i> 删除</button>
         </div>
     </div>
@@ -732,6 +733,52 @@
                 }
             }else{
                 Alertwin.alert({message:"查询结果为空"});
+            }
+        }
+
+        function deleteBatch() {
+            var obj = getCheckedHostIP();
+            if (obj == "") {
+                Alertwin.alert({ message: "请选择至少一条记录进行删除"});
+            } else {
+                Alertwin.confirm({ message: "确认要删除选择的数据吗？" }).on(function (e) {
+                    layer.load();
+                    obj = obj.substring(0, obj.length - 1);
+                    $.ajax({
+                        type: "POST",
+                        url: '../deleteHost1/',
+                        data:{'hostIp':obj,'csrfmiddlewaretoken':'{{ csrf_token }}'},
+                        error: function (request) {
+                            layer.closeAll('loading');
+                        },
+                        success: function (data) {
+                            location.reload();
+                            layer.closeAll('loading');
+                        }
+                    });
+                })
+
+            }
+        }
+
+        function scanBatch(){
+            var obj = getCheckedHostIP();
+            if (obj == "") {
+                Alertwin.alert({ message: "请选择至少一条记录进行删除"});
+            } else {
+                obj = obj.substring(0, obj.length - 1);
+                $.ajax({
+                    type: "POST",
+                    url: '../scanHost1/',
+                    data:{'hostIp':obj,'csrfmiddlewaretoken':'{{ csrf_token }}'},
+                    error: function (request) {
+                        layer.closeAll('loading');
+                    },
+                    success: function (data) {
+                        Alertwin.alert({ message: "正在扫描，请稍等"});
+                        layer.closeAll('loading');
+                    }
+                });
             }
         }
 

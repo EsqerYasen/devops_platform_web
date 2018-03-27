@@ -172,6 +172,40 @@ class Host1EditView(LoginRequiredMixin,JSONResponseMixin, AjaxResponseMixin, Vie
         return self.render_json_response(result_json)
 
 
+class Host1DeleteView(LoginRequiredMixin,JSONResponseMixin, View):
+    def post(self, request, *args, **kwargs):
+        result_json = {"status": 1}
+        try:
+            hostIp = request.POST.get("hostIp", None);
+            reqParam = []
+            hu = HttpUtils(request)
+            for ip in hostIp.split(','):
+                reqParam.append({'host_ip':ip,'is_enabled':0})
+            updateResult = hu.post(serivceName="cmdb", restName="/rest/host/update/", datas=reqParam)
+            result = updateResult.json()
+            if len(result) > 0:
+                result_json = {"status": 0}
+        except Exception as e:
+            logger.error(e)
+        return self.render_json_response(result_json)
+
+class Host1ScanView(LoginRequiredMixin,JSONResponseMixin, View):
+    def post(self, request, *args, **kwargs):
+        result_json = {"status": 1}
+        try:
+            hostIp = request.POST.get("hostIp", None);
+            reqParam = []
+            hu = HttpUtils(request)
+            for ip in hostIp.split(','):
+                reqParam.append({'host_ip':ip})
+            scanResult = hu.post(serivceName="cmdb", restName="/rest/host/scan/", datas=reqParam)
+            result = scanResult.json()
+            if len(result) > 0:
+                result_json = {"status": 0}
+        except Exception as e:
+            logger.error(e)
+        return self.render_json_response(result_json)
+
 class Host1ToNotOnlineView(LoginRequiredMixin,JSONResponseMixin, AjaxResponseMixin, View):
     def post_ajax(self, request, *args, **kwargs):
         result_json = {"status": 1}

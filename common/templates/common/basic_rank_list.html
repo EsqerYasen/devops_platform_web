@@ -40,10 +40,13 @@
             if (obj == "") {
                 Alertwin.alert({ message: "请选择至少一条记录进行删除"});
             } else {
-                obj = obj.substring(0, obj.length - 1);
-                $.get('delete_entity/?id=' + obj, function () {
-                    location.reload();
+                Alertwin.confirm({ message: "确认要删除选择的数据吗？" }).on(function (e) {
+                    obj = obj.substring(0, obj.length - 1);
+                    $.get('delete_entity/?id=' + obj, function () {
+                        location.reload();
+                    })
                 })
+
             }
         }
 
