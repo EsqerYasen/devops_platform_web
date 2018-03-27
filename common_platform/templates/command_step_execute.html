@@ -81,13 +81,10 @@
                                                         <input type='text' id='stepName{{ step.seq_no }}' value='{{ step.name }}' readonly class='form-control' style='width: 40%' placeholder='步骤名称'/>
                                                         <input type='hidden' id='selectHostValue{{ step.seq_no }}' tabName='{{ step.tab_name }}' tabType='{{ step.target_type }}'
                                                                {% if step.host_filter %}
-                                                               value='{"host_filter":{{ step.host_filter }},"target_host_list":{{ step.target_host_list }}}'
+                                                               value='{"host_filter":{{ step.host_filter }}{% if step.target_host_list %},"target_host_list":{{ step.target_host_list }}{% endif %}}'
                                                                {% elif step.target_group_ids %}
-                                                               value='{"target_group":"{{ step.target_group_ids }}","target_host_list":{{ step.target_host_list }}}'
+                                                               value='{"target_group":"{{ step.target_group_ids }}"{% if step.target_host_list %},"target_host_list":{{ step.target_host_list }}{% endif %}}
                                                                {% endif %}
-{#                                                               {% if step.target_host_list%}#}
-{#                                                               value='{"target_host_list":{{ step.target_host_list }}}'#}
-{#                                                               {% endif %}#}
                                                         />
                                                     </td>
                                                     <td width='32%'>
@@ -121,7 +118,7 @@
                                                             <input type='text' id='param{{ line.sub_seq_no }}' name='script2' value='{{ line.default_script_parameter }}' class='form-control' style='width: 99%' placeholder='执行参数'>
                                                         </td>
                                                         <td align="center">
-                                                            <input type="checkbox" class="i-checks icheck" id="icheck{{ line.sub_seq_no }}" checked />
+                                                            <input type="checkbox" class="i-checks icheck" id="icheck1{{ line.sub_seq_no }}" checked />
                                                         </td>
                                                     </tr>
                                                {% endif %}
@@ -156,10 +153,10 @@
                                                      <input type='text' id='stepName{{ step.seq_no }}' value='{{ step.name }}' readonly class='form-control' style='width: 40%' placeholder='步骤名称'/>
                                                      <input type='hidden' id='selectHostValue{{ step.seq_no }}' tabName='{{ step.tab_name }}' tabType='{{ step.target_type }}'
                                                               {% if step.host_filter %}
-                                                               value='{"host_filter":{{ step.host_filter }},"target_host_list":{{ step.target_host_list }}}'
-                                                               {% elif step.target_group_ids %}
-                                                               value='{"target_group":"{{ step.target_group_ids }}","target_host_list":{{ step.target_host_list }}}'
-                                                               {% endif %}
+                                                              value='{"host_filter":{{ step.host_filter }} {% if step.target_host_list %},"target_host_list":{{ step.target_host_list }}{% endif %}}'
+                                                              {% elif step.target_group_ids %}
+                                                              value='{"target_group":"{{ step.target_group_ids }}"{% if step.target_host_list %},"target_host_list":{{ step.target_host_list }}{% endif %}}
+                                                              {% endif %}
                                                         />
                                                  </td>
                                                  <td width='32%'>
@@ -268,7 +265,6 @@
                  if(type == 0){
                      var lineDict = {}
                      var line = $("#tb"+gid).find("tr");
-
                      var selectHostValue = $("#selectHostValue"+gid);
                      var hostValue = selectHostValue.val();
                      if(hostValue){
@@ -286,6 +282,7 @@
                             lineDict[i2+1] = {'parameter':$("#param"+gid2).val()};
                         }
                      })
+
                      if(tabName.indexOf('host_group_tab') > 0){
                          lineDict['target_type'] = 1;
                          lineDict['target_group_ids'] = selectHostValueObj['target_group'];
