@@ -189,6 +189,20 @@
         }
 
         function beforeRemove(treeId,treeNode){
+            Alertwin.confirm({ message: "确认要删除"+treeNode.name+"吗？" }).on(function (e) {
+                $.ajax({
+                    url : '/platform/file_manage/delete/',
+                    type : 'GET',
+                    async:'false',
+                    data: {"id":treeNode.id},
+                    success : function(data) {
+                        window.location.reload()
+                    },
+                    error : function(responseStr) {
+                        console.log(responseStr);
+                    }
+                });
+            });
             return true;
         }
 

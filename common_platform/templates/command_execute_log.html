@@ -28,16 +28,24 @@
                                             <td style="height:20px">
                                                 <a href="javascript:void(0)" onclick="showLogInfo({{ history.job_id }})" >
                                                     {% if history.status == 2 %}
-                                                        <span id="{{ history.job_id }}" class="glyphicon glyphicon-ok" aria-hidden="true" style="color:green"></span>
+                                                        <span id="2{{ history.job_id }}" class="glyphicon glyphicon-ok" aria-hidden="true" style="color:green"></span>
                                                     {% endif %}
                                                     {% if history.status == 3 %}
-                                                        <span id="{{ history.job_id }}" class="glyphicon glyphicon-remove" aria-hidden="true" style="color: red"></span>
+                                                        <span id="3{{ history.job_id }}" class="glyphicon glyphicon-remove" aria-hidden="true" style="color: red"></span>
                                                     {% endif %}
                                                     {% if history.status == 1 %}
-                                                        <span id="{{ history.job_id }}" class="glyphicon glyphicon-play" aria-hidden="true"></span>
+                                                        <span id="1{{ history.job_id }}" class="glyphicon glyphicon-play" aria-hidden="true"></span>
+                                                    {% endif %}
+                                                    {% if history.status == 4 %}
+                                                        <span id="4{{ history.job_id }}" class="glyphicon glyphicon-ban-circle" aria-hidden="true"></span>
                                                     {% endif %}
                                                     {{ history.start_time }}
                                                 </a>
+                                            </td>
+                                            <td>
+                                                {% if history.status == 1 %}
+                                                    <a href="javascript:void(0)" onclick="stop({{ history.job_id }},{{ set_id }})" >停止执行</a>
+                                                {% endif %}
                                             </td>
                                         </tr>
                                     {% endfor %}
@@ -163,6 +171,21 @@
                 }
             }
         });
+    }
+
+    function stop(jobId,setId){
+        Alertwin.confirm({ message: "确定要停止当前任务吗？" }).on(function (e) {
+            $.ajax({
+                type: "GET",
+                url: '../stop/',
+                data:{"jobId":jobId},
+                error: function (request) {},
+                success: function (data) {
+                    debugger
+                    window.location.href="../execLog/?setId="+setId;
+                }
+             })
+        })
     }
 </script>
 {% endblock %}

@@ -67,3 +67,10 @@ class FileTreeUploadFile(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin
             resultJson['msg'] = '文件夹路径为空'
         return self.render_json_response(resultJson)
 
+
+class DeleteFile(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, View):
+    def get_ajax(self, request, *args, **kwargs):
+        req = self.request
+        hu = HttpUtils(req)
+        result = hu.get(serivceName="job", restName="/rest/file/delete/", datas={"id":req.GET.get("id",0)})
+        return self.render_json_response(result)

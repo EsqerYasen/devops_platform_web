@@ -15,6 +15,7 @@ urlpatterns = [
         url(r'^(?P<pk>\d+)/exec/', CommandSetExecuteView.as_view(), name='exec'),
         url(r'execLog/', CommandExecuteLogView.as_view(), name='execLog'),
         url(r'getExecLog/', GetCommandExecuteLogView.as_view(), name='getExecLog'),
+        url(r'stop/', CommandExecuteStop.as_view(), name='stop'),
     ])),
     url(r'^command_set2/', include([
         url(r'^list/', CommandSetList2View.as_view(), name='list'),
@@ -25,6 +26,7 @@ urlpatterns = [
         url(r'^get_fileTree_ajax/', FileTreeView.as_view(), name='get_fileTree_ajax'),
         url(r'^create_folder/', FileTreeCreateFolder.as_view(), name='create_folder'),
         url(r'^uploadFile/', FileTreeUploadFile.as_view(), name='uploadFile'),
+        url(r'^delete/', DeleteFile.as_view(), name='delete'),
     ])),
 ]
 
