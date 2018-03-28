@@ -52,7 +52,9 @@ class FileTreeUploadFile(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin
             if resultJson['status'] == "SUCCESS":
                 try:
                     file = files['files']
-                    destination = open(os.path.join(UPLOAD_SCRIPT_PATH + path, file.name), 'wb+')
+                    filePath = UPLOAD_SCRIPT_PATH + path
+                    filePath = filePath.replace('//','/')
+                    destination = open(os.path.join(filePath, file.name), 'wb+')
                     for chunk in file.chunks():
                         destination.write(chunk)
                     destination.close()
