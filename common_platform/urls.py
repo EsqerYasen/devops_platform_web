@@ -8,6 +8,7 @@ urlpatterns = [
     url(r'^command_set/', include([
         url(r'^list/', CommandSetListView.as_view(), name='list'),
         url(r'^add/', CommandSetCreateView.as_view(), name='add'),
+        url(r'^(?P<pk>\d+)/edit/', CommandSetUpdateView.as_view(), name='edit'),
         url(r'^delete/', CommandSetDeleteView.as_view(), name='delete'),
         # url(r'^listByIds/', HostListByIdslView.as_view(), name='listByIds'),
         url(r'^listByQueryCriteria/', HostListByQueryCriteria.as_view(), name='listByQueryCriteria'),

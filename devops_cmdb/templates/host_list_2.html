@@ -86,6 +86,7 @@
             treeDateInit();
             multSelectInit();
             redistributionCheckBindEvent();
+            initRedistributionModal();
         });
 
         var zNodes = [];
@@ -761,6 +762,20 @@
                     }
                 });
              }
+        }
+
+        function initRedistributionModal(){
+            $("#redistribution_modal").on('hide.bs.modal',function(event){
+                var form = $("#redistribution_form");
+                $(form.find(":checkbox")).each(function (i,item) {
+                    $(item).iCheck('uncheck');
+                });
+                $(form.find("select")).each(function (i,item) {
+                    $(item).attr("disabled",true);
+                })
+                form[0].reset();
+                $("#tag_2").attr("disabled",true);
+            })
         }
 
     </script>

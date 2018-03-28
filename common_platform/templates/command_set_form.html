@@ -64,13 +64,13 @@
                                                             {% for localParam in localParam_list %}
                                                                 <tr>
                                                                    <td width='30%'>
-                                                                       <input name='localParamKey' type='text' class='form-control' placeholder='参数名' readOnly value="{{ localParam.name }}"/>
+                                                                       <input name='localParamKey' type='text' class='form-control' placeholder='参数名' {% if view_num == '2'%} readonly {% endif %} value="{{ localParam.name }}"/>
                                                                    </td>
                                                                    <td width='60%'>
-                                                                       <input name='localParamValue' type='text' class='form-control' placeholder='参数值' value="{{ localParam.value }}"/>
+                                                                       <input name='localParamValue' type='text' class='form-control' placeholder='参数值' {% if view_num == '2'%} readonly {% endif %} value="{{ localParam.value }}"/>
                                                                    </td>
                                                                    <td width='10%'>
-                                                                       <button name='localParamBtn' type='button' class='btn btn-danger' onclick='delLocalParam(this)' disabled><i class='fa fa-trash'></i> 删除</button>
+                                                                       <button name='localParamBtn' type='button' class='btn btn-danger' {% if view_num == '2'%} disabled {% endif %} onclick='delLocalParam(this)'><i class='fa fa-trash'></i> 删除</button>
                                                                    </td>
                                                                 </tr>
                                                             {% endfor %}
@@ -143,6 +143,15 @@
         treeDateInit();
         initSelectHostModal();
         initSelectFileModal();
+
+        $('#step_div').DDSort({
+             target: 'li',		// 示例而用，默认即 li，
+             delay: 100,         // 延时处理，默认为 50 ms，防止手抖点击 A 链接无效
+             floatStyle: {
+                 'border': '1px solid #ccc',
+                 'background-color': '#fff'
+             }
+        });
     });
 
 

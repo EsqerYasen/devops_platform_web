@@ -138,6 +138,50 @@ class CommandSetCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMix
             logger.error(e)
         return HttpResponse(json.dumps(result),content_type='application/json')
 
+
+class CommandSetUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, TemplateView):
+    template_name = "command_set_form.html"
+
+    def get_context_data(self, **kwargs):
+        context = {}
+        try:
+            hu = HttpUtils(self.request)
+
+            resultJson = hu.get(serivceName="job", restName="/rest/job/list_detail/", datas={'id': kwargs.get('pk', 0)})
+            results = resultJson.get("data", [])
+            treeResult = hu.get(serivceName="cmdb", restName="/rest/app/treeview/", datas={})
+            getData = {'offset': 0, 'limit': 1000, 'is_enabled': 1}
+            brandResult = hu.get(serivceName="cmdb", restName="/rest/brands/", datas=getData)
+            pidcResult = hu.get(serivceName="cmdb", restName="/rest/pidc/", datas=getData)
+            lidcResult = hu.get(serivceName="cmdb", restName="/rest/lidc/", datas=getData)
+            envResult = hu.get(serivceName="cmdb", restName="/rest/env/", datas=getData)
+            mwResult = hu.get(serivceName="cmdb", restName="/rest/mw/", datas=getData)
+            dnsResult = hu.get(serivceName="cmdb", restName="/rest/dns/", datas=getData)
+            hostgroupResult = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_tree/", datas=getData)
+            fileResult = hu.get(serivceName="job", restName="/rest/file/list_tree/", datas={})
+            getData['id'] = results['id']
+            localParamResult = hu.get(serivceName="job", restName="/rest/para/list/", datas=getData)
+
+            context["view_num"] = 1
+            context['result_dict'] = results
+            context['tree_list'] = treeResult.get("data", [])
+            context['hostGroup_list'] = hostgroupResult.get("data", [])
+            context['file_tree'] = json.dumps(fileResult.get("data", []))
+            context['brand_list'] = brandResult.get("results", [])
+            context['pidc_list'] = pidcResult.get("results", [])
+            context['lidc_list'] = lidcResult.get("results", [])
+            context['env_list'] = envResult.get("results", [])
+            context['mw_list'] = mwResult.get("results", [])
+            context['dns_list'] = dnsResult.get("results", [])
+            context['localParam_list'] = localParamResult.get("results", [])
+        except Exception as e:
+            logger.error(e)
+        return context
+
+    def post_ajax(self, request, *args, **kwargs):
+        pass
+
+
 class CommandSetDeleteView(LoginRequiredMixin,JSONResponseMixin, View):
     def get(self, request, *args, **kwargs):
         req = self.request

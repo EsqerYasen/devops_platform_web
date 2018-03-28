@@ -83,7 +83,7 @@
                                                                {% if step.host_filter %}
                                                                value='{"host_filter":{{ step.host_filter }}{% if step.target_host_list %},"target_host_list":{{ step.target_host_list }}{% endif %}}'
                                                                {% elif step.target_group_ids %}
-                                                               value='{"target_group":"{{ step.target_group_ids }}"{% if step.target_host_list %},"target_host_list":{{ step.target_host_list }}{% endif %}}
+                                                               value='{"target_group":"{{ step.target_group_ids }}"{% if step.target_host_list %},"target_host_list":{{ step.target_host_list }}{% endif %}}'
                                                                {% endif %}
                                                         />
                                                     </td>
