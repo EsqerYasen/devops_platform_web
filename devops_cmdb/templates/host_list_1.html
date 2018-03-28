@@ -70,7 +70,9 @@
             initAdvancedQueryModal();
             initToOnlineModal();
             importHostFile();
+            initImportModal();
         });
+
         function initAdvancedQueryModal(){
             $("#advanced_query_modal").on('show.bs.modal',function(event){
 
@@ -473,9 +475,56 @@
                     <div class="col-sm-5" style="margin-top: 20px;">
                         <a href="/cmdb/host/templateDownload/" class="link-popover" style="font-size: large">下载导入模板</a>
                     </div>
+                    <div class="col-sm-5" style="margin-top: 20px;">
+                        <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='#import_info_modal' style="margin-right: 10px"><i class="glyphicon glyphicon-search"></i> 查看后台任务</button>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary" title="确定导入" onclick="importHostInfo()">确定</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="import_info_modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true" >
+        <div class="modal-dialog modal-lg" role="document" style="width: 800px">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">后台导入结果</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" style="max-height: 500px;overflow:auto">
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <label class="col-sm-1 control-label" style="width: 20px">总:</label><label id="import_info_total" class="col-sm-1 control-label" style="width: 150px"></label>
+                        </div>
+                        <div class="col-sm-3">
+                            <label class="col-sm-1 control-label" style="width: 60px">成功:</label><label id="import_info_success" class="col-sm-1 control-label" style="width: 150px"></label>
+                        </div>
+                        <div class="col-sm-3">
+                            <label class="col-sm-1 control-label" style="width: 60px">失败:</label><label id="import_info_fail" class="col-sm-1 control-label" style="width: 150px"></label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <table id="import_info_tb" class="table table-striped table-bordered table-hover dataTables-example dataTable">
+                            <thead>
+                                <tr>
+                                    <th style="width: 10%;">
+                                        IP
+                                    </th>
+                                    <th style="width: 90%;">
+                                        失败信息
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
                 </div>
             </div>
@@ -546,7 +595,7 @@
                         $("#import_host_modal").modal('hide');
                         location.reload();
                     }else{
-                        Alertwin.alert({message:"失败"});
+                        Alertwin.alert({message:responseStr.msg});
                     }
                 },
                 error:function(responseStr) {
@@ -780,6 +829,46 @@
                     }
                 });
             }
+        }
+        var host1_sh = null;
+        function initImportModal(){
+            $("#import_info_modal").on('show.bs.modal',function(event){
+                getImportStatus();
+                clearInterval(host1_sh);
+                host1_sh = null;
+                host1_sh = setInterval(getImportStatus,3000);
+            });
+            $("#import_info_modal").on('hide.bs.modal',function(event){
+                $("#import_info_tb tbody").empty();
+                clearInterval(host1_sh);
+                host1_sh = null;
+                window.location.reload();
+            });
+        }
+
+        function getImportStatus(){
+            $.ajax({
+                type: "get",
+                url: '../getImportInfo/',
+                data:{},
+                error: function (request) {},
+                success: function (d) {
+                    data = d.result
+
+                    $("#import_info_total").text(data.total);
+                    $("#import_info_success").text(data.success);
+                    $("#import_info_fail").text(data.fail);
+                    var tb = $("#import_info_tb tbody");
+                    $(data.failList).each(function(i,item){
+                        var htmlStr = "<tr><td>"+item.host_ip+"</td><td>"+item.error+"</td></tr>";
+                        tb.append(htmlStr)
+                    });
+                    if(data.isImportRun == 0 || d.isRun == 0){
+                        clearInterval(host1_sh);
+                        host1_sh = null;
+                    }
+                }
+            });
         }
 
     </script>

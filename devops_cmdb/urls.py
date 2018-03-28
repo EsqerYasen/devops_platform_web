@@ -23,6 +23,7 @@ urlpatterns = [
         url(r'host3UpdateStatus/', Host3UpdateGoLiveView.as_view(), name='host3UpdateStatus'),
         url(r'^deleteHost1/$', Host1DeleteView.as_view(), name='deleteHost1'),
         url(r'^scanHost1/$', Host1ScanView.as_view(), name='scanHost1'),
+        url(r'^getImportInfo/$', GetImportStatus.as_view(), name='getImportInfo'),
     ])),
     url(r'^business/', include([
         url(r'^attributes_view/', BusinesAttributessView.as_view(), name='attributes_view'),

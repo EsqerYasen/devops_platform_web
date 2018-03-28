@@ -6,7 +6,7 @@ from djqscsv import render_to_csv_response
 from devops_platform_web.settings import PER_PAGE,BASE_DIR
 from common.utils.HttpUtils import *
 
-import logging,os,xlrd
+import logging,os,xlrd,threading
 
 logger = logging.getLogger('devops_platform_log')
 
@@ -79,41 +79,150 @@ def TemplateDownload(request):
     response['Content-Disposition'] = 'attachment;filename="{0}"'.format(the_file_name.encode('utf-8').decode('ISO-8859-1'))
     return response
 
-
+HOST1_IMPORT_STATIC={}
 class Host1Import(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, View):
+
     def post_ajax(self, request, *args, **kwargs):
-        result_json = {"status": 1}
+        result_json = {}
         try:
-            assert_file = request.FILES.get('files',None)
-            wb = xlrd.open_workbook(filename=None, file_contents=assert_file.read())
-            req_list = []
-            hu = HttpUtils(request)
-            for i in range(1, wb.sheets()[0].nrows):
-                row = wb.sheets()[0].row_values(i)
+            username = request.user.username
+            s = HOST1_IMPORT_STATIC.get(username,None)
+            isImportRun = 0
+            if s:
+                isImportRun = int(s.get('isImportRun', 0))
 
-                brandResult = hu.get(serivceName="cmdb", restName="/rest/brands/", datas={'key_code': row[1]}).get("results", [])
-                if len(brandResult) > 0:
-                    groupResult = hu.get(serivceName="cmdb", restName="/rest/groups/", datas={'key_code':row[2]}).get("results", [])
-                    if len(groupResult):
-                        pidcResult = hu.get(serivceName="cmdb", restName="/rest/pidc/", datas={'key_code':row[3]}).get("results", [])
-                        if len(pidcResult):
-                            lidcResult = hu.get(serivceName="cmdb", restName="/rest/lidc/", datas={'key_code':row[4]}).get("results", [])
-                            if len(lidcResult):
-                                dict = {'host_ip': row[0], 'biz_brand': brandResult[0]['id'], 'biz_group': groupResult[0]['id'], 'physical_idc': pidcResult[0]['id'],'logical_idc': lidcResult[0]['id']}
-                                req_list.append(dict)
+            if s is None or isImportRun == 0:
+                HOST1_IMPORT_STATIC[username] = {}
+                assert_file = request.FILES.get('files', None)
+                wb = xlrd.open_workbook(filename=None, file_contents=assert_file.read())
+                ta = threading.Thread(target=importFunction, args=(request,wb,))
+                ta.start()
+                result_json = {"status": 1, "msg": "后台正在导入，请点击“查看后台任务”按钮查看结果"}
+            else:
+                result_json = {"status": 1, "msg":"您有后台任务正在执行导入操作，请稍后操作导入"}
 
-
-            addResult = hu.post(serivceName="cmdb", restName="/rest/host/add/", datas=req_list)
-            addResult = addResult.json()
-            if len(addResult) > 0:
-                updateResult = hu.post(serivceName="cmdb", restName="/rest/host/update/", datas=req_list)
-                updateResult = updateResult.json()
-                if len(updateResult) > 0:
-                    result_json = {"status": 0}
+            # assert_file = request.FILES.get('files',None)
+            # wb = xlrd.open_workbook(filename=None, file_contents=assert_file.read())
+            # req_list = []
+            # hu = HttpUtils(request)
+            # for i in range(1, wb.sheets()[0].nrows):
+            #     row = wb.sheets()[0].row_values(i)
+            #     brandResult = hu.get(serivceName="cmdb", restName="/rest/brands/", datas={'key_code': row[1]}).get("results", [])
+            #     if len(brandResult) > 0:
+            #         groupResult = hu.get(serivceName="cmdb", restName="/rest/groups/", datas={'key_code':row[2]}).get("results", [])
+            #         if len(groupResult):
+            #             pidcResult = hu.get(serivceName="cmdb", restName="/rest/pidc/", datas={'key_code':row[3]}).get("results", [])
+            #             if len(pidcResult):
+            #                 lidcResult = hu.get(serivceName="cmdb", restName="/rest/lidc/", datas={'key_code':row[4]}).get("results", [])
+            #                 if len(lidcResult):
+            #                     dict = {'host_ip': row[0], 'biz_brand': brandResult[0]['id'], 'biz_group': groupResult[0]['id'], 'physical_idc': pidcResult[0]['id'],'logical_idc': lidcResult[0]['id']}
+            #                     req_list.append(dict)
+            #
+            #
+            # addResult = hu.post(serivceName="cmdb", restName="/rest/host/add/", datas=req_list)
+            # addResult = addResult.json()
+            # if len(addResult) > 0:
+            #     updateResult = hu.post(serivceName="cmdb", restName="/rest/host/update/", datas=req_list)
+            #     updateResult = updateResult.json()
+            #     if len(updateResult) > 0:
+            #         result_json = {"status": 0}
         except Exception as e:
-            result_json = {"status": 1}
+            result_json = {"status": 1,"msg":"导入执行异常"}
             logger.error(e)
         return self.render_json_response(result_json)
+
+
+def importFunction(req,wb):
+    updateReq = []
+    failList = []
+    success = 0
+    total = 0
+    try:
+        username = req.user.username
+        HOST1_IMPORT_STATIC[username] = {'isImportRun':1}
+        addReq = []
+        param = {}
+        hu = HttpUtils(req)
+
+        for i in range(1, wb.sheets()[0].nrows):
+            row = wb.sheets()[0].row_values(i)
+            addReq.append({'host_ip':row[0]})
+            param[row[0]] = {'host_ip': row[0], 'biz_brand': row[1], 'biz_group': row[2],'physical_idc': row[3], 'logical_idc': row[4]}
+
+        total = len(addReq)
+        addResult = hu.post(serivceName="cmdb", restName="/rest/host/add/", datas=addReq)
+        addResult = addResult.json()
+
+        failDict = {1:'不合法的IP',2:'IP已存在于数据库',3:'数据库操作失败',4:'IP不存在于数据库',5:'不可修改已上线的主机'}
+        if len(addResult) > 0:
+            for d in addResult:
+                status = d['status']
+                host_ip = d['host_ip']
+                if status == 0:
+                    host_ip_param = param[host_ip]
+                    brandResult = hu.get(serivceName="cmdb", restName="/rest/brands/",datas={'key_code': host_ip_param['biz_brand']}).get("results", [])
+                    if len(brandResult) > 0:
+                        groupResult = hu.get(serivceName="cmdb", restName="/rest/groups/",datas={'key_code': host_ip_param['biz_group']}).get("results", [])
+                        if len(groupResult):
+                            pidcResult = hu.get(serivceName="cmdb", restName="/rest/pidc/",datas={'key_code': host_ip_param['physical_idc']}).get("results", [])
+                            if len(pidcResult):
+                                lidcResult = hu.get(serivceName="cmdb", restName="/rest/lidc/",datas={'key_code': host_ip_param['logical_idc']}).get("results", [])
+                                if len(lidcResult):
+                                    dict = {'host_ip':host_ip, 'biz_brand': brandResult[0]['id'],
+                                            'biz_group': groupResult[0]['id'], 'physical_idc': pidcResult[0]['id'],
+                                            'logical_idc': lidcResult[0]['id']}
+                                    updateReq.append(dict)
+                                else:
+                                    d['error'] = "未匹配到此区域：" + host_ip_param['logical_idc']
+                                    failList.append(d)
+                            else:
+                                d['error'] = "未匹配到此机房：" + host_ip_param['biz_group']
+                                failList.append(d)
+                        else:
+                            d['error'] = "未匹配到此业务线：" + host_ip_param['biz_group']
+                            failList.append(d)
+                    else:
+                        d['error'] = "未匹配到此品牌："+host_ip_param['biz_brand']
+                        failList.append(d)
+                else:
+                    d['error'] = failDict.get(d['status'], "其他错误")
+                    failList.append(d)
+
+        updateResult = hu.post(serivceName="cmdb", restName="/rest/host/update/", datas=updateReq)
+        updateResult = updateResult.json()
+        if len(updateResult) > 0:
+            for d in updateResult:
+                status = d['status']
+                if status == 0:
+                    success += 1
+                else:
+                    d['error'] = failDict.get(d['status'], "其他错误")
+                    failList.append(d)
+    except Exception as e:
+        logger.error(e)
+    finally:
+        s = HOST1_IMPORT_STATIC[username]
+        s['isImportRun'] = 0
+        s['success'] = success
+        s['fail'] = len(failList)
+        s['total'] = total
+        s['failList'] = failList
+
+class GetImportStatus(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, View):
+    def get_ajax(self, request, *args, **kwargs):
+        result_json = {"status": 1, "msg": "导入执行异常"}
+        username = request.user.username
+        s = HOST1_IMPORT_STATIC.get(username,None)
+        if s:
+            isImportRun = int(s.get('isImportRun', 0))
+            result_json = {"status": 0, "msg": "您没有正在导入的后台操作",'result':s}
+            if isImportRun == 0:
+                 del HOST1_IMPORT_STATIC[username]
+        else:
+            result_json = {"status": 0, "msg": "您没有正在导入的后台操作","result":[],"isRun":0}
+        return self.render_json_response(result_json)
+
+
 
 
 def Host1ExportView(request):
