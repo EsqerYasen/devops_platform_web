@@ -693,6 +693,7 @@
                     return;
                 } else {
                     var redistribution = {};
+                    var count = 0;
                     $($("#redistribution_form").serializeArray()).each(function(index,item){
                         if(item.value){
                             if(item.name == "biz_service" || item.name == "middleware" || item.name == "dns"){
@@ -701,11 +702,27 @@
                                 }else{
                                     redistribution[item.name] = [item.value];
                                 }
+                                if(item.name.indexOf('biz_service')>-1){
+                                    count += 1;
+                                }
                             }else{
                                 redistribution[item.name] = item.value;
+                                if(item.name.indexOf('biz_brand')>-1){
+                                    count += 1;
+                                }
+                                if(item.name.indexOf('biz_group')>-1){
+                                    count += 1;
+                                }
+                                if(item.name.indexOf('biz_module')>-1){
+                                    count += 1;
+                                }
                             }
                         }
                     });
+                    if(count > 0 && count < 4){
+                        Alertwin.alert({message:"业务选择不全"});
+                        return;
+                    }
                     param['redistribution'] = JSON.stringify(redistribution);
                     param['csrfmiddlewaretoken'] = '{{ csrf_token }}';
                     layer.load();
