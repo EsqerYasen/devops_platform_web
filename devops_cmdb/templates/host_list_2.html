@@ -112,7 +112,7 @@
                                 Alertwin.confirm({ message: "确定要绑定这批机器到 “"+treeNode.name+"”下吗？" }).on(function (e) {
                                     if(e){
                                         ids = ids.substring(0, ids.length - 1);
-                                        alert("ids = " + ids);
+                                        bindingGroup(treeNode.id,ids);
                                     }
                                 })
 
@@ -134,7 +134,7 @@
                                 Alertwin.confirm({ message: "确定要解绑这批机器“"+treeNode.name+"”下吗？" }).on(function (e) {
                                     if(e){
                                         ids = ids.substring(0, ids.length - 1);
-                                        alert("ids = " + ids);
+                                        unBindingGroup(treeNode.id,ids);
                                     }
                                 })
 
@@ -147,9 +147,60 @@
         }
 
         function zHostGroupTreeDblClick(event, treeId, treeNode){
-             alert(treeNode.tId + ", " + treeNode.name);
+              $(location).attr('href', '/cmdb/host/list2/?groupId='+treeNode.id);
         }
 
+        function bindingGroup(groupId,ids){
+            var host_ids = ids.split(',');
+            var list = []
+            $(host_ids).each(function(i,item){
+                list.push(parseInt(item))
+            })
+            layer.load();
+            $.ajax({
+                type: "POST",
+                url: '../host2BindingGroup/',
+                data:{'group_id':groupId,"host_ids":JSON.stringify(list),'csrfmiddlewaretoken':'{{ csrf_token }}'},
+                error: function (request) {
+                    layer.closeAll('loading');
+                },
+                success: function (data) {
+                    if(data.status==0){
+                         Alertwin.alert({ message: "绑定成功"});
+                    }else{
+                        Alertwin.alert({ message: "绑定失败"});
+                    }
+
+                    layer.closeAll('loading');
+                }
+            });
+        }
+
+        function unBindingGroup(groupId,ids){
+            var host_ids = ids.split(',');
+            var list = []
+            $(host_ids).each(function(i,item){
+                list.push(parseInt(item))
+            })
+            layer.load();
+            $.ajax({
+                type: "POST",
+                url: '../host2UnbundlingGroup/',
+                data:{'group_id':groupId,"host_ids":JSON.stringify(list),'csrfmiddlewaretoken':'{{ csrf_token }}'},
+                error: function (request) {
+                    layer.closeAll('loading');
+                },
+                success: function (data) {
+                    if(data.status==0){
+                         Alertwin.alert({ message: "解绑成功"});
+                    }else{
+                        Alertwin.alert({ message: "绑解失败"});
+                    }
+
+                    layer.closeAll('loading');
+                }
+            });
+        }
 
     </script>
 {% endblock %}
@@ -343,39 +394,30 @@
         }
 
         function host2UpldateStatus(flag){
-            var param = getHostIPOrSearch();
+            var param = getCheckedHostIP();
              if($("#tb tr").length > 1) {
                  var msg = "";
                  var count = 0;
-                 if(param['flag'] == 1){
-                    count = param['ip_list'].split().length
-                 }else{
-                    count = {{ paginator.count|emptyValueConversion }};
-                 }
-                if(flag==3){ //上线
-                    msg = "确认要上线"+count+"台机器吗？";
-                }else{
-                    msg = "确认要"+count+"台机器修改为未分配吗？";
-                }
-                Alertwin.confirm({ message: msg }).on(function (e) {
-                    if (e) {
-                        layer.load();
-                        param['status'] = flag;
-                        param['csrfmiddlewaretoken'] = '{{ csrf_token }}';
-                        $.ajax({
-                            type: "POST",
-                            url: '/cmdb/host/host2UpdateStatus/',
-                            data:param,
-                            error: function (request) {
+                 count = param['ip_list'].split().length
+                 Alertwin.confirm({ message: "确认要"+count+"台机器修改为未分配吗？" }).on(function (e) {
+                     if (e) {
+                         layer.load();
+                         param['status'] = flag;
+                         param['csrfmiddlewaretoken'] = '{{ csrf_token }}';
+                         $.ajax({
+                             type: "POST",
+                             url: '/cmdb/host/host2UpdateStatus/',
+                             data:param,
+                             error: function (request) {
                                 layer.closeAll('loading');
-                            },
-                            success: function (data) {
+                             },
+                             success: function (data) {
                                 location.reload();
                                 layer.closeAll('loading');
-                            }
-                        });
-                    }
-                });
+                             }
+                         });
+                     }
+                 });
              }
         }
 

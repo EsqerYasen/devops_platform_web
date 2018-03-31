@@ -61,31 +61,18 @@ class Host2DetailView(LoginRequiredMixin, TemplateView):
         return context
 
 
-class Host2RedistributionView(LoginRequiredMixin,JSONResponseMixin, AjaxResponseMixin, View):
+class Host2UpdateGoLiveView(LoginRequiredMixin,JSONResponseMixin, AjaxResponseMixin, View):
     def post_ajax(self, request, *args, **kwargs):
         result_json = {"status": 1}
         try:
             flag = request.POST.get("flag",None);
             if flag:
                 hu = HttpUtils(request)
-                redistribution = json.loads(request.POST.get("redistribution"))
-                redistribution['go_live'] = 2
+                go_live = request.POST.get("status")
                 reqParam = []
-                if flag == '1':
-                    ip_list = json.loads(request.POST.get("ip_list"))
-                    for ip in ip_list:
-                        reqDict = redistribution.copy()
-                        reqDict['host_ip'] = ip
-                        reqParam.append(reqDict)
-                else:
-                    seach = json.loads(request.POST.get("seach", None))
-                    seach['go_live'] = 2
-                    resultJson = hu.get(serivceName="cmdb", restName="/rest/host/", datas=seach)
-                    list = resultJson.get("results", [])
-                    for l in list:
-                        reqDict = redistribution.copy()
-                        reqDict['host_ip'] = l.get("host_ip")
-                        reqParam.append(reqDict)
+                ip_list = json.loads(request.POST.get("ip_list"))
+                for ip in ip_list:
+                    reqParam.append({'go_live': go_live, 'host_ip': ip})
 
                 updateResult = hu.post(serivceName="cmdb", restName="/rest/host/update/", datas=reqParam)
                 result = updateResult.json()
@@ -96,30 +83,36 @@ class Host2RedistributionView(LoginRequiredMixin,JSONResponseMixin, AjaxResponse
         return self.render_json_response(result_json)
 
 
-class Host2UpdateGoLiveView(LoginRequiredMixin,JSONResponseMixin, AjaxResponseMixin, View):
-    def post_ajax(self, request, *args, **kwargs):
+class Host2BindingGroup(LoginRequiredMixin,JSONResponseMixin, View):
+    def post(self, request, *args, **kwargs):
         result_json = {"status": 1}
         try:
-            flag = request.POST.get("flag",None);
-            if flag:
+            groupId = request.POST.get("group_id",None)
+            host_ids = request.POST.get("host_ids",None)
+            if groupId and host_ids:
                 hu = HttpUtils(request)
-                go_live = request.POST.get("status")
-                reqParam = []
-                if flag == '1':
-                    ip_list = json.loads(request.POST.get("ip_list"))
-                    for ip in ip_list:
-                        reqParam.append({'go_live':go_live,'host_ip':ip})
-                else:
-                    seach = json.loads(request.POST.get("seach", None))
-                    seach['go_live'] = 2
-                    resultJson = hu.get(serivceName="cmdb", restName="/rest/host/", datas=seach)
-                    list = resultJson.get("results", [])
-                    for l in list:
-                        reqParam.append({'go_live': go_live, 'host_ip': l.get("host_ip")})
-
-                updateResult = hu.post(serivceName="cmdb", restName="/rest/host/update/", datas=reqParam)
+                reqParam = {"group_id":groupId,"host_ids":host_ids}
+                updateResult = hu.post(serivceName="cmdb", restName="/rest/host/hostgroup/static_group_append/", datas=reqParam)
                 result = updateResult.json()
-                if result['status'] == '0':
+                if len(result) > 0:
+                    result_json = {"status": 0}
+        except Exception as e:
+            logger.error(e)
+        return self.render_json_response(result_json)
+
+
+class Host2UnbundlingGroup(LoginRequiredMixin,JSONResponseMixin, View):
+    def post(self, request, *args, **kwargs):
+        result_json = {"status": 1}
+        try:
+            groupId = request.POST.get("group_id",None)
+            host_ids = request.POST.get("host_ids",None)
+            if groupId and host_ids:
+                hu = HttpUtils(request)
+                reqParam = {"group_id":groupId,"host_ids":host_ids}
+                updateResult = hu.post(serivceName="cmdb", restName="/rest/host/hostgroup/static_group_delete/", datas=reqParam)
+                result = updateResult.json()
+                if len(result) > 0:
                     result_json = {"status": 0}
         except Exception as e:
             logger.error(e)
