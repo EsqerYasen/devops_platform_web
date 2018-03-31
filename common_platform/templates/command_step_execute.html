@@ -79,13 +79,7 @@
                                                     <td width='10%'>命令脚本</td>
                                                     <td width='50%'>
                                                         <input type='text' id='stepName{{ step.seq_no }}' value='{{ step.name }}' readonly class='form-control' style='width: 40%' placeholder='步骤名称'/>
-                                                        <input type='hidden' id='selectHostValue{{ step.seq_no }}' tabName='{{ step.tab_name }}' tabType='{{ step.target_type }}'
-                                                               {% if step.host_filter %}
-                                                               value='{"host_filter":{{ step.host_filter }}{% if step.target_host_list %},"target_host_list":{{ step.target_host_list }}{% endif %}}'
-                                                               {% elif step.target_group_ids %}
-                                                               value='{"target_group":"{{ step.target_group_ids }}"{% if step.target_host_list %},"target_host_list":{{ step.target_host_list }}{% endif %}}'
-                                                               {% endif %}
-                                                        />
+                                                        <input type='hidden' id='selectHostValue{{ step.seq_no }}' value='{"target_group_ids":"{{ step.target_group_ids }}"{% if step.target_host_list %},"target_host_list":{{ step.target_host_list }}{% endif %}}' />
                                                     </td>
                                                     <td width='32%'>
                                                         <button type='button' class='btn btn-sm btn-warning' data-toggle='modal' data-gid='{{ step.seq_no }}' data-target='#select_host_modal' style='margin-top: 5px;margin-right: 10px'>选机器</button>
@@ -118,7 +112,7 @@
                                                             <input type='text' id='param{{ line.sub_seq_no }}' name='script2' value='{{ line.default_script_parameter }}' class='form-control' style='width: 99%' placeholder='执行参数'>
                                                         </td>
                                                         <td align="center">
-                                                            <input type="checkbox" class="i-checks icheck" id="icheck1{{ line.sub_seq_no }}" checked />
+                                                            <input type="checkbox" class="i-checks icheck" id="icheck1{{ line.sub_seq_no }}" checked/>
                                                         </td>
                                                     </tr>
                                                {% endif %}
@@ -151,13 +145,7 @@
                                                  <td width='10%'>文件传输<input type='hidden' id='selTreeNodeIds{{ step.seq_no }}' value=''/></td>
                                                  <td width='50%'>
                                                      <input type='text' id='stepName{{ step.seq_no }}' value='{{ step.name }}' readonly class='form-control' style='width: 40%' placeholder='步骤名称'/>
-                                                     <input type='hidden' id='selectHostValue{{ step.seq_no }}' tabName='{{ step.tab_name }}' tabType='{{ step.target_type }}'
-                                                              {% if step.host_filter %}
-                                                              value='{"host_filter":{{ step.host_filter }} {% if step.target_host_list %},"target_host_list":{{ step.target_host_list }}{% endif %}}'
-                                                              {% elif step.target_group_ids %}
-                                                              value='{"target_group":"{{ step.target_group_ids }}"{% if step.target_host_list %},"target_host_list":{{ step.target_host_list }}{% endif %}}'
-                                                              {% endif %}
-                                                        />
+                                                     <input type='hidden' id='selectHostValue{{ step.seq_no }}' value='{"target_group_ids":"{{ step.target_group_ids }}"{% if step.target_host_list %},"target_host_list":{{ step.target_host_list }}{% endif %}}'/>
                                                  </td>
                                                  <td width='32%'>
                                                      <button type='button' class='btn btn-sm btn-warning' data-toggle='modal' data-gid='{{ step.seq_no }}' data-target='#select_host_modal' style='margin-top: 5px;margin-right: 10px'>选机器</button>
@@ -216,31 +204,18 @@
         var selectHostValue = $("#selectHostValue"+gid);
         var ips = getCheckedHostIP();
         selectHostValue.val('');
-        selectHostValue.attr('tabType','');
-        selectHostValue.attr('tabName','');
 
-        var values = getSelectHost();
+        var values = getSelectHostFromModal();
         if(!$.isEmptyObject(values)){
-            var tabName = values['tabName'];
-            selectHostValue.attr('tabName',tabName);
-            delete values['tabName'];
-            delete values['tabType'];
             var obj = {};
-            if(tabName.indexOf('host_group_tab') > 0){
-                obj = {'target_group':values}
-                selectHostValue.attr('tabType',1);
-            }else{
-                obj = {'host_filter':values};
-                selectHostValue.attr('tabType',2);
-            }
+            obj = {'target_group_ids':values['id']}
             if(ips.length > 0){
                 obj['target_host_list']= ips;
-                selectHostValue.attr('tabType',3);
             }
             selectHostValue.val(JSON.stringify(obj));
             select_host_modal.modal('hide');
         }else{
-            Alertwin.alert({message:"选择机器功能异常"});
+            Alertwin.alert({message:"请选择主机组或勾选机器"});
         }
 
     }
@@ -271,11 +246,8 @@
                           hostValue = hostValue.replace(/\'/g,"\"");
                      }
                      var selectHostValueObj = JSON.parse(hostValue);
-                     var tabName = selectHostValue.attr('tabName');
-                     var tabType = selectHostValue.attr('tabType');
 
                      $(line).each(function(i2,item2){
-
                         var tItem2 = $(item2);
                         var gid2 = tItem2.attr("gid");
                         if($("#icheck1"+gid).is(':checked')){
@@ -283,21 +255,13 @@
                         }
                      })
 
-                     if(tabName.indexOf('host_group_tab') > 0){
-                         lineDict['target_type'] = 1;
-                         lineDict['target_group_ids'] = selectHostValueObj['target_group'];
-                     }else{
-                         lineDict['target_type'] = 2;
-                         lineDict['host_filter'] = selectHostValueObj['host_filter'];
+                     if(selectHostValueObj['target_group']){
+                            lineDict['target_group_ids'] = selectHostValueObj['target_group'];
+                            lineDict['target_type'] = 1;
                      }
-                     if(tabType == 3){
-                         lineDict['target_type'] = 3;
-                         var ips = "";
-                         $(selectHostValueObj['target_host_list']).each(function(i,item){
-                              ips += item+",";
-                         });
-                         ips = ips.substring(0,ips.length-1);
-                         lineDict['target_host_list'] = ips;
+                     if(selectHostValueObj['target_host_list']){
+                            lineDict['target_host_list'] = selectHostValueObj['target_host_list'];
+                            lineDict['target_type'] = 3;
                      }
                      paraDict[i+1] = lineDict
                  }else if(type == 1){
@@ -309,23 +273,13 @@
                           hostValue = hostValue.replace(/\'/g,"\"");
                      }
                      var selectHostValueObj = JSON.parse(hostValue);
-                     var tabName = selectHostValue.attr('tabName');
-                     var tabType = selectHostValue.attr('tabType');
-                     if(tabName.indexOf('host_group_tab') > 0){
-                         lineDict['target_type'] = 1;
-                         lineDict['target_group_ids'] = selectHostValueObj['target_group'];
-                     }else{
-                         lineDict['target_type'] = 2;
-                         lineDict['host_filter'] = selectHostValueObj['host_filter'];
+                     if(selectHostValueObj['target_group']){
+                            lineDict['target_group_ids'] = selectHostValueObj['target_group'];
+                            lineDict['target_type'] = 1;
                      }
-                     if(tabType == 3){
-                         lineDict['target_type'] = 3;
-                         var ips = "";
-                         $(selectHostValueObj['target_host_list']).each(function(i,item){
-                              ips += item+",";
-                         });
-                         ips = ips.substring(0,ips.length-1);
-                         lineDict['target_host_list'] = ips;
+                     if(selectHostValueObj['target_host_list']){
+                            lineDict['target_host_list'] = selectHostValueObj['target_host_list'];
+                            lineDict['target_type'] = 3;
                      }
                      paraDict[i+1] = lineDict
                  }

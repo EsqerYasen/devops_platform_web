@@ -107,7 +107,7 @@
         "                                    <td width='10%'>命令脚本</td>\n" +
         "                                    <td width='50%'>" +
         "                                        <input type='text' id='stepName"+generateId+"' value='' class='form-control' style='width: 40%' placeholder='步骤名称'/>" +
-        "                                        <input type='hidden' id='selectHostValue"+generateId+"' tabName='' tabType='' value=''/>"+
+        "                                        <input type='hidden' id='selectHostValue"+generateId+"' value=''/>"+
         "                                    </td>\n" +
         "                                    <td width='32%'>\n" +
         "                                        <button type='button' class='btn btn-sm btn-warning' data-toggle='modal' data-gid='"+generateId+"' data-target='#select_host_modal' style='margin-top: 5px;margin-right: 10px'>选机器</button>\n" +
@@ -147,7 +147,7 @@
             "               <td width='10%'>文件传输</td>\n" +
             "               <td width='50%'>" +
             "                   <input type='text' id='stepName"+generateId+"' value='' class='form-control' style='width: 40%' placeholder='步骤名称'/>" +
-            "                   <input type='hidden' id='selectHostValue"+generateId+"' tabName='' tabType='' value=''/>"+
+            "                   <input type='hidden' id='selectHostValue"+generateId+"' value=''/>"+
             "               </td>\n" +
             "               <td width='32%'>\n" +
             "                   <button type='button' class='btn btn-sm btn-warning' data-toggle='modal' data-gid='"+generateId+"' data-target='#select_host_modal' style='margin-top: 5px;margin-right: 10px'>选机器</button>\n" +
@@ -275,31 +275,18 @@
         var selectHostValue = $("#selectHostValue"+gid);
         var ips = getCheckedHostIP();
         selectHostValue.val('');
-        selectHostValue.attr('tabType','');
-        selectHostValue.attr('tabName','');
 
-        var values = getSelectHost();
+        var values = getSelectHostFromModal();
         if(!$.isEmptyObject(values)){
-            var tabName = values['tabName'];
-            selectHostValue.attr('tabName',tabName);
-            delete values['tabName'];
-            delete values['tabType'];
             var obj = {};
-            if(tabName.indexOf('host_group_tab') > 0){
-                obj = {'target_group':values['id']}
-                selectHostValue.attr('tabType',1);
-            }else{
-                obj = {'host_filter':values};
-                selectHostValue.attr('tabType',2);
-            }
+            obj = {'target_group_ids':values['id']}
             if(ips.length > 0){
                 obj['target_host_list']= ips;
-                selectHostValue.attr('tabType',3);
             }
             selectHostValue.val(JSON.stringify(obj));
             select_host_modal.modal('hide');
         }else{
-            Alertwin.alert({message:"选择机器功能异常"});
+            Alertwin.alert({message:"请选择主机组或勾选机器"});
         }
 
     }
@@ -349,23 +336,23 @@
             var selectHostValueObj = JSON.parse(selectHostValue.val());
             var tabName = selectHostValue.attr('tabName');
             var tabType = selectHostValue.attr('tabType');
-            stepDict['tab_name'] = tabName;
-            stepDict['target_type'] = tabType;
-{#            if(tabType+"" == '2'){#}
-{#                stepDict['host_filter'] = selectHostValueObj['host_filter'];#}
-{#            }else if(tabType+"" == '1'){#}
-{#                stepDict['target_group_ids'] = selectHostValueObj['target_group'];#}
-{#            }else{#}
-{#                stepDict['target_host_list'] = selectHostValueObj['target_host_list'];#}
-{#            }#}
-            if(selectHostValueObj['host_filter']){
-                stepDict['host_filter'] = selectHostValueObj['host_filter'];
+            //stepDict['tab_name'] = "";
+            var bool = true;
+            var target_group_ids = selectHostValueObj['target_group_ids'];
+            if(target_group_ids){
+                stepDict['target_group_ids'] = target_group_ids;
+                stepDict['target_type'] = 1;
+                bool = false;
             }
-            if(selectHostValueObj['target_group']){
-                stepDict['target_group_ids'] = selectHostValueObj['target_group'];
+            var target_host_list = selectHostValueObj['target_host_list'];
+            if(target_host_list){
+                stepDict['target_host_list'] = target_host_list;
+                stepDict['target_type'] = 3;
+                bool = false;
             }
-            if(selectHostValueObj['target_host_list']){
-                stepDict['target_host_list'] = selectHostValueObj['target_host_list'];
+            if(bool){
+                stepDict['target_host_list'] = '127.0.0.1';
+                stepDict['target_type'] = 3;
             }
             // 业务树   target_type=2  host_filter   tab_name 储存 前端选项卡Id
             // 主机组   target_type=1  target_group

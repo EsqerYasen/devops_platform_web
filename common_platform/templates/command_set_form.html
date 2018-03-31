@@ -138,9 +138,6 @@
         $('#checkall').on('ifUnchecked', function (event) {
             $('.icheck').iCheck('uncheck');
         });
-
-        multSelectInit();
-        treeDateInit();
         initSelectHostModal();
         initSelectFileModal();
 
@@ -152,19 +149,15 @@
                  'background-color': '#fff'
              }
         });
+
+        var hostGroupTreeList = {{ hostGroup_list|safe }};
+        readHostGroupTreeNext(hostGroupTreeList,0);
+        var fileTreeList = {{ file_tree|safe }};
+        readFileTreeNext(fileTreeList,{path:'/opt/devops/filetrunk/'});
+        zHostGroupTreeInit();
+        filezTreeInit();
+
     });
-
-
-    function multSelectInit(){
-        var biz_service = $("select[name='biz_service']");
-        biz_service.chosen();
-
-        var middleware = $("select[name='middleware']");
-        middleware.chosen();
-
-        var dns = $("select[name='dns']");
-        dns.chosen();
-    }
 
     function initSelectHostModal(){
         $("#select_host_modal").on('show.bs.modal',function(event){
@@ -176,58 +169,19 @@
             if(hostValue){
                 hostValue = hostValue.replace(/\'/g,"\"");
                 var obj = JSON.parse(hostValue);
-                var tabName = selectHostValue.attr('tabName');
-                var tabType = selectHostValue.attr('tabType');
-                $('#select_host_tab a[href="'+tabName+'"]').tab('show');
-                if(tabName.indexOf('biz_tab') > 0){
-                    var tree = $.fn.zTree.getZTreeObj('biz_tree');
-                    var host_filter = obj['host_filter'];
-                    $("#host_go_live").val(host_filter['go_live']);
-                    delete host_filter['go_live'];
-                    for(var d in host_filter){
-                        $((host_filter[d]+"").split(',')).each(function(i,item){
-                            tree.checkNode(tree.getNodeByParam('id',d+item), true, true);
-                        })
-                    }
-                }else if(tabName.indexOf('host_group_tab') > 0){
-                    var tree = $.fn.zTree.getZTreeObj('host_group_tree');
-                    $(obj['target_group'].split(',')).each(function(i,item){
-                        tree.checkNode(tree.getNodeByParam('id',item), true, true);
-                    })
-                }else if(tabName.indexOf('advanced_query_tab') > 0){
-                    var host_filter = obj['host_filter'];
-                    for(var d in host_filter){
-                        if(d == 'biz_brand'){
-                            $("#biz_brand_1").val(host_filter[d]);
-                            $("#biz_brand_1").trigger("change");
-                        }else if(d == 'biz_group'){
-                            $("#biz_group_1").val(host_filter[d]);
-                            $("#biz_group_1").trigger("change");
-                        }else if(d == 'biz_module'){
-                            $("#biz_module_1").val(host_filter[d]);
-                            $("#biz_module_1").trigger("change");
-                        }else if(d == 'biz_service' || d == 'middleware'|| d == 'dns'){
-                            selectedMultSelect(host_filter[d].split(','),d+'_1');
-                        }else{
-                            $("#"+d+"_1").val(host_filter[d]);
-                        }
-                    }
-                }
-                if(tabType == 3){
-                    createSelectHostIpTable({'flag':2,'host_list':obj['target_host_list']});
-                }
+
+                var tree = $.fn.zTree.getZTreeObj('host_group_tree');
+                $(obj['target_group_ids'].split(',')).each(function(i,item){
+                    tree.checkNode(tree.getNodeByParam('id',item), true, true);
+                })
+                createSelectHostIpTable({'flag':2,'host_list':obj['target_host_list']});
             }
         });
 
         $("#select_host_modal").on('hide.bs.modal',function(event){
             var datas = $(this).data();
             var gid = datas['gid'];
-            $.fn.zTree.getZTreeObj("biz_tree").checkAllNodes(false);
             $.fn.zTree.getZTreeObj("host_group_tree").checkAllNodes(false);
-            $("#advanced_query_form")[0].reset();
-            $("#biz_service_1").empty().trigger("liszt:updated");
-            $("#middleware_1").empty().trigger("liszt:updated");
-            $("#dns_1").empty().trigger("liszt:updated");
         });
     }
 
@@ -253,131 +207,10 @@
               </div>
               <div class="modal-body">
                   <div class="row">
-                      <div class="col-sm-10" style="width:80%;max-height: 400px;overflow:auto">
-                          <ul id="select_host_tab" class="nav nav-tabs">
-                              <li class="active">
-                                  <a href="#biz_tab" data-toggle="tab">业务树</a>
-                              </li>
-                              <li>
-                                  <a href="#host_group_tab" data-toggle="tab">主机组</a>
-                              </li>
-                              <li>
-                                  <a href="#advanced_query_tab" data-toggle="tab">高级查询</a>
-                              </li>
-                          </ul>
-                          <div id="myTabContent" class="tab-content">
-                              <div class="tab-pane fade in active" id="biz_tab">
-                                  <ul id="biz_tree" name="biz_tree" class="ztree"></ul>
-                              </div>
-                              <div class="tab-pane fade" id="host_group_tab">
-                                  <ul id="host_group_tree" name="host_group_tree" class="ztree"></ul>
-                              </div>
-                              <div class="tab-pane fade" id="advanced_query_tab" style="padding-top:10px;padding-right: 10px">
-                                  <form id="advanced_query_form" method="get">
-                                        <div class="row" style="margin-bottom: 10px">
-                                            <label class="col-sm-1 control-label">品牌</label>
-                                            <div class="col-sm-3">
-                                                <select id="biz_brand_1" name="biz_brand" class="form-control" onchange="brandChange(this,'biz_group_1')">
-                                                    <option value="" selected>品牌</option>
-                                                    {% for o in brand_list %}
-                                                        <option value="{{ o.id }}" >{{ o.name }}</option>
-                                                    {% endfor %}
-                                                </select>
-                                            </div>
-                                            <label class="col-sm-1 control-label">业务线</label>
-                                            <div class="col-sm-3">
-                                                <select id="biz_group_1" name="biz_group" class="form-control" onchange="groupChange(this,'biz_brand_1','biz_module_1')">
-                                                </select>
-                                            </div>
-                                            <label class="col-sm-1 control-label">机房</label>
-                                            <div class="col-sm-3">
-                                                <select id="physical_idc_1" name="physical_idc" class="form-control" style="width: 100%">
-                                                    <option value="" selected>请选择</option>
-                                                    {% for obj in pidc_list %}
-                                                        <option value="{{ obj.id }}" >{{ obj.name }}</option>
-                                                    {% endfor %}
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="row" style="margin-bottom: 10px">
-                                            <label class="col-sm-1 control-label">模块</label>
-                                            <div class="col-sm-3">
-                                                <select id="biz_module_1" name="biz_module" class="form-control" onchange="moduleChange(this,'biz_brand_1','biz_group_1','biz_service_1')">
-                                                </select>
-                                            </div>
-                                            <label class="col-sm-1 control-label">应用</label>
-                                            <div class="col-sm-3">
-                                                <select id="biz_service_1" name="biz_service" data-placeholder="请选择应用" class="chosen-select form-control" style="width:207px"  multiple tabindex="1">
-                                                </select>
-                                            </div>
-                                            <label class="col-sm-1 control-label">区域</label>
-                                            <div class="col-sm-3">
-                                                <select id="logical_idc_1" name="logical_idc" class="form-control">
-                                                    <option value="" selected>区域</option>
-                                                    {% for o in lidc_list %}
-                                                        <option value="{{ o.id }}" >{{ o.name }}</option>
-                                                    {% endfor %}
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="row" style="margin-bottom: 10px">
-                                            <label class="col-sm-1 control-label">中间件</label>
-                                            <div class="col-sm-3">
-                                                <select id="middleware_1" name="middleware" data-placeholder="请选择中间件" class="chosen-select form-control" style="width:207px"  multiple tabindex="1">
-                                                    {% for o in mw_list %}
-                                                        <option value="{{ o.id }}" >{{ o.name }}</option>
-                                                    {% endfor %}
-                                                </select>
-                                            </div>
-                                            <label class="col-sm-1 control-label">域名</label>
-                                            <div class="col-sm-3">
-                                                <select id="dns_1" name="dns" data-placeholder="请选择域名" class="chosen-select form-control" style="width:207px"  multiple tabindex="1">
-                                                    {% for o in dns_list %}
-                                                        <option value="{{ o.id }}" >{{ o.name }}</option>
-                                                    {% endfor %}
-                                                </select>
-                                            </div>
-                                            <label class="col-sm-1 control-label">环境</label>
-                                            <div class="col-sm-3">
-                                                <select id="deployment_environment_1" name="deployment_environment" class="form-control" style="width: 100%">
-                                                    <option value="" selected>请选择</option>
-                                                    {% for obj in env_list %}
-                                                        <option value="{{ obj.id }}" >{{ obj.name }}</option>
-                                                    {% endfor %}
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="row" style="margin-bottom: 10px">
-                                            <label class="col-sm-1 control-label">标签</label>
-                                            <div class="col-sm-11">
-                                                <textarea id="tag_1" name="tag"  class="form-control" style="height: 55px;resize:none;"></textarea>
-                                            </div>
-                                        </div>
-                                        <div class="row" style="margin-bottom: 10px">
-                                            <label class="col-sm-1 control-label">CPU核数</label>
-                                            <div class="col-sm-3">
-                                                <input id="num_cpus_1" name="num_cpus" type="number" class="form-control" min="1" max="100"/>
-                                            </div>
-                                            <label class="col-sm-1 control-label">内存(MB)</label>
-                                            <div class="col-sm-3">
-                                                <input id="mem_total_1" name="mem_total" type="number" class="form-control" min="1" max="10000"/>
-                                            </div>
-                                            <label class="col-sm-1 control-label">操作系统</label>
-                                            <div class="col-sm-3">
-                                                <input id="os_1" name="os" type="text" class="form-control"/>
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <label class="col-sm-1 control-label">系统类型</label>
-                                            <div class="col-sm-3">
-                                                <input id="os_family_1" name="os_family" type="text" class="form-control"/>
-                                            </div>
-                                        </div>
-                                  </form>
-                              </div>
-                          </div>
+                      <div class="col-sm-4" style="max-height: 400px;overflow:auto">
+                          <ul id="host_group_tree" name="host_group_tree" class="ztree"></ul>
                       </div>
-                      <div class="col-sm-2" style="width:20%;max-height: 400px;overflow:auto">
+                      <div class="col-sm-8" style="max-height: 400px;overflow:auto">
                           <div style="max-height: 400px;overflow: auto">
                               <table id="hostIpTb" class="table table-striped table-bordered table-hover dataTables-example dataTable">
                                   <thead>
@@ -416,27 +249,6 @@
 </div>
 
 
-<div class="modal fade" id="exec_log" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">运行日志</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                 <textarea style="width: 100%;height: 500px;resize: none;background: black;font: caption;color: white;" id="textarea_log" readonly value=""></textarea>
-                 <img id="log_modal_img" src="/static/hplus/img/5-121204194103.gif">
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
-             </div>
-        </div>
-    </div>
-</div>
-
-
 <div class="modal fade" id="select_file_modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
@@ -458,92 +270,14 @@
 </div>
 
 <script>
-    function brandChange(sel,g_id){
-        $.ajax({
-            type: "GET",
-            url: '/cmdb/business/get_groups_by_brandId/',
-            async:false,
-            data:{"brand_id":$(sel).val()},
-            error: function (request) {},
-            success: function (data) {
-                var select_obj = $("#"+g_id);
-                select_obj.empty();
-                 select_obj.append("<option value=''>请选择业务线</option>");
-                $(data).each(function(index,item){
-                     select_obj.append("<option value='"+item.id+"' keycode='"+item.key_code+"'>"+item.name+"</option>");
-                });
-            }
-        });
-    }
 
-    function groupChange(sel,b_id,m_id){
-        $.ajax({
-            type: "GET",
-            url: '/cmdb/business/get_module_by_bIdgId/',
-            async:false,
-            data:{"brand_id":$("#"+b_id).val(),'group_id':$(sel).val()},
-            error: function (request) {},
-            success: function (data) {
-                var select_obj = $("#"+m_id);
-                select_obj.empty();
-                 select_obj.append("<option value=''>请选择模块</option>");
-                $(data).each(function(index,item){
-                     select_obj.append("<option value='"+item.id+"' keycode='"+item.key_code+"'>"+item.name+"</option>");
-                });
-            }
-        });
-    }
-
-    function moduleChange(sel,b_id,g_id,s_id){
-        $.ajax({
-            type: "GET",
-            url: '/cmdb/business/get_service_by_bIdgIdMid/',
-            async:false,
-            data:{"brand_id":$("#"+b_id).val(),'group_id':$("#"+g_id).val(),'biz_module':$(sel).val()},
-            error: function (request) {},
-            success: function (data) {
-                var select_obj = $("#"+s_id);
-                select_obj.empty();
-                $(data).each(function(index,item){
-                     select_obj.append("<option value='"+item.id+"' keycode='"+item.key_code+"'>"+item.name+"</option>");
-                });
-                select_obj.trigger("liszt:updated");
-            }
-        });
-    }
-
-    var zBizNodes = [];
     var zHostGroupNodes = [];
     var zFileListNodes = [];
-    function treeDateInit() {
-        var treeList = {{ tree_list|safe }};
-        readBizTreeNext(treeList,0);
-        var hostGroupTreeList = {{ hostGroup_list|safe }};
-        readHostGroupTreeNext(hostGroupTreeList,0);
-        var fileTreeList = {{ file_tree|safe }};
-        readFileTreeNext(fileTreeList,{path:'/opt/devops/filetrunk/'});
-        zBizTreeInit();
-        zHostGroupTreeInit();
-        filezTreeInit();
-    }
-
-    function readBizTreeNext(list,pid){
-        $(list).each(function(i,item){
-            var is_open = pid == 0?true:false;
-            var ids = item.biz_type+item.id;
-            var nodeData = {id:ids,pId:pid,name:item.name,keyCode:item.key_code,nodeId:item.id,open:is_open,bizType:item.biz_type};
-            zBizNodes.push(nodeData);
-            if(item.childs){
-                readBizTreeNext(item.childs,ids);
-            }
-        });
-    }
 
     function readHostGroupTreeNext(list,pid){
         $(list).each(function(i,item){
-            var is_open = pid == 0?true:false;
             var ids = item.id;
-            var nodeData = {id:ids,pId:pid,name:item.name,nodeId:ids,open:is_open,hasIp:item.has_ip};
+            var nodeData = {id:ids,pId:pid,name:item.name,nodeId:ids,open:true,hasIp:item.has_ip};
             zHostGroupNodes.push(nodeData);
             if(item.childs){
                 readHostGroupTreeNext(item.childs,ids);
@@ -576,32 +310,10 @@
         })
     }
 
-    function zBizTreeInit(){
-        var setting = {
-            view: {
-                selectedMulti: false
-            },
-            check: {
-                enable: true,
-                chkboxType:  { "Y": "", "N": "" }
-            },
-            data: {
-                simpleData: {
-                    enable: true
-                }
-            },
-            edit: {
-                enable: false
-            }
-        };
-        $.fn.zTree.init($("#biz_tree"), setting, zBizNodes);
-    }
-
      function zHostGroupTreeInit(){
         var setting = {
             view: {
                 selectedMulti: false,
-                addDiyDom: addDiyDom
             },
             check: {
                 enable: true,
@@ -644,27 +356,6 @@
         var tree = $.fn.zTree.init($("#file_tree"), setting, zFileListNodes);
     }
 
-    function addDiyDom(treeId, treeNode) {
-         var aObj = $("#" + treeNode.tId + "_a");
-
-         if($("#badge"+treeNode.id).length==0){
-              var spanStr = "<span id='badge"+treeNode.id+"' class='label label-info' style='margin-left:20px' title='编号: "+treeNode.nodeId+"'>#group:"+treeNode.nodeId+"</span>";
-              aObj.append(spanStr);
-         }
-         if(treeNode.hasIp == 1){
-             if($("#diyBtn_"+treeNode.id).length==0){
-                 var editStr = "<button class='btn btn-sm btn-warning' id='diyBtn_" +treeNode.id+ "' title='"+treeNode.name+"节点下绑定的IP' type='button' style='margin-left:10px'>IP查看</button>";
-                 aObj.append(editStr);
-                 var btn = $("#diyBtn_"+treeNode.id);
-                 if (btn){
-                     btn.bind("click", function(){
-                         alert("diy Button for " + treeNode.name + " "+treeNode.nodeId);
-                     });
-                 }
-             }
-         }
-    }
-
     function addLocalParam(){
         var tr_html = "<tr>" +
             "   <td width='30%'>" +
@@ -684,74 +375,25 @@
         $(btn).parents("tr").remove();
     }
 
-    function getSelectHost(){
+    function getSelectHostFromModal(){
         var result = {};
         var tabIds = $("#select_host_tab li[class='active'] a").attr('href');
+        var host_group_tree=$.fn.zTree.getZTreeObj("host_group_tree");
+        var nodes = host_group_tree.getCheckedNodes(true);
+        var groupIds = "";
+        $(nodes).each(function(i,item){
+            groupIds += item.nodeId+",";
+        });
+        if(groupIds){
+            groupIds = groupIds.substring(0,groupIds.length-1);
+        }
+        result['id'] = groupIds;
 
-        if(tabIds.indexOf('biz_tab') > 0){
-            var biz_tree=$.fn.zTree.getZTreeObj("biz_tree");
-            var nodes = biz_tree.getCheckedNodes(true);
-            //var bizDict = {};
-            $(nodes).each(function(i,item){
-                if(result[item.bizType]){
-                    result[item.bizType] = result[item.bizType]+","+item.nodeId;
-                }else{
-                    result[item.bizType] = item.nodeId;
-                }
-            });
-            if(!$.isEmptyObject(result)){
-                result["go_live"] = $("#host_go_live").val();
-            }
-            result["tabType"] = 2;
-            result['tabName'] = tabIds;
-        }else if(tabIds.indexOf('host_group_tab') > 0){
-            var host_group_tree=$.fn.zTree.getZTreeObj("host_group_tree");
-            var nodes = host_group_tree.getCheckedNodes(true);
-            var groupIds = "";
-            $(nodes).each(function(i,item){
-                groupIds += item.nodeId+",";
-            });
-            if(groupIds){
-                groupIds = groupIds.substring(0,groupIds.length-1);
-            }
-            result['tabType'] = 1;
-            result['tabName'] = tabIds;
-            result['id'] = groupIds;
-        }else if(tabIds.indexOf('advanced_query_tab') > 0){
-            //var queryDict = {}
-            $($("#advanced_query_form").serializeArray()).each(function(index,item){
-                if(item.value){
-                    if(item.name == "biz_service" || item.name == "middleware" || item.name == "dns"){
-                        if(result[item.name]){
-                            result[item.name] = result[item.name]+","+item.value;
-                        }else{
-                            result[item.name] = item.value;
-                        }
-                    }else{
-                        result[item.name] = item.value;
-                    }
-                }
-            });
-            if(!$.isEmptyObject(result)){
-                result['go_live'] = $("#host_go_live").val();
-            }
-            result['tabType'] = 2;
-            result['tabName'] = tabIds;
+        if(!$.isEmptyObject(result)){
+            result['go_live'] = $("#host_go_live").val();
         }
         return result;
     }
-
-{#    function getCheckedHostId() {#}
-{#        var str = document.getElementsByName("trCheckbox");#}
-{#        var objarray = str.length;#}
-{#        var chestr = "";#}
-{#        for (i = 0; i < objarray; i++) {#}
-{#            if (str[i].checked == true) {#}
-{#                chestr += str[i].id + ",";#}
-{#            }#}
-{#        }#}
-{#        return chestr;#}
-{#    }#}
 
     function getCheckedHostIP() {
         var str = document.getElementsByName("trCheckbox");
@@ -766,7 +408,7 @@
     }
 
     function queryHostIp(){
-        var values = getSelectHost();
+        var values = getSelectHostFromModal();
         if(!$.isEmptyObject(values)){
             values['csrfmiddlewaretoken'] = '{{ csrf_token }}';
             values['limit'] = 100;
@@ -785,26 +427,6 @@
         }else{
             Alertwin.alert({message:"选择机器功能异常"});
         }
-{#        var ids = getCheckedHostIP();#}
-{#        if(ids.length == 0){#}
-{#          #}
-{#        }else{#}
-{#            layer.load();#}
-{#            var param = {"csrfmiddlewaretoken":'{{ csrf_token }}',"host_id":JSON.stringify(ids)};#}
-{#            $.ajax({#}
-{#                type: "POST",#}
-{#                url: '/platform/command_set/listByIds/',#}
-{#                data:param,#}
-{#                error: function (request) {#}
-{#                    layer.closeAll('loading');#}
-{#                },#}
-{#                success: function (data) {#}
-{#                    createSelectHostIpTable(data.host_list);#}
-{#                    layer.closeAll('loading');#}
-{#                }#}
-{#            });#}
-{##}
-{#        }#}
     }
 
     function createSelectHostIpTable(data){
@@ -840,16 +462,6 @@
             $('#checkall').on('ifUnchecked', function (event) {
                 $('.icheck').iCheck('uncheck');
             });
-        }
-    }
-
-    function selectedMultSelect(list,id){
-        var multSelect = $("#"+id);
-        if(list){
-            $(list).each(function(i,item){
-                multSelect.find("option[value='"+item+"']").attr("selected",true);
-            });
-            multSelect.trigger("liszt:updated");
         }
     }
 

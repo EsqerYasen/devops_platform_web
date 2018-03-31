@@ -30,14 +30,27 @@ class List2View(LoginRequiredMixin, OrderableListMixin, ListView):
             resultJson = hu.get(serivceName="cmdb", restName="/rest/host/", datas=reqData)
             list = resultJson.get("results",[])
 
+            treeResult = hu.get(serivceName="cmdb", restName="/rest/app/treeview/", datas={})
+
             getData = {'offset': 0, 'limit': 1000, 'is_enabled': 1}
-            hostgroupResult = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_tree/", datas=getData)
+            brandResult = hu.get(serivceName="cmdb", restName="/rest/brands/", datas=getData)
+            pidcResult = hu.get(serivceName="cmdb", restName="/rest/pidc/", datas=getData)
+            lidcResult = hu.get(serivceName="cmdb", restName="/rest/lidc/", datas=getData)
+            envResult = hu.get(serivceName="cmdb", restName="/rest/env/", datas=getData)
+            mwResult = hu.get(serivceName="cmdb", restName="/rest/mw/", datas=getData)
+            dnsResult = hu.get(serivceName="cmdb", restName="/rest/dns/", datas=getData)
 
             paginator = Paginator(resultJson.get("results",[]), req.limit)
             count = resultJson.get("count",0)
             paginator.count = count
             context['result_list'] = list
-            context['hostGroup_list'] = hostgroupResult.get("data", [])
+            context['tree_list'] = treeResult.get("data",[])
+            context['brand_list'] = brandResult.get("results", [])
+            context['pidc_list'] = pidcResult.get("results", [])
+            context['lidc_list'] = lidcResult.get("results", [])
+            context['env_list'] = envResult.get("results", [])
+            context['mw_list'] = mwResult.get("results", [])
+            context['dns_list'] = dnsResult.get("results", [])
             context['is_paginated'] = count > 0
             context['page_obj'] = paginator.page(req.offset)
             context['paginator'] = paginator
