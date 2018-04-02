@@ -107,7 +107,7 @@
         "                                    <td width='10%'>命令脚本</td>\n" +
         "                                    <td width='50%'>" +
         "                                        <input type='text' id='stepName"+generateId+"' value='' class='form-control' style='width: 40%' placeholder='步骤名称'/>" +
-        "                                        <input type='hidden' id='selectHostValue"+generateId+"' value=''/>"+
+        "                                        <input type='hidden' id='selectHostValue"+generateId+"' golive='' value=''/>"+
         "                                    </td>\n" +
         "                                    <td width='32%'>\n" +
         "                                        <button type='button' class='btn btn-sm btn-warning' data-toggle='modal' data-gid='"+generateId+"' data-target='#select_host_modal' style='margin-top: 5px;margin-right: 10px'>选机器</button>\n" +
@@ -147,7 +147,7 @@
             "               <td width='10%'>文件传输</td>\n" +
             "               <td width='50%'>" +
             "                   <input type='text' id='stepName"+generateId+"' value='' class='form-control' style='width: 40%' placeholder='步骤名称'/>" +
-            "                   <input type='hidden' id='selectHostValue"+generateId+"' value=''/>"+
+            "                   <input type='hidden' id='selectHostValue"+generateId+"' golive='' value=''/>"+
             "               </td>\n" +
             "               <td width='32%'>\n" +
             "                   <button type='button' class='btn btn-sm btn-warning' data-toggle='modal' data-gid='"+generateId+"' data-target='#select_host_modal' style='margin-top: 5px;margin-right: 10px'>选机器</button>\n" +
@@ -274,6 +274,7 @@
         var gid = select_host_modal.data('gid');
         var selectHostValue = $("#selectHostValue"+gid);
         var ips = getCheckedHostIP();
+        selectHostValue.attr('golive','')
         selectHostValue.val('');
 
         var values = getSelectHostFromModal();
@@ -283,6 +284,7 @@
             if(ips.length > 0){
                 obj['target_host_list']= ips;
             }
+            selectHostValue.attr('golive',values['go_live'])
             selectHostValue.val(JSON.stringify(obj));
             select_host_modal.modal('hide');
         }else{
@@ -334,8 +336,9 @@
 
             var selectHostValue = $("#selectHostValue"+gid);
             var selectHostValueObj = JSON.parse(selectHostValue.val());
-            var tabName = selectHostValue.attr('tabName');
-            var tabType = selectHostValue.attr('tabType');
+            stepDict['go_live'] = selectHostValue.attr('golive');
+            //var tabName = selectHostValue.attr('tabName');
+            //var tabType = selectHostValue.attr('tabType');
             //stepDict['tab_name'] = "";
             var bool = true;
             var target_group_ids = selectHostValueObj['target_group_ids'];

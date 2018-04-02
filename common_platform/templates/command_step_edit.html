@@ -64,7 +64,7 @@
                                         <td width='10%'>命令脚本</td>
                                         <td width='50%'>
                                             <input type='text' id='stepName{{ step.seq_no }}' value='{{ step.name }}' class='form-control' style='width: 40%' placeholder='步骤名称'/>
-                                            <input type='hidden' id='selectHostValue{{ step.seq_no }}' value='{"target_group_ids":"{{ step.target_group_ids }}"{% if step.target_host_list %},"target_host_list":{{ step.target_host_list }}{% endif %}}' />
+                                            <input type='hidden' id='selectHostValue{{ step.seq_no }}' golive="{{ step.go_live }}" value='{"target_group_ids":"{{ step.target_group_ids }}"{% if step.target_host_list %},"target_host_list":{{ step.target_host_list }}{% endif %}}' />
                                         </td>
                                         <td width='32%'>
                                             <button type='button' class='btn btn-sm btn-warning' data-toggle='modal' data-gid='{{ step.seq_no }}' data-target='#select_host_modal' style='margin-top: 5px;margin-right: 10px'>选机器</button>
@@ -120,7 +120,7 @@
                                      <td width='10%'>文件传输<input type='hidden' id='selTreeNodeIds{{ step.seq_no }}' value=''/></td>
                                      <td width='50%'>
                                          <input type='text' id='stepName{{ step.seq_no }}' value='{{ step.name }}' class='form-control' style='width: 40%' placeholder='步骤名称'/>
-                                        <input type='hidden' id='selectHostValue{{ step.seq_no }}' value='{"target_group_ids":"{{ step.target_group_ids }}"{% if step.target_host_list %},"target_host_list":{{ step.target_host_list }}{% endif %}}' />
+                                        <input type='hidden' id='selectHostValue{{ step.seq_no }}' golive="{{ step.go_live }}" value='{"target_group_ids":"{{ step.target_group_ids }}"{% if step.target_host_list %},"target_host_list":{{ step.target_host_list }}{% endif %}}' />
                                      </td>
                                      <td width='32%'>
                                          <button type='button' class='btn btn-sm btn-warning' data-toggle='modal' data-gid='{{ step.seq_no }}' data-target='#select_host_modal' style='margin-top: 5px;margin-right: 10px'>选机器</button>
