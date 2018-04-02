@@ -169,12 +169,14 @@
             if(hostValue){
                 hostValue = hostValue.replace(/\'/g,"\"");
                 var obj = JSON.parse(hostValue);
-
+                var target_group_ids = obj['target_group_ids'];
                 var tree = $.fn.zTree.getZTreeObj('host_group_tree');
-                $(obj['target_group_ids'].split(',')).each(function(i,item){
-                    tree.checkNode(tree.getNodeByParam('id',item), true, true);
-                });
-                createSelectHostIpTable(obj['target_host_list']);
+                if(target_group_ids){
+                    $(target_group_ids.split(',')).each(function(i,item){
+                        tree.checkNode(tree.getNodeByParam('id',item), true, true);
+                    });
+                    createSelectHostIpTable(target_group_ids);
+                }
             }
             var golive = selectHostValue.attr('golive');
             if(golive){

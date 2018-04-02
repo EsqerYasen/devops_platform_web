@@ -284,7 +284,7 @@
             if(ips.length > 0){
                 obj['target_host_list']= ips;
             }
-            selectHostValue.attr('golive',values['go_live'])
+            selectHostValue.attr('golive',values['go_live']);
             selectHostValue.val(JSON.stringify(obj));
             select_host_modal.modal('hide');
         }else{

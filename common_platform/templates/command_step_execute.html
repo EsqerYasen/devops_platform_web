@@ -204,14 +204,17 @@
         var selectHostValue = $("#selectHostValue"+gid);
         var ips = getCheckedHostIP();
         selectHostValue.val('');
+        selectHostValue.attr('golive','')
+        selectHostValue.val('');
 
         var values = getSelectHostFromModal();
         if(!$.isEmptyObject(values)){
             var obj = {};
-            obj = {'target_group_ids':values['id']}
+            obj = {'target_group_ids':values['group_id']}
             if(ips.length > 0){
                 obj['target_host_list']= ips;
             }
+            selectHostValue.attr('golive',values['go_live']);
             selectHostValue.val(JSON.stringify(obj));
             select_host_modal.modal('hide');
         }else{
