@@ -142,7 +142,14 @@ def split(value, arg):
 
 @register.filter(name='getListFirst')
 def getListFirst(value, arg):
-    return value[arg]
+    if value:
+        if len(value)-1 >= arg:
+            return value[arg]
+        else:
+            return ""
+    else:
+        return ""
+
 
 @register.filter(name='emptyValueConversion')
 def emptyValueConversion(value,arg="0"):

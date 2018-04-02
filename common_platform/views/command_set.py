@@ -170,16 +170,8 @@ class HostListByQueryCriteria(LoginRequiredMixin,JSONResponseMixin, AjaxResponse
         try:
             hu = HttpUtils(self.request)
             reqData = hu.getRequestParam()
-            list = []
-            if reqData['tabType'] == '1':
-                result = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/", datas=reqData)
-                list = result.get("data", [])
-                result_json['flag'] = 2;
-            else:
-                result = hu.get(serivceName="cmdb", restName="/rest/host/", datas=reqData)
-                list = result.get("results", [])
-                result_json['flag'] = 1;
-            result_json['host_list'] = list
+            result = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/", datas={"id":reqData.get("group_id",0),"go_live":reqData.get("go_live",0)})
+            result_json['host_list'] = result
         except Exception as e:
             logger.error(e)
         return self.render_json_response(result_json)

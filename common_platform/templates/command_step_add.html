@@ -279,7 +279,7 @@
         var values = getSelectHostFromModal();
         if(!$.isEmptyObject(values)){
             var obj = {};
-            obj = {'target_group_ids':values['id']}
+            obj = {'target_group_ids':values['group_id']}
             if(ips.length > 0){
                 obj['target_host_list']= ips;
             }

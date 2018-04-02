@@ -27,7 +27,7 @@
     <div class="col-sm-6">
         <div class="input-group">
             <button type="submit" class="btn btn-sm btn-primary" style="margin-right: 10px"><i class="fa fa-search"></i> 搜索</button>
-            <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='#advanced_query_modal' style="margin-right: 10px"><i class="glyphicon glyphicon-search"></i> 高级查询</button><!-- <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='' style="margin-right: 10px"><i class="glyphicon glyphicon-floppy-disk"></i> 保存高级查询</button> -->
+            <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='#advanced_query_modal' style="margin-right: 10px"><i class="glyphicon glyphicon-search"></i> 其他查询</button><!-- <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='' style="margin-right: 10px"><i class="glyphicon glyphicon-floppy-disk"></i> 保存高级查询</button> -->
             <button type="button" class="btn btn-sm btn-success" style="margin-right: 10px" onclick="host2UpldateStatus(3)"><i class="glyphicon glyphicon-cloud-upload"></i> 上线</button>
             <button type="button" class="btn btn-sm btn-success" style="margin-right: 10px" onclick="host2UpldateStatus(1)"><i class="glyphicon glyphicon-log-out"></i> 未分配</button>
             <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='#export_host_modal' style="margin-right: 10px"><i class="glyphicon glyphicon-export"></i> 导出</button>
@@ -49,8 +49,10 @@
 
                 if(item.childs){
                     readHostGroupTreeNext(item.childs,ids);
+                    nodeData['isLeaf']=false;
                 }else{
                     nodeData['nocheck']=false;
+                    nodeData['isLeaf']=true;
                 }
                 zHostGroupNodes.push(nodeData);
             });
@@ -84,19 +86,19 @@
         function addDiyDom(treeId, treeNode) {
              var aObj = $("#" + treeNode.tId + "_a");
 
-             if(treeNode.hasIp == 1){
-                 if($("#viewIpBtn_"+treeNode.id).length==0){
-                     var viewBtn = "<span class='button ico_docu' id='viewIpBtn_" + treeNode.id+ "' title='节点下绑定的IP' onfocus='this.blur();'></span>";
-                     aObj.append(viewBtn);
-                     var btn = $("#viewIpBtn_"+treeNode.id);
-                     if (btn){
-                         btn.bind("click", function(){
-                             alert("diy Button for " + treeNode.name + " "+treeNode.nodeId);
-                             $("#viewIpBtn_"+treeNode.tId).unbind().remove();
-                         });
-                     }
-                 }
-             }
+{#             if(treeNode.hasIp == 1 && treeNode.isLeaf == false){#}
+{#                 if($("#viewIpBtn_"+treeNode.id).length==0){#}
+{#                     var viewBtn = "<span class='button ico_docu' id='viewIpBtn_" + treeNode.id+ "' title='节点下绑定的IP' onfocus='this.blur();'></span>";#}
+{#                     aObj.append(viewBtn);#}
+{#                     var btn = $("#viewIpBtn_"+treeNode.id);#}
+{#                     if (btn){#}
+{#                         btn.bind("click", function(){#}
+{#                             $(location).attr('href', '/cmdb/host/list2/?group_id='+treeNode.id);#}
+{#                             $("#viewIpBtn_"+treeNode.tId).unbind().remove();#}
+{#                         });#}
+{#                     }#}
+{#                 }#}
+{#             }#}
              if(!treeNode.nocheck){
                  if($("#bindIpToNode_"+treeNode.id).length==0){
                      var bindIpToNode = "<span class='button add' id='bindIpToNode_" + treeNode.id+ "' title='机器绑定' onfocus='this.blur();'></span>";
@@ -147,7 +149,7 @@
         }
 
         function zHostGroupTreeDblClick(event, treeId, treeNode){
-              $(location).attr('href', '/cmdb/host/list2/?groupId='+treeNode.id);
+              $(location).attr('href', '/cmdb/host/list2/?group_id='+treeNode.id+"&type=2");
         }
 
         function bindingGroup(groupId,ids){
@@ -160,13 +162,14 @@
             $.ajax({
                 type: "POST",
                 url: '../host2BindingGroup/',
-                data:{'group_id':groupId,"host_ids":JSON.stringify(list),'csrfmiddlewaretoken':'{{ csrf_token }}'},
+                data:{'group_id':groupId,"host_ids":ids,'csrfmiddlewaretoken':'{{ csrf_token }}'},
                 error: function (request) {
                     layer.closeAll('loading');
                 },
                 success: function (data) {
                     if(data.status==0){
                          Alertwin.alert({ message: "绑定成功"});
+                         location.reload();
                     }else{
                         Alertwin.alert({ message: "绑定失败"});
                     }
@@ -186,13 +189,14 @@
             $.ajax({
                 type: "POST",
                 url: '../host2UnbundlingGroup/',
-                data:{'group_id':groupId,"host_ids":JSON.stringify(list),'csrfmiddlewaretoken':'{{ csrf_token }}'},
+                data:{'group_id':groupId,"host_ids":ids,'csrfmiddlewaretoken':'{{ csrf_token }}'},
                 error: function (request) {
                     layer.closeAll('loading');
                 },
                 success: function (data) {
                     if(data.status==0){
                          Alertwin.alert({ message: "解绑成功"});
+                         location.reload();
                     }else{
                         Alertwin.alert({ message: "绑解失败"});
                     }
@@ -222,26 +226,11 @@
                 <thead>
                     <tr>
                         <th style="width:3%;"><input id="checkall" type="checkbox" class="i-checks"></th>
-                        <th style="width: 8%;">
-                            机房
-                        </th>
-                        <th style="width: 8%;">
-                            区域
-                        </th>
-                        <th style="width: 8%;">
+                        <th style="width: 10%;">
                             IP
                         </th>
-                        <th style="width: 11%;">
-                            品牌
-                        </th>
-                        <th style="width: 6%;">
-                            业务线
-                        </th>
-                        <th style="width: 14%;">
-                            模块
-                        </th>
-                        <th style="width: 14%;">
-                            应用
+                        <th style="width: 70%;">
+                            主机组
                         </th>
                         <th style="width:8%;">操作</th>
                     </tr>
@@ -252,15 +241,10 @@
                         <td>
                             <input type="checkbox" class="i-checks icheck" id="{{ o.id }}" hostip="{{ o.host_ip }}" name="trCheckbox">
                         </td>
-                        <td>{{ o.physical_idc_name }}</td>
-                        <td>{{ o.logical_idc_name }}</td>
                         <td>{{ o.host_ip }}</td>
-                        <td>{{ o.biz_brand_name }}</td>
-                        <td>{{ o.biz_group_name }}</td>
-                        <td>{{ o.biz_module_name }}</td>
                         <td>
-                            {% for field in o.apps %}
-                                <span class="label label-primary">{{ field|split:","|getListFirst:1 }}</span>
+                            {% for i in o.apps %}
+                                <span class="label label-success">{{ i.path }}</span>
                             {% endfor %}
                         </td>
                         <td>
@@ -363,6 +347,9 @@
                     chestr += $(str[i]).attr('hostip') + ",";
                 }
             }
+            if(chestr){
+                chestr = chestr.substring(0,chestr.length-1)
+            }
             return chestr;
         }
 
@@ -398,16 +385,14 @@
              if($("#tb tr").length > 1) {
                  var msg = "";
                  var count = 0;
-                 count = param['ip_list'].split().length
-                 Alertwin.confirm({ message: "确认要"+count+"台机器修改为未分配吗？" }).on(function (e) {
+                 count = param.split(',').length
+                 Alertwin.confirm({ message: "确认要"+count+"台机器修改为上线吗？" }).on(function (e) {
                      if (e) {
                          layer.load();
-                         param['status'] = flag;
-                         param['csrfmiddlewaretoken'] = '{{ csrf_token }}';
                          $.ajax({
                              type: "POST",
                              url: '/cmdb/host/host2UpdateStatus/',
-                             data:param,
+                             data:{'ip_list':param,"status":flag,'csrfmiddlewaretoken':'{{ csrf_token }}'},
                              error: function (request) {
                                 layer.closeAll('loading');
                              },

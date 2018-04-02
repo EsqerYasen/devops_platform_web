@@ -17,9 +17,26 @@
 {% endblock %}
 
 {% block  list_search %}
-    <div class="col-sm-3" ></div>
-    <div class="col-sm-2">
-        <input type="text" name="host_ip" class="form-control" placeholder="请输入IP">
+    <div class="col-sm-1" style="width: 12%">
+        <input type="text" name="host_ip" class="form-control" placeholder="IP">
+    </div>
+    <div class="col-sm-1">
+        <input type="text" name="biz_brand" class="form-control" placeholder="品牌">
+    </div>
+    <div class="col-sm-1">
+        <input type="text" name="biz_group" class="form-control" placeholder="业务线">
+    </div>
+    <div class="col-sm-1">
+        <input type="text" name="physical_idc" class="form-control" placeholder="机房">
+    </div>
+    <div class="col-sm-1">
+        <input type="text" name="deployment_environment" class="form-control" placeholder="环境">
+    </div>
+    <div class="col-sm-1">
+        <input type="text" name="logical_idc" class="form-control" placeholder="区域">
+    </div>
+    <div class="col-sm-1">
+        <input type="text" name="biz_module" class="form-control" placeholder="应用">
     </div>
 {% endblock %}
 
@@ -28,6 +45,7 @@
     <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='#import_host_modal' style="margin-right: 10px"><i class="glyphicon glyphicon-import"></i> 导入</button>
     <button type="button" class="btn btn-sm btn-success" style="margin-right: 10px" onclick="toNotOnlineFun()"><i class="glyphicon glyphicon-log-in"></i> 待上线</button>
     <button type="button" class="btn btn-sm btn-success" onclick="scanBatch()" style="margin-right: 10px"><i class="glyphicon glyphicon-search"></i> 扫描</button>
+    <button type="button" class="btn btn-sm btn-success" title="删除" onclick="deleteBatch()"><i class="glyphicon glyphicon-trash"></i> 删除</button>
 {% endblock %}
 
 {% block list_content %}
@@ -50,20 +68,11 @@
                 <thead>
                     <tr>
                         <th style="width:3%;"><input id="checkall" type="checkbox" class="i-checks"></th>
-                        <th style="width: 8%;">
-                            机房
-                        </th>
-                        <th style="width: 8%;">
-                            区域
-                        </th>
-                        <th style="width: 8%;">
+                        <th style="width: 10%;">
                             IP
                         </th>
-                        <th style="width: 11%;">
-                            品牌
-                        </th>
-                        <th style="width: 6%;">
-                            业务线
+                         <th style="width: 70%;">
+                            主机组
                         </th>
                         <th style="width:8%;">操作</th>
                     </tr>
@@ -74,11 +83,12 @@
                         <td>
                             <input type="checkbox" class="i-checks icheck" id="{{ o.id }}" hostip="{{ o.host_ip }}" name="trCheckbox">
                         </td>
-                        <td>{{ o.physical_idc_name }}</td>
-                        <td>{{ o.logical_idc_name }}</td>
                         <td>{{ o.host_ip }}</td>
-                        <td>{{ o.biz_brand_name }}</td>
-                        <td>{{ o.biz_group_name }}</td>
+                        <td>
+                            {% for i in o.apps %}
+                                <span class="label label-success">{{ i.path }}</span>
+                            {% endfor %}
+                        </td>
                         <td>
                             <a href="../{{ o.id }}/detail1/" class="btn btn-sm btn-success"><i class="fa fa-book"></i> 查看</a>
                         </td>
@@ -106,8 +116,10 @@
 
                 if(item.childs){
                     readHostGroupTreeNext(item.childs,ids);
+                    nodeData['isLeaf']=false;
                 }else{
                     nodeData['nocheck']=false;
+                    nodeData['isLeaf']=true;
                 }
                 zHostGroupNodes.push(nodeData);
             });
@@ -141,19 +153,19 @@
         function addDiyDom(treeId, treeNode) {
              var aObj = $("#" + treeNode.tId + "_a");
 
-             if(treeNode.hasIp == 1){
-                 if($("#viewIpBtn_"+treeNode.id).length==0){
-                     var viewBtn = "<span class='button ico_docu' id='viewIpBtn_" + treeNode.id+ "' title='节点下绑定的IP' onfocus='this.blur();'></span>";
-                     aObj.append(viewBtn);
-                     var btn = $("#viewIpBtn_"+treeNode.id);
-                     if (btn){
-                         btn.bind("click", function(){
-                             alert("diy Button for " + treeNode.name + " "+treeNode.nodeId);
-                             $("#viewIpBtn_"+treeNode.tId).unbind().remove();
-                         });
-                     }
-                 }
-             }
+{#             if(treeNode.hasIp == 1 && treeNode.isLeaf == false){#}
+{#                 if($("#viewIpBtn_"+treeNode.id).length==0){#}
+{#                     var viewBtn = "<span class='button ico_docu' id='viewIpBtn_" + treeNode.id+ "' title='节点下绑定的IP' onfocus='this.blur();'></span>";#}
+{#                     aObj.append(viewBtn);#}
+{#                     var btn = $("#viewIpBtn_"+treeNode.id);#}
+{#                     if (btn){#}
+{#                         btn.bind("click", function(){#}
+{#                             $(location).attr('href', '/cmdb/host/list1/?group_id='+treeNode.id);#}
+{#                             $("#viewIpBtn_"+treeNode.tId).unbind().remove();#}
+{#                         });#}
+{#                     }#}
+{#                 }#}
+{#             }#}
              if(!treeNode.nocheck){
                  if($("#bindIpToNode_"+treeNode.id).length==0){
                      var bindIpToNode = "<span class='button add' id='bindIpToNode_" + treeNode.id+ "' title='机器绑定' onfocus='this.blur();'></span>";
@@ -204,7 +216,12 @@
         }
 
         function zHostGroupTreeDblClick(event, treeId, treeNode){
-            $(location).attr('href', '/cmdb/host/list1/?groupId='+treeNode.id);
+             //http://127.0.0.1:8000/rest/hostgroup/list_host/
+            var type = 1;
+{#            if(treeNode.isLeaf){#}
+{#                type = 2;#}
+{#            }#}
+            $(location).attr('href', '/cmdb/host/list1/?group_id='+treeNode.id+"&type=2");
         }
 
         function getCheckedHostIP() {
@@ -253,24 +270,20 @@
         }
 
         function bindingGroup(groupId,ids){
-            var host_ids = ids.split(',');
-            var list = []
-            $(host_ids).each(function(i,item){
-                list.push(parseInt(item))
-            })
             layer.load();
             $.ajax({
                 type: "POST",
                 url: '../host1BindingGroup/',
-                data:{'group_id':groupId,"host_ids":JSON.stringify(list),'csrfmiddlewaretoken':'{{ csrf_token }}'},
+                data:{'group_id':groupId,"host_ids":ids,'csrfmiddlewaretoken':'{{ csrf_token }}'},
                 error: function (request) {
                     layer.closeAll('loading');
                 },
                 success: function (data) {
                     if(data.status==0){
-                         Alertwin.alert({ message: "绑定成功"});
+                         Alertwin.alert({ message: "绑定成功:"+data.successCount+" 绑定失败:"+data.failCount});
+                         $(location).attr('href', '/cmdb/host/list1/');
                     }else{
-                        Alertwin.alert({ message: "绑定失败"});
+                        Alertwin.alert({ message: "绑定失败:"+data.failCount+" 绑定成功:"+data.successCount});
                     }
 
                     layer.closeAll('loading');
@@ -279,51 +292,47 @@
         }
 
         function unBindingGroup(groupId,ids){
-            var host_ids = ids.split(',');
-            var list = []
-            $(host_ids).each(function(i,item){
-                list.push(parseInt(item))
-            })
             layer.load();
             $.ajax({
                 type: "POST",
                 url: '../host1UnbundlingGroup/',
-                data:{'group_id':groupId,"host_ids":JSON.stringify(list),'csrfmiddlewaretoken':'{{ csrf_token }}'},
+                data:{'group_id':groupId,"host_ids":ids,'csrfmiddlewaretoken':'{{ csrf_token }}'},
                 error: function (request) {
                     layer.closeAll('loading');
                 },
                 success: function (data) {
                     if(data.status==0){
-                         Alertwin.alert({ message: "解绑成功"});
+                         Alertwin.alert({ message: "解绑成功"+data.successCount+" 绑解失败:"+data.failCount});
+                         $(location).attr('href', '/cmdb/host/list1/');
                     }else{
-                        Alertwin.alert({ message: "绑解失败"});
+                        Alertwin.alert({ message: "绑解失败"+data.failCount+"解绑成功"+data.successCount});
                     }
-
                     layer.closeAll('loading');
                 }
             });
         }
 
         function toNotOnlineFun(){
-            var ips = getCheckedHostIP();
-            if(ips){
+            var ids = getChecked();
+            if(ids){
+                ids = ids.substring(0, ids.length - 1);
                 Alertwin.confirm({ message: "确定执行选中机器到待上线吗？" }).on(function (e) {
                     if(e){
                         layer.load();
                         $.ajax({
                             type: "POST",
-                            url: '..//',
-                            data:{'group_id':groupId,"host_ids":JSON.stringify(list),'csrfmiddlewaretoken':'{{ csrf_token }}'},
+                            url: '../host1ToNotOnline/',
+                            data:{"host_ids":ids,'csrfmiddlewaretoken':'{{ csrf_token }}'},
                             error: function (request) {
                                 layer.closeAll('loading');
                             },
                             success: function (data) {
                                 if(data.status==0){
-                                     Alertwin.alert({ message: "解绑成功"});
+                                     Alertwin.alert({ message: "待上线操作成功:"+data.success+" 失败:"+data.fail});
+                                     $(location).attr('href', '/cmdb/host/list1/');
                                 }else{
-                                    Alertwin.alert({ message: "绑解失败"});
+                                    Alertwin.alert({ message: "待上线操作失败"});
                                 }
-
                                 layer.closeAll('loading');
                             }
                         });
@@ -331,6 +340,32 @@
                 })
             }else{
                 Alertwin.alert({ message: "请选择至少一条记录进行待上线操作"});
+            }
+        }
+
+        function deleteBatch() {
+            var obj = getCheckedHostIP();
+            if (obj == "") {
+                Alertwin.alert({ message: "请选择至少一条记录进行删除"});
+            } else {
+                Alertwin.confirm({ message: "确认要删除选择的数据吗？" }).on(function (e) {
+                    layer.load();
+                    obj = obj.substring(0, obj.length - 1);
+                    $.ajax({
+                        type: "POST",
+                        url: '../deleteHost1/',
+                        data:{'hostIp':obj,'csrfmiddlewaretoken':'{{ csrf_token }}'},
+                        error: function (request) {
+                            layer.closeAll('loading');
+                        },
+                        success: function (data) {
+                            //location.reload();
+                            $(location).attr('href', '/cmdb/host/list1/');
+                            layer.closeAll('loading');
+                        }
+                    });
+                })
+
             }
         }
 

@@ -25,11 +25,15 @@ class List1View(LoginRequiredMixin, OrderableListMixin, ListView):
         try:
             req = self.request
             hu = HttpUtils(req)
-
+            type = req.GET.get("type",0)
             reqData = hu.getRequestParam()
-            reqData['go_live'] = 1
-            resultJson = hu.get(serivceName="cmdb", restName="/rest/host/", datas=reqData)
-            list = resultJson.get("results",[])
+            if type == '2':
+                resultJson = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host_sp/", datas={"id":reqData.get("group_id",0),"go_live":1,"offset":reqData.get("offset",0),"limit":reqData.get("limit")})
+                list = resultJson.get("results", [])
+            else:
+                reqData['go_live'] = 1
+                resultJson = hu.get(serivceName="cmdb", restName="/rest/host/", datas=reqData)
+                list = resultJson.get("results",[])
 
             getData = {'offset': 0, 'limit': 1000, 'is_enabled': 1}
             hostgroupResult = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_tree/", datas=getData)
@@ -84,32 +88,6 @@ class Host1Import(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, View)
                 result_json = {"status": 1, "msg": "后台正在导入，请点击“查看后台任务”按钮查看结果"}
             else:
                 result_json = {"status": 1, "msg":"您有后台任务正在执行导入操作，请稍后操作导入"}
-
-            # assert_file = request.FILES.get('files',None)
-            # wb = xlrd.open_workbook(filename=None, file_contents=assert_file.read())
-            # req_list = []
-            # hu = HttpUtils(request)
-            # for i in range(1, wb.sheets()[0].nrows):
-            #     row = wb.sheets()[0].row_values(i)
-            #     brandResult = hu.get(serivceName="cmdb", restName="/rest/brands/", datas={'key_code': row[1]}).get("results", [])
-            #     if len(brandResult) > 0:
-            #         groupResult = hu.get(serivceName="cmdb", restName="/rest/groups/", datas={'key_code':row[2]}).get("results", [])
-            #         if len(groupResult):
-            #             pidcResult = hu.get(serivceName="cmdb", restName="/rest/pidc/", datas={'key_code':row[3]}).get("results", [])
-            #             if len(pidcResult):
-            #                 lidcResult = hu.get(serivceName="cmdb", restName="/rest/lidc/", datas={'key_code':row[4]}).get("results", [])
-            #                 if len(lidcResult):
-            #                     dict = {'host_ip': row[0], 'biz_brand': brandResult[0]['id'], 'biz_group': groupResult[0]['id'], 'physical_idc': pidcResult[0]['id'],'logical_idc': lidcResult[0]['id']}
-            #                     req_list.append(dict)
-            #
-            #
-            # addResult = hu.post(serivceName="cmdb", restName="/rest/host/add/", datas=req_list)
-            # addResult = addResult.json()
-            # if len(addResult) > 0:
-            #     updateResult = hu.post(serivceName="cmdb", restName="/rest/host/update/", datas=req_list)
-            #     updateResult = updateResult.json()
-            #     if len(updateResult) > 0:
-            #         result_json = {"status": 0}
         except Exception as e:
             result_json = {"status": 1,"msg":"导入执行异常"}
             logger.error(e)
@@ -127,61 +105,82 @@ def importFunction(req,wb):
         addReq = []
         param = {}
         hu = HttpUtils(req)
-
+        failDict = {1: '不合法的IP', 2: 'IP已存在于数据库', 3: '数据库操作失败', 4: 'IP不存在于数据库', 5: '不可修改已上线的主机'}
         for i in range(1, wb.sheets()[0].nrows):
             row = wb.sheets()[0].row_values(i)
-            addReq.append({'host_ip':row[0]})
-            param[row[0]] = {'host_ip': row[0], 'biz_brand': row[1], 'biz_group': row[2],'physical_idc': row[3], 'logical_idc': row[4]}
+            host_ip = row[0]
+            biz_brand = row[1]
+            biz_group = row[2]
+            physical_idc = row[3]
+            deployment_environment = row[4]
+            logical_idc = row[5]
+            biz_module = row[6]
+            groupId = None
+
+            count = 0
+            path = ""
+            if biz_brand:
+                path+=biz_brand
+                count+=1
+            if biz_group:
+                path += "_"+biz_group
+                count += 1
+            if physical_idc:
+                path += "_"+physical_idc
+                count += 1
+            if deployment_environment:
+                path += "_" + deployment_environment
+                count += 1
+            if logical_idc:
+                path += "_" + logical_idc
+                count += 1
+            if biz_module:
+                path += "_" + biz_module
+                count += 1
+            if count == 6:
+                getPathResult = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",datas={"path": path})
+                if getPathResult['status'] == "SUCCESS":
+                    groupId = getPathResult['data']
+
+            addReq.append({'host_ip':host_ip})
+            param[row[0]] = {'host_ip': host_ip, 'biz_brand': biz_brand, 'biz_group': biz_group,'physical_idc': physical_idc,
+                             'deployment_environment': deployment_environment,"logical_idc":logical_idc,"biz_module":biz_module,"group_id":groupId}
 
         total = len(addReq)
         addResult = hu.post(serivceName="cmdb", restName="/rest/host/add/", datas=addReq)
         addResult = addResult.json()
-
-        failDict = {1:'不合法的IP',2:'IP已存在于数据库',3:'数据库操作失败',4:'IP不存在于数据库',5:'不可修改已上线的主机'}
         if len(addResult) > 0:
             for d in addResult:
                 status = d['status']
                 host_ip = d['host_ip']
                 if status == 0:
-                    host_ip_param = param[host_ip]
-                    brandResult = hu.get(serivceName="cmdb", restName="/rest/brands/",datas={'key_code': host_ip_param['biz_brand']}).get("results", [])
-                    if len(brandResult) > 0:
-                        groupResult = hu.get(serivceName="cmdb", restName="/rest/groups/",datas={'key_code': host_ip_param['biz_group']}).get("results", [])
-                        if len(groupResult):
-                            pidcResult = hu.get(serivceName="cmdb", restName="/rest/pidc/",datas={'key_code': host_ip_param['physical_idc']}).get("results", [])
-                            if len(pidcResult):
-                                lidcResult = hu.get(serivceName="cmdb", restName="/rest/lidc/",datas={'key_code': host_ip_param['logical_idc']}).get("results", [])
-                                if len(lidcResult):
-                                    dict = {'host_ip':host_ip, 'biz_brand': brandResult[0]['id'],
-                                            'biz_group': groupResult[0]['id'], 'physical_idc': pidcResult[0]['id'],
-                                            'logical_idc': lidcResult[0]['id']}
-                                    updateReq.append(dict)
-                                else:
-                                    d['error'] = "未匹配到此区域：" + host_ip_param['logical_idc']
-                                    failList.append(d)
-                            else:
-                                d['error'] = "未匹配到此机房：" + host_ip_param['biz_group']
-                                failList.append(d)
-                        else:
-                            d['error'] = "未匹配到此业务线：" + host_ip_param['biz_group']
-                            failList.append(d)
-                    else:
-                        d['error'] = "未匹配到此品牌："+host_ip_param['biz_brand']
-                        failList.append(d)
+                    updateReq.append(param[host_ip])
                 else:
                     d['error'] = failDict.get(d['status'], "其他错误")
                     failList.append(d)
 
         updateResult = hu.post(serivceName="cmdb", restName="/rest/host/update/", datas=updateReq)
         updateResult = updateResult.json()
+
         if len(updateResult) > 0:
             for d in updateResult:
                 status = d['status']
                 if status == 0:
+                    host_ip = d['host_ip']
                     success += 1
+                    group_id = param[host_ip]['group_id']
+                    if(group_id):
+                        appendResult = hu.post(serivceName="cmdb", restName="/rest/hostgroup/static_group_append/", datas={'group_id':group_id,'host_ids':[d['host_id']]})
+                        append = appendResult.json()
+                        if append['status'] == "SUCCESS":
+                            success+=1
+                        else:
+                            d['error'] = "绑定失败"
+                            failList.append(d)
                 else:
                     d['error'] = failDict.get(d['status'], "其他错误")
                     failList.append(d)
+
     except Exception as e:
         logger.error(e)
     finally:
@@ -239,11 +238,14 @@ class Host1BindingGroup(LoginRequiredMixin,JSONResponseMixin, View):
             host_ids = request.POST.get("host_ids",None)
             if groupId and host_ids:
                 hu = HttpUtils(request)
-                reqParam = {"group_id":groupId,"host_ids":host_ids}
-                updateResult = hu.post(serivceName="cmdb", restName="/rest/host/hostgroup/static_group_append/", datas=reqParam)
+                reqParam = {"group_id":groupId,"host_ids":host_ids.split(',')}
+                updateResult = hu.post(serivceName="cmdb", restName="/rest/hostgroup/static_group_append/", datas=reqParam)
                 result = updateResult.json()
-                if len(result) > 0:
-                    result_json = {"status": 0}
+                if result['status'] == "SUCCESS":
+                    result_json = {"status": 0,'failCount':result['fail_count'],'successCount':result['success_count']}
+                else:
+                    result_json['failCount'] = result['fail_count']
+                    result_json['successCount'] = result['success_count']
         except Exception as e:
             logger.error(e)
         return self.render_json_response(result_json)
@@ -257,11 +259,14 @@ class Host1UnbundlingGroup(LoginRequiredMixin,JSONResponseMixin, View):
             host_ids = request.POST.get("host_ids",None)
             if groupId and host_ids:
                 hu = HttpUtils(request)
-                reqParam = {"group_id":groupId,"host_ids":host_ids}
-                updateResult = hu.post(serivceName="cmdb", restName="/rest/host/hostgroup/static_group_delete/", datas=reqParam)
+                reqParam = {"group_id":groupId,"host_ids":host_ids.split(',')}
+                updateResult = hu.post(serivceName="cmdb", restName="/rest/hostgroup/static_group_delete/", datas=reqParam)
                 result = updateResult.json()
-                if len(result) > 0:
-                    result_json = {"status": 0}
+                if result['status'] == "SUCCESS":
+                    result_json = {"status": 0, 'failCount': result['fail_count'],'successCount': result['success_count']}
+                else:
+                    result_json['failCount'] = result['fail_count']
+                    result_json['successCount'] = result['success_count']
         except Exception as e:
             logger.error(e)
         return self.render_json_response(result_json)
@@ -304,23 +309,22 @@ class Host1ScanView(LoginRequiredMixin,JSONResponseMixin, View):
 class Host1ToNotOnlineView(LoginRequiredMixin,JSONResponseMixin, AjaxResponseMixin, View):
     def post_ajax(self, request, *args, **kwargs):
         result_json = {"status": 1}
+        success = 0
+        fail = 0
         try:
-            flag = request.POST.get("flag",None);
-            if flag:
-                hu = HttpUtils(request)
-                toNotOnline = json.loads(request.POST.get("toNotOnline"))
-                toNotOnline['go_live'] = 2
-                reqParam = []
-                ip_list = json.loads(request.POST.get("ip_list"))
-                for ip in ip_list:
-                    reqDict = toNotOnline.copy()
-                    reqDict['host_ip'] = ip
-                    reqParam.append(reqDict)
-
-                updateResult = hu.post(serivceName="cmdb", restName="/rest/host/update/", datas=reqParam)
+            hu = HttpUtils(request)
+            hostIds = request.POST.get("host_ids",None)
+            if len(hostIds)>0:
+                updateResult = hu.post(serivceName="cmdb", restName="/rest/host/pre_online/", datas={"host_ids":hostIds.split(',')})
                 result = updateResult.json()
-                if result['status'] == '0':
-                    result_json = {"status": 0}
+                for i in result:
+                    if i['status'] == 0:
+                        success+=1
+                    else:
+                        fail+=1
+                result_json['status'] = 0
+                result_json['success'] = success
+                result_json['fail'] = fail
         except Exception as e:
             logger.error(e)
         return self.render_json_response(result_json)

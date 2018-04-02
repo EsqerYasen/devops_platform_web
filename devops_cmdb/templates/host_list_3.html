@@ -20,7 +20,7 @@
     <div class="col-sm-1" style="width: 10%">
         <input type="text" class="form-control" placeholder="请输入IP">
     </div>
-    <div class="col-sm-1" style="width: 15%">
+    <div class="col-sm-2" >
         <div class="input-group">
             <input id="host_list3_treeText" type="text" class="form-control">
             <div id="search_hid_div" style="display: block"></div>
@@ -41,37 +41,13 @@
             </span>
         </div>
     </div>
-    <div class="col-sm-1">
-        <select id="physical_idc_search" name="physical_idc" class="form-control">
-            <option value="" selected>机房</option>
-            {% for o in pidc_list %}
-                <option value="{{ o.id }}" >{{ o.name }}</option>
-            {% endfor %}
-        </select>
-    </div>
-    <div class="col-sm-1">
-        <select id="logical_idc_search" name="logical_idc" class="form-control">
-            <option value="" selected>区域</option>
-            {% for o in lidc_list %}
-                <option value="{{ o.id }}" >{{ o.name }}</option>
-            {% endfor %}
-        </select>
-    </div>
-    <div class="col-sm-1">
-        <select id="deployment_environment_search" name="deployment_environment"  class="form-control">
-            <option value="" selected>环境</option>
-            {% for o in env_list %}
-                <option value="{{ o.id }}" >{{ o.name }}</option>
-            {% endfor %}
-        </select>
-    </div>
 {% endblock %}
 
 {% block list_filter %}
     <div class="col-sm-6">
         <div class="input-group">
             <button type="submit" class="btn btn-sm btn-primary" style="margin-right: 10px"><i class="fa fa-search"></i> 搜索</button>
-            <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='#advanced_query_modal' style="margin-right: 10px"><i class="glyphicon glyphicon-search"></i> 高级查询</button>
+            <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='#advanced_query_modal' style="margin-right: 10px"><i class="glyphicon glyphicon-search"></i> 其他查询</button>
             <button type="button" class="btn btn-sm btn-success" style="margin-right: 10px" onclick="host3UpldateStatus(2)"><i class="glyphicon glyphicon-cloud-download"></i> 待上线</button>
             <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='#export_host_modal' style="margin-right: 10px"><i class="glyphicon glyphicon-export"></i> 导出</button>
         </div>
@@ -80,26 +56,27 @@
     <script>
         $(document).ready(function () {
             treeDateInit();
-            multSelectInit();
         });
 
         var zNodes = [];
         function treeDateInit() {
-             var treeList = {{ tree_list|safe }};
+             var treeList = {{ hostGroup_list|safe }};
             readTreeNext(treeList,0);
             zTreeInit();
         }
 
         function readTreeNext(list,pid){
             $(list).each(function(i,item){
-                var is_open = pid == 0?true:false;
-                var ids = item.name+item.id;
-                var nodeData = {id:ids,pId:pid,name:item.name,keyCode:item.key_code,nodeId:item.id,open:is_open,bizType:item.biz_type};
-                zNodes.push(nodeData);
+                var ids = item.id;
+                var nodeData = {id:ids,pId:pid,name:item.name,nodeId:ids,open:true,hasIp:item.has_ip};
                 if(item.childs){
                     readTreeNext(item.childs,ids);
+                    nodeData['isLeaf']=false;
+                }else{
+                    nodeData['isLeaf']=true;
                 }
-            });
+                zNodes.push(nodeData);
+            })
         }
 
         function zTreeInit(){
@@ -126,40 +103,26 @@
             });
         }
 
-        function multSelectInit(){
-            var biz_service = $("select[name='biz_service']");
-            biz_service.chosen();
-
-            var middleware = $("select[name='middleware']");
-            middleware.chosen();
-
-            var dns = $("select[name='dns']");
-            dns.chosen();
-        }
-
         function searchGetTreeNodeOk(){
             var treeObj=$.fn.zTree.getZTreeObj("host_list3_tree");
             var nodes = treeObj.getCheckedNodes(true);
             var textStr = "";
-            var hidDict = {};
+            var groupIds = "";
             $(nodes).each(function(i,item){
                 textStr+=item.name+',';
-                if(hidDict[item.bizType]){
-                    hidDict[item.bizType] = hidDict[item.bizType]+","+item.nodeId
-                }else{
-                    hidDict[item.bizType] = item.nodeId;
-                }
+                groupIds+=item.id+',';
             });
             var search_hid_div = $("#search_hid_div");
             search_hid_div.empty();
             var text = $("#host_list3_treeText");
-            if(!$.isEmptyObject(hidDict)){
-                for(var i in hidDict){
-                    search_hid_div.append('<input name="'+i+'" type="hidden" value="'+hidDict[i]+'"/>')
-                }
+            if(groupIds){
+                groupIds = groupIds.substring(0,groupIds.length-1);
+                search_hid_div.append('<input name="group_id" type="hidden" value="'+groupIds+'"/>')
+                search_hid_div.append('<input name="type" type="hidden" value="2"/>')
                 textStr = textStr.substring(0,textStr.length-1);
+                text.val(textStr);
             }
-            text.val(textStr);
+
         }
 
         function searchGetTreeNodeCancel(){
@@ -191,29 +154,11 @@
         <thead>
             <tr>
                 <th style="width:3%;"><input id="checkall" type="checkbox" class="i-checks"></th>
-                <th style="width: 8%;">
-                    Owner
-                </th>
-                <th style="width: 8%;">
-                    机房
-                </th>
-                <th style="width: 8%;">
-                    区域
-                </th>
-                <th style="width: 8%;">
+                <th style="width: 10%;">
                     IP
                 </th>
-                <th style="width: 11%;">
-                    品牌
-                </th>
-                <th style="width: 6%;">
-                    业务线
-                </th>
-                <th style="width: 14%;">
-                    模块
-                </th>
-                <th style="width: 14%;">
-                    应用
+                <th style="width: 70%;">
+                    主机组
                 </th>
                 <th style="width:8%;">操作</th>
             </tr>
@@ -224,16 +169,10 @@
                 <td>
                     <input type="checkbox" class="i-checks icheck" id="{{ o.id }}" hostip="{{ o.host_ip }}" name="trCheckbox">
                 </td>
-                <td>{{ o.owner }}</td>
-                <td>{{ o.physical_idc_name }}</td>
-                <td>{{ o.logical_idc_name }}</td>
                 <td>{{ o.host_ip }}</td>
-                <td>{{ o.biz_brand_name }}</td>
-                <td>{{ o.biz_group_name }}</td>
-                <td>{{ o.biz_module_name }}</td>
                 <td>
-                    {% for field in o.apps %}
-                        <span class="label label-primary">{{ field|split:","|getListFirst:1 }}</span>
+                    {% for i in o.apps %}
+                        <span class="label label-success">{{ i.path }}</span>
                     {% endfor %}
                 </td>
                 <td>
@@ -260,80 +199,6 @@
                 </div>
                 <div class="modal-body" style="max-height: 500px;overflow:auto">
                     <form id="advanced_query_form" method="get">
-                        <div class="row" style="margin-bottom: 10px">
-                            <label class="col-sm-1 control-label">品牌</label>
-                            <div class="col-sm-3">
-                                <select id="biz_brand_1" name="biz_brand" class="form-control" onchange="brandChange(this,'biz_group_1')">
-                                    <option value="" selected>品牌</option>
-                                    {% for o in brand_list %}
-                                        <option value="{{ o.id }}" >{{ o.name }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <label class="col-sm-1 control-label">业务线</label>
-                            <div class="col-sm-3">
-                                <select id="biz_group_1" name="biz_group" class="form-control" onchange="groupChange(this,'biz_brand_1','biz_module_1')">
-                                     <option value="" selected>业务线</option>
-                                </select>
-                            </div>
-                            <label class="col-sm-1 control-label">机房</label>
-                            <div class="col-sm-3">
-                                <select id="physical_idc_1" name="physical_idc" class="form-control" style="width: 100%">
-                                    <option value="" selected>请选择机房</option>
-                                    {% for o in pidc_list %}
-                                        <option value="{{ o.id }}" >{{ o.name }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                        </div>
-                        <div class="row" style="margin-bottom: 10px">
-                            <label class="col-sm-1 control-label">模块</label>
-                            <div class="col-sm-3">
-                                <select id="biz_module_1" name="biz_module" class="form-control" onchange="moduleChange(this,'biz_brand_1','biz_group_1','biz_service_1')">
-                                </select>
-                            </div>
-                            <label class="col-sm-1 control-label">应用</label>
-                            <div class="col-sm-3">
-                                <select id="biz_service_1" name="biz_service" data-placeholder="请选择应用" class="chosen-select form-control" style="width:213px"  multiple tabindex="1">
-                                </select>
-                            </div>
-                            <label class="col-sm-1 control-label">区域</label>
-                            <div class="col-sm-3">
-                                <select id="logical_idc_1" name="logical_idc" class="form-control" style="width: 100%">
-                                    <option value="" selected>区域</option>
-                                    {% for o in lidc_list %}
-                                        <option value="{{ o.id }}" >{{ o.name }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                        </div>
-                        <div class="row" style="margin-bottom: 10px">
-                            <label class="col-sm-1 control-label">中间件</label>
-                            <div class="col-sm-3">
-                                <select id="middleware_1" name="middleware" data-placeholder="请选择中间件" class="chosen-select form-control" style="width:213px"  multiple tabindex="1">
-                                    {% for o in mw_list %}
-                                        <option value="{{ o.id }}" >{{ o.name }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <label class="col-sm-1 control-label">域名</label>
-                            <div class="col-sm-3">
-                                <select id="dns_1" name="dns" data-placeholder="请选择域名" class="chosen-select form-control" style="width:213px"  multiple tabindex="1">
-                                    {% for o in dns_list %}
-                                        <option value="{{ o.id }}" >{{ o.name }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <label class="col-sm-1 control-label">环境</label>
-                            <div class="col-sm-3">
-                                <select id="deployment_environment_1" name="deployment_environment" class="form-control" style="width: 100%">
-                                    <option value="" selected>环境</option>
-                                    {% for o in env_list %}
-                                        <option value="{{ o.id }}" >{{ o.name }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                        </div>
                         <div class="row" style="margin-bottom: 10px">
                             <label class="col-sm-1 control-label">标签</label>
                             <div class="col-sm-11">

@@ -75,32 +75,42 @@
                                 <div class="panel-heading">
                                     <h4 class="panel-title">
                                         <a data-toggle="collapse" data-parent="" href="#collapseTwo">
-                                            业务信息
+                                            主机组信息
                                         </a>
                                     </h4>
                                 </div>
                                 <div id="collapseTwo" class="panel-collapse collapse in">
                                     <div class="panel-body">
+                                    {% for i in host_info.apps %}
                                         <div class="row" style="margin-bottom: 10px">
                                             <label class="col-sm-1 control-label">品牌：</label>
                                             <div class="col-sm-3">
-                                                <input type="text" class="form-control" readonly value="{{ host_info.biz_brand_name }}"/>
+                                                <input type="text" class="form-control" readonly value="{{ i.path|split:'_'|getListFirst:0 }}"/>
                                             </div>
                                             <label class="col-sm-1 control-label">业务线：</label>
                                             <div class="col-sm-3">
-                                                <input type="text" class="form-control" readonly value="{{ host_info.biz_group_name }}"/>
+                                                <input type="text" class="form-control" readonly value="{{ i.path|split:'_'|getListFirst:1 }}"/>
                                             </div>
                                             <label class="col-sm-1 control-label">机房：</label>
                                             <div class="col-sm-3">
-                                                <input type="text" class="form-control" readonly value="{{ host_info.physical_idc_name }}"/>
+                                                <input type="text" class="form-control" readonly value="{{ i.path|split:'_'|getListFirst:2 }}"/>
                                             </div>
                                         </div>
-                                        <div class="row">
+                                        <div class="row" style="margin-bottom: 10px">
+                                            <label class="col-sm-1 control-label">环境：</label>
+                                            <div class="col-sm-3">
+                                                <input type="text" class="form-control" readonly value="{{ i.path|split:'_'|getListFirst:3 }}"/>
+                                            </div>
                                             <label class="col-sm-1 control-label">区域：</label>
                                             <div class="col-sm-3">
-                                                <input type="text" class="form-control" readonly value="{{ host_info.logical_idc_name }}"/>
+                                                <input type="text" class="form-control" readonly value="{{ i.path|split:'_'|getListFirst:4 }}"/>
+                                            </div>
+                                            <label class="col-sm-1 control-label">应用：</label>
+                                            <div class="col-sm-3">
+                                                <input type="text" class="form-control" readonly value="{{ i.path|split:'_'|getListFirst:5 }}"/>
                                             </div>
                                         </div>
+                                    {% endfor %}
                                     </div>
                                 </div>
                             </div>
