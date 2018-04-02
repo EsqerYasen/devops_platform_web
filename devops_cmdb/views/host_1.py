@@ -98,6 +98,7 @@ def importFunction(req,wb):
     updateReq = []
     failList = []
     success = 0
+    binding = 0
     total = 0
     try:
         username = req.user.username
@@ -173,7 +174,7 @@ def importFunction(req,wb):
                         appendResult = hu.post(serivceName="cmdb", restName="/rest/hostgroup/static_group_append/", datas={'group_id':group_id,'host_ids':[d['host_id']]})
                         append = appendResult.json()
                         if append['status'] == "SUCCESS":
-                            success+=1
+                            binding+=1
                         else:
                             d['error'] = "绑定失败"
                             failList.append(d)
@@ -187,6 +188,7 @@ def importFunction(req,wb):
         s = HOST1_IMPORT_STATIC[username]
         s['isImportRun'] = 0
         s['success'] = success
+        s['binding'] = binding
         s['fail'] = len(failList)
         s['total'] = total
         s['failList'] = failList
