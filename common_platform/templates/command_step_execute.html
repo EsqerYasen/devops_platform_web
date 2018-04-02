@@ -254,15 +254,22 @@
                             lineDict[i2+1] = {'parameter':$("#param"+gid2).val()};
                         }
                      })
-
-                     if(selectHostValueObj['target_group']){
-                            lineDict['target_group_ids'] = selectHostValueObj['target_group'];
+                     var bool = true;
+                     if(selectHostValueObj['target_group_ids']){
+                            lineDict['target_group_ids'] = selectHostValueObj['target_group_ids'];
                             lineDict['target_type'] = 1;
+                            bool = false;
                      }
                      if(selectHostValueObj['target_host_list']){
                             lineDict['target_host_list'] = selectHostValueObj['target_host_list'];
                             lineDict['target_type'] = 3;
+                            bool = false;
                      }
+                     if(bool){
+                            lineDict['target_host_list'] = '127.0.0.1';
+                            lineDict['target_type'] = 3;
+                     }
+                     lineDict['go_live'] = selectHostValue.attr('golive');
                      paraDict[i+1] = lineDict
                  }else if(type == 1){
                      var lineDict = {}
@@ -273,14 +280,22 @@
                           hostValue = hostValue.replace(/\'/g,"\"");
                      }
                      var selectHostValueObj = JSON.parse(hostValue);
-                     if(selectHostValueObj['target_group']){
-                            lineDict['target_group_ids'] = selectHostValueObj['target_group'];
-                            lineDict['target_type'] = 1;
+                     var bool = true;
+                     if(selectHostValueObj['target_group_ids']){
+                         lineDict['target_group_ids'] = selectHostValueObj['target_group_ids'];
+                         lineDict['target_type'] = 1;
+                         bool = false;
                      }
                      if(selectHostValueObj['target_host_list']){
-                            lineDict['target_host_list'] = selectHostValueObj['target_host_list'];
-                            lineDict['target_type'] = 3;
+                         lineDict['target_host_list'] = selectHostValueObj['target_host_list'];
+                         lineDict['target_type'] = 3;
+                         bool = false;
                      }
+                     if(bool){
+                         lineDict['target_host_list'] = '127.0.0.1';
+                         lineDict['target_type'] = 3;
+                     }
+                     lineDict['go_live'] = selectHostValue.attr('golive');
                      paraDict[i+1] = lineDict
                  }
              }
