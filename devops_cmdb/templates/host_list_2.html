@@ -45,7 +45,11 @@
          function readHostGroupTreeNext(list,pid){
             $(list).each(function(i,item){
                 var ids = item.id;
-                var nodeData = {id:ids,pId:pid,name:item.name,nodeId:ids,open:true,hasIp:item.has_ip,'nocheck':true};
+                var open = false;
+                if(pid == 0){
+                    open = true;
+                }
+                var nodeData = {id:ids,pId:pid,name:item.name,nodeId:ids,open:open,hasIp:item.has_ip,'nocheck':true};
 
                 if(item.childs){
                     readHostGroupTreeNext(item.childs,ids);
