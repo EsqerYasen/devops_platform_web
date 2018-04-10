@@ -1,0 +1,539 @@
+{% extends 'common/basic_layout.html' %}
+{% block content %}
+<script type="text/javascript" src="/static/hplus/js/zTree/jquery.ztree.core.js"></script>
+<script type="text/javascript" src="/static/hplus/js/zTree/jquery.ztree.excheck.js"></script>
+<script type="text/javascript" src="/static/hplus/js/zTree/jquery.ztree.exedit.js"></script>
+<script src="http://cdn.bootcss.com/ace/1.2.4/ace.js"></script>
+<script src="http://cdn.bootcss.com/ace/1.2.4/ext-language_tools.js"></script>
+<script src="http://cdn.bootcss.com/ace/1.2.4/ext-old_ie.js"></script>
+<script src="http://cdn.bootcss.com/ace/1.2.4/theme-monokai.js"></script>
+<link href="/static/hplus/css/zTree/bootstrapStyle.css" rel="stylesheet">
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>新增发布</h5>
+                </div>
+                <div class="ibox-content">
+                    <form method="post" class="form-horizontal">
+{#                        <div class="form-group">#}
+{#                            <label class="col-sm-2 control-label" style="width: 10%"> 名称</label>#}
+{#                            <div class="col-sm-10" style="width: 85%">#}
+{#                                <input type="text" id="name" name="name" class="form-control" value=""/>#}
+{#                            </div>#}
+{#                        </div>#}
+                        <div class="form-group">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" data-parent="" href="#collapseHost">
+                                            主机组信息
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div id="collapseHost" class="panel-collapse collapse in">
+                                    <div class="col-sm-5">
+                                        <div class="row" style="max-height: 500px;overflow-y: auto">
+                                            <ul id="host_group_tree" name="host_group_tree" class="ztree"></ul>
+                                        </div>
+                                        <button type="button" class="btn btn-sm btn-success" style="margin-top: 10px" onclick="getHostGroup()"><i class="glyphicon glyphicon-ok"></i> 确定</button>
+                                    </div>
+                                    <div class="col-sm-7" >
+                                        <div class="col-sm-5" style="height: 500px;overflow-y: auto;border:1px solid #000000">
+                                            <ul id="host_tree" name="host_tree" class="ztree"></ul>
+                                        </div>
+                                        <div class="col-sm-1" style="height: 500px;padding:240px 0 0 20px">
+                                            <button type="button" class="btn btn-sm btn-default" onclick=""><i class="glyphicon glyphicon-forward"></i></button>
+                                            <button type="button" class="btn btn-sm btn-default" onclick=""><i class="glyphicon glyphicon-backward"></i></button>
+                                        </div>
+                                        <div class="col-sm-5" style="height: 500px;overflow-y: auto;border:1px solid #000000">
+                                            <ul class="list-host">
+                                                 <li class="list-group-item">172.0.0.1</li>
+                                                 <li class="list-group-item">172.0.0.2</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" data-parent="" href="#collapseSource">
+                                            源信息
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div id="collapseSource" class="panel-collapse collapse in">
+                                    <div class="col-sm-10" style="margin-top: 10px;margin-bottom: 10px">
+                                        <label class="col-sm-2 control-label" style="width: 10%"> 源IP</label>
+                                        <div class="col-sm-10" style="width: 30%">
+                                            <input type="text" id="sourceIp" name="sourceIp" class="form-control" value=""/>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading">包</div>
+                                            <div class="panel-body">
+                                                <table id="sourceWarTb" style="width: 100%">
+                                                    <tr>
+                                                        <td style="width: 76%;"><input type="text" id="sourceWarPath" name="sourceWarPath" class="form-control" value=""/></td>
+                                                        <td>
+                                                            <button type="button" class="btn btn-sm btn-default" onclick="addTrToTable(this,'sourceWarPath')" style="margin-left: 5px"><i class="glyphicon glyphicon-plus"></i></button>
+                                                            <button type="button" class="btn btn-sm btn-default" onclick="removeTrFromTable(this)"><i class="glyphicon glyphicon-trash"></i></button>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading">配置</div>
+                                            <div class="panel-body">
+                                                <table id="sourceConfigTb" style="width: 100%">
+                                                    <tr>
+                                                        <td style="width: 76%;"><input type="text" id="sourceConfigPath" name="sourceConfigPath" class="form-control" value=""/></td>
+                                                        <td>
+                                                            <button type="button" class="btn btn-sm btn-default" onclick="addTrToTable(this,'sourceConfigPath')" style="margin-left: 5px"><i class="glyphicon glyphicon-plus"></i></button>
+                                                            <button type="button" class="btn btn-sm btn-default" onclick="removeTrFromTable(this)"><i class="glyphicon glyphicon-trash"></i></button>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading">静态文件</div>
+                                            <div class="panel-body">
+                                                <table id="sourceStaticTb" style="width: 100%">
+                                                    <tr>
+                                                        <td style="width: 76%;"><input type="text" id="sourceStaticPath" name="sourceStaticPath" class="form-control" value=""/></td>
+                                                        <td>
+                                                            <button type="button" class="btn btn-sm btn-default" onclick="addTrToTable(this,'sourceStaticPath')" style="margin-left: 5px"><i class="glyphicon glyphicon-plus"></i></button>
+                                                            <button type="button" class="btn btn-sm btn-default" onclick="removeTrFromTable(this)"><i class="glyphicon glyphicon-trash"></i></button>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    <h4 class="panel-title">
+                                        <a data-toggle="collapse" data-parent="" href="#collapseTarget">
+                                            目标信息
+                                        </a>
+                                    </h4>
+                                </div>
+                                <div id="collapseTarget" class="panel-collapse collapse in">
+                                    <div class="col-sm-4" style="margin-top: 10px">
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading">包</div>
+                                            <div class="panel-body">
+                                                <table id="targetWarTb" style="width: 100%">
+                                                    <tr>
+                                                        <td style="width: 76%;"><input type="text" id="targetWarPath" name="targetWarPath" class="form-control" value=""/></td>
+                                                        <td>
+                                                            <button type="button" class="btn btn-sm btn-default" onclick="addTrToTable(this,'targetWarPath')" style="margin-left: 5px"><i class="glyphicon glyphicon-plus"></i></button>
+                                                            <button type="button" class="btn btn-sm btn-default" onclick="removeTrFromTable(this)"><i class="glyphicon glyphicon-trash"></i></button>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4" style="margin-top: 10px">
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading">配置</div>
+                                            <div class="panel-body">
+                                                <table id="targetConfigTb" style="width: 100%">
+                                                    <tr>
+                                                        <td style="width: 76%;"><input type="text" id="targetConfigPath" name="targetConfigPath" class="form-control" value=""/></td>
+                                                        <td>
+                                                            <button type="button" class="btn btn-sm btn-default" onclick="addTrToTable(this,'targetConfigPath')" style="margin-left: 5px"><i class="glyphicon glyphicon-plus"></i></button>
+                                                            <button type="button" class="btn btn-sm btn-default" onclick="removeTrFromTable(this)"><i class="glyphicon glyphicon-trash"></i></button>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4" style="margin-top: 10px">
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading">静态文件</div>
+                                            <div class="panel-body">
+                                                <table id="targetStaticTb" style="width: 100%">
+                                                    <tr>
+                                                        <td style="width: 76%;"><input type="text" id="targetStaticPath" name="targetStaticPath" class="form-control" value=""/></td>
+                                                        <td>
+                                                            <button type="button" class="btn btn-sm btn-default" onclick="addTrToTable(this,'targetStaticPath')" style="margin-left: 5px"><i class="glyphicon glyphicon-plus"></i></button>
+                                                            <button type="button" class="btn btn-sm btn-default" onclick="removeTrFromTable(this)"><i class="glyphicon glyphicon-trash"></i></button>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-5">
+                                        <label class="col-sm-2 control-label" style="width: 15%"> 端口</label>
+                                        <div class="col-sm-10" style="width: 85%">
+                                            <input type="text" id="port" name="port" class="form-control" value=""/>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-5">
+                                        <label class="col-sm-2 control-label" style="width: 15%"> 目录</label>
+                                        <div class="col-sm-10" style="width: 85%">
+                                            <input type="text" id="catalog" name="catalog" class="form-control" value=""/>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-8" style="margin-top: 20px">
+                                        <div class="col-sm-3">
+                                            <div class="input-group" style="width: 100px">
+                                                <span class="input-group-addon">
+                                                    <input id="checkPreDeploy" name="deployBeforeScriptDiv" type="checkbox" class="i-checks">
+                                                </span>
+                                                <span class="input-group-addon">pre-deploy</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-3">
+                                            <div class="input-group" style="width: 100px">
+                                                <span class="input-group-addon">
+                                                    <input id="checkPostDeploy" name="deployAfterScriptDiv" type="checkbox" class="i-checks">
+                                                </span>
+                                                <span class="input-group-addon">post-deploy</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-3">
+                                            <div class="input-group" style="width: 100px">
+                                                <span class="input-group-addon">
+                                                    <input id="checkCheckDeploy" name="deployCheckScriptDiv" type="checkbox" class="i-checks">
+                                                </span>
+                                                <span class="input-group-addon">check-deploy</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="deployBeforeScriptDiv" class="col-sm-10" style="margin-top: 10px;display: none">
+                                        <label >pre-deploy: </label>
+                                        <div class="btn-group btn-group-sm">
+                                            <button type="button" class="btn btn-default" onclick="setDeployBeforeScriptMode('sh')"><a>Shell</a></button>
+                                            <button type="button" class="btn btn-default" onclick="setDeployBeforeScriptMode('python')"><a>Python</a></button>
+                                            <button type="button" class="btn btn-default" onclick="setDeployBeforeScriptMode('perl')"><a>Perl</a></button>
+                                        </div>
+                                        <div id="deploy_before_script" class="ace_editor" style="width: 100%;height: 400px;"></div>
+                                    </div>
+                                    <div id="deployAfterScriptDiv" class="col-sm-10" style="margin-top: 10px;display: none">
+                                        <label >post-deploy: </label>
+                                        <div class="btn-group btn-group-sm">
+                                            <button type="button" class="btn btn-default" onclick="setDeployAfterScriptMode('sh')"><a>Shell</a></button>
+                                            <button type="button" class="btn btn-default" onclick="setDeployAfterScriptMode('python')"><a>Python</a></button>
+                                            <button type="button" class="btn btn-default" onclick="setDeployAfterScriptMode('perl')"><a>Perl</a></button>
+                                        </div>
+                                        <div id="deploy_after_script" class="ace_editor" style="width: 100%;height: 400px;"></div>
+                                    </div>
+                                    <div id="deployCheckScriptDiv" class="col-sm-10" style="margin-top: 10px;display: none">
+                                        <label >check-deploy: </label>
+                                        <div class="btn-group btn-group-sm">
+                                            <button type="button" class="btn btn-default" onclick="setDeployCheckScriptMode('sh')"><a>Shell</a></button>
+                                            <button type="button" class="btn btn-default" onclick="setDeployCheckScriptMode('python')"><a>Python</a></button>
+                                            <button type="button" class="btn btn-default" onclick="setDeployCheckScriptMode('perl')"><a>Perl</a></button>
+                                        </div>
+                                        <div id="deploy_check_script" class="ace_editor" style="width: 100%;height: 400px;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-8 col-sm-offset-2">
+                                <button class="btn btn-primary" type="button" onclick="deploySave()"><span class="glyphicon glyphicon-floppy-saved" aria-hidden="true"></span> 保存</button>
+                                <a class="btn btn-white" href="javascript:history.go(-1)">取消</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <script>
+        $(document).ready(function () {
+            var hostGroupTreeList = {{ hostGroup_list|safe }};
+            readHostGroupTreeNext(hostGroupTreeList,0);
+            zHostGroupTreeInit();
+            zHostTreeInit();
+            setDeployBeforeScriptMode("sh");
+            setDeployAfterScriptMode("sh");
+            setDeployCheckScriptMode("sh");
+            $(".i-checks").iCheck({checkboxClass: "icheckbox_square-green", radioClass: "iradio_square-green",});
+            iCheckEventBind();
+        })
+        var zHostGroupNodes = [];
+        function readHostGroupTreeNext(list,pid){
+            $(list).each(function(i,item){
+                var ids = item.id;
+                var open = false;
+                if(pid == 0){
+                    open = true;
+                }
+                var nodeData = {id:ids,pId:pid,name:item.name,nodeId:ids,open:open,hasIp:item.has_ip,'nocheck':true};
+
+                if(item.childs){
+                    readHostGroupTreeNext(item.childs,ids);
+                    nodeData['isLeaf']=false;
+                }else{
+                    nodeData['isLeaf']=true;
+                    nodeData['nocheck']=false;
+                }
+                zHostGroupNodes.push(nodeData);
+            });
+        }
+
+        function zHostGroupTreeInit(){
+            var setting = {
+                view: {
+                    selectedMulti: false,
+                },
+                check: {
+                    enable: true,
+                    chkboxType:  { "Y": "", "N": "" }
+                },
+                data: {
+                    simpleData: {
+                        enable: true
+                    }
+                },
+                edit: {
+                    enable: false
+                },
+            };
+            $.fn.zTree.init($("#host_group_tree"), setting, zHostGroupNodes);
+        }
+        var zHostNodes = [
+            {id:1,pId:0,name:"kfc>>preorder>>nh>>pilot"},
+            {id:2,pId:1,name:"172.0.0.1"},
+            {id:3,pId:1,name:"172.0.0.2"},
+            {id:4,pId:1,name:"172.0.0.3"},
+            {id:5,pId:1,name:"172.0.0.4"},
+            {id:6,pId:1,name:"172.0.0.5"},
+            {id:7,pId:1,name:"172.0.0.6"},
+        ];
+        function zHostTreeInit(){
+            var setting = {
+                view: {
+                    selectedMulti: false,
+                },
+                check: {
+                    enable: true,
+                },
+                data: {
+                    simpleData: {
+                        enable: true
+                    }
+                },
+                edit: {
+                    enable: false
+                },
+            };
+            $.fn.zTree.init($("#host_tree"), setting, zHostNodes);
+        }
+
+        function iCheckEventBind(){
+            $('#checkPreDeploy').on('ifChecked', function (event) {
+                $("#"+event.delegateTarget.name).css("display","block");
+            });
+            $('#checkPreDeploy').on('ifUnchecked', function (event) {
+                $("#"+event.delegateTarget.name).css("display","none");
+            });
+            $('#checkPostDeploy').on('ifChecked', function (event) {
+                $("#"+event.delegateTarget.name).css("display","block");
+            });
+            $('#checkPostDeploy').on('ifUnchecked', function (event) {
+                $("#"+event.delegateTarget.name).css("display","none");
+            });
+            $('#checkCheckDeploy').on('ifChecked', function (event) {
+                $("#"+event.delegateTarget.name).css("display","block");
+            });
+            $('#checkCheckDeploy').on('ifUnchecked', function (event) {
+                $("#"+event.delegateTarget.name).css("display","none");
+            });
+        }
+
+        function setDeployBeforeScriptMode(model) {
+            var editor = ace.edit("deploy_before_script");
+            require("ace/ext/old_ie");
+            var langTools = ace.require("ace/ext/language_tools");
+            editor.removeLines();
+            editor.setTheme("ace/theme/monokai");
+            if (model == 'sh'){
+                editor.insert("#!/bin/bash");
+            }
+            else if(model == 'python'){
+                editor.insert("#!/usr/bin/python");
+            }
+            else if(model == 'perl'){
+                editor.insert("#!/usr/bin/perl");
+            }
+            else{
+                editor.insert("#!/bin/bash");
+                var model = 'sh'
+            };
+            editor.getSession().setMode("ace/mode/" + model);
+            editor.setShowPrintMargin(false);
+            editor.setOptions({
+                enableBasicAutocompletion: true,
+                enableSnippets: true,
+                enableLiveAutocompletion: true
+            });
+        };
+
+        function setDeployAfterScriptMode(model) {
+            var editor = ace.edit("deploy_after_script");
+            require("ace/ext/old_ie");
+            var langTools = ace.require("ace/ext/language_tools");
+            editor.removeLines();
+            editor.setTheme("ace/theme/monokai");
+            if (model == 'sh'){
+                editor.insert("#!/bin/bash");
+            }
+            else if(model == 'python'){
+                editor.insert("#!/usr/bin/python");
+            }
+            else if(model == 'perl'){
+                editor.insert("#!/usr/bin/perl");
+            }
+            else{
+                editor.insert("#!/bin/bash");
+                var model = 'sh'
+            };
+            editor.getSession().setMode("ace/mode/" + model);
+            editor.setShowPrintMargin(false);
+            editor.setOptions({
+                enableBasicAutocompletion: true,
+                enableSnippets: true,
+                enableLiveAutocompletion: true
+            });
+        };
+
+        function setDeployCheckScriptMode(model){
+            var editor = ace.edit("deploy_check_script");
+            require("ace/ext/old_ie");
+            var langTools = ace.require("ace/ext/language_tools");
+            editor.removeLines();
+            editor.setTheme("ace/theme/monokai");
+            if (model == 'sh'){
+                editor.insert("#!/bin/bash");
+            }
+            else if(model == 'python'){
+                editor.insert("#!/usr/bin/python");
+            }
+            else if(model == 'perl'){
+                editor.insert("#!/usr/bin/perl");
+            }
+            else{
+                editor.insert("#!/bin/bash");
+                var model = 'sh'
+            };
+            editor.getSession().setMode("ace/mode/" + model);
+            editor.setShowPrintMargin(false);
+            editor.setOptions({
+                enableBasicAutocompletion: true,
+                enableSnippets: true,
+                enableLiveAutocompletion: true
+            });
+        }
+        function addTrToTable(btn,name){
+            var generateId = new Date().valueOf();
+            var htmlStr = '<tr>\n' +
+                '  <td style="width: 76%;"><input type="text" id="'+name+generateId+'" name="'+name+'" class="form-control" value=""/></td>\n' +
+                '  <td>\n' +
+                '      <button type="button" class="btn btn-sm btn-default" onclick="addTrToTable(this,\''+name+'\')" style="margin-left: 5px"><i class="glyphicon glyphicon-plus"></i></button>\n' +
+                '      <button type="button" class="btn btn-sm btn-default" onclick="removeTrFromTable(this)"><i class="glyphicon glyphicon-trash"></i></button>\n' +
+                '  </td>\n' +
+                '</tr>';
+            $(btn).parents("table").append(htmlStr);
+        }
+        function removeTrFromTable(btn){
+            if($(btn).parents("table").find("tr").length > 1){
+                $(btn).parents("tr").remove();
+            }
+        }
+        function getHostGroup(){
+            var host_group_tree=$.fn.zTree.getZTreeObj("host_group_tree");
+            var nodes = host_group_tree.getCheckedNodes(true);
+            var groupIds = "";
+            debugger
+            $(nodes).each(function(i,item){
+                groupIds += item.nodeId+",";
+            });
+        }
+
+        function deploySave(){
+            var host_group_tree=$.fn.zTree.getZTreeObj("host_group_tree");
+            var nodes = host_group_tree.getCheckedNodes(true);
+            var treeList = [];
+            var port = $("#port").val();
+            var catalog = $("#catalog").val();
+            $(nodes).each(function(i,item){
+                var nodePath = item.getPath();
+                treeList.push({"parentName":nodePath[1].name+"_"+nodePath[2].name,"group_id":item.id,"name":nodePath[6].name,"idc":nodePath[3].name,"env":nodePath[4].name,"port":port,"path":catalog});
+            });
+            var pathList = [];
+            var sourceIp = $("#sourceIp").val();
+            $($("#sourceWarTb input")).each(function(i,item){
+                pathList.push({"path":$(item).val(),"type":1,"source_type":1,"name":sourceIp});
+            });
+            $($("#sourceConfigTb input")).each(function(i,item){
+                pathList.push({"path":$(item).val(),"type":2,"source_type":1,"name":sourceIp});
+            });
+            $($("#sourceStaticTb input")).each(function(i,item){
+                pathList.push({"path":$(item).val(),"type":3,"source_type":1,"name":sourceIp});
+            });
+            $($("#targetWarTb input")).each(function(i,item){
+                pathList.push({"path":$(item).val(),"type":1,"source_type":2,"name":""});
+            });
+            $($("#targetConfigTb input")).each(function(i,item){
+                pathList.push({"path":$(item).val(),"type":2,"source_type":2,"name":""});
+            });
+            $($("#targetStaticTb input")).each(function(i,item){
+                pathList.push({"path":$(item).val(),"type":3,"source_type":2,"name":""});
+            });
+            var scriptDict = {};
+            if($("#checkPreDeploy").is(':checked')){
+                scriptDict['deploy_before'] = ace.edit("deploy_before_script").getValue();
+            }
+            if($("#checkPostDeploy").is(':checked')){
+                scriptDict['deploy_after'] = ace.edit("deploy_after_script").getValue();
+            }
+            if($("#checkCheckDeploy").is(':checked')){
+                scriptDict['deploy_check'] = ace.edit("deploy_check_script").getValue();
+            }
+            layer.load();
+            $.ajax({
+                type : 'POST',
+                url: '/deploy/add/',
+                data:{"treeList":JSON.stringify(treeList),"pathList":JSON.stringify(pathList),"scriptDict":JSON.stringify(scriptDict),"csrfmiddlewaretoken":'{{ csrf_token }}'},
+                success : function(responseStr) {
+                    if(responseStr.status==0){
+                        window.location.href="/deploy/list/"
+                    }else{
+
+                    }
+                    layer.closeAll('loading');
+                },
+                error : function(responseStr) {
+                    layer.closeAll('loading');
+                    console.log(responseStr);
+                }
+            });
+        }
+    </script>
+
+{% endblock %}

@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'common',
     'common_platform',
     'devops_cmdb',
+    'devops_deploy',
 ]
 
 MIDDLEWARE = [
@@ -79,6 +80,7 @@ WSGI_APPLICATION = 'devops_platform_web.wsgi.application'
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
 DATABASES = {
+    #本地
     # 'default': {
     #     'ENGINE': 'django.db.backends.mysql',
     #     'NAME': 'devops_web',
@@ -90,28 +92,29 @@ DATABASES = {
     #         'init_command': 'SET default_storage_engine=INNODB',
     #     },
     # }
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.mysql',
-    #     'NAME': 'devops_workshop_dev_web',
-    #     'USER': 'root',
-    #     'PASSWORD': 'devops',
-    #     'HOST': '172.29.164.91',
-    #     'PORT': '3306',
-    #     'OPTIONS': {
-    #         'init_command': 'SET default_storage_engine=INNODB',
-    #     },
-    # }
+    #测试
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'devops_workshop_prod_web',
+        'NAME': 'devops_workshop_dev_web',
         'USER': 'root',
-        'PASSWORD': 'devops',
-        'HOST': '172.17.144.150',
+        'PASSWORD': 'password',
+        'HOST': '172.29.164.91',
         'PORT': '3306',
         'OPTIONS': {
             'init_command': 'SET default_storage_engine=INNODB',
         },
     }
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.mysql',
+    #     'NAME': 'devops_workshop_prod_web',
+    #     'USER': 'root',
+    #     'PASSWORD': 'devops',
+    #     'HOST': '172.17.144.150',
+    #     'PORT': '3306',
+    #     'OPTIONS': {
+    #         'init_command': 'SET default_storage_engine=INNODB',
+    #     },
+    # }
 }
 
 
@@ -174,19 +177,22 @@ STATICFILES_DIRS = (
 
 REST_API_CONFIG = {
         #本地
-        # 'cmdb': {
-        #     'ip_prot': '172.29.164.92:8000'
-        # },
+        'cmdb': {
+            'ip_prot': '172.29.164.92:8000'
+        },
+        'job':{
+            'ip_prot': '172.29.164.92:8001'
+        }
         # 'job':{
-        #     'ip_prot': '172.29.164.92:8001'
+        #     'ip_prot': '127.0.0.1:8001'
         # }
         #生产
-        'cmdb': {
-            'ip_prot': '172.17.144.150:8000'
-        },
-        'job': {
-            'ip_prot': '172.17.144.150:8001'
-        }
+        # 'cmdb': {
+        #     'ip_prot': '172.17.144.150:8000'
+        # },
+        # 'job': {
+        #     'ip_prot': '172.17.144.150:8001'
+        # }
     }
 
 

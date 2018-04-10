@@ -42,7 +42,7 @@ class HttpUtils(object):
                 continue
             value = param[d]
             if not hasEmpty and value:
-                if ',' in value:
+                if ',' in value and not self.check_json_format(value):
                     datas[d] = '+'.join(value.split(','))
                 else:
                     datas[d] = value
@@ -50,3 +50,18 @@ class HttpUtils(object):
                 datas[d] = value
 
         return datas
+
+    def check_json_format(self,raw_msg):
+        """
+        用于判断一个字符串是否符合Json格式
+        :param self:
+        :return:
+        """
+        if isinstance(raw_msg, str):  # 首先判断变量是否为字符串
+            try:
+                json.loads(raw_msg, encoding='utf-8')
+            except ValueError:
+                return False
+            return True
+        else:
+            return False

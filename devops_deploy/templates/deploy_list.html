@@ -1,0 +1,126 @@
+{% extends 'common/basic_rank_list.html' %}
+{% load widget_tweaks %}
+
+{% block list_title %}
+    发布配置列表
+{% endblock %}
+
+{% block  list_search %}
+    <div class="col-sm-1" style="width: 12%">
+        <input type="text" name="name" class="form-control" placeholder="名称">
+    </div>
+    <div class="col-sm-1" style="width: 12%">
+        <select name="physical" class="form-control m-b" id="physical">
+            <option value="">--机房--</option>
+            <option value="nh">NH</option>
+            <option value="zr">ZR</option>
+        </select>
+    </div>
+    <div class="col-sm-1" style="width: 12%">
+        <select name="deployment_environment" class="form-control m-b" id="deployment_environment">
+            <option value="">--环境--</option>
+            <option value="pilot">pilot</option>
+            <option value="online">online</option>
+        </select>
+    </div>
+{% endblock %}
+
+{% block list_filter %}
+    <button type="submit" class="btn btn-sm btn-primary" style="margin-right: 10px"><i class="fa fa-search"></i> 搜索</button>
+    <a href="../add" class="btn btn-sm btn-success"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> 新增</a>
+{% endblock %}
+
+{% block list_content %}
+    <table class="table table-striped table-bordered table-hover dataTables-example dataTable accordion">
+        <thead>
+            <tr>
+                <th style="width:3%;"><input id="checkall" type="checkbox" class="i-checks"></th>
+                <th style="width: 15%;">
+                    机房
+                </th>
+                <th style="width: 15%;">
+                    环境
+                </th>
+                <th style="width: 15%;">
+                    名称
+                </th>
+                <th style="width: 15%;">
+                    版本号
+                </th>
+                <th style="width: 15%;">
+                   操作
+                </th>
+            </tr>
+        </thead>
+        <tbody id="accordion_tb">
+            {% for o in setList %}
+            <tr class="accordion-toggle" data-toggle="collapse" data-parent="#accordion_tb" href="#collapseTr{{ o.id }}">
+                <td>
+                    <input type="checkbox" class="i-checks icheck" id="{{ o.id }}" name="trCheckbox">
+                </td>
+                <td>
+                    <select name="physical" class="form-control m-b" id="physical">
+                        <option value="">----</option>
+                        <option value="1">NH</option>
+                        <option value="0">ZR</option>
+                    </select>
+                </td>
+                <td>
+                    <select name="deployment_environment" class="form-control m-b" id="deployment_environment">
+                        <option value="">----</option>
+                        <option value="1">pilot</option>
+                        <option value="0">online</option>
+                    </select>
+                </td>
+                <td>
+                    {{ o.name }}
+                </td>
+                <td>
+                    1.0.1
+                </td>
+                <td>
+                    <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='' style="margin-right: 10px"><i class="glyphicon glyphicon-import"></i> 发布</button>
+                    <a href="" class="btn btn-sm btn-success"><i class="fa fa-book"></i> 编辑</a>
+                </td>
+            </tr>
+            <tr id="collapseTr{{ o.id }}" class="accordion-body collapse" >
+                <td colspan="6">
+                    <table class="table table-striped table-bordered table-hover dataTables-example dataTable accordion" style="width: 95%;margin-left: 50px" >
+                        {% for a in o.appList %}
+                        <tr>
+                            <td style="width: 3%;">
+                                <input type="checkbox" class="i-checks icheck" id="{{ a.id }}" name="trCheckbox">
+                            </td>
+                            <td>
+                                <select name="physical" class="form-control m-b" id="physical{{ a.id }}">
+                                    <option value="">----</option>
+                                    <option value="1">NH</option>
+                                    <option value="0">ZR</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select name="deployment_environment" class="form-control m-b" id="deployment_environment{{ a.id }}">
+                                    <option value="">----</option>
+                                    <option value="1">pilot</option>
+                                    <option value="0">online</option>
+                                </select>
+                            </td>
+                            <td>
+                                {{ a.name }}
+                            </td>
+                            <td>
+                                1.0.1
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='' style="margin-right: 10px"><i class="glyphicon glyphicon-import"></i> 发布</button>
+                                <a href="" class="btn btn-sm btn-success"><i class="fa fa-book"></i> 编辑</a>
+                            </td>
+                        </tr>
+                       {% endfor %}
+                    </table>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

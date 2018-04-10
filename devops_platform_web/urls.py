@@ -29,4 +29,5 @@ urlpatterns = [
     url(r'^dashboard/$', views.dashboard, name='mainform'),
     url(r'^cmdb/', include('devops_cmdb.urls', namespace='cmdb')),
     url(r'^platform/', include('common_platform.urls', namespace='platform')),
+    url(r'^deploy/', include('devops_deploy.urls', namespace='deploy')),
 ]
