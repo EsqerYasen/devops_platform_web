@@ -4,6 +4,7 @@ from devops_cmdb.views.host_2 import *
 from devops_cmdb.views.host_3 import *
 from devops_cmdb.views.business_attributes import *
 from devops_cmdb.views.host_group import *
+from devops_cmdb.views.vip import *
 
 urlpatterns = [
     url(r'^host/', include([
@@ -38,5 +39,10 @@ urlpatterns = [
     ])),
     url(r'^host_group/', include([
         url(r'^tree_list/', HostGroupView.as_view(), name='tree_list'),
+    ])),
+    url(r'^vip/', include([
+        url(r'^list/', VIPListView.as_view(), name='list'),
+        url(r'^add/', VIPCreateView.as_view(), name='add'),
+        url(r'^bindIp/', VIPBindIPView.as_view(), name='bindIp'),
     ]))
 ]

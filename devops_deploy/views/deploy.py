@@ -30,6 +30,10 @@ class ListView(LoginRequiredMixin, OrderableListMixin, ListView):
                     reqDcit['env'] = deployment_environment
                 appListResult = hu.get(serivceName="job", restName="/rest/deploy/app_list/", datas=reqDcit)
                 appList = appListResult.get("results", [])
+                for app in appList:
+                    applistversionResult = hu.get(serivceName="job", restName="/rest/deploy/app_list_version/", datas={"id":app.get("id","")})
+                    applistversion = applistversionResult.get("data", [])
+                    app['version'] = applistversion
                 set['appList'] = appList
 
             context['setList'] = setList
@@ -57,28 +61,27 @@ class CreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, Templa
             req = self.request
             hu = HttpUtils(req)
             reqData = hu.getRequestParam()
-            treeListStr = reqData.get("treeList",[])
-            treeList = json.loads(treeListStr)
+            treeDictStr = reqData.get("treeDict",[])
+            treeDict = json.loads(treeDictStr)
             pathListStr = reqData.get("pathList",[])
             pathList = json.loads(pathListStr)
-            scriptDictStr = reqData.get("scriptDict",{})
-            scriptDict = json.loads(scriptDictStr)
-            parentName = treeList[0]['parentName']
+            parentName = treeDict['parentName']
+            minProcessCount = int(treeDict['min_process_count'])
+            maxProcessCount = int(treeDict['max_process_count'])
+            treeDict['min_process_count'] = minProcessCount
+            treeDict['max_process_count'] = maxProcessCount
+
             setAddResult = hu.get(serivceName="job", restName="/rest/deploy/set_getoradd/", datas={"name": parentName})
             if setAddResult['status'] == "SUCCESS":
                 setId = setAddResult['data']
-                for t in treeList:
-                    t['parent_id'] = setId
-                    t['pathList'] = pathList
-                    t['pre_script'] = scriptDict.get("deploy_before","")
-                    t['post_script'] = scriptDict.get("deploy_after", "")
-                    t['check_script'] = scriptDict.get("deploy_check", "")
-                    t['files'] = pathList
+                treeDict['parent_id'] = setId
+                treeDict['files'] = pathList
 
-                appAddResult = hu.post(serivceName="job", restName="/rest/deploy/app_add/", datas=treeList)
+                appAddResult = hu.post(serivceName="job", restName="/rest/deploy/app_add/", datas=[treeDict])
                 appAddResult = appAddResult.json()
                 if appAddResult['status'] == "SUCCESS":
                     result['status'] = 0
+                    appCreateCmd = hu.get(serivceName="job", restName="/rest/deploy/app_createcmd/",datas={"id": appAddResult["data"][0]})
                 else:
                     result['status'] = 1
             else:
@@ -87,3 +90,103 @@ class CreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, Templa
         except Exception as e:
             logger.error(e)
         return HttpResponse(json.dumps(result),content_type='application/json')
+
+
+class GetAppListByPidView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, TemplateView):
+    def get_ajax(self, request, *args, **kwargs):
+        result = {'status': 0}
+        try:
+            req = self.request
+            hu = HttpUtils(req)
+            reqData = hu.getRequestParam()
+            appListResult = hu.get(serivceName="job", restName="/rest/deploy/app_list/", datas=reqData)
+            appList = appListResult.get("results", [])
+            result['appList'] = appList
+        except Exception as e:
+            result = {'status': 1}
+            logger.error(e)
+        return HttpResponse(json.dumps(result),content_type='application/json')
+
+
+class DeployExecView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, TemplateView):
+    def post_ajax(self, request, *args, **kwargs):
+        result = {}
+        try:
+            req = self.request
+            hu = HttpUtils(req)
+            reqData = hu.getRequestParam()
+            id = reqData.get("id",None)
+            appids = reqData.get("app_ids",None)
+            if id and appids:
+                appids = json.loads(appids)
+                setRunResult = hu.post(serivceName="job", restName="/rest/deploy/set_run/", datas={"id":id,"app_ids":appids})
+                setRunResult = setRunResult.json()
+                if setRunResult['status'] == "SUCCESS":
+                    result['status'] = 0
+                    result['msg'] = "发布成功，后端正在执行中"
+                else:
+                    result['status'] = 1
+                    result['msg'] = "发布失败"
+            else:
+                result['status'] = 1
+                result['msg'] = "发布失败"
+        except Exception as e:
+            result['status'] = 1
+            result['msg'] = "发布异常"
+            logger.error(e)
+        return HttpResponse(json.dumps(result),content_type='application/json')
+
+
+class DeployRollbackView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, TemplateView):
+    def post_ajax(self, request, *args, **kwargs):
+        result = {}
+        try:
+            req = self.request
+            hu = HttpUtils(req)
+            reqData = hu.getRequestParam()
+            type = reqData.get("type",None)
+            if type and type == '1':  #小版本
+                app_id = reqData.get("app_id")
+                version = reqData.get("version")
+                if app_id and version:
+                    setRunResult = hu.post(serivceName="job", restName="/rest/deploy/app_run_rollback/",datas={"app_id":app_id,"version":version})
+                    setRunResult = setRunResult.json()
+                    if setRunResult['status'] == "SUCCESS":
+                        result['status'] = 0
+                        result['msg'] = "回滚成功"
+                    else:
+                        result['status'] = 1
+                        result['msg'] = "回滚失败"
+                else:
+                    result['status'] = 1
+                    result['msg'] = "回滚失败"
+            elif type and type == '2': #大版本
+                pass
+            else:
+                result['status'] = 1
+                result['msg'] = "回滚异常"
+
+        except Exception as e:
+            result['status'] = 1
+            result['msg'] = "回滚异常"
+            logger.error(e)
+        return HttpResponse(json.dumps(result),content_type='application/json')
+
+class ExecuteLogView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, TemplateView):
+    def post_ajax(self, request, *args, **kwargs):
+        result = {}
+        try:
+            req = self.request
+            hu = HttpUtils(req)
+            reqData = hu.getRequestParam()
+            appids = reqData.get("app_ids", None)
+            if appids:
+                appids = json.loads(appids)
+                for id in appids:
+                    appListVersion = hu.get(serivceName="job", restName="/rest/deploy/app_list_history/",datas={"id": id})
+
+        except Exception as e:
+            result['status'] = 1
+            result['msg'] = "查询日志异常"
+            logger.error(e)
+        return HttpResponse(json.dumps(result), content_type='application/json')
