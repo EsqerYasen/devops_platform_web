@@ -52,7 +52,7 @@ class DeployListView(LoginRequiredMixin, OrderableListMixin, ListView):
             logger.error(e)
         return context
 
-class CreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, TemplateView):
+class DeployCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, TemplateView):
     template_name = "deploy_add.html"
 
     def get_context_data(self, **kwargs):
