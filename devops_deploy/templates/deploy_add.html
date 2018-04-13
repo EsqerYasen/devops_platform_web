@@ -553,10 +553,10 @@
                     pathList.push({"path":path+$(item).val(),"type":1,"source_type":2});
                 });
                 $($("#sourceConfigTb input")).each(function(i,item){
-                    pathList.push({"path":sourceIp+":"+sourcePath+$(item).val(),"type":2,"source_type":1});
+                    pathList.push({"path":sourceIp+":"+$(item).val(),"type":2,"source_type":1});
                 });
                 $($("#sourceStaticTb input")).each(function(i,item){
-                    pathList.push({"path":sourceIp+":"+sourcePath+$(item).val(),"type":3,"source_type":1});
+                    pathList.push({"path":sourceIp+":"+$(item).val(),"type":3,"source_type":1});
                 });
                 $($("#targetConfigTb input")).each(function(i,item){
                     pathList.push({"path":$(item).val(),"type":2,"source_type":2});
@@ -566,23 +566,23 @@
                 });
 
                 layer.load();
-                $.ajax({
-                    type : 'POST',
-                    url: '/deploy/add/',
-                    data:{"treeDict":JSON.stringify(treeDict),"pathList":JSON.stringify(pathList),"csrfmiddlewaretoken":'{{ csrf_token }}'},
-                    success : function(responseStr) {
-                        if(responseStr.status==0){
-                            window.location.href="/deploy/list/"
-                        }else{
-
-                        }
-                        layer.closeAll('loading');
-                    },
-                    error : function(responseStr) {
-                        layer.closeAll('loading');
-                        console.log(responseStr);
-                    }
-                });
+{#                $.ajax({#}
+{#                    type : 'POST',#}
+{#                    url: '/deploy/add/',#}
+{#                    data:{"treeDict":JSON.stringify(treeDict),"pathList":JSON.stringify(pathList),"csrfmiddlewaretoken":'{{ csrf_token }}'},#}
+{#                    success : function(responseStr) {#}
+{#                        if(responseStr.status==0){#}
+{#                            window.location.href="/deploy/list/"#}
+{#                        }else{#}
+{##}
+{#                        }#}
+{#                        layer.closeAll('loading');#}
+{#                    },#}
+{#                    error : function(responseStr) {#}
+{#                        layer.closeAll('loading');#}
+{#                        console.log(responseStr);#}
+{#                    }#}
+{#                });#}
             }else{
                 Alertwin.alert({ message: "请选择一个应用配置"});
             }
