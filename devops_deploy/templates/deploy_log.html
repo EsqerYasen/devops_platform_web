@@ -29,7 +29,7 @@
              $.ajax({
                  type: "POST",
                  url: '/deploy/executeLog/',
-                 data:{"app_ids":'{{appids}}',"csrfmiddlewaretoken":'{{ csrf_token }}'},
+                 data:{"app_ids":'{{appids}}',"job_id":'{{ job_id }}',"csrfmiddlewaretoken":'{{ csrf_token }}'},
                  error: function (request) {
                       clearInterval(sh);
                       sh = null;

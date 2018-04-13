@@ -204,8 +204,10 @@ class ExecuteLogView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, Te
         context = {}
         try:
             req = self.request
-            appids = req.GET.get("app_ids",None)
+            appids = req.GET.get("app_ids","")
+            job_id = req.GET.get("job_id", "")
             context['appids'] = appids
+            context['job_id'] = job_id
         except Exception as e:
             logger.error(e)
         return context
@@ -217,6 +219,7 @@ class ExecuteLogView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, Te
             hu = HttpUtils(req)
             reqData = hu.getRequestParam()
             appids = reqData.get("app_ids", None)
+            job_id = reqData.get("job_id", None)
             logInfoList = []
             if appids:
                 appids = appids.split("+")
@@ -228,6 +231,11 @@ class ExecuteLogView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, Te
                         job_id = appListVersion[0].get("job_id",None)
                         log_info = hu.get(serivceName="job", restName="/rest/job/list_history/",datas={'job_id': job_id})
                         logInfoList.append(log_info)
+            else:
+                job_id = job_id.split("+")
+                for id in job_id:
+                    log_info = hu.get(serivceName="job", restName="/rest/job/list_history/", datas={'job_id': id})
+                    logInfoList.append(log_info)
             result['logInfoList'] = logInfoList
         except Exception as e:
             result['status'] = 1

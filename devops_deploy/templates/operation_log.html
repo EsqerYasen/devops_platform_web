@@ -58,7 +58,7 @@
                     <td>{{ o.executor }}</td>
                     <td>{{ o.start_time }}</td>
                     <td>
-                        <a href="../executeLog?app_ids={% for job in o.job_ids %}{{ job }}+{% endfor %}">查看</a>
+                        <a href="../executeLog?job_id={% for job in o.job_ids %}{{ job }}+{% endfor %}">查看</a>
                     </td>
                 </tr>
             {% endfor %}
