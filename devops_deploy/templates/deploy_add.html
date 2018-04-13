@@ -523,9 +523,9 @@
                 var maxProcessCount = $("#max_process_count").val();
                 var startScript = $("#start_script").val();
                 var stop_script = $("#stop_script").val();
-                var preScript = $("#deploy_before_script").val();
-                var postScript = $("#deploy_after_script").val();
-                var checkScript = $("#deploy_check_script").val();
+                var preScript = ace.edit("deploy_before_script").getValue();
+                var postScript = ace.edit("deploy_after_script").getValue();
+                var checkScript = ace.edit("deploy_check_script").getValue();
 
                 var treeDict = {
                     "parentName":nodePath[1].name+"_"+nodePath[2].name,
@@ -541,8 +541,8 @@
                     "start_script":startScript,
                     "stop_script":stop_script,
                     "pre_script":preScript,
-                    "postScript":postScript,
-                    "checkScript":checkScript
+                    "post_script":postScript,
+                    "check_script":checkScript
                 };
 
                 var pathList = [];
