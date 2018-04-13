@@ -1,0 +1,79 @@
+{% extends 'common/basic_layout.html' %}
+{% block content %}
+    <div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>日志</h5>
+                </div>
+                <div id="ibox-content" class="ibox-content">
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        var sh = null;
+        $(document).ready(function () {
+            initInterval();
+        });
+        function initInterval(){
+            get_job_output();
+            clearInterval(sh);
+            sh = null;
+            sh = setInterval(get_job_output,3000);
+        }
+
+        function get_job_output(){
+             $.ajax({
+                 type: "POST",
+                 url: '/deploy/executeLog/',
+                 data:{"app_ids":'{{appids}}',"csrfmiddlewaretoken":'{{ csrf_token }}'},
+                 error: function (request) {
+                      clearInterval(sh);
+                      sh = null;
+                 },
+                 success: function (data) {
+                     var bool = false;
+                     $("#ibox-content").empty();
+                    $(data.logInfoList).each(function(i,item){
+                        var jsonObj = item;
+                        var htmlStr = '<div class="row" style="height: 500px;width:100%">\n' +
+                            '    <textarea style="width: 100%;height: 95%;resize: none;background: black;font: caption;color: white;" id="textarea_log'+i+'" readonly value=""></textarea>\n' +
+                            '</div>';
+                        $("#ibox-content").append(htmlStr);
+                        var textArea = $("#textarea_log"+i);
+
+                        textArea.text("");
+                        if(jsonObj){
+                            var steps = jsonObj["command_steps"]
+                            $(steps).each(function(i,item){
+                                 textArea.append("----------------------------------------------------------------"+item.name+"-----------------------------------------------------------------\n");
+                                 var lines = item["command_lines"];
+                                 var success_count = 0;
+                                 var fail_count = 0;
+                                 $(lines).each(function(i2,item2){
+                                    success_count = item2['success_count'];
+                                    fail_count = item2['fail_count'];
+                                    textArea.append(item2["result_message"]);
+                                    textArea.append("\n***********************\n")
+                                 })
+                                 textArea.append("成功："+success_count+"台    失败："+fail_count+"台\n");
+                                 textArea.append("----------------------------------------------------------------------------------------------------------------------------------------------\n");
+                            })
+                        }
+                        var status = jsonObj["status"];
+                        if(status != 1){
+                            bool = true;
+                        }
+                    })
+                     if(bool){
+                        clearInterval(sh);
+                        sh = null;
+                     }
+                 }
+             });
+        }
+    </script>
+{% endblock %}

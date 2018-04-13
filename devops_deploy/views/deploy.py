@@ -88,6 +88,7 @@ class CreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, Templa
                 result['status'] = 1
 
         except Exception as e:
+            result['status'] = 1
             logger.error(e)
         return HttpResponse(json.dumps(result),content_type='application/json')
 
@@ -149,6 +150,8 @@ class DeployRollbackView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin
                 app_id = reqData.get("app_id")
                 version = reqData.get("version")
                 if app_id and version:
+                    setRunResult2 = hu.get(serivceName="job", restName="/rest/deploy/app_createrollbackcmd/",
+                                           datas={"id": app_id, "version": version})
                     setRunResult = hu.post(serivceName="job", restName="/rest/deploy/app_run_rollback/",datas={"app_id":app_id,"version":version})
                     setRunResult = setRunResult.json()
                     if setRunResult['status'] == "SUCCESS":
@@ -173,6 +176,19 @@ class DeployRollbackView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin
         return HttpResponse(json.dumps(result),content_type='application/json')
 
 class ExecuteLogView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, TemplateView):
+
+    template_name = "deploy_log.html"
+
+    def get_context_data(self, **kwargs):
+        context = {}
+        try:
+            req = self.request
+            appids = req.GET.get("app_ids",None)
+            context['appids'] = appids
+        except Exception as e:
+            logger.error(e)
+        return context
+
     def post_ajax(self, request, *args, **kwargs):
         result = {}
         try:
@@ -180,11 +196,18 @@ class ExecuteLogView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, Te
             hu = HttpUtils(req)
             reqData = hu.getRequestParam()
             appids = reqData.get("app_ids", None)
+            logInfoList = []
             if appids:
-                appids = json.loads(appids)
-                for id in appids:
-                    appListVersion = hu.get(serivceName="job", restName="/rest/deploy/app_list_history/",datas={"id": id})
+                appids = appids.split("+")
 
+                for id in appids:
+                    appListVersionResult = hu.get(serivceName="job", restName="/rest/deploy/app_list_history/",datas={"id": id})
+                    appListVersion = appListVersionResult.get("data",[])
+                    if appListVersion:
+                        job_id = appListVersion[0].get("job_id",None)
+                        log_info = hu.get(serivceName="job", restName="/rest/job/list_history/",datas={'job_id': job_id})
+                        logInfoList.append(log_info)
+            result['logInfoList'] = logInfoList
         except Exception as e:
             result['status'] = 1
             result['msg'] = "查询日志异常"
