@@ -41,7 +41,7 @@ class VIPCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, Tem
         try:
             hu = HttpUtils(self.request)
             reqData = hu.getRequestParam()
-            vipAddResult = hu.post(serivceName="cmdb", restName="/rest/vip_add/", datas={"name":reqData["name"],"key_code":reqData["key_code"]})
+            vipAddResult = hu.post(serivceName="cmdb", restName="/rest/vip_add/", datas={"name":reqData["name"],"key_code":reqData["key_code"],"virtual_router_id":reqData["virtual_router_id"]})
             vipAdd = vipAddResult.json()
             if vipAdd['status'] == "SUCCESS":
                 result['status'] = 0

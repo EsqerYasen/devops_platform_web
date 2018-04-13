@@ -74,6 +74,9 @@
                 <td>
                     <select name="current_version" class="form-control m-b" id="current_version{{ o.id }}">
                         <option value="">--版本--</option>
+                        {% for v in o.version %}
+                        <option value="{{ v }}">{{ v }}</option>
+                        {% endfor %}
                     </select>
                 </td>
                 <td>
@@ -236,26 +239,28 @@
                 if(aid > 0){ //小版本
                     var reqData = {"app_id":app_ids[0],"version":current_version,"type":1};
                     reqData['csrfmiddlewaretoken'] = '{{ csrf_token }}';
-                    $.ajax({
-                        type: "POST",
-                        url: '/deploy/deployRollback/',
-                        data:reqData,
-                        success: function (data) {
-                            if(data.status == 0){
-                                $("#deploy_modal").modal('hide');
-                                Alertwin.alert({message:"回滚操作成功，后台正在执行中"});
-                                deployLog(app_ids);
-                            }else{
-                                Alertwin.alert({message:"回滚失败"});
-                            }
-                        },
-                        error:function(responseStr) {
-                            console.log(responseStr);
-                        }
-                    });
-                }else{ //大版本
 
+                }else{ //大版本
+                    var reqData = {"pid":pid,"version":current_version,"type":2};
+                    reqData['csrfmiddlewaretoken'] = '{{ csrf_token }}';
                 }
+                $.ajax({
+                    type: "POST",
+                    url: '/deploy/deployRollback/',
+                    data:reqData,
+                    success: function (data) {
+                        if(data.status == 0){
+                            $("#deploy_modal").modal('hide');
+                            Alertwin.alert({message:"回滚操作成功，后台正在执行中"});
+                            deployLog(app_ids);
+                        }else{
+                            Alertwin.alert({message:"回滚失败"});
+                        }
+                    },
+                    error:function(responseStr) {
+                        console.log(responseStr);
+                    }
+                });
             }else{ //发布
                 var reqData = {"id":pid};
                 reqData['app_ids'] = JSON.stringify(app_ids);
@@ -271,7 +276,7 @@
                             Alertwin.alert({message:"发布成功，后台正在执行中"});
                             deployLog(app_ids);
                         }else{
-                            Alertwin.alert({message:"发布失败"});
+                            Alertwin.alert({message:data.msg});
                         }
                     }
                 });

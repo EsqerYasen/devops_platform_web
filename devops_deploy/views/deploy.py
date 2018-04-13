@@ -2,11 +2,12 @@ from braces.views import *
 from django.views.generic import *
 from common.utils.HttpUtils import *
 from django.http import HttpResponse
+from django.core.paginator import Paginator
 import logging
 
 logger = logging.getLogger('devops_platform_log')
 
-class ListView(LoginRequiredMixin, OrderableListMixin, ListView):
+class DeployListView(LoginRequiredMixin, OrderableListMixin, ListView):
     template_name = "deploy_list.html"
 
     def get_queryset(self):
@@ -23,6 +24,9 @@ class ListView(LoginRequiredMixin, OrderableListMixin, ListView):
             setList = setListResult.get("results",[])
             for set in setList:
                 setId = set['id']
+                setListVersionResult = hu.get(serivceName="job", restName="/rest/deploy/set_list_version/", datas={"id":setId})
+                setListVersion = setListVersionResult.get("data", [])
+                set['version'] = setListVersion
                 reqDcit = {"parent_id":setId,"offset":0,"limit":1000}
                 if physical != "":
                     reqDcit['idc'] = physical
@@ -36,7 +40,14 @@ class ListView(LoginRequiredMixin, OrderableListMixin, ListView):
                     app['version'] = applistversion
                 set['appList'] = appList
 
+
+            paginator = Paginator(setList, self.request.limit)
+            count = setListResult.get("count", 0)
+            paginator.count = count
             context['setList'] = setList
+            context['is_paginated'] = count > 0
+            context['page_obj'] = paginator.page(self.request.offset)
+            context['paginator'] = paginator
         except Exception as e:
             logger.error(e)
         return context
@@ -127,7 +138,7 @@ class DeployExecView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, Te
                     result['msg'] = "发布成功，后端正在执行中"
                 else:
                     result['status'] = 1
-                    result['msg'] = "发布失败"
+                    result['msg'] = setRunResult['msg']
             else:
                 result['status'] = 1
                 result['msg'] = "发布失败"
@@ -164,7 +175,17 @@ class DeployRollbackView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin
                     result['status'] = 1
                     result['msg'] = "回滚失败"
             elif type and type == '2': #大版本
-                pass
+                pid = reqData.get("pid")
+                version = reqData.get("version")
+                setRunResult2 = hu.get(serivceName="job", restName="/rest/deploy/app_createversionrollbackcmd/",datas={"id": pid, "version": version})
+                setRunResult = hu.post(serivceName="job", restName="/rest/deploy/set_run_rollback/",datas={"app_id": pid, "version": version})
+                setRunResult = setRunResult.json()
+                if setRunResult['status'] == "SUCCESS":
+                    result['status'] = 0
+                    result['msg'] = "回滚成功"
+                else:
+                    result['status'] = 1
+                    result['msg'] = "回滚失败"
             else:
                 result['status'] = 1
                 result['msg'] = "回滚异常"

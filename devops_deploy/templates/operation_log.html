@@ -1,0 +1,67 @@
+{% extends 'common/basic_rank_list.html' %}
+{% load widget_tweaks %}
+
+{% block list_title %}
+    操作日志
+{% endblock %}
+
+{% block  list_search %}
+    <div class="col-sm-1" style="width: 12%">
+        <input type="text" name="name" class="form-control" placeholder="名称">
+    </div>
+{% endblock %}
+
+{% block list_filter %}
+    <button type="submit" class="btn btn-sm btn-primary" style="margin-right: 10px"><i class="fa fa-search"></i> 搜索</button>
+{% endblock %}
+
+{% block list_content %}
+    <table class="table table-striped table-bordered table-hover dataTables-example dataTable accordion">
+        <thead>
+            <tr>
+                <th style="width: 15%;">
+                    名称
+                </th>
+                <th style="width: 15%;">
+                    机房
+                </th>
+                <th style="width: 15%;">
+                    环境
+                </th>
+                <th style="width: 15%;">
+                    操作类型
+                </th>
+                <th style="width: 15%;">
+                    操作人
+                </th>
+                <th style="width: 15%;">
+                    日期
+                </th>
+                <th style="width: 15%;">
+                    log
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for o in result_list %}
+                <tr>
+                    <td>{{ o.deploy_name }}</td>
+                    <td>{{ o.idc }}</td>
+                    <td>{{ o.env }}</td>
+                    <td>
+                        {% if o.type == 1 %}
+                            发版
+                        {% else %}
+                            回滚
+                        {% endif %}
+                    </td>
+                    <td>{{ o.executor }}</td>
+                    <td>{{ o.start_time }}</td>
+                    <td>
+                        <a href="../executeLog?app_ids={% for job in o.job_ids %}{{ job }}+{% endfor %}">查看</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

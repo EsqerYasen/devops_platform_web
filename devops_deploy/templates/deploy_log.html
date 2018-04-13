@@ -37,11 +37,24 @@
                  success: function (data) {
                      var bool = false;
                      $("#ibox-content").empty();
-                    $(data.logInfoList).each(function(i,item){
+                     $(data.logInfoList).each(function(i,item){
                         var jsonObj = item;
                         var htmlStr = '<div class="row" style="height: 500px;width:100%">\n' +
-                            '    <textarea style="width: 100%;height: 95%;resize: none;background: black;font: caption;color: white;" id="textarea_log'+i+'" readonly value=""></textarea>\n' +
-                            '</div>';
+                            '   <div class="col-sm-12" style="height: 5%;font-size: large">\n' +
+                            '   ' + item.current_step+' / '+item.total_steps ;
+                             if(item.status == 2){
+                                htmlStr += '<span class="glyphicon glyphicon-ok" aria-hidden="true" style="color:green;margin-left:10px"></span>';
+                             }else if(item.status == 3){
+                                 htmlStr += '<span class="glyphicon glyphicon-remove" aria-hidden="true" style="color:red;margin-left:10px"></span>';
+                             }
+                             else{
+                                 htmlStr += '<span class="glyphicon glyphicon-refresh" aria-hidden="true" style="color:#FF9800;margin-left:10px"></span>';
+                             }
+                            htmlStr += '   </div>\n' +
+                            '   <div class="col-sm-12" style="height: 95%;">\n' +
+                            '     <textarea style="width: 100%;height: 95%;resize: none;background: black;font: caption;color: white;" id="textarea_log'+i+'" readonly value=""></textarea>\n' +
+                            '    </div>\n' +
+                            '   </div>';
                         $("#ibox-content").append(htmlStr);
                         var textArea = $("#textarea_log"+i);
 
@@ -67,7 +80,7 @@
                         if(status != 1){
                             bool = true;
                         }
-                    })
+                     })
                      if(bool){
                         clearInterval(sh);
                         sh = null;

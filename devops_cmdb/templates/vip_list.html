@@ -27,7 +27,10 @@
                 <th style="width: 12%;">
                     VIP
                 </th>
-                <th style="width: 70%;">
+                <th style="width: 12%;">
+                    virtual_router_id
+                </th>
+                <th style="width: 60%;">
                     IP
                 </th>
                 <th style="width: 15%;">
@@ -45,12 +48,15 @@
                        {{ o.name }}
                     </td>
                     <td>
+                       {{ o.virtual_router_id }}
+                    </td>
+                    <td>
                         {% for ip in o.iplist %}
                             <span class="label label-success">{{ ip }}</span>
                         {% endfor %}
                     </td>
                     <td>
-                        <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='#vip_add_modal' data-vipid="{{ o.id }}" data-vip="{{ o.name }}" style="margin-right: 10px"><i class="glyphicon glyphicon-edit"></i> 修改</button>
+                        <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='#vip_add_modal' data-vipid="{{ o.id }}" data-vip="{{ o.name }}" data-vrid="{{ o.virtual_router_id }}" style="margin-right: 10px"><i class="glyphicon glyphicon-edit"></i> 修改</button>
                         <a href="../{{ o.id }}/" class="btn btn-sm btn-success"><i class="fa fa-book"></i> 删除</a>
                     </td>
                 </tr>
@@ -59,7 +65,27 @@
     </table>
     <script>
         $(document).ready(function () {
+            $("#vip_add_modal").on('show.bs.modal',function(event){
+                var datas = $(event.relatedTarget).data();
+                var vipid = datas['vipid'];
+                var vip = datas['vip'];
+                var vrid = datas['vrid'];
+                if(vipid){
+                    $(this).data('vipid',vipid);
+                    $(this).data('vip',vip);
+                    $("#hidType").val(1);
+                    $("#name").val(vip);
+                    $("#virtual_router_id").val(vrid);
+                }else{
+                    $("#hidType").val(0);
+                }
 
+            })
+            $("#vip_add_modal").on('hide.bs.modal',function(event){
+                $("#hidType").val('');
+                $("#name").val('');
+                $("#virtual_router_id").val('');
+            })
         });
     </script>
 {% endblock %}
@@ -67,7 +93,7 @@
 {% block modal_div %}
     <div class="modal fade" id="vip_add_modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
-            <div class="modal-content" style="width: 500px">
+            <div class="modal-content" style="width: 600px">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLabel">新增VIP</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -76,13 +102,22 @@
                 </div>
                 <div class="modal-body" style="max-height: 500px;overflow:auto">
                     <div class="col-sm-12">
-                        <div class="form-group" >
+                        <div class="form-group" style="margin-bottom: 10px">
                              <label class="col-lg-3 control-label" style="width: 22%">
                                  *VIP
                              </label>
                              <div class="col-lg-5" style="width: 78%">
-                                <input type="text" name="name" id="name" class="form-control">
+                                 <input type="hidden" id="hidType" value="">
+                                 <input type="text" name="name" id="name" class="form-control">
                              </div>
+                        </div>
+                        <div class="form-group" >
+                            <label class="col-lg-3 control-label" style="width: 22%">
+                                 *virtual_router_id
+                            </label>
+                            <div class="col-lg-5" style="width: 78%">
+                                 <input type="text" name="virtual_router_id" id="virtual_router_id" class="form-control">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -124,28 +159,36 @@
 
     <script>
         function addVip(){
-            var name = $("#name").val();
-            if(name){
-                $.ajax({
-                    type: "POST",
-                    url: '/cmdb/vip/add/',
-                    data:{"name":name,"key_code":name,'csrfmiddlewaretoken':'{{ csrf_token }}'},
-                    error: function (request) {},
-                    success: function (data) {
-                        if(data.status===0){
-                            Alertwin.alert({message:"添加成功"});
-                            $("#vip_add_modal").modal('hide');
-                            location.reload();
-                        }else{
-                            Alertwin.alert({message:data.msg});
+            var type = $("#hidType").val();
+            if(type == 0){
+                var name = $("#name").val();
+                var vrid = $("#virtual_router_id").val();
+                if(name && vrid){
+                    $.ajax({
+                        type: "POST",
+                        url: '/cmdb/vip/add/',
+                        data:{"name":name,"virtual_router_id":vrid,"key_code":name,'csrfmiddlewaretoken':'{{ csrf_token }}'},
+                        success: function (data) {
+                            if(data.status===0){
+                                Alertwin.alert({message:"添加成功"});
+                                $("#vip_add_modal").modal('hide');
+                                location.reload();
+                            }else{
+                                Alertwin.alert({message:data.msg});
+                            }
+                        },
+                        error:function(responseStr) {
+                            console.log(responseStr);
                         }
-                    },
-                    error:function(responseStr) {
-                        console.log(responseStr);
-                    }
-                });
-            }else{
-                Alertwin.alert({message:"请填写内容后保存"});
+                    });
+                }else{
+                    Alertwin.alert({message:"请填写内容后保存"});
+                }
+            }else if(type == 1){
+                var modalData = $("#vip_add_modal").data();
+                var vipid = datas['vipid'];
+                var vip = datas['vip'];
+
             }
         }
 
