@@ -232,7 +232,7 @@ class ExecuteLogView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, Te
                         log_info = hu.get(serivceName="job", restName="/rest/job/list_history/",datas={'job_id': job_id})
                         logInfoList.append(log_info)
             else:
-                job_id = job_id.split("+")
+                job_id = job_id.split(" ")
                 for id in job_id:
                     log_info = hu.get(serivceName="job", restName="/rest/job/list_history/", datas={'job_id': id})
                     logInfoList.append(log_info)

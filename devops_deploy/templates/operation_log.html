@@ -22,16 +22,19 @@
                 <th style="width: 15%;">
                     名称
                 </th>
-                <th style="width: 15%;">
+                <th style="width: 10%;">
                     机房
                 </th>
-                <th style="width: 15%;">
+                <th style="width: 10%;">
                     环境
                 </th>
                 <th style="width: 15%;">
+                    版本
+                </th>
+                <th style="width: 10%;">
                     操作类型
                 </th>
-                <th style="width: 15%;">
+                <th style="width: 10%;">
                     操作人
                 </th>
                 <th style="width: 15%;">
@@ -48,6 +51,7 @@
                     <td>{{ o.deploy_name }}</td>
                     <td>{{ o.idc }}</td>
                     <td>{{ o.env }}</td>
+                    <td>{{ o.version }}</td>
                     <td>
                         {% if o.type == 1 %}
                             发版
