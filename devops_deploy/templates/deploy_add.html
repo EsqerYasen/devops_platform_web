@@ -566,23 +566,23 @@
                 });
 
                 layer.load();
-{#                $.ajax({#}
-{#                    type : 'POST',#}
-{#                    url: '/deploy/add/',#}
-{#                    data:{"treeDict":JSON.stringify(treeDict),"pathList":JSON.stringify(pathList),"csrfmiddlewaretoken":'{{ csrf_token }}'},#}
-{#                    success : function(responseStr) {#}
-{#                        if(responseStr.status==0){#}
-{#                            window.location.href="/deploy/list/"#}
-{#                        }else{#}
-{##}
-{#                        }#}
-{#                        layer.closeAll('loading');#}
-{#                    },#}
-{#                    error : function(responseStr) {#}
-{#                        layer.closeAll('loading');#}
-{#                        console.log(responseStr);#}
-{#                    }#}
-{#                });#}
+                $.ajax({
+                    type : 'POST',
+                    url: '/deploy/add/',
+                    data:{"treeDict":JSON.stringify(treeDict),"pathList":JSON.stringify(pathList),"csrfmiddlewaretoken":'{{ csrf_token }}'},
+                    success : function(responseStr) {
+                        if(responseStr.status==0){
+                            window.location.href="/deploy/list/"
+                        }else{
+
+                        }
+                        layer.closeAll('loading');
+                    },
+                    error : function(responseStr) {
+                        layer.closeAll('loading');
+                        console.log(responseStr);
+                    }
+                });
             }else{
                 Alertwin.alert({ message: "请选择一个应用配置"});
             }
