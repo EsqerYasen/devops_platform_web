@@ -222,7 +222,7 @@ class ExecuteLogView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, Te
             job_id = reqData.get("job_id", None)
             logInfoList = []
             if appids:
-                appids = appids.split("+")
+                appids = appids.split(" ")
 
                 for id in appids:
                     appListVersionResult = hu.get(serivceName="job", restName="/rest/deploy/app_list_history/",datas={"id": id})

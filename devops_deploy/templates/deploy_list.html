@@ -162,7 +162,7 @@
                     </table>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" title="确定" onclick="deploy()">确定</button>
+                    <button type="button" class="btn btn-primary" id="deploy_modal_btn" title="确定" onclick="deploy()">确定</button>
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
                 </div>
             </div>
@@ -193,36 +193,44 @@
                 reqData["parent_id"] = pid;
                 reqData["idc"] = physical;
                 reqData["env"] = deployment_environment;
-                $(this).data("current_version",current_version);
-                $.ajax({
-                    type: "GET",
-                    url: '/deploy/getAppListByPid/',
-                    data:reqData,
-                    success: function (data) {
-                        var appList = data.appList;
-                        var tbody = $("#deploy_modal_table tbody");
-                        $(appList).each(function(i,item){
-                            var htmlStr = "<tr>" +
-                                "<td><input type='hidden' id='aid' value='"+item.id+"'>" +
-                                item.idc +
-                                "</td>" +
-                                "<td>" +
-                                item.env +
-                                "</td>" +
-                                "<td>" +
-                                item.name +
-                                "</td>" +
-                                "</tr>";
-                            tbody.append(htmlStr);
-                        });
-                    },
-                    error:function(responseStr) {
-                        console.log(responseStr);
-                    }
-                });
+                if(!physical || !deployment_environment){
+                    $("#deploy_modal_table tbody").append("<tr><td colspan='3'>请选择机房或环境</td></tr>");
+                    $("#deploy_modal_btn").attr("disabled",true);
+                }else{
+                    $(this).data("current_version",current_version);
+                    $.ajax({
+                        type: "GET",
+                        url: '/deploy/getAppListByPid/',
+                        data:reqData,
+                        success: function (data) {
+                            var appList = data.appList;
+                            var tbody = $("#deploy_modal_table tbody");
+                            $(appList).each(function(i,item){
+                                var htmlStr = "<tr>" +
+                                    "<td><input type='hidden' id='aid' value='"+item.id+"'>" +
+                                    item.idc +
+                                    "</td>" +
+                                    "<td>" +
+                                    item.env +
+                                    "</td>" +
+                                    "<td>" +
+                                    item.name +
+                                    "</td>" +
+                                    "</tr>";
+                                tbody.append(htmlStr);
+                            });
+                        },
+                        error:function(responseStr) {
+                            console.log(responseStr);
+                        }
+                    });
+                }
+
+
             });
             $("#deploy_modal").on('hide.bs.modal',function(event){
                 $("#deploy_modal_table tbody").empty();
+                $("#deploy_modal_btn").attr("disabled",false);
             })
         });
         function deploy(){
