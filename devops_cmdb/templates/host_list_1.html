@@ -120,7 +120,7 @@
                 if(item.empty_flag == 1){
                     flag = " 无";
                 }
-                var nodeData = {id:ids,pId:pid,name:item.name+flag,nodeId:ids,open:open,hasIp:item.has_ip,'nocheck':true};
+                var nodeData = {id:ids,pId:pid,name:item.name+flag,nodeId:ids,open:open,hasIp:item.has_ip,'nocheck':true,emptyFlag:item.empty_flag};
 
                 if(item.childs){
                     readHostGroupTreeNext(item.childs,ids);
@@ -174,7 +174,7 @@
 {#                     }#}
 {#                 }#}
 {#             }#}
-             if(!treeNode.nocheck){
+             if(!treeNode.nocheck && treeNode.emptyFlag != 1){
                  if($("#bindIpToNode_"+treeNode.id).length==0){
                      var bindIpToNode = "<span class='button add' id='bindIpToNode_" + treeNode.id+ "' title='机器绑定' onfocus='this.blur();'></span>";
                      aObj.append(bindIpToNode);
