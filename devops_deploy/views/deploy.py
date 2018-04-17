@@ -144,9 +144,9 @@ class DeployCreateImport(JSONResponseMixin,AjaxResponseMixin, TemplateView):
             result['fail'] = fail
         except Exception as e:
             fail += 1
-            request['msg'] = "导入异常"
+            result['msg'] = "导入异常"
             logger.error(e)
-            return self.render_json_response(request)
+            return self.render_json_response(result)
 
     def generate_dict(self,para_list):
         (group_id, port, path, min_count, max_count, start_script, stop_script, pre_script, post_script,
