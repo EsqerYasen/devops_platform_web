@@ -72,7 +72,11 @@
                 if(pid == 0){
                     open = true;
                 }
-                var nodeData = {id:ids,pId:pid,name:item.name,nodeId:ids,open:open,hasIp:item.has_ip};
+                var flag = "";
+                if(item.empty_flag == 1){
+                    flag = " 无";
+                }
+                var nodeData = {id:ids,pId:pid,name:item.name+flag,nodeId:ids,open:open,hasIp:item.has_ip};
                 if(item.childs){
                     readTreeNext(item.childs,ids);
                     nodeData['isLeaf']=false;
