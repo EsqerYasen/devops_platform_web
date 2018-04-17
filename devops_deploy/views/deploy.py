@@ -3,7 +3,7 @@ from django.views.generic import *
 from common.utils.HttpUtils import *
 from django.http import HttpResponse
 from django.core.paginator import Paginator
-import logging
+import logging,xlrd
 
 logger = logging.getLogger('devops_platform_log')
 
@@ -103,43 +103,130 @@ class DeployCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, 
             logger.error(e)
         return HttpResponse(json.dumps(result),content_type='application/json')
 
-class DeployCreateView2(JSONResponseMixin,AjaxResponseMixin, TemplateView):
+class DeployCreateImport(JSONResponseMixin,AjaxResponseMixin, TemplateView):
+
     def post_ajax(self, request, *args, **kwargs):
         result = {'status': 0}
+        success = 0
+        fail = 0
         try:
             req = self.request
             hu = HttpUtils(req)
-            reqData = hu.getRequestParam()
-            treeDictStr = reqData.get("treeDict",[])
-            treeDict = json.loads(treeDictStr)
-            pathListStr = reqData.get("pathList",[])
-            pathList = json.loads(pathListStr)
-            parentName = treeDict['parentName']
-            minProcessCount = int(treeDict.get('min_process_count',0))
-            maxProcessCount = int(treeDict.get('max_process_count',0))
-            treeDict['min_process_count'] = minProcessCount
-            treeDict['max_process_count'] = maxProcessCount
+            assert_file = request.FILES.get('files', None)
+            wb = xlrd.open_workbook(filename=None, file_contents=assert_file.read())
+            for i in range(1, wb.sheets()[0].nrows):
+                row = wb.sheets()[0].row_values(i)
+                treeDict = self.generate_dict(row)
+                pathList = self.generate_file_list(row)
+                parentName = treeDict['parentName']
+                minProcessCount = int(treeDict.get('min_process_count', 0))
+                maxProcessCount = int(treeDict.get('max_process_count', 0))
+                treeDict['min_process_count'] = minProcessCount
+                treeDict['max_process_count'] = maxProcessCount
+                setAddResult = hu.get(serivceName="job", restName="/rest/deploy/set_getoradd/",
+                                      datas={"name": parentName})
+                if setAddResult['status'] == "SUCCESS":
+                    setId = setAddResult['data']
+                    treeDict['parent_id'] = setId
+                    treeDict['files'] = pathList
 
-            setAddResult = hu.get(serivceName="job", restName="/rest/deploy/set_getoradd/", datas={"name": parentName})
-            if setAddResult['status'] == "SUCCESS":
-                setId = setAddResult['data']
-                treeDict['parent_id'] = setId
-                treeDict['files'] = pathList
-
-                appAddResult = hu.post(serivceName="job", restName="/rest/deploy/app_add/", datas=[treeDict])
-                appAddResult = appAddResult.json()
-                if appAddResult['status'] == "SUCCESS":
-                    result['status'] = 0
-                    appCreateCmd = hu.get(serivceName="job", restName="/rest/deploy/app_createcmd/",datas={"id": appAddResult["data"][0]})
+                    appAddResult = hu.post(serivceName="job", restName="/rest/deploy/app_add/", datas=[treeDict])
+                    appAddResult = appAddResult.json()
+                    if appAddResult['status'] == "SUCCESS":
+                        success += 1
+                        appCreateCmd = hu.get(serivceName="job", restName="/rest/deploy/app_createcmd/",
+                                              datas={"id": appAddResult["data"][0]})
+                    else:
+                        fail += 1
                 else:
-                    result['status'] = 1
-            else:
-                result['status'] = 1
-
+                    fail += 1
+            result['success'] = success
+            request['fail'] = fail
         except Exception as e:
-            result['status'] = 1
+            fail += 1
+            request['msg'] = "导入异常"
             logger.error(e)
-        return HttpResponse(json.dumps(result),content_type='application/json')
+            return self.render_json_response(request)
+
+    def generate_dict(self,para_list):
+        (group_id, port, path, min_count, max_count, start_script, stop_script, pre_script, post_script,
+         check_script) = para_list[:10]
+        # print(group_id,port,path,min_count,max_count,start_script,stop_script,pre_script,post_script,check_script)
+        output_dict = {
+            "parentName": "_".join(group_id.split('_')[:2]),
+            # "group_id": group_id,
+            "name": group_id.split('_')[-1],
+            "idc": group_id.split('_')[2],
+            "env": group_id.split('_')[3],
+            "port": str(int(port)),
+            "path": path,
+            "min_process_count": str(int(min_count)),
+            "max_process_count": str(int(max_count)),
+            "start_script": start_script,
+            "stop_script": stop_script,
+            "pre_script": pre_script,
+            "post_script": post_script,
+            "check_script": check_script
+        }
+        headers = {"Content-Type": "application/json", "devopsuser": "zhuge", "devopsgroup": "ec"}
+        url = 'http://172.17.144.150:8000/rest/hostgroup/get_id_by_path/'
+        r = requests.get(url, {"path": group_id}, headers=headers)
+        result_json = r.json()
+        if result_json["status"] == "SUCCESS":
+            output_dict["group_id"] = result_json["data"]
+        else:
+            print(result_json["msg"])
+        return output_dict
+
+    def generate_file_list(self,para_list):
+        path = para_list[2]
+        (war, source_ip, source_war_path, source_config_path, source_static_path, dest_config_path,
+         dest_static_path) = para_list[10:]
+        # print(dest_static_path)
+        output_list = []
+        wars = war.split('/')
+        for item in wars:
+            source_dict = {
+                "path": source_ip + ":" + source_war_path + item,
+                "type": 1,
+                "source_type": 1
+            }
+            dest_dict = {
+                "path": path + item,
+                "type": 1,
+                "source_type": 2
+            }
+            output_list.append(source_dict)
+            output_list.append(dest_dict)
+        if source_config_path:
+            config_source_dict = {
+                "path": source_ip + ":" + source_config_path,
+                "type": 2,
+                "source_type": 1
+            }
+            config_dest_dict = {
+                "path": dest_config_path,
+                "type": 2,
+                "source_type": 2
+            }
+            output_list.append(config_source_dict)
+            output_list.append(config_dest_dict)
+        if source_static_path:
+            folders = source_static_path.split(',')
+            for item in folders:
+                static_source_dict = {
+                    "path": source_ip + ":" + item,
+                    "type": 3,
+                    "source_type": 1
+                }
+                static_dest_dict = {
+                    "path": dest_static_path + item.split('/')[-1],
+                    "type": 3,
+                    "source_type": 2
+                }
+                output_list.append(static_source_dict)
+                output_list.append(static_dest_dict)
+        return output_list
 
 class DeployUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, TemplateView):
     template_name = "deploy_edit.html"
@@ -221,10 +308,12 @@ class DeployExecView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, Te
             reqData = hu.getRequestParam()
             id = reqData.get("id",None)
             appids = reqData.get("app_ids",None)
-            is_all = reqData.get("is_all",0)
+            idc = reqData.get("idc",None)
+            env = reqData.get("env",None)
+            #is_all = reqData.get("is_all",0)
             if id and appids:
                 appids = json.loads(appids)
-                setRunResult = hu.post(serivceName="job", restName="/rest/deploy/set_run/", datas={"id":id,"app_ids":appids,"is_all":is_all})
+                setRunResult = hu.post(serivceName="job", restName="/rest/deploy/set_run/", datas={"id":id,"app_ids":appids,"idc":idc,"env":env})
                 setRunResult = setRunResult.json()
                 if setRunResult['status'] == "SUCCESS":
                     result['status'] = 0
@@ -250,13 +339,15 @@ class DeployRollbackView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin
             hu = HttpUtils(req)
             reqData = hu.getRequestParam()
             type = reqData.get("type",None)
+            idc = reqData.get("idc", None)
+            env = reqData.get("env", None)
             if type and type == '1':  #小版本
                 app_id = reqData.get("app_id")
                 version = reqData.get("version")
                 if app_id and version:
                     setRunResult2 = hu.get(serivceName="job", restName="/rest/deploy/app_createrollbackcmd/",
                                            datas={"id": app_id, "version": version})
-                    setRunResult = hu.post(serivceName="job", restName="/rest/deploy/app_run_rollback/",datas={"app_id":app_id,"version":version})
+                    setRunResult = hu.post(serivceName="job", restName="/rest/deploy/app_run_rollback/",datas={"app_id":app_id,"version":version,"idc":idc,"env":env})
                     setRunResult = setRunResult.json()
                     if setRunResult['status'] == "SUCCESS":
                         result['status'] = 0
@@ -273,7 +364,7 @@ class DeployRollbackView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin
                 app_ids = reqData.get("app_ids")
                 appids = json.loads(app_ids)
                 setRunResult2 = hu.get(serivceName="job", restName="/rest/deploy/app_createversionrollbackcmd/",datas={"id": pid, "version": version,"app_ids":appids})
-                setRunResult = hu.post(serivceName="job", restName="/rest/deploy/set_run_rollback/",datas={"app_id": pid, "version": version})
+                setRunResult = hu.post(serivceName="job", restName="/rest/deploy/set_run_rollback/",datas={"id": pid,"app_ids":appids, "rollback_version": version,"idc":idc,"env":env})
                 setRunResult = setRunResult.json()
                 if setRunResult['status'] == "SUCCESS":
                     result['status'] = 0

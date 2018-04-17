@@ -28,9 +28,14 @@
 {% block list_filter %}
     <button type="submit" class="btn btn-sm btn-primary" style="margin-right: 10px"><i class="fa fa-search"></i> 搜索</button>
     <a href="../add" class="btn btn-sm btn-success"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> 新增</a>
+    <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='#import_deploy_modal' style="margin-right: 10px"><i class="glyphicon glyphicon-import"></i> 导入</button>
+    <button type="submit" class="btn btn-sm btn-primary" style="margin-right: 10px"><i class="fa fa-search"></i> Jekins</button>
 {% endblock %}
 
 {% block list_content %}
+    <script type="text/javascript" src="/static/hplus/js/fileinput.min.js"></script>
+    <script type="text/javascript" src="/static/hplus/js/fileinput.zh.js"></script>
+    <link href="/static/hplus/css/fileinput.min.css" rel="stylesheet">
     <table class="table table-striped table-bordered table-hover dataTables-example dataTable accordion">
         <thead>
             <tr>
@@ -89,9 +94,9 @@
                     <table class="table table-striped table-bordered table-hover dataTables-example dataTable accordion" style="width: 95%;margin-left: 50px" >
                         {% for a in o.appList %}
                         <tr>
-{#                            <td style="width: 3%;">#}
-{#                                <input type="checkbox" class="i-checks icheck" id="{{ o.id }}" name="trCheckbox{{ o.id }}">#}
-{#                            </td>#}
+                            <td style="width: 3%;">
+                                <input type="checkbox" class="i-checks icheck" app_name="{{ a.name }}" name="trCheckbox{{ o.id }}">
+                            </td>
                             <td>
                                 <select name="physical" class="form-control m-b" id="physical{{ a.id }}">
                                     <option value="">--机房--</option>
@@ -146,9 +151,6 @@
                 <div class="modal-body" style="max-height: 500px;overflow:auto">
                     <table id="deploy_modal_table" class="table table-striped table-bordered table-hover dataTables-example dataTable accordion">
                         <thead>
-                            <th style="width: 5%">
-                                <input id="checkall" type="checkbox" class="i-checks">
-                            </th>
                             <th style="width: 15%;">
                                 机房
                             </th>
@@ -171,8 +173,40 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="import_deploy_modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content" style="width: 600px">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">导入</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" style="max-height: 500px;overflow:auto">
+                    <div class="col-sm-12">
+                        <input id="import_deploy_file" type="file">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" title="确定导入" onclick="importDeployInfo()">确定</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         $(document).ready(function () {
+            $("#import_deploy_file").fileinput({
+                showPreview: false,
+                showUpload: false,
+                elErrorContainer: '#kartik-file-errors',
+                allowedFileExtensions: ['xls', 'xlsx'],
+                maxFilesNum:1,
+                language:'zh'
+            });
+
             $("#deploy_modal").on('show.bs.modal',function(event){
                 var datas = $(event.relatedTarget).data();
                 var pid = datas['pid'];
@@ -192,10 +226,22 @@
                     physical = $("#physical"+pid).val();
                     deployment_environment = $("#deployment_environment"+pid).val();
                     current_version = $("#current_version"+pid).val();
+                    var str = document.getElementsByName("trCheckbox"+pid);
+                    var objarray = str.length;
+                    var app_name = "";
+                    for (i = 0; i < objarray; i++) {
+                        if (str[i].checked == true) {
+                           app_name += $(str[i]).attr('app_name') + ",";
+                        }
+                    }
+                    app_name = app_name.substring(0,app_name.length-1);
+                    reqData['name']= app_name;
                 }
                 reqData["parent_id"] = pid;
                 reqData["idc"] = physical;
                 reqData["env"] = deployment_environment;
+                $(this).data('idc',physical);
+                $(this).data('env',physical);
                 if(!physical || !deployment_environment){
                     $("#deploy_modal_table tbody").append("<tr><td colspan='3'>请选择机房或环境</td></tr>");
                     $("#deploy_modal_btn").attr("disabled",true);
@@ -208,17 +254,18 @@
                         success: function (data) {
                             var appList = data.appList;
                             var appTotal = appList.length;
-                            var emptyFlag = 0;
+                            //var emptyFlag = 0;
                             var tbody = $("#deploy_modal_table tbody");
                             $(appList).each(function(i,item){
-                                var htmlStr = "<tr>" +
-                                    "<td>" ;
-                                    if(item.empty_flag == 0){
-                                         htmlStr += "<input type='checkbox' class='i-checks icheck' id='"+item.id+"' name='trCheckbox'>";
-                                         emptyFlag += 1;
-                                    }
-                                    htmlStr += "</td>"+
-                                    "<td>" +
+                                var style = "";
+                                var inputStr = "<input type='hidden' id='app_id' value='"+item.id+"'/>";
+                                if(item.empty_flag == 1){
+                                    //emptyFlag += 1;
+                                    style  = " style='color: red' ";
+                                    inputStr = "";
+                                }
+                                var htmlStr = "<tr "+style+">" +
+                                    "<td>" + inputStr +
                                     item.idc +
                                     "</td>" +
                                     "<td>" +
@@ -230,15 +277,16 @@
                                     "</tr>";
                                 tbody.append(htmlStr);
                             });
-                            appTotal = appTotal - emptyFlag;
-                            $("#deploy_modal").data('appTotal',appTotal);
-                            $(".i-checks").iCheck({checkboxClass: "icheckbox_square-green", radioClass: "iradio_square-green",})
-                            $('#checkall').on('ifChecked', function (event) {
-                                $('.icheck').iCheck('check');
-                            });
-                            $('#checkall').on('ifUnchecked', function (event) {
-                                $('.icheck').iCheck('uncheck');
-                            });
+                            //appTotal = appTotal - emptyFlag;
+                            //$("#deploy_modal").data('appTotal',appTotal);
+
+{#                            $(".i-checks").iCheck({checkboxClass: "icheckbox_square-green", radioClass: "iradio_square-green",})#}
+{#                            $('#checkall').on('ifChecked', function (event) {#}
+{#                                $('.icheck').iCheck('check');#}
+{#                            });#}
+{#                            $('#checkall').on('ifUnchecked', function (event) {#}
+{#                                $('.icheck').iCheck('uncheck');#}
+{#                            });#}
                         },
                         error:function(responseStr) {
                             console.log(responseStr);
@@ -253,33 +301,45 @@
                 $("#deploy_modal_btn").attr("disabled",false);
                 $(this).data('pid','');
                 $(this).data('aid','');
-                $(this).data('appTotal','');
+                $(this).data('idc','');
+                $(this).data('env','');
+                //$(this).data('appTotal','');
             })
         });
         function deploy(){
             var datas = $("#deploy_modal").data();
             var pid = datas['pid'];
             var aid = datas['aid'];
+            var idc = datas['idc'];
+            var env = datas['env'];
             var appTotal = datas['appTotal'];
-            var aidList = getChecked();
-            if(aidList == ""){
-                 Alertwin.alert({ message: "请选择至少一条记录进行发布"});
+            //var aidList = getChecked();
+            if(!idc || !env){
+                 Alertwin.alert({ message: "机房和环境为空"});
                  return;
             }
-            aidList = aidList.substring(0,aidList.length-1);
-            var app_ids = [];
-            $(aidList.split(',')).each(function(i,item){
-                app_ids.push(item);
-            });
 
+            //aidList = aidList.substring(0,aidList.length-1);
+            //var app_ids = [];
+            //$(aidList.split(',')).each(function(i,item){
+            //    app_ids.push(item);
+            //});
+            var app_ids = [];
+            $($("#deploy_modal_table tbody input")).each(function(i,item){
+                app_ids.push($(item).val());
+            });
+            if(app_ids.length == 0){
+                Alertwin.alert({ message: "没有应用记录"});
+                return;
+            }
             var current_version = datas['current_version'];
             if(current_version){//回滚
                 if(aid > 0){ //小版本
-                    var reqData = {"app_id":app_ids[0],"version":current_version,"type":1};
+                    var reqData = {"app_id":app_ids[0],"version":current_version,"type":1,"idc":idc,"env":env};
                     reqData['csrfmiddlewaretoken'] = '{{ csrf_token }}';
 
                 }else{ //大版本
-                    var reqData = {"pid":pid,"version":current_version,"type":2,};
+                    var reqData = {"pid":pid,"version":current_version,"type":2,"idc":idc,"env":env};
                     reqData['app_ids'] = JSON.stringify(app_ids);
                     reqData['csrfmiddlewaretoken'] = '{{ csrf_token }}';
                 }
@@ -302,14 +362,14 @@
                 });
             }else{ //发布
                 //is_all 0:正常  1:全量
-                var is_all = 0;
-                if(app_ids.length == appTotal){
-                    is_all = 1;
-                }
-                var reqData = {"id":pid};
+{#                var is_all = 0;#}
+{#                if(app_ids.length == appTotal){#}
+{#                    is_all = 1;#}
+{#                }#}
+                var reqData = {"id":pid,"idc":idc,"env":env};
                 reqData['app_ids'] = JSON.stringify(app_ids);
                 reqData['csrfmiddlewaretoken'] = '{{ csrf_token }}';
-                reqData['is_all'] = is_all;
+                //reqData['is_all'] = is_all;
 
                 $.ajax({
                     type: "POST",
@@ -361,5 +421,32 @@
                 Alertwin.alert({message:"删除数据为空"});
             }
         }
+
+        function importDeployInfo(){
+            var formData = new FormData();
+            formData.append("csrfmiddlewaretoken",'{{ csrf_token }}')
+            formData.append('files',$("#import_deploy_file")[0].files[0]);
+            $.ajax({
+                url: '/deploy/import/',
+                type: 'POST',
+                processData: false,
+                contentType: false,
+                data:formData,
+                beforeSend:function(){
+                    //Alertwin.alert({ message:"正在进行，请稍候"});
+                },
+                success:function(responseStr) {
+                    if(responseStr.status===0){
+                        Alertwin.alert({message:responseStr.success+" "+responseStr.fail});
+                    }else{
+                        Alertwin.alert({message:responseStr.msg});
+                    }
+                },
+                error:function(responseStr) {
+                    console.log(responseStr);
+                }
+            });
+        }
+
     </script>
 {% endblock %}
