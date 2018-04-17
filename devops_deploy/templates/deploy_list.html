@@ -279,7 +279,8 @@
                     reqData['csrfmiddlewaretoken'] = '{{ csrf_token }}';
 
                 }else{ //大版本
-                    var reqData = {"pid":pid,"version":current_version,"type":2};
+                    var reqData = {"pid":pid,"version":current_version,"type":2,};
+                    reqData['app_ids'] = JSON.stringify(app_ids);
                     reqData['csrfmiddlewaretoken'] = '{{ csrf_token }}';
                 }
                 $.ajax({

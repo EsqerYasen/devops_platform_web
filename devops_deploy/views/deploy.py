@@ -232,7 +232,9 @@ class DeployRollbackView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin
             elif type and type == '2': #大版本
                 pid = reqData.get("pid")
                 version = reqData.get("version")
-                setRunResult2 = hu.get(serivceName="job", restName="/rest/deploy/app_createversionrollbackcmd/",datas={"id": pid, "version": version})
+                app_ids = reqData.get("app_ids")
+                appids = json.loads(app_ids)
+                setRunResult2 = hu.get(serivceName="job", restName="/rest/deploy/app_createversionrollbackcmd/",datas={"id": pid, "version": version,"app_ids":appids})
                 setRunResult = hu.post(serivceName="job", restName="/rest/deploy/set_run_rollback/",datas={"app_id": pid, "version": version})
                 setRunResult = setRunResult.json()
                 if setRunResult['status'] == "SUCCESS":
