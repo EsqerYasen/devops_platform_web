@@ -141,7 +141,7 @@ class DeployCreateImport(JSONResponseMixin,AjaxResponseMixin, TemplateView):
                 else:
                     fail += 1
             result['success'] = success
-            request['fail'] = fail
+            result['fail'] = fail
         except Exception as e:
             fail += 1
             request['msg'] = "导入异常"
