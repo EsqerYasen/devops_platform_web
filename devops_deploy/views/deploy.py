@@ -103,6 +103,44 @@ class DeployCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, 
             logger.error(e)
         return HttpResponse(json.dumps(result),content_type='application/json')
 
+class DeployCreateView2(JSONResponseMixin,AjaxResponseMixin, TemplateView):
+    def post_ajax(self, request, *args, **kwargs):
+        result = {'status': 0}
+        try:
+            req = self.request
+            hu = HttpUtils(req)
+            reqData = hu.getRequestParam()
+            treeDictStr = reqData.get("treeDict",[])
+            treeDict = json.loads(treeDictStr)
+            pathListStr = reqData.get("pathList",[])
+            pathList = json.loads(pathListStr)
+            parentName = treeDict['parentName']
+            minProcessCount = int(treeDict.get('min_process_count',0))
+            maxProcessCount = int(treeDict.get('max_process_count',0))
+            treeDict['min_process_count'] = minProcessCount
+            treeDict['max_process_count'] = maxProcessCount
+
+            setAddResult = hu.get(serivceName="job", restName="/rest/deploy/set_getoradd/", datas={"name": parentName})
+            if setAddResult['status'] == "SUCCESS":
+                setId = setAddResult['data']
+                treeDict['parent_id'] = setId
+                treeDict['files'] = pathList
+
+                appAddResult = hu.post(serivceName="job", restName="/rest/deploy/app_add/", datas=[treeDict])
+                appAddResult = appAddResult.json()
+                if appAddResult['status'] == "SUCCESS":
+                    result['status'] = 0
+                    appCreateCmd = hu.get(serivceName="job", restName="/rest/deploy/app_createcmd/",datas={"id": appAddResult["data"][0]})
+                else:
+                    result['status'] = 1
+            else:
+                result['status'] = 1
+
+        except Exception as e:
+            result['status'] = 1
+            logger.error(e)
+        return HttpResponse(json.dumps(result),content_type='application/json')
+
 class DeployUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, TemplateView):
     template_name = "deploy_edit.html"
 
