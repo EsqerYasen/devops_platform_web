@@ -29,7 +29,7 @@
     <button type="submit" class="btn btn-sm btn-primary" style="margin-right: 10px"><i class="fa fa-search"></i> 搜索</button>
     <a href="../add" class="btn btn-sm btn-success"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> 新增</a>
     <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='#import_deploy_modal' style="margin-right: 10px"><i class="glyphicon glyphicon-import"></i> 导入</button>
-    <button type="submit" class="btn btn-sm btn-primary" style="margin-right: 10px"><i class="fa fa-search"></i> Jekins</button>
+    <button type="submit" class="btn btn-sm btn-primary" style="margin-right: 10px" onclick="toJekins()"><i class="glyphicon glyphicon-star"></i> Jekins</button>
 {% endblock %}
 
 {% block list_content %}
@@ -448,5 +448,8 @@
             });
         }
 
+        function toJekins(){
+            window.open("http://172.31.159.111:8080/")
+        }
     </script>
 {% endblock %}
