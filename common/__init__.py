@@ -150,6 +150,13 @@ def getListFirst(value, arg):
     else:
         return ""
 
+@register.filter(name='getListLast')
+def getListLast(value):
+    if value:
+        return value[len(value)-1]
+    else:
+        return ""
+
 
 @register.filter(name='emptyValueConversion')
 def emptyValueConversion(value,arg="0"):

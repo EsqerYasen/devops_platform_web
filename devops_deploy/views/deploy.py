@@ -77,8 +77,8 @@ class DeployCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, 
             pathListStr = reqData.get("pathList",[])
             pathList = json.loads(pathListStr)
             parentName = treeDict['parentName']
-            minProcessCount = int(treeDict['min_process_count'])
-            maxProcessCount = int(treeDict['max_process_count'])
+            minProcessCount = int(treeDict.get('min_process_count',0))
+            maxProcessCount = int(treeDict.get('max_process_count',0))
             treeDict['min_process_count'] = minProcessCount
             treeDict['max_process_count'] = maxProcessCount
 
@@ -100,6 +100,60 @@ class DeployCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, 
 
         except Exception as e:
             result['status'] = 1
+            logger.error(e)
+        return HttpResponse(json.dumps(result),content_type='application/json')
+
+class DeployUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, TemplateView):
+    template_name = "deploy_edit.html"
+
+    def get_context_data(self, **kwargs):
+        context = {}
+        try:
+            req = self.request
+            hu = HttpUtils(req)
+            app_id = req.GET.get("appId",None)
+            if app_id:
+                applistResult = hu.get(serivceName="job", restName="/rest/deploy/app_list/", datas={"id": app_id})
+                applist = applistResult.get("results",[])
+                context['app_info'] = applist[0]
+        except Exception as e:
+            logger.error(e)
+        return context
+
+    def post_ajax(self, request, *args, **kwargs):
+        result = {}
+        try:
+            req = self.request
+            hu = HttpUtils(req)
+            reqData = hu.getRequestParam()
+            treeDictStr = reqData.get("treeDict", [])
+            treeDict = json.loads(treeDictStr)
+            appId = treeDict.get("id",None)
+            if appId:
+                pathListStr = reqData.get("pathList", [])
+                pathList = json.loads(pathListStr)
+                minProcessCount = int(treeDict.get('min_process_count', 0))
+                maxProcessCount = int(treeDict.get('max_process_count', 0))
+                treeDict['min_process_count'] = minProcessCount
+                treeDict['max_process_count'] = maxProcessCount
+
+                treeDict['files'] = pathList
+                appUpdateResult = hu.post(serivceName="job", restName="/rest/deploy/app_update/", datas=[treeDict])
+                appUpdateResult = appUpdateResult.json()
+                if appUpdateResult['status'] == "SUCCESS":
+                    appCreateCmd = hu.get(serivceName="job", restName="/rest/deploy/app_createcmd/",datas={"id": appId})
+                    appCreaterollbackcmd = hu.get(serivceName="job", restName="/rest/deploy/app_createrollbackcmd/",datas={"id": appId})
+                    result['status'] = 0
+                    result['msg'] = "更新成功"
+                else:
+                    result['status'] = 1
+                    result['msg'] = "更新失败"
+            else:
+                result['status'] = 1
+                result['msg'] = "更新失败"
+        except Exception as e:
+            result['status'] = 1
+            result['msg'] = "更新异常"
             logger.error(e)
         return HttpResponse(json.dumps(result),content_type='application/json')
 
@@ -129,9 +183,10 @@ class DeployExecView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, Te
             reqData = hu.getRequestParam()
             id = reqData.get("id",None)
             appids = reqData.get("app_ids",None)
+            is_all = reqData.get("is_all",0)
             if id and appids:
                 appids = json.loads(appids)
-                setRunResult = hu.post(serivceName="job", restName="/rest/deploy/set_run/", datas={"id":id,"app_ids":appids})
+                setRunResult = hu.post(serivceName="job", restName="/rest/deploy/set_run/", datas={"id":id,"app_ids":appids,"is_all":is_all})
                 setRunResult = setRunResult.json()
                 if setRunResult['status'] == "SUCCESS":
                     result['status'] = 0
@@ -228,17 +283,54 @@ class ExecuteLogView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, Te
                     appListVersionResult = hu.get(serivceName="job", restName="/rest/deploy/app_list_history/",datas={"id": id})
                     appListVersion = appListVersionResult.get("data",[])
                     if appListVersion:
+                        applistResult = hu.get(serivceName="job", restName="/rest/deploy/app_list/",datas={"id": id})
+                        applist = applistResult.get("results", [])
+                        app_info = applist[0]
                         job_id = appListVersion[0].get("job_id",None)
                         log_info = hu.get(serivceName="job", restName="/rest/job/list_history/",datas={'job_id': job_id})
+                        log_info['deploy_name'] = app_info.get("name","")
                         logInfoList.append(log_info)
             else:
                 job_id = job_id.split(" ")
                 for id in job_id:
-                    log_info = hu.get(serivceName="job", restName="/rest/job/list_history/", datas={'job_id': id})
-                    logInfoList.append(log_info)
+                    if id:
+                        log_info = hu.get(serivceName="job", restName="/rest/job/list_history/", datas={'job_id': id})
+                        commandSetName = log_info.get("command_set_name")
+                        if commandSetName:
+                            commandSetNameList = commandSetName.split('_')
+                            applistResult = hu.get(serivceName="job", restName="/rest/deploy/app_list/", datas={"id": commandSetNameList[1]})
+                            applist = applistResult.get("results", [])
+                            app_info = applist[0]
+                            log_info['deploy_name'] = app_info.get("name", "")
+                        else:
+                            log_info['deploy_name'] = ""
+                        logInfoList.append(log_info)
             result['logInfoList'] = logInfoList
         except Exception as e:
             result['status'] = 1
             result['msg'] = "查询日志异常"
+            logger.error(e)
+        return HttpResponse(json.dumps(result), content_type='application/json')
+
+
+class DeleteAppView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin,View):
+    def get_ajax(self, request, *args, **kwargs):
+        result = {}
+        try:
+            req = self.request
+            hu = HttpUtils(req)
+            appId = req.GET.get("app_id",None)
+            if appId:
+                appDelResult = hu.post(serivceName="job", restName="/rest/deploy/app_delete/",datas=[{"id": appId}])
+                appDelResult = appDelResult.json()
+                if appDelResult["status"] == "SUCCESS":
+                    result['status'] = 0
+                    result['msg'] = "删除成功"
+                else:
+                    result['status'] = 1
+                    result['msg'] = "删除失败"
+        except Exception as e:
+            result['status'] = 1
+            result['msg'] = "删除异常"
             logger.error(e)
         return HttpResponse(json.dumps(result), content_type='application/json')
