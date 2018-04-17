@@ -438,6 +438,7 @@
                 success:function(responseStr) {
                     if(responseStr.status===0){
                         Alertwin.alert({message:responseStr.success+" "+responseStr.fail});
+                        window.location.reload();
                     }else{
                         Alertwin.alert({message:responseStr.msg});
                     }
