@@ -32,7 +32,7 @@ class DeployListView(LoginRequiredMixin, OrderableListMixin, ListView):
                     reqDcit['idc'] = physical
                 if deployment_environment != "":
                     reqDcit['env'] = deployment_environment
-                appListResult = hu.get(serivceName="job", restName="/rest/deploy/app_list/", datas=reqDcit)
+                appListResult = hu.get(serivceName="job", restName="/rest/deploy/app_list_dis/", datas=reqDcit)
                 appList = appListResult.get("results", [])
                 for app in appList:
                     applistversionResult = hu.get(serivceName="job", restName="/rest/deploy/app_list_version/", datas={"id":app.get("id","")})
