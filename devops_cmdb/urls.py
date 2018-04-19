@@ -5,6 +5,7 @@ from devops_cmdb.views.host_3 import *
 from devops_cmdb.views.business_attributes import *
 from devops_cmdb.views.host_group import *
 from devops_cmdb.views.vip import *
+from devops_cmdb.views.host_dashboard import *
 
 urlpatterns = [
     url(r'^host/', include([
@@ -27,6 +28,7 @@ urlpatterns = [
         url(r'^deleteHost1/$', Host1DeleteView.as_view(), name='deleteHost1'),
         url(r'^scanHost1/$', Host1ScanView.as_view(), name='scanHost1'),
         url(r'^getImportInfo/$', GetImportStatus.as_view(), name='getImportInfo'),
+        url(r'^dashboard/$', HostDashboardView.as_view(), name='dashboard'),
     ])),
     url(r'^business/', include([
         url(r'^attributes_view/', BusinesAttributessView.as_view(), name='attributes_view'),

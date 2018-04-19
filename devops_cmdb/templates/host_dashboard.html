@@ -1,0 +1,207 @@
+{% extends 'common/basic_layout.html' %}
+{% block content %}
+<script type="text/javascript" src="/static/hplus/js/chart/echarts.min.js"></script>
+<script type="text/javascript" src="/static/hplus/js/chart/createBar.js"></script>
+<script type="text/javascript" src="/static/hplus/js/chart/createPie.js"></script>
+<link href="/static/hplus/css/chart/chart.css" rel="stylesheet">
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>资源运营</h5>
+                </div>
+                <div class="ibox-content">
+                    <div class="row" style="margin-bottom: 20px">
+                        <div class="col-sm-6">
+                            <div id="physicalIdcChar" class="chartin fl"  style="width: 100%"></div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="chartin fl"  style="width: 100%">
+                                <div style="width: 70%; margin: 0px auto; height: 300px" id="logicalIdcChar"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" style="margin-bottom: 20px">
+                        <div class="col-sm-6">
+                            <div id="nhBizGroupChar" class="chartin fl" style="width: 100%"></div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div id="zrBizGroupChar" class="chartin fl" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <div id="kfcPreorderChar" class="chartin3 fl" style="width: 100%"></div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div id="kfcDeliveryChar" class="chartin3 fl" style="width: 100%"></div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div id="phDeliveryChar" class="chartin3 fl" style="width: 100%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <script>
+        $(document).ready(function () {
+            initNhzrChar();
+            initLogicalIdcChar();
+            initNhBizGroupChar();
+            initZrBizGroupChar();
+            initKfcPreorderChar();
+            initKfcDeliveryChar();
+            initPhDeliveryChar();
+        });
+
+        function initNhzrChar(){
+            $.ajax({
+                type: "POST",
+                url: '../dashboard/',
+                data:{'flag':0,'csrfmiddlewaretoken':'{{ csrf_token }}'},
+                error: function (request) {},
+                success: function (data) {
+                    createPie(
+                        data,
+                        {
+                            colors:[
+                                "#169ef4",
+                                "#bfd404"
+                            ],
+                            elementId:"physicalIdcChar",
+                            title:"机房"
+                        }
+                    );
+                }
+            });
+        }
+
+        function initLogicalIdcChar(){
+            $.ajax({
+                type: "POST",
+                url: '../dashboard/',
+                data:{'flag':1,'csrfmiddlewaretoken':'{{ csrf_token }}'},
+                error: function (request) {},
+                success: function (data) {
+                    createBar(
+                      data,
+                      {
+                        colors:['#169ef4', '#bfd404', '#169ef4'],
+                        elementId:"logicalIdcChar",
+                        title:"区域"
+                      }
+                    );
+                }
+            });
+        }
+
+        function initNhBizGroupChar(){
+            $.ajax({
+                type: "POST",
+                url: '../dashboard/',
+                data:{'flag':2,'csrfmiddlewaretoken':'{{ csrf_token }}'},
+                error: function (request) {},
+                success: function (data) {
+                    createPie(
+                      data,
+                      {
+                        colors:["#ee2c36","#999999","#169ef4","#b58e17","#bfd404"],
+                        elementId:"nhBizGroupChar",
+                        title:"南汇"
+                      }
+                    );
+                }
+            });
+        }
+
+        function initZrBizGroupChar(){
+            $.ajax({
+                type: "POST",
+                url: '../dashboard/',
+                data:{'flag':3,'csrfmiddlewaretoken':'{{ csrf_token }}'},
+                error: function (request) {},
+                success: function (data) {
+                     createPie(
+                      data,
+                      {
+                        colors:["#ee2c36","#999999","#169ef4","#b58e17","#bfd404"],
+                        elementId:"zrBizGroupChar",
+                        title:"真如"
+                      }
+                    );
+                }
+            });
+        }
+
+        function initKfcPreorderChar(){
+            $.ajax({
+                type: "POST",
+                url: '../dashboard/',
+                data:{'flag':4,'csrfmiddlewaretoken':'{{ csrf_token }}'},
+                error: function (request) {},
+                success: function (data) {
+                     createPie(
+                      data,
+                      {
+                        colors:[
+                          "#169ef4",
+                          "#bfd404"
+                        ],
+                        elementId:"kfcPreorderChar",
+                        title:"KFC-PreOrder"
+                      }
+                    );
+                }
+            });
+        }
+
+        function initKfcDeliveryChar(){
+            $.ajax({
+                type: "POST",
+                url: '../dashboard/',
+                data:{'flag':5,'csrfmiddlewaretoken':'{{ csrf_token }}'},
+                error: function (request) {},
+                success: function (data) {
+                      createPie(
+                      data,
+                      {
+                        colors:[
+                          "#169ef4",
+                          "#bfd404"
+                        ],
+                        elementId:"kfcDeliveryChar",
+                        title:"KFC-Delivery"
+                      }
+                    );
+                }
+            });
+        }
+
+        function initPhDeliveryChar(){
+            $.ajax({
+                type: "POST",
+                url: '../dashboard/',
+                data:{'flag':6,'csrfmiddlewaretoken':'{{ csrf_token }}'},
+                error: function (request) {},
+                success: function (data) {
+                      createPie(
+                      data,
+                      {
+                        colors:[
+                          "#169ef4",
+                          "#bfd404"
+                        ],
+                        elementId:"phDeliveryChar",
+                        title:"PH-Delivery"
+                      }
+                    );
+                }
+            });
+        }
+
+    </script>
+{% endblock %}

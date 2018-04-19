@@ -1,0 +1,25 @@
+
+.clear:after{content:'';display:block;clear:both;height:0;overflow:hidden;visibility:hidden;}
+.clear{zoom:1;}
+.fl{
+    float: left;
+}
+body,html{
+    padding: 0;
+    margin: 0;
+}
+.chartin{
+    width: 50%;
+    height:300px;
+}
+
+.chartin3{
+    width: 33.33%;
+    height: 300px;
+}
+
+.chartin,.chartin3{
+    box-sizing: border-box;
+    background: #eee;
+    border: 1px solid #dedede;
+}
