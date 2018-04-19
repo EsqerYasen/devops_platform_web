@@ -30,4 +30,5 @@ urlpatterns = [
     url(r'^cmdb/', include('devops_cmdb.urls', namespace='cmdb')),
     url(r'^platform/', include('common_platform.urls', namespace='platform')),
     url(r'^deploy/', include('devops_deploy.urls', namespace='deploy')),
+    url(r'^console/', include('devops_console.urls', namespace='console')),
 ]

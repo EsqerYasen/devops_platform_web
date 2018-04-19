@@ -74,7 +74,8 @@
                          <th style="width: 70%;">
                             主机组
                         </th>
-                        <th style="width:8%;">操作</th>
+                        <th style="width:8%;">开发负责人</th>
+                        <th style="width:8%;">运维负责人</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -83,14 +84,19 @@
                         <td>
                             <input type="checkbox" class="i-checks icheck" id="{{ o.id }}" hostip="{{ o.host_ip }}" name="trCheckbox">
                         </td>
-                        <td>{{ o.host_ip }}</td>
+                        <td>
+                            <a href="../{{ o.id }}/detail1/">{{ o.host_ip }}</a>
+                        </td>
                         <td>
                             {% for i in o.apps %}
                                 <span class="label label-success">{{ i.path }}</span>
                             {% endfor %}
                         </td>
                         <td>
-                            <a href="../{{ o.id }}/detail1/" class="btn btn-sm btn-success"><i class="fa fa-book"></i> 查看</a>
+
+                        </td>
+                        <td>
+
                         </td>
                     </tr>
                 {% endfor %}
