@@ -74,11 +74,12 @@ class HostDashboardView(LoginRequiredMixin, OrderableListMixin,JSONResponseMixin
         for groupId in nhGroupIds:
             temp = {}
             resultNhPath = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_full_path/", datas={'id': groupId})
-            nhName = resultNhPath.get("data","_").split('_')
-            temp['name'] = nhName[0]+"-"+nhName[1]
-            resultDmzNh = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/",datas={"id": groupId})
-            temp['value'] = len(resultDmzNh.get("data",[]))
-            result.append(temp)
+            if resultNhPath['status'] == "SUCCESS":
+                nhName = resultNhPath.get("data","_").split('_')
+                temp['name'] = nhName[0]+"-"+nhName[1]
+                resultDmzNh = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/",datas={"id": groupId})
+                temp['value'] = len(resultDmzNh.get("data",[]))
+                result.append(temp)
         return result
 
     def GetZrBizGroupInfo(self):
@@ -89,11 +90,12 @@ class HostDashboardView(LoginRequiredMixin, OrderableListMixin,JSONResponseMixin
         for groupId in zrGroupIds:
             temp = {}
             resultNhPath = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_full_path/", datas={'id': groupId})
-            nhName = resultNhPath.get("data", "_").split('_')
-            temp['name'] = nhName[0] + "-" + nhName[1]
-            resultDmzNh = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/", datas={"id": groupId})
-            temp['value'] = len(resultDmzNh.get("data", []))
-            result.append(temp)
+            if resultNhPath['status'] == "SUCCESS":
+                nhName = resultNhPath.get("data", "_").split('_')
+                temp['name'] = nhName[0] + "-" + nhName[1]
+                resultDmzNh = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/", datas={"id": groupId})
+                temp['value'] = len(resultDmzNh.get("data", []))
+                result.append(temp)
         return result
 
     def GetKfcPreorderInfo(self):
