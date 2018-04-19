@@ -70,7 +70,6 @@ class HostDashboardView(LoginRequiredMixin, OrderableListMixin,JSONResponseMixin
         result = []
         hu = HttpUtils(self.request)
         resultNh = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_id_by_name/",datas={'name':'nh'})
-        logger.info(resultNh)
         nhGroupIds = resultNh.get("data",[])
         for groupId in nhGroupIds:
             temp = {}
