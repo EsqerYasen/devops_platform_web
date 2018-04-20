@@ -44,7 +44,7 @@ class List1View(LoginRequiredMixin, OrderableListMixin, ListView):
                     groupIds.append(str(app.get("group_id", 0)))
                 resultListLeader = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_leader/",
                                           datas={"id": '+'.join(groupIds)})
-                listLeader = resultListLeader.get("data", [])
+                listLeader = resultListLeader.get("data", {})
                 ops = listLeader.get("ops", [])
                 opsStr = ""
                 for o in ops:
