@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'common_platform',
     'devops_cmdb',
     'devops_deploy',
+    'devops_console',
 ]
 
 MIDDLEWARE = [
@@ -182,10 +183,7 @@ REST_API_CONFIG = {
         },
         'job':{
             'ip_prot': '172.29.164.92:8001'
-        }
-        # 'job':{
-        #     'ip_prot': '127.0.0.1:8001'
-        # }
+        },
         #生产
         # 'cmdb': {
         #     'ip_prot': '172.17.144.150:8000'
