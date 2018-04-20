@@ -553,16 +553,28 @@
                     pathList.push({"path":path+$(item).val(),"type":1,"source_type":2});
                 });
                 $($("#sourceConfigTb input")).each(function(i,item){
-                    pathList.push({"path":sourceIp+":"+$(item).val(),"type":2,"source_type":1});
+                    var value = $(item).val();
+                    if(value) {
+                        pathList.push({"path": sourceIp + ":" + value, "type": 2, "source_type": 1});
+                    }
                 });
                 $($("#sourceStaticTb input")).each(function(i,item){
-                    pathList.push({"path":sourceIp+":"+$(item).val(),"type":3,"source_type":1});
+                    var value = $(item).val();
+                    if(value) {
+                        pathList.push({"path": sourceIp + ":" + value, "type": 3, "source_type": 1});
+                    }
                 });
                 $($("#targetConfigTb input")).each(function(i,item){
-                    pathList.push({"path":$(item).val(),"type":2,"source_type":2});
+                    var value = $(item).val();
+                    if(value){
+                        pathList.push({"path":value,"type":2,"source_type":2});
+                    }
                 });
                 $($("#targetStaticTb input")).each(function(i,item){
-                    pathList.push({"path":$(item).val(),"type":3,"source_type":2});
+                    var value = $(item).val();
+                    if(value){
+                        pathList.push({"path":value,"type":3,"source_type":2});
+                    }
                 });
 
                 layer.load();
