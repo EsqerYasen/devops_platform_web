@@ -60,14 +60,14 @@
             {% for o in setList %}
             <tr class="accordion-toggle" data-toggle="collapse" data-parent="#accordion_tb" href="#collapseTr{{ o.id }}">
                 <td >
-                    <select name="physical" class="form-control m-b" id="physical{{ o.id }}">
+                    <select name="physical" class="form-control m-b" id="physical1{{ o.id }}">
                         <option value="">--机房--</option>
                         <option value="nh">NH</option>
                         <option value="zr">ZR</option>
                     </select>
                 </td>
                 <td>
-                    <select name="deployment_environment" class="form-control m-b" id="deployment_environment{{ o.id }}">
+                    <select name="deployment_environment" class="form-control m-b" id="deployment_environment1{{ o.id }}">
                         <option value="">--环境--</option>
                         <option value="pilot">pilot</option>
                         <option value="online">online</option>
@@ -77,7 +77,7 @@
                     {{ o.name }}
                 </td>
                 <td>
-                    <select name="current_version" class="form-control m-b" id="current_version{{ o.id }}">
+                    <select name="current_version" class="form-control m-b" id="current_version1{{ o.id }}">
                         <option value="">--版本--</option>
                         {% for v in o.version %}
                         <option value="{{ v }}">{{ v }}</option>
@@ -98,14 +98,14 @@
                                 <input type="checkbox" class="i-checks icheck" app_name="{{ a.name }}" name="trCheckbox{{ o.id }}">
                             </td>
                             <td>
-                                <select name="physical" class="form-control m-b" id="physical{{ a.id }}">
+                                <select name="physical" class="form-control m-b" id="physical2{{ a.id }}">
                                     <option value="">--机房--</option>
                                     <option value="nh">NH</option>
                                     <option value="zr">ZR</option>
                                 </select>
                             </td>
                             <td>
-                                <select name="deployment_environment" class="form-control m-b" id="deployment_environment{{ a.id }}">
+                                <select name="deployment_environment" class="form-control m-b" id="deployment_environment2{{ a.id }}">
                                     <option value="">--环境--</option>
                                     <option value="pilot">pilot</option>
                                     <option value="online">online</option>
@@ -115,7 +115,7 @@
                                 {{ a.name }}
                             </td>
                             <td>
-                                <select name="current_version" class="form-control m-b" id="current_version{{ a.id }}">
+                                <select name="current_version" class="form-control m-b" id="current_version2{{ a.id }}">
                                     <option value="">--版本--</option>
                                     {% for v in a.version %}
                                     <option value="{{ v }}">{{ v }}</option>
@@ -218,14 +218,14 @@
                 var current_version = "";
                 var reqData = {};
                 if(aid > 0){
-                    physical = $("#physical"+aid).val();
-                    deployment_environment = $("#deployment_environment"+aid).val();
-                    current_version = $("#current_version"+aid).val();
+                    physical = $("#physical2"+aid).val();
+                    deployment_environment = $("#deployment_environment2"+aid).val();
+                    current_version = $("#current_version2"+aid).val();
                     reqData['name']= datas['name'];
                 }else{
-                    physical = $("#physical"+pid).val();
-                    deployment_environment = $("#deployment_environment"+pid).val();
-                    current_version = $("#current_version"+pid).val();
+                    physical = $("#physical1"+pid).val();
+                    deployment_environment = $("#deployment_environment1"+pid).val();
+                    current_version = $("#current_version1"+pid).val();
                     var str = document.getElementsByName("trCheckbox"+pid);
                     var objarray = str.length;
                     var app_name = "";

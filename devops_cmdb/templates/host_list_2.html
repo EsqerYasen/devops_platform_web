@@ -237,6 +237,9 @@
                         <th style="width: 10%;">
                             IP
                         </th>
+                        <th style="width:3%;">
+                            监控
+                        </th>
                         <th style="width: 70%;">
                             主机组
                         </th>
@@ -252,6 +255,9 @@
                         </td>
                         <td>
                             <a href="../{{ o.id }}/detail2/">{{ o.host_ip }}</a>
+                        </td>
+                        <td>
+                            <a href=""><span class="glyphicon glyphicon-scale" aria-hidden="true"></span></a>
                         </td>
                         <td>
                             {% for i in o.apps %}

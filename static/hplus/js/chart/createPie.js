@@ -1,30 +1,46 @@
 function createPie(data,initConfig) {
   var styleNormal= {
-    formatter: '  {b|{b}} \n {c|{c}} \n  {per|{d}%}  ',
-    borderWidth: 1,
+    formatter: ' {b|{b}} \n{hr|}\n {c|{c}}  {per|{d}%} ',
+    borderWidth: 0.5,
     borderRadius: 4,
+    borderColor: '#eee',
+    backgroundColor: '#fefefe',
     rich: {
       a: {
         color: '#999',
-        lineHeight: 22,
+        lineHeight: 18,
         align: 'center'
+      },
+      cda:{
+        padding:[5,5,5,5]
       },
       c:{
-        align: 'center'
+        align: 'center',
+        fontSize: 14,
+        lineHeight:33,
+        color:"#444"
       },
       hr: {
-        borderColor: '#aaa',
+        borderColor: '#eee',
         width: '100%',
         borderWidth: 0.5,
         height: 0
       },
       b: {
         fontSize: 16,
-        lineHeight: 33,
-        align:'center'
+        align:'center',
+        color:"#444",
+        padding:[5,5,5,5]
       },
       per: {
-        align:'center'
+        align:'left',
+        fontSize: 12,
+        lineHeight:18,
+        color:"#ffffff",
+        backgroundColor:"#ee2c36",
+        // margin:[2,2,2,2],
+        padding:[3,3,3,3],
+        borderRadius:3
       }
     }
   };
@@ -71,7 +87,6 @@ function createPie(data,initConfig) {
           normal: styleNormal
         },
         data:data
-//
       }
     ]
   };
