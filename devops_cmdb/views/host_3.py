@@ -31,8 +31,19 @@ class List3View(LoginRequiredMixin, OrderableListMixin, ListView):
                 group_id = reqData.get("group_id", 0)
                 resultJson = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host_sp/",
                                     datas={"id": group_id, "go_live": 3,"offset":reqData.get("offset",0),"limit":reqData.get("limit")})
+                list = resultJson.get("results", [])
+            else:
+                reqData['go_live'] = 3
+                resultJson = hu.get(serivceName="cmdb", restName="/rest/host/", datas=reqData)
+                list = resultJson.get("results",[])
+
+            for host in list:
+                apps = host.get("apps", [])
+                groupIds = []
+                for app in apps:
+                    groupIds.append(str(app.get("group_id", 0)))
                 resultListLeader = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_leader/",
-                                          datas={"id": group_id})
+                                          datas={"id": '+'.join(groupIds)})
                 listLeader = resultListLeader.get("data", [])
                 ops = listLeader.get("ops", [])
                 opsStr = ""
@@ -44,30 +55,8 @@ class List3View(LoginRequiredMixin, OrderableListMixin, ListView):
                 for d in develop:
                     if d:
                         developStr += d + ","
-                list = resultJson.get("results", [])
-            else:
-                reqData['go_live'] = 3
-                resultJson = hu.get(serivceName="cmdb", restName="/rest/host/", datas=reqData)
-                list = resultJson.get("results",[])
-                for host in list:
-                    apps = host.get("apps",[])
-                    groupIds = []
-                    for app in apps:
-                        groupIds.append(str(app.get("group_id",0)))
-                    resultListLeader = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_leader/", datas={"id":'+'.join(groupIds)})
-                    listLeader = resultListLeader.get("data",[])
-                    ops = listLeader.get("ops",[])
-                    opsStr = ""
-                    for o in ops:
-                        if o:
-                            opsStr += o+","
-                    developStr = ""
-                    develop = listLeader.get("develop",[])
-                    for d in develop:
-                        if d:
-                            developStr += d+","
-                    host['ops'] = opsStr
-                    host['develop'] = developStr
+                host['ops'] = opsStr
+                host['develop'] = developStr
 
             getData = {'offset': 0, 'limit': 1000, 'is_enabled': 1}
             hostgroupResult = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_tree/", datas=getData)
