@@ -99,10 +99,10 @@
                             {% endfor %}
                         </td>
                         <td>
-
+                            {{ o.develop }}
                         </td>
                         <td>
-
+                             {{ o.ops }}
                         </td>
                     </tr>
                 {% endfor %}
@@ -121,6 +121,7 @@
          })
 
          var zHostGroupNodes = [];
+         var middleware = {"memcached":1,"nginx":1,"rabbitmq":1,"haproxy":1,"mongodb":1,"redis":1}
          function readHostGroupTreeNext(list,pid){
             $(list).each(function(i,item){
                 var ids = item.id;
@@ -140,7 +141,9 @@
                 }else{
                     nodeData['nocheck']=false;
                     nodeData['isLeaf']=true;
-                    nodeData['iconSkin'] ="middleware";
+                    if(middleware[item.name]){
+                        nodeData['iconSkin'] ="middleware";
+                    }
                 }
                 zHostGroupNodes.push(nodeData);
             });

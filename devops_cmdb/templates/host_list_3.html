@@ -64,7 +64,7 @@
             readTreeNext(treeList,0);
             zTreeInit();
         }
-
+        var middleware = {"memcached":1,"nginx":1,"rabbitmq":1,"haproxy":1,"mongodb":1,"redis":1}
         function readTreeNext(list,pid){
             $(list).each(function(i,item){
                 var ids = item.id;
@@ -82,6 +82,9 @@
                     nodeData['isLeaf']=false;
                 }else{
                     nodeData['isLeaf']=true;
+                    if(middleware[item.name]){
+                        nodeData['iconSkin'] ="middleware";
+                    }
                 }
                 zNodes.push(nodeData);
             })
@@ -193,10 +196,10 @@
                     {% endfor %}
                 </td>
                 <td>
-
+                    {{ o.develop }}
                 </td>
                 <td>
-
+                    {{ o.ops }}
                 </td>
             </tr>
         {% endfor %}
