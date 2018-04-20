@@ -301,18 +301,21 @@
         $('#checkPreDeploy').iCheck('check');
         var scriptStr1 = '{{ app_info.pre_script|escapejs  }}';
         var editor1 = ace.edit("deploy_before_script");
+        editor1.removeLines();
         editor1.insert(scriptStr1);
         {% endif %}
         {% if app_info.post_script %}
         $('#checkPostDeploy').iCheck('check');
         var scriptStr2 = '{{ app_info.post_script|escapejs  }}';
         var editor2 = ace.edit("deploy_after_script");
+        editor2.removeLines();
         editor2.insert(scriptStr2);
         {% endif %}
         {% if app_info.check_script %}
         $('#checkCheckDeploy').iCheck('check');
         var scriptStr3 = '{{ app_info.check_script|escapejs  }}';
         var editor3 = ace.edit("deploy_check_script");
+        editor3.removeLines();
         editor3.insert(scriptStr3);
         {% endif %}
     })
@@ -471,10 +474,16 @@
             pathList.push({"path":path+$(item).val(),"type":1,"source_type":2});
         });
         $($("#sourceConfigTb input")).each(function(i,item){
-            pathList.push({"path":sourceIp+":"+$(item).val(),"type":2,"source_type":1});
+            var value = $(item).val();
+            if(value){
+                pathList.push({"path":sourceIp+":"+value,"type":2,"source_type":1});
+            }
         });
         $($("#sourceStaticTb input")).each(function(i,item){
-            pathList.push({"path":sourceIp+":"+$(item).val(),"type":3,"source_type":1});
+            var value = $(item).val();
+            if(value){
+                pathList.push({"path":sourceIp+":"+value,"type":3,"source_type":1});
+            }
         });
         $($("#targetConfigTb input")).each(function(i,item){
             pathList.push({"path":$(item).val(),"type":2,"source_type":2});
