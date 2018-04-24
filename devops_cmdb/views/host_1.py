@@ -161,11 +161,13 @@ def importFunction(req,wb):
             if biz_module:
                 path += "_" + biz_module
                 count += 1
+            print("path:"+path+" count:"+count)
             if count == 6:
                 getPathResult = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",datas={"path": path})
+                print(getPathResult)
                 if getPathResult['status'] == "SUCCESS":
                     groupId = getPathResult['data']
-
+            print("")
             addReq.append({'host_ip':host_ip})
             param[row[0]] = {'host_ip': host_ip, 'biz_brand': biz_brand, 'biz_group': biz_group,'physical_idc': physical_idc,
                              'deployment_environment': deployment_environment,"logical_idc":logical_idc,"biz_module":biz_module,"group_id":groupId}
@@ -180,7 +182,6 @@ def importFunction(req,wb):
                 if status == 0:
                     updateReq.append(param[host_ip])
                 elif status == 2: #IP已存在于数据库 追加绑定应用
-                    print(param)
                     group_id = param[host_ip]['group_id']
                     if (group_id):
                         resultJson = hu.get(serivceName="cmdb", restName="/rest/host/", datas={"host_ip":host_ip})
