@@ -176,7 +176,7 @@ def importFunction(req,wb):
         addResult = addResult.json()
         if len(addResult) > 0:
             #for d in addResult:
-            for j in range(addResult):
+            for j in range(len(addResult)):
                 d = addResult[j]
                 status = d['status']
                 host_ip = d['host_ip']
