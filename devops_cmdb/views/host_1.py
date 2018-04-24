@@ -180,6 +180,7 @@ def importFunction(req,wb):
                 if status == 0:
                     updateReq.append(param[host_ip])
                 elif status == 2: #IP已存在于数据库 追加绑定应用
+                    print(param)
                     group_id = param[host_ip]['group_id']
                     if (group_id):
                         resultJson = hu.get(serivceName="cmdb", restName="/rest/host/", datas={"host_ip":host_ip})
