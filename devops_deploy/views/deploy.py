@@ -348,7 +348,7 @@ class DeployExecView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, Te
                 appids = json.loads(appids)
                 setRunResult = hu.post(serivceName="job", restName="/rest/deploy/set_run_version/",datas={"id": id, "app_ids": appids, "idc": idc, "env": env,"version":version})
                 # setRunResult = hu.post(serivceName="job", restName="/rest/deploy/set_run/", datas={"id":id,"app_ids":appids,"idc":idc,"env":env})
-                # setRunResult = setRunResult.json()
+                setRunResult = setRunResult.json()
                 if setRunResult['status'] == "SUCCESS":
                     result['status'] = 0
                     result['msg'] = "发布成功，后端正在执行中"
