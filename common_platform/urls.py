@@ -3,6 +3,8 @@ from django.conf.urls import include, url
 from common_platform.views.command_set import *
 from common_platform.views.command_set2 import *
 from common_platform.views.file_manage import *
+from common_platform.views.soft_load import *
+
 
 urlpatterns = [
     url(r'^command_set/', include([
@@ -28,5 +30,8 @@ urlpatterns = [
         url(r'^uploadFile/', FileTreeUploadFile.as_view(), name='uploadFile'),
         url(r'^delete/', DeleteFile.as_view(), name='delete'),
     ])),
+    # url(r'^soft_load/', include([
+    #     url(r'^page/', SoftLoadView.as_view(), name='page'),
+    # ])),
 ]
 

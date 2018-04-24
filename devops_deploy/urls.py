@@ -9,8 +9,9 @@ urlpatterns = [
     url(r'^update/',DeployUpdateView.as_view(),name='update'),
     url(r'^getAppListByPid/',GetAppListByPidView.as_view(), name='getAppListByPid'),
     url(r'^deployExec/',DeployExecView.as_view(), name='deployExec'),
-    url(r'^deployRollback/',DeployRollbackView.as_view(), name='deployRollback'),
+    # url(r'^deployRollback/',DeployRollbackView.as_view(), name='deployRollback'),
     url(r'^executeLog/',ExecuteLogView.as_view(), name='executeLog'),
     url(r'^operationLog/',OperationLogView.as_view(), name='operationLog'),
-    url(r'^deleteApp/',DeleteAppView.as_view(), name='deleteApp')
+    url(r'^deleteApp/',DeleteAppView.as_view(), name='deleteApp'),
+    url(r'^deployVersion/',DeployVersionView.as_view(), name='deployVersion')
 ]
