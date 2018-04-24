@@ -161,7 +161,7 @@ def importFunction(req,wb):
             if biz_module:
                 path += "_" + biz_module
                 count += 1
-            print("path:"+path+" count:"+count)
+            print("path:"+path+" count:"+str(count))
             if count == 6:
                 getPathResult = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",datas={"path": path})
                 print(getPathResult)
