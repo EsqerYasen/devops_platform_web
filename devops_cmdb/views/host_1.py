@@ -204,8 +204,10 @@ def importFunction(req,wb):
                                     if int(success_count) > 0:
                                         binding += 1
                                         d['error'] = "IP已存在于数据库 追加绑定应用:%s_%s_%s_%s_%s_%s" % (
-                                        param[host_ip]['biz_brand'], param[host_ip]['biz_group'], param[host_ip]['physical_idc'],
-                                        param[host_ip]['deployment_environment'], param[host_ip]['logical_idc'], param[host_ip]['biz_module'])
+                                         param[j]['biz_brand'], param[j]['biz_group'], param[j]['physical_idc'],
+                                         param[j]['deployment_environment'], param[j]['logical_idc'], param[j]['biz_module'])
+                                        #param[host_ip]['biz_brand'], param[host_ip]['biz_group'], param[host_ip]['physical_idc'],
+                                        #param[host_ip]['deployment_environment'], param[host_ip]['logical_idc'], param[host_ip]['biz_module'])
                                     elif int(fail_count) > 0:
                                         d['error'] = "绑定失败 请检查此机器相关数据"
                                     elif int(skip_count) > 0:
