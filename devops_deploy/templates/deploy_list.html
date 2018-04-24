@@ -91,7 +91,7 @@
                     </select>
                 </td>
                 <td>
-                    <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='#pre_modal' data-pid="{{ o.id }}" data-aid="0" style="margin-right: 10px"><i class="glyphicon glyphicon-magnet"></i> pre</button>
+                    <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='#deploy_pre_modal' data-pid="{{ o.id }}" data-aid="0" style="margin-right: 10px"><i class="glyphicon glyphicon-magnet"></i> pre</button>
                     <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='#deploy_modal' data-pid="{{ o.id }}" data-aid="0" data-cv="{{ o.current_version}}" style="margin-right: 10px"><i class="glyphicon glyphicon-play"></i> 发布</button>
 {#                    <button type="button" class="btn btn-sm btn-success" onclick="deployLog()"><i class="fa fa-book"></i> 日志</button>#}
                 </td>
@@ -134,7 +134,7 @@
                                 <input id="script2{{ a.id }}" type="hidden" value="{{ a.script }}" />
                             </td>
                             <td>
-                                <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='#pre_modal' data-pid="{{ o.id }}" data-aid="{{ a.id }}" style="margin-right: 10px"><i class="glyphicon glyphicon-magnet"></i> pre</button>
+                                <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='#deploy_pre_modal' data-pid="{{ o.id }}" data-aid="{{ a.id }}" data-name="{{ a.name }}" style="margin-right: 10px"><i class="glyphicon glyphicon-magnet"></i> pre</button>
                                 <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='#deploy_modal' data-pid="{{ o.id }}" data-aid="{{ a.id }}" data-name="{{ a.name }}" data-cv="{{ a.current_version}}" style="margin-right: 10px"><i class="glyphicon glyphicon-play"></i> 发布</button>
                                 <a href="../update?appId={{ a.id }}" class="btn btn-sm btn-success"><i class="fa fa-book"></i> 编辑</a>
                                 <a href="javascript:void(0)" onclick="deleteApp('{{ a.id }}')" class="btn btn-sm btn-danger"><i class="fa fa-trash"></i> 删除</a>
@@ -213,7 +213,7 @@
 
     <div class="modal fade" id="deploy_pre_modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
-            <div class="modal-content" style="width: 600px">
+            <div class="modal-content" style="width: 700px">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLabel">pre</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -222,10 +222,19 @@
                 </div>
                 <div class="modal-body" style="max-height: 500px;overflow:auto">
                    <div class="row" style="margin-bottom: 10px">
-                        脚本: <label id="pre_script_name" class="col-sm-2 control-label"></label>
+                       <label class="col-sm-1 control-label" style="width: 9%"> 脚本:</label><label id="pre_script_name" class="col-sm-4 control-label"></label>
                    </div>
                    <div class="row" style="margin-bottom: 10px">
-                        <table id="deploy_pre_modal_table" class="table table-striped table-bordered table-hover dataTables-example dataTable accordion">
+                        <table id="deploy_pre_param_table" class="table table-striped table-bordered table-hover dataTables-example dataTable accordion">
+                            <thead>
+                                <th style="width: 15%;">
+                                    名称
+                                </th>
+                                <th style="width: 85%;">
+                                    值
+                                </th>
+                            </thead>
+                            <tbody></tbody>
                         </table>
                    </div>
                    <div class="row">
@@ -246,7 +255,7 @@
                    </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" title="确定" onclick="">确定</button>
+                    <button type="button" class="btn btn-primary" id="deploy_pre_modal_btn" title="确定" onclick="preExec()">确定</button>
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
                 </div>
             </div>
@@ -299,7 +308,7 @@
                 reqData["idc"] = physical;
                 reqData["env"] = deployment_environment;
                 $(this).data('idc',physical);
-                $(this).data('env',physical);
+                $(this).data('env',deployment_environment);
                 if(!physical || !deployment_environment || !current_version){
                     $("#deploy_modal_table tbody").append("<tr><td colspan='3'>请选择机房、环境、版本</td></tr>");
                     $("#deploy_modal_btn").attr("disabled",true);
@@ -367,6 +376,111 @@
                 $("#current_version2").text('');
                 //$(this).data('appTotal','');
             })
+
+            $("#deploy_pre_modal").on('show.bs.modal',function(event){
+                var datas = $(event.relatedTarget).data();
+                var pid = datas['pid'];
+                var aid = datas['aid'];
+                var cv = datas['cv'];
+                $(this).data('pid',pid);
+                $(this).data('aid',aid);
+                $(this).data('cv',cv);
+                var physical = "";
+                var deployment_environment = "";
+                var current_version = "";
+                var physical = "";
+                var deployment_environment = "";
+                var scripObj = {};
+                var reqData = {};
+                if(aid > 0){
+                    physical = $("#physical2"+aid).val();
+                    deployment_environment = $("#deployment_environment2"+aid).val();
+                    reqData['name']= datas['name'];
+                    scripObj = JSON.parse($("#script2"+aid).val().replace(/'/g,'"'));
+                }else{
+                    physical = $("#physical1"+pid).val();
+                    deployment_environment = $("#deployment_environment1"+pid).val();
+                    var str = document.getElementsByName("trCheckbox"+pid);
+                    var objarray = str.length;
+                    var app_name = "";
+                    for (i = 0; i < objarray; i++) {
+                        if (str[i].checked == true) {
+                           app_name += $(str[i]).attr('app_name') + ",";
+                        }
+                    }
+                    app_name = app_name.substring(0,app_name.length-1);
+                    scripObj = JSON.parse($("#script1"+aid).val().replace(/'/g,'"'));
+                    reqData['name']= app_name;
+                }
+                reqData["parent_id"] = pid;
+                reqData["idc"] = physical;
+                reqData["env"] = deployment_environment;
+                $(this).data('idc',physical);
+                $(this).data('env',physical);
+                if(!physical || !deployment_environment){
+                    $("#deploy_pre_modal_table tbody").append("<tr><td colspan='3'>请选择机房、环境、版本</td></tr>");
+                    $("#deploy_pre_modal_btn").attr("disabled",true);
+                }else{
+                    $("#pre_script_name").text(scripObj['script_path']);
+                    if(scripObj['script_type'] == '1'){
+                        $(scripObj['script_param_names'].split(',')).each(function(i,item){
+                            //#deploy_pre_modal_table
+                            var htmlStr = "<tr>" +
+                                "<td>"+item+"</td>" +
+                                "<td><input name='pre_param_text' type='text' value='' class='form-control'/></td>" +
+                                "</tr>";
+                            $("#deploy_pre_param_table tbody").append(htmlStr);
+                        })
+                    }
+                    $.ajax({
+                        type: "GET",
+                        url: '/deploy/getAppListByPid/',
+                        data:reqData,
+                        success: function (data) {
+                            var appList = data.appList;
+                            var appTotal = appList.length;
+                            //var emptyFlag = 0;
+                            var tbody = $("#deploy_pre_modal_table tbody");
+                            $(appList).each(function(i,item){
+                                var style = "";
+                                var inputStr = "<input type='hidden' id='app_id' value='"+item.id+"'/>";
+                                if(item.empty_flag == 1){
+                                    //emptyFlag += 1;
+                                    style  = " style='color: red' ";
+                                    inputStr = "";
+                                }
+                                var htmlStr = "<tr "+style+">" +
+                                    "<td>" + inputStr +
+                                    item.idc +
+                                    "</td>" +
+                                    "<td>" +
+                                    item.env +
+                                    "</td>" +
+                                    "<td>" +
+                                    item.name +
+                                    "</td>" +
+                                    "</tr>";
+                                tbody.append(htmlStr);
+                            });
+                        },
+                        error:function(responseStr) {
+                            console.log(responseStr);
+                        }
+                    });
+                }
+
+            })
+            $("#deploy_pre_modal").on('hide.bs.modal',function(event){
+                $("#deploy_pre_modal_table tbody").empty();
+                $("#deploy_pre_param_table tbody").empty();
+                $("#deploy_pre_modal_btn").attr("disabled",false);
+                $(this).data('pid','');
+                $(this).data('aid','');
+                $(this).data('idc','');
+                $(this).data('env','');
+                $("#pre_script_name").text('');
+            })
+
         });
         function deploy(){
             var datas = $("#deploy_modal").data();
@@ -556,6 +670,22 @@
                 });
             }
         }
-        // JSON.parse($("#script213").val().replace(/'/g,'"'))
+
+        function preExec(){
+            var app_ids = [];
+            $($("#deploy_pre_modal_table tbody input")).each(function(i,item){
+                app_ids.push($(item).val());
+            });
+            if(app_ids.length == 0){
+                Alertwin.alert({ message: "没有应用记录"});
+                return;
+            }
+            var script_param = [];
+            $("#deploy_pre_param_table input").each(function(i,item){
+                script_param.push($(item).val());
+            });
+            var script_path = $("#pre_script_name").text();
+
+        }
     </script>
 {% endblock %}

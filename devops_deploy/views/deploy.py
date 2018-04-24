@@ -499,3 +499,16 @@ class DeleteAppView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin,View
             result['msg'] = "删除异常"
             logger.error(e)
         return HttpResponse(json.dumps(result), content_type='application/json')
+
+
+class DeployPreExecView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, TemplateView):
+    def post_ajax(self, request, *args, **kwargs):
+        result = {}
+        try:
+            pass
+
+        except Exception as e:
+            result['status'] = 1
+            result['msg'] = "pre执行异常"
+            logger.error(e)
+        return HttpResponse(json.dumps(result), content_type='application/json')
