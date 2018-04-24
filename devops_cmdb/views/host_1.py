@@ -127,7 +127,7 @@ def importFunction(req,wb):
         username = req.user.username
         HOST1_IMPORT_STATIC[username] = {'isImportRun':1}
         addReq = []
-        param = {}
+        param = []
         hu = HttpUtils(req)
         failDict = {1: '不合法的IP', 2: 'IP已存在于数据库', 3: '数据库操作失败', 4: 'IP不存在于数据库', 5: '不可修改已上线的主机'}
         for i in range(1, wb.sheets()[0].nrows):
@@ -161,28 +161,31 @@ def importFunction(req,wb):
             if biz_module:
                 path += "_" + biz_module
                 count += 1
-            print("path:"+path+" count:"+str(count))
             if count == 6:
                 getPathResult = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",datas={"path": path})
                 print(getPathResult)
                 if getPathResult['status'] == "SUCCESS":
                     groupId = getPathResult['data']
-            print("")
+
             addReq.append({'host_ip':host_ip})
-            param[row[0]] = {'host_ip': host_ip, 'biz_brand': biz_brand, 'biz_group': biz_group,'physical_idc': physical_idc,
-                             'deployment_environment': deployment_environment,"logical_idc":logical_idc,"biz_module":biz_module,"group_id":groupId}
+            param.append({'host_ip': host_ip, 'biz_brand': biz_brand, 'biz_group': biz_group,'physical_idc': physical_idc,
+                             'deployment_environment': deployment_environment,"logical_idc":logical_idc,"biz_module":biz_module,"group_id":groupId})
 
         total = len(addReq)
         addResult = hu.post(serivceName="cmdb", restName="/rest/host/add/", datas=addReq)
         addResult = addResult.json()
         if len(addResult) > 0:
-            for d in addResult:
+            #for d in addResult:
+            for j in range(addResult):
+                d = addResult[j]
                 status = d['status']
                 host_ip = d['host_ip']
                 if status == 0:
-                    updateReq.append(param[host_ip])
+                    #updateReq.append(param[host_ip])
+                    updateReq.append(param[j])
                 elif status == 2: #IP已存在于数据库 追加绑定应用
-                    group_id = param[host_ip]['group_id']
+                    #group_id = param[host_ip]['group_id']
+                    group_id = param[j]['group_id']
                     if (group_id):
                         resultJson = hu.get(serivceName="cmdb", restName="/rest/host/", datas={"host_ip":host_ip})
                         list = resultJson.get("results", [])
