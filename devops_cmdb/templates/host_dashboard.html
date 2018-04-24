@@ -30,7 +30,7 @@
                             <div id="zrBizGroupChar" class="chartin fl" style="width: 100%"></div>
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row" style="margin-bottom: 20px">
                         <div class="col-sm-4">
                             <div id="kfcPreorderChar" class="chartin3 fl" style="width: 100%"></div>
                         </div>
@@ -39,6 +39,14 @@
                         </div>
                         <div class="col-sm-4">
                             <div id="phDeliveryChar" class="chartin3 fl" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div id="publicCouponDiv" class="col-sm-4" style="display: none">
+                            <div id="publicCouponChar" class="chartin3 fl" style="width: 100%"></div>
+                        </div>
+                        <div id="publicEGiftcardDiv" class="col-sm-4" style="display: none">
+                            <div id="publicEGiftcardChar" class="chartin3 fl" style="width: 100%"></div>
                         </div>
                     </div>
                 </div>
@@ -56,6 +64,8 @@
             initKfcPreorderChar();
             initKfcDeliveryChar();
             initPhDeliveryChar();
+            initPublicCouponChar();
+            initPublicEGiftcardChar();
         });
 
         function initNhzrChar(){
@@ -142,11 +152,11 @@
                 error: function (request) {},
                 success: function (data) {
                      createPie(
-                      data,
+                      data.data,
                       {
                         colors:["#169ef4","#ffc20a"],
                         elementId:"kfcPreorderChar",
-                        title:"KFC-PreOrder"
+                        title:data.title
                       }
                     );
                 }
@@ -161,11 +171,11 @@
                 error: function (request) {},
                 success: function (data) {
                       createPie(
-                      data,
+                      data.data,
                       {
                         colors:["#169ef4","#ffc20a"],
                         elementId:"kfcDeliveryChar",
-                        title:"KFC-Delivery"
+                        title:data.title
                       }
                     );
                 }
@@ -180,13 +190,58 @@
                 error: function (request) {},
                 success: function (data) {
                       createPie(
-                      data,
+                      data.data,
                       {
                         colors:["#169ef4","#ffc20a"],
                         elementId:"phDeliveryChar",
-                        title:"PH-Delivery"
+                        title:data.title
                       }
                     );
+                }
+            });
+        }
+
+        function initPublicCouponChar(){
+            $.ajax({
+                type: "POST",
+                url: '../dashboard/',
+                data:{'flag':7,'csrfmiddlewaretoken':'{{ csrf_token }}'},
+                error: function (request) {},
+                success: function (data) {
+                    if(data.title) {
+                        $("#publicCouponDiv").show();
+                        createPie(
+                            data.data,
+                            {
+                                colors: ["#169ef4", "#ffc20a"],
+                                elementId: "publicCouponChar",
+                                title: data.title
+                            }
+                        );
+
+                    }
+                }
+            });
+        }
+
+        function initPublicEGiftcardChar(){
+            $.ajax({
+                type: "POST",
+                url: '../dashboard/',
+                data:{'flag':8,'csrfmiddlewaretoken':'{{ csrf_token }}'},
+                error: function (request) {},
+                success: function (data) {
+                    if(data.title){
+                        $("#publicEGiftcardDiv").show();
+                        createPie(
+                          data.data,
+                          {
+                            colors:["#169ef4","#ffc20a"],
+                            elementId:"publicEGiftcardChar",
+                            title:data.title
+                          }
+                        );
+                    }
                 }
             });
         }

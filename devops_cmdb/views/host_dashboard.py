@@ -34,6 +34,10 @@ class HostDashboardView(LoginRequiredMixin, OrderableListMixin,JSONResponseMixin
                 resultList = self.GetKfcDeliveryInfo();
             elif flag == '6':
                 resultList = self.GetPhDeliveryInfo();
+            elif flag == '7':
+                resultList = self.GetPublicCouponInfo();
+            elif flag == '8':
+                resultList = self.GetPublicEGiftcardInfo();
 
         except Exception as e:
             logger.error(e)
@@ -80,45 +84,92 @@ class HostDashboardView(LoginRequiredMixin, OrderableListMixin,JSONResponseMixin
         #         resultDmzNh = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/",datas={"id": groupId})
         #         temp['value'] = len(resultDmzNh.get("data",[]))
         #         result.append(temp)
+        group = self.request.devopsgroup
+        if group == 'ec':
+            groupId1 = 0
+            resultKfcPreOrder = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",datas={'path': "kfc_preorder_nh"})
+            if resultKfcPreOrder['status'] == 'SUCCESS':
+                groupId1 = resultKfcPreOrder.get("data", 0)
 
-        groupId1 = 0
-        resultKfcPreOrder = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",datas={'path': "kfc_preorder_nh"})
-        if resultKfcPreOrder['status'] == 'SUCCESS':
-            groupId1 = resultKfcPreOrder.get("data", 0)
+            groupId2 = 0
+            resultPublic = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",datas={'path': "public"})
+            if resultPublic['status'] == 'SUCCESS':
+                resultPublic.get("data", 0)
 
-        groupId2 = 0
-        resultPublic = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",datas={'path': "public"})
-        if resultPublic['status'] == 'SUCCESS':
-            resultPublic.get("data", 0)
-
-        result1List = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/", datas={"id": str(groupId1)+"+"+str(groupId2)})
-        count1 = len(result1List.get("data", []))
-        result.append({'name':'kfc_preorder','value':count1})
-
-        resultKfcDelivery = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/", datas={'path': "kfc_delivery_nh"})
-        if resultKfcDelivery['status'] == 'SUCCESS':
-            groupId =  resultKfcDelivery.get("data", 0)
-            result1List = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/",datas={"id": groupId})
+            result1List = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/", datas={"id": str(groupId1)+"+"+str(groupId2)})
             count1 = len(result1List.get("data", []))
-            result.append({'name': 'kfc_delivery', 'value': count1})
+            result.append({'name':'kfc_preorder','value':count1})
 
-        resultPhDelivery = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",datas={'path': "ph_delivery_nh"})
-        if resultPhDelivery['status'] == 'SUCCESS':
-            groupId = resultPhDelivery.get("data", 0)
-            result1List = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/", datas={"id": groupId})
+            resultKfcDelivery = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/", datas={'path': "kfc_delivery_nh"})
+            if resultKfcDelivery['status'] == 'SUCCESS':
+                groupId =  resultKfcDelivery.get("data", 0)
+                result1List = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/",datas={"id": groupId})
+                count1 = len(result1List.get("data", []))
+                result.append({'name': 'kfc_delivery', 'value': count1})
+
+            resultPhDelivery = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",datas={'path': "ph_delivery_nh"})
+            if resultPhDelivery['status'] == 'SUCCESS':
+                groupId = resultPhDelivery.get("data", 0)
+                result1List = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/", datas={"id": groupId})
+                count1 = len(result1List.get("data", []))
+                result.append({'name': 'ph_delivery', 'value': count1})
+
+            resultDevops = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/", datas={'path': "devops"})
+            if resultDevops['status'] == 'SUCCESS':
+                groupId = resultDevops.get("data", 0)
+                result1List = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/", datas={"id": groupId})
+                count1 = len(result1List.get("data", []))
+                result.append({'name': 'devops', 'value': count1})
+
+            resultGoLive = hu.get(serivceName="cmdb", restName="/rest/host/", datas={'offset': 0, 'limit': 1,'go_live':1, "physical_idc": 'nh'})
+            count1 = resultGoLive.get("count", 0)
+            result.append({'name': '弹性节点', 'value': count1})
+        elif group == 'brand':
+            groupId1 = 0
+            resultKfcPreOrder = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",
+                                       datas={'path': "kfc_superapp_nh"})
+            if resultKfcPreOrder['status'] == 'SUCCESS':
+                groupId1 = resultKfcPreOrder.get("data", 0)
+
+            groupId2 = 0
+            resultPublic = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",
+                                  datas={'path': "public"})
+            if resultPublic['status'] == 'SUCCESS':
+                resultPublic.get("data", 0)
+
+            result1List = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/",
+                                 datas={"id": str(groupId1) + "+" + str(groupId2)})
             count1 = len(result1List.get("data", []))
-            result.append({'name': 'ph_delivery', 'value': count1})
+            result.append({'name': 'kfc_superapp', 'value': count1})
 
-        resultDevops = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/", datas={'path': "devops"})
-        if resultDevops['status'] == 'SUCCESS':
-            groupId = resultDevops.get("data", 0)
-            result1List = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/", datas={"id": groupId})
-            count1 = len(result1List.get("data", []))
-            result.append({'name': 'devops', 'value': count1})
+            resultKfcDelivery = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",
+                                       datas={'path': "kfc_campaign_nh"})
+            if resultKfcDelivery['status'] == 'SUCCESS':
+                groupId = resultKfcDelivery.get("data", 0)
+                result1List = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/", datas={"id": groupId})
+                count1 = len(result1List.get("data", []))
+                result.append({'name': 'kfc_campaign', 'value': count1})
 
-        resultGoLive = hu.get(serivceName="cmdb", restName="/rest/host/", datas={'offset': 0, 'limit': 1,'go_live':1, "physical_idc": 'nh'})
-        count1 = resultGoLive.get("count", 0)
-        result.append({'name': '弹性节点', 'value': count1})
+            resultPhDelivery = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",
+                                      datas={'path': "kfc_ges_nh"})
+            if resultPhDelivery['status'] == 'SUCCESS':
+                groupId = resultPhDelivery.get("data", 0)
+                result1List = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/", datas={"id": groupId})
+                count1 = len(result1List.get("data", []))
+                result.append({'name': 'kfc_ges', 'value': count1})
+
+            resultDevops = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",
+                                  datas={'path': "kfc_crm_nh"})
+            if resultDevops['status'] == 'SUCCESS':
+                groupId = resultDevops.get("data", 0)
+                result1List = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/", datas={"id": groupId})
+                count1 = len(result1List.get("data", []))
+                result.append({'name': 'kfc_crm', 'value': count1})
+
+            resultGoLive = hu.get(serivceName="cmdb", restName="/rest/host/",
+                                  datas={'offset': 0, 'limit': 1, 'go_live': 1, "physical_idc": 'nh'})
+            count1 = resultGoLive.get("count", 0)
+            result.append({'name': '弹性节点', 'value': count1})
         return result
 
     def GetZrBizGroupInfo(self):
@@ -135,151 +186,439 @@ class HostDashboardView(LoginRequiredMixin, OrderableListMixin,JSONResponseMixin
         #         resultDmzNh = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/", datas={"id": groupId})
         #         temp['value'] = len(resultDmzNh.get("data", []))
         #         result.append(temp)
-        groupId1 = 0
-        resultKfcPreOrder = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",
-                                   datas={'path': "kfc_preorder_zr"})
-        if resultKfcPreOrder['status'] == 'SUCCESS':
-            groupId1 = resultKfcPreOrder.get("data", 0)
+        group = self.request.devopsgroup
+        if group == 'ec':
+            groupId1 = 0
+            resultKfcPreOrder = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",
+                                       datas={'path': "kfc_preorder_zr"})
+            if resultKfcPreOrder['status'] == 'SUCCESS':
+                groupId1 = resultKfcPreOrder.get("data", 0)
 
-        groupId2 = 0
-        resultPublic = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/", datas={'path': "public"})
-        if resultPublic['status'] == 'SUCCESS':
-            resultPublic.get("data", 0)
+            groupId2 = 0
+            resultPublic = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/", datas={'path': "public"})
+            if resultPublic['status'] == 'SUCCESS':
+                resultPublic.get("data", 0)
 
-        result1List = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/",
-                             datas={"id": str(groupId1) + "+" + str(groupId2)})
-        count1 = len(result1List.get("data", []))
-        result.append({'name': 'kfc_preorder', 'value': count1})
-
-        resultKfcDelivery = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",
-                                   datas={'path': "kfc_delivery_zr"})
-        if resultKfcDelivery['status'] == 'SUCCESS':
-            groupId = resultKfcDelivery.get("data", 0)
-            result1List = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/", datas={"id": groupId})
+            result1List = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/",
+                                 datas={"id": str(groupId1) + "+" + str(groupId2)})
             count1 = len(result1List.get("data", []))
-            result.append({'name': 'kfc_delivery', 'value': count1})
+            result.append({'name': 'kfc_preorder', 'value': count1})
 
-        resultPhDelivery = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",
-                                  datas={'path': "ph_delivery_zr"})
-        if resultPhDelivery['status'] == 'SUCCESS':
-            groupId = resultPhDelivery.get("data", 0)
-            result1List = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/", datas={"id": groupId})
+            resultKfcDelivery = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",
+                                       datas={'path': "kfc_delivery_zr"})
+            if resultKfcDelivery['status'] == 'SUCCESS':
+                groupId = resultKfcDelivery.get("data", 0)
+                result1List = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/", datas={"id": groupId})
+                count1 = len(result1List.get("data", []))
+                result.append({'name': 'kfc_delivery', 'value': count1})
+
+            resultPhDelivery = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",
+                                      datas={'path': "ph_delivery_zr"})
+            if resultPhDelivery['status'] == 'SUCCESS':
+                groupId = resultPhDelivery.get("data", 0)
+                result1List = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/", datas={"id": groupId})
+                count1 = len(result1List.get("data", []))
+                result.append({'name': 'ph_delivery', 'value': count1})
+
+            resultDevops = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/", datas={'path': "devops"})
+            if resultDevops['status'] == 'SUCCESS':
+                groupId = resultDevops.get("data", 0)
+                result1List = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/", datas={"id": groupId})
+                count1 = len(result1List.get("data", []))
+                result.append({'name': 'devops', 'value': count1})
+
+            resultGoLive = hu.get(serivceName="cmdb", restName="/rest/host/",
+                                  datas={'offset': 0, 'limit': 1, 'go_live': 1, "physical_idc": 'zr'})
+            count1 = resultGoLive.get("count", 0)
+            result.append({'name': '弹性节点', 'value': count1})
+        elif group == 'brand':
+            groupId1 = 0
+            resultKfcPreOrder = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",
+                                       datas={'path': "kfc_superapp_nh"})
+            if resultKfcPreOrder['status'] == 'SUCCESS':
+                groupId1 = resultKfcPreOrder.get("data", 0)
+
+            groupId2 = 0
+            resultPublic = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",
+                                  datas={'path': "public"})
+            if resultPublic['status'] == 'SUCCESS':
+                resultPublic.get("data", 0)
+
+            result1List = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/",
+                                 datas={"id": str(groupId1) + "+" + str(groupId2)})
             count1 = len(result1List.get("data", []))
-            result.append({'name': 'ph_delivery', 'value': count1})
+            result.append({'name': 'kfc_superapp', 'value': count1})
 
-        resultDevops = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/", datas={'path': "devops"})
-        if resultDevops['status'] == 'SUCCESS':
-            groupId = resultDevops.get("data", 0)
-            result1List = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/", datas={"id": groupId})
-            count1 = len(result1List.get("data", []))
-            result.append({'name': 'devops', 'value': count1})
+            resultKfcDelivery = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",
+                                       datas={'path': "kfc_campaign_zr"})
+            if resultKfcDelivery['status'] == 'SUCCESS':
+                groupId = resultKfcDelivery.get("data", 0)
+                result1List = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/", datas={"id": groupId})
+                count1 = len(result1List.get("data", []))
+                result.append({'name': 'kfc_campaign', 'value': count1})
 
-        resultGoLive = hu.get(serivceName="cmdb", restName="/rest/host/",
-                              datas={'offset': 0, 'limit': 1, 'go_live': 1, "physical_idc": 'zr'})
-        count1 = resultGoLive.get("count", 0)
-        result.append({'name': '弹性节点', 'value': count1})
+            resultPhDelivery = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",
+                                      datas={'path': "kfc_ges_zr"})
+            if resultPhDelivery['status'] == 'SUCCESS':
+                groupId = resultPhDelivery.get("data", 0)
+                result1List = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/", datas={"id": groupId})
+                count1 = len(result1List.get("data", []))
+                result.append({'name': 'kfc_ges', 'value': count1})
+
+            resultDevops = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",
+                                  datas={'path': "kfc_crm_zr"})
+            if resultDevops['status'] == 'SUCCESS':
+                groupId = resultDevops.get("data", 0)
+                result1List = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/", datas={"id": groupId})
+                count1 = len(result1List.get("data", []))
+                result.append({'name': 'kfc_crm', 'value': count1})
+
+            resultGoLive = hu.get(serivceName="cmdb", restName="/rest/host/",
+                                  datas={'offset': 0, 'limit': 1, 'go_live': 1, "physical_idc": 'zr'})
+            count1 = resultGoLive.get("count", 0)
+            result.append({'name': '弹性节点', 'value': count1})
         return result
 
     def GetKfcPreorderInfo(self):
-        result = []
+        result = {}
+        group = self.request.devopsgroup
         hu = HttpUtils(self.request)
-        resultNhOnline = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",datas={'path': "kfc_preorder_nh_online"})
+        if group == 'ec':
+            resultNhOnline = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",datas={'path': "kfc_preorder_nh_online"})
 
-        onlineCount = 0
-        if resultNhOnline['status'] == 'SUCCESS':
-            groupId = resultNhOnline.get("data", 0)
-            resultNhOnlineList = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/", datas={"id": groupId})
-            onlineCount = len(resultNhOnlineList.get("data", []))
+            onlineCount = 0
+            if resultNhOnline['status'] == 'SUCCESS':
+                groupId = resultNhOnline.get("data", 0)
+                resultNhOnlineList = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/", datas={"id": groupId})
+                onlineCount = len(resultNhOnlineList.get("data", []))
 
-        resultZrOnline = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",datas={'path': "kfc_preorder_zr_online"})
-        if resultZrOnline['status'] == 'SUCCESS':
-            groupId = resultZrOnline.get("data", 0)
-            resultZrOnlineList = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/",datas={"id": groupId})
-            onlineCount += len(resultZrOnlineList.get("data", []))
+            resultZrOnline = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",datas={'path': "kfc_preorder_zr_online"})
+            if resultZrOnline['status'] == 'SUCCESS':
+                groupId = resultZrOnline.get("data", 0)
+                resultZrOnlineList = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/",datas={"id": groupId})
+                onlineCount += len(resultZrOnlineList.get("data", []))
 
-        resultNhPilot = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",datas={'path': "kfc_preorder_nh_pilot"})
-        pilotCount = 0
-        if resultNhPilot['status'] == 'SUCCESS':
-            groupId = resultNhPilot.get("data",0)
-            resultNhPilotList = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/", datas={"id": groupId})
-            pilotCount = len(resultNhPilotList.get("data", []))
+            resultNhPilot = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",datas={'path': "kfc_preorder_nh_pilot"})
+            pilotCount = 0
+            if resultNhPilot['status'] == 'SUCCESS':
+                groupId = resultNhPilot.get("data",0)
+                resultNhPilotList = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/", datas={"id": groupId})
+                pilotCount = len(resultNhPilotList.get("data", []))
 
-        resultZrPilot = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",datas={'path': "kfc_preorder_zr_pilot"})
-        if resultZrPilot['status'] == 'SUCCESS':
-            groupId = resultZrPilot.get("data", 0)
-            resultZrPilotList = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/",datas={"id": groupId})
-            pilotCount += len(resultZrPilotList.get("data", []))
+            resultZrPilot = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",datas={'path': "kfc_preorder_zr_pilot"})
+            if resultZrPilot['status'] == 'SUCCESS':
+                groupId = resultZrPilot.get("data", 0)
+                resultZrPilotList = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/",datas={"id": groupId})
+                pilotCount += len(resultZrPilotList.get("data", []))
 
-        result.append({'name':'online','value':onlineCount})
-        result.append({'name': 'pilot', 'value': pilotCount})
+            data = []
+
+            data.append({'name':'online','value':onlineCount})
+            data.append({'name': 'pilot', 'value': pilotCount})
+            result['data'] = data
+            result['title'] = 'KFC-PreOrder'
+        elif group == 'brand':
+            resultNhOnline = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",
+                                    datas={'path': "kfc_superapp_nh_online"})
+
+            onlineCount = 0
+            if resultNhOnline['status'] == 'SUCCESS':
+                groupId = resultNhOnline.get("data", 0)
+                resultNhOnlineList = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/",
+                                            datas={"id": groupId})
+                onlineCount = len(resultNhOnlineList.get("data", []))
+
+            resultZrOnline = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",
+                                    datas={'path': "kfc_superapp_zr_online"})
+            if resultZrOnline['status'] == 'SUCCESS':
+                groupId = resultZrOnline.get("data", 0)
+                resultZrOnlineList = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/",
+                                            datas={"id": groupId})
+                onlineCount += len(resultZrOnlineList.get("data", []))
+
+            resultNhPilot = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",
+                                   datas={'path': "kfc_superapp_nh_pilot"})
+            pilotCount = 0
+            if resultNhPilot['status'] == 'SUCCESS':
+                groupId = resultNhPilot.get("data", 0)
+                resultNhPilotList = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/",
+                                           datas={"id": groupId})
+                pilotCount = len(resultNhPilotList.get("data", []))
+
+            resultZrPilot = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",
+                                   datas={'path': "kfc_superapp_zr_pilot"})
+            if resultZrPilot['status'] == 'SUCCESS':
+                groupId = resultZrPilot.get("data", 0)
+                resultZrPilotList = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/",
+                                           datas={"id": groupId})
+                pilotCount += len(resultZrPilotList.get("data", []))
+
+            data = []
+            data.append({'name': 'online', 'value': onlineCount})
+            data.append({'name': 'pilot', 'value': pilotCount})
+            result['data'] = data
+            result['title'] = 'KFC-SuperApp'
         return result
 
     def GetKfcDeliveryInfo(self):
-        result = []
+        result = {}
         hu = HttpUtils(self.request)
-        resultNhOnline = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",datas={'path': "kfc_delivery_nh_online"})
+        group = self.request.devopsgroup
+        if group == 'ec':
+            resultNhOnline = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",datas={'path': "kfc_delivery_nh_online"})
 
-        onlineCount = 0
-        if resultNhOnline['status'] == 'SUCCESS':
-            groupId = resultNhOnline.get("data", 0)
-            resultNhOnlineList = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/",datas={"id": groupId})
-            onlineCount = len(resultNhOnlineList.get("data", []))
+            onlineCount = 0
+            if resultNhOnline['status'] == 'SUCCESS':
+                groupId = resultNhOnline.get("data", 0)
+                resultNhOnlineList = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/",datas={"id": groupId})
+                onlineCount = len(resultNhOnlineList.get("data", []))
 
-        resultZrOnline = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",datas={'path': "kfc_delivery_zr_online"})
-        if resultZrOnline['status'] == 'SUCCESS':
-            groupId = resultZrOnline.get("data", 0)
-            resultZrOnlineList = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/",datas={"id": groupId})
-            onlineCount += len(resultZrOnlineList.get("data", []))
+            resultZrOnline = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",datas={'path': "kfc_delivery_zr_online"})
+            if resultZrOnline['status'] == 'SUCCESS':
+                groupId = resultZrOnline.get("data", 0)
+                resultZrOnlineList = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/",datas={"id": groupId})
+                onlineCount += len(resultZrOnlineList.get("data", []))
 
-        resultNhPilot = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",datas={'path': "kfc_delivery_nh_pilot"})
-        pilotCount = 0
-        if resultNhPilot['status'] == 'SUCCESS':
-            groupId = resultNhPilot.get("data", 0)
-            resultNhPilotList = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/", datas={"id": groupId})
-            pilotCount = len(resultNhPilotList.get("data", []))
+            resultNhPilot = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",datas={'path': "kfc_delivery_nh_pilot"})
+            pilotCount = 0
+            if resultNhPilot['status'] == 'SUCCESS':
+                groupId = resultNhPilot.get("data", 0)
+                resultNhPilotList = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/", datas={"id": groupId})
+                pilotCount = len(resultNhPilotList.get("data", []))
 
-        resultZrPilot = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",datas={'path': "kfc_delivery_zr_pilot"})
-        if resultZrPilot['status'] == 'SUCCESS':
-            groupId = resultZrPilot.get("data", 0)
-            resultZrPilotList = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/", datas={"id": groupId})
-            pilotCount += len(resultZrPilotList.get("data", []))
+            resultZrPilot = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",datas={'path': "kfc_delivery_zr_pilot"})
+            if resultZrPilot['status'] == 'SUCCESS':
+                groupId = resultZrPilot.get("data", 0)
+                resultZrPilotList = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/", datas={"id": groupId})
+                pilotCount += len(resultZrPilotList.get("data", []))
 
-        result.append({'name': 'online', 'value': onlineCount})
-        result.append({'name': 'pilot', 'value': pilotCount})
+            data = []
+            data.append({'name': 'online', 'value': onlineCount})
+            data.append({'name': 'pilot', 'value': pilotCount})
+            result['data'] = data
+            result['title'] = 'KFC-Delivery'
+        elif group == 'brand':
+            resultNhOnline = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",
+                                    datas={'path': "kfc_campaign_nh_online"})
+
+            onlineCount = 0
+            if resultNhOnline['status'] == 'SUCCESS':
+                groupId = resultNhOnline.get("data", 0)
+                resultNhOnlineList = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/",
+                                            datas={"id": groupId})
+                onlineCount = len(resultNhOnlineList.get("data", []))
+
+            resultZrOnline = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",
+                                    datas={'path': "kfc_campaign_zr_online"})
+            if resultZrOnline['status'] == 'SUCCESS':
+                groupId = resultZrOnline.get("data", 0)
+                resultZrOnlineList = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/",
+                                            datas={"id": groupId})
+                onlineCount += len(resultZrOnlineList.get("data", []))
+
+            resultNhPilot = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",
+                                   datas={'path': "kfc_campaign_nh_pilot"})
+            pilotCount = 0
+            if resultNhPilot['status'] == 'SUCCESS':
+                groupId = resultNhPilot.get("data", 0)
+                resultNhPilotList = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/",
+                                           datas={"id": groupId})
+                pilotCount = len(resultNhPilotList.get("data", []))
+
+            resultZrPilot = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",
+                                   datas={'path': "kfc_campaign_zr_pilot"})
+            if resultZrPilot['status'] == 'SUCCESS':
+                groupId = resultZrPilot.get("data", 0)
+                resultZrPilotList = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/",
+                                           datas={"id": groupId})
+                pilotCount += len(resultZrPilotList.get("data", []))
+
+            data = []
+            data.append({'name': 'online', 'value': onlineCount})
+            data.append({'name': 'pilot', 'value': pilotCount})
+            result['data'] = data
+            result['title'] = 'KFC-Campaign'
         return result
 
     def GetPhDeliveryInfo(self):
-        result = []
+        result = {}
         hu = HttpUtils(self.request)
-        resultNhOnline = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",datas={'path': "ph_delivery_nh_online"})
+        group = self.request.devopsgroup
+        if group == 'ec':
+            resultNhOnline = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",datas={'path': "ph_delivery_nh_online"})
 
-        onlineCount = 0
-        if resultNhOnline['status'] == 'SUCCESS':
-            groupId = resultNhOnline.get("data", 0)
-            resultNhOnlineList = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/",datas={"id": groupId})
-            onlineCount = len(resultNhOnlineList.get("data", []))
+            onlineCount = 0
+            if resultNhOnline['status'] == 'SUCCESS':
+                groupId = resultNhOnline.get("data", 0)
+                resultNhOnlineList = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/",datas={"id": groupId})
+                onlineCount = len(resultNhOnlineList.get("data", []))
 
-        resultZrOnline = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",datas={'path': "ph_delivery_zr_online"})
-        if resultZrOnline['status'] == 'SUCCESS':
-            groupId = resultZrOnline.get("data", 0)
-            resultZrOnlineList = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/",
-                                        datas={"id": groupId})
-            onlineCount += len(resultZrOnlineList.get("data", []))
+            resultZrOnline = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",datas={'path': "ph_delivery_zr_online"})
+            if resultZrOnline['status'] == 'SUCCESS':
+                groupId = resultZrOnline.get("data", 0)
+                resultZrOnlineList = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/",
+                                            datas={"id": groupId})
+                onlineCount += len(resultZrOnlineList.get("data", []))
 
-        resultNhPilot = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",
-                               datas={'path': "kfc_delivery_nh_pilot"})
-        pilotCount = 0
-        if resultNhPilot['status'] == 'SUCCESS':
-            groupId = resultNhPilot.get("data", 0)
-            resultNhPilotList = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/", datas={"id": groupId})
-            pilotCount = len(resultNhPilotList.get("data", []))
+            resultNhPilot = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",
+                                   datas={'path': "kfc_delivery_nh_pilot"})
+            pilotCount = 0
+            if resultNhPilot['status'] == 'SUCCESS':
+                groupId = resultNhPilot.get("data", 0)
+                resultNhPilotList = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/", datas={"id": groupId})
+                pilotCount = len(resultNhPilotList.get("data", []))
 
-        resultZrPilot = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",datas={'path': "ph_delivery_zr_pilot"})
-        if resultZrPilot['status'] == 'SUCCESS':
-            groupId = resultZrPilot.get("data", 0)
-            resultZrPilotList = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/", datas={"id": groupId})
-            pilotCount += len(resultZrPilotList.get("data", []))
+            resultZrPilot = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",datas={'path': "ph_delivery_zr_pilot"})
+            if resultZrPilot['status'] == 'SUCCESS':
+                groupId = resultZrPilot.get("data", 0)
+                resultZrPilotList = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/", datas={"id": groupId})
+                pilotCount += len(resultZrPilotList.get("data", []))
 
-        result.append({'name': 'online', 'value': onlineCount})
-        result.append({'name': 'pilot', 'value': pilotCount})
+            data = []
+            data.append({'name': 'online', 'value': onlineCount})
+            data.append({'name': 'pilot', 'value': pilotCount})
+            result['data'] = data
+            result['title'] = 'PH-Delivery'
+        elif group == 'brand':
+            resultNhOnline = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",
+                                    datas={'path': "kfc_ges_nh_online"})
+
+            onlineCount = 0
+            if resultNhOnline['status'] == 'SUCCESS':
+                groupId = resultNhOnline.get("data", 0)
+                resultNhOnlineList = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/",
+                                            datas={"id": groupId})
+                onlineCount = len(resultNhOnlineList.get("data", []))
+
+            resultZrOnline = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",
+                                    datas={'path': "kfc_ges_zr_online"})
+            if resultZrOnline['status'] == 'SUCCESS':
+                groupId = resultZrOnline.get("data", 0)
+                resultZrOnlineList = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/",
+                                            datas={"id": groupId})
+                onlineCount += len(resultZrOnlineList.get("data", []))
+
+            resultNhPilot = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",
+                                   datas={'path': "kfc_ges_nh_pilot"})
+            pilotCount = 0
+            if resultNhPilot['status'] == 'SUCCESS':
+                groupId = resultNhPilot.get("data", 0)
+                resultNhPilotList = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/",
+                                           datas={"id": groupId})
+                pilotCount = len(resultNhPilotList.get("data", []))
+
+            resultZrPilot = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",
+                                   datas={'path': "kfc_ges_zr_pilot"})
+            if resultZrPilot['status'] == 'SUCCESS':
+                groupId = resultZrPilot.get("data", 0)
+                resultZrPilotList = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/",
+                                           datas={"id": groupId})
+                pilotCount += len(resultZrPilotList.get("data", []))
+
+            data = []
+            data.append({'name': 'online', 'value': onlineCount})
+            data.append({'name': 'pilot', 'value': pilotCount})
+            result['data'] = data
+            result['title'] = 'KFC-Ges'
+        return result
+
+
+    def GetPublicCouponInfo(self):
+
+        result = {}
+        hu = HttpUtils(self.request)
+        group = self.request.devopsgroup
+        if group == 'ec':
+            pass
+        elif group == 'brand':
+            resultNhOnline = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",
+                                    datas={'path': "public_coupon_nh_online"})
+
+            onlineCount = 0
+            if resultNhOnline['status'] == 'SUCCESS':
+                groupId = resultNhOnline.get("data", 0)
+                resultNhOnlineList = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/",
+                                            datas={"id": groupId})
+                onlineCount = len(resultNhOnlineList.get("data", []))
+
+            resultZrOnline = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",
+                                    datas={'path': "public_coupon_zr_online"})
+            if resultZrOnline['status'] == 'SUCCESS':
+                groupId = resultZrOnline.get("data", 0)
+                resultZrOnlineList = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/",
+                                            datas={"id": groupId})
+                onlineCount += len(resultZrOnlineList.get("data", []))
+
+            resultNhPilot = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",
+                                   datas={'path': "public_coupon_nh_pilot"})
+            pilotCount = 0
+            if resultNhPilot['status'] == 'SUCCESS':
+                groupId = resultNhPilot.get("data", 0)
+                resultNhPilotList = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/",
+                                           datas={"id": groupId})
+                pilotCount = len(resultNhPilotList.get("data", []))
+
+            resultZrPilot = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",
+                                   datas={'path': "public_coupon_zr_pilot"})
+            if resultZrPilot['status'] == 'SUCCESS':
+                groupId = resultZrPilot.get("data", 0)
+                resultZrPilotList = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/",
+                                           datas={"id": groupId})
+                pilotCount += len(resultZrPilotList.get("data", []))
+
+            data = []
+            data.append({'name': 'online', 'value': onlineCount})
+            data.append({'name': 'pilot', 'value': pilotCount})
+            result['data'] = data
+            result['title'] = 'Public-Coupon'
+        return result
+
+    def GetPublicEGiftcardInfo(self):
+
+        result = {}
+        hu = HttpUtils(self.request)
+        group = self.request.devopsgroup
+        if group == 'ec':
+            pass
+        elif group == 'brand':
+            resultNhOnline = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",
+                                    datas={'path': "public_e-giftcard_nh_online"})
+
+            onlineCount = 0
+            if resultNhOnline['status'] == 'SUCCESS':
+                groupId = resultNhOnline.get("data", 0)
+                resultNhOnlineList = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/",
+                                            datas={"id": groupId})
+                onlineCount = len(resultNhOnlineList.get("data", []))
+
+            resultZrOnline = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",
+                                    datas={'path': "public_e-giftcard_zr_online"})
+            if resultZrOnline['status'] == 'SUCCESS':
+                groupId = resultZrOnline.get("data", 0)
+                resultZrOnlineList = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/",
+                                            datas={"id": groupId})
+                onlineCount += len(resultZrOnlineList.get("data", []))
+
+            resultNhPilot = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",
+                                   datas={'path': "public_e-giftcard_nh_pilot"})
+            pilotCount = 0
+            if resultNhPilot['status'] == 'SUCCESS':
+                groupId = resultNhPilot.get("data", 0)
+                resultNhPilotList = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/",
+                                           datas={"id": groupId})
+                pilotCount = len(resultNhPilotList.get("data", []))
+
+            resultZrPilot = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",
+                                   datas={'path': "public_e-giftcard_zr_pilot"})
+            if resultZrPilot['status'] == 'SUCCESS':
+                groupId = resultZrPilot.get("data", 0)
+                resultZrPilotList = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/",
+                                           datas={"id": groupId})
+                pilotCount += len(resultZrPilotList.get("data", []))
+
+            data = []
+            data.append({'name': 'online', 'value': onlineCount})
+            data.append({'name': 'pilot', 'value': pilotCount})
+            result['data'] = data
+            result['title'] = 'public-E-Giftcard'
         return result
