@@ -92,7 +92,7 @@
                 </td>
                 <td>
                     <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='#deploy_pre_modal' data-pid="{{ o.id }}" data-aid="0" style="margin-right: 10px"><i class="glyphicon glyphicon-magnet"></i> pre</button>
-                    <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='' data-pid="{{ o.id }}" data-aid="0" style="margin-right: 10px"><i class="glyphicon glyphicon-info-sign"></i> 流量</button>
+                    <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='#deploy_flow_modal' data-pid="{{ o.id }}" data-aid="0" style="margin-right: 10px"><i class="glyphicon glyphicon-info-sign"></i> 流量</button>
                     <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='#deploy_modal' data-pid="{{ o.id }}" data-aid="0" data-cv="{{ o.current_version}}" style="margin-right: 10px"><i class="glyphicon glyphicon-play"></i> 发布</button>
 {#                    <button type="button" class="btn btn-sm btn-success" onclick="deployLog()"><i class="fa fa-book"></i> 日志</button>#}
                 </td>
@@ -136,7 +136,7 @@
                             </td>
                             <td>
                                 <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='#deploy_pre_modal' data-pid="{{ o.id }}" data-aid="{{ a.id }}" data-name="{{ a.name }}" style="margin-right: 10px"><i class="glyphicon glyphicon-magnet"></i> pre</button>
-                                <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='' data-pid="{{ o.id }}" data-aid="0" style="margin-right: 10px"><i class="glyphicon glyphicon-info-sign"></i> 流量</button>
+                                <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='#deploy_flow_modal' data-pid="{{ o.id }}" data-aid="0" style="margin-right: 10px"><i class="glyphicon glyphicon-info-sign"></i> 流量</button>
                                 <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='#deploy_modal' data-pid="{{ o.id }}" data-aid="{{ a.id }}" data-name="{{ a.name }}" data-cv="{{ a.current_version}}" style="margin-right: 10px"><i class="glyphicon glyphicon-play"></i> 发布</button>
                                 <a href="../update?appId={{ a.id }}" class="btn btn-sm btn-success"><i class="fa fa-book"></i> 编辑</a>
                                 <a href="javascript:void(0)" onclick="deleteApp('{{ a.id }}')" class="btn btn-sm btn-danger"><i class="fa fa-trash"></i> 删除</a>
@@ -258,6 +258,56 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary" id="deploy_pre_modal_btn" title="确定" onclick="preExec()">确定</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="deploy_flow_modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content" style="width: 600px">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">流量查看</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" style="max-height: 500px;overflow:auto">
+                    <div class="row">
+                        <table id="deploy_flow_modal_table" class="table table-striped table-bordered table-hover dataTables-example dataTable accordion">
+                            <tbody>
+                                <tr>
+
+                                </tr>
+                                <tr>
+                                    <td rowspan="6">public_e-giftcard</td>
+                                    <td rowspan="2">yumchina</td>
+                                    <td>zr</td><td>pilot</td><td>0%</td>
+                                </tr>
+                                <tr>
+                                    <td>nh</td><td>online</td><td>100%</td>
+                                </tr>
+                                <tr>
+                                    <td rowspan="2">kfc</td>
+                                    <td>zr</td><td>pilot</td><td>0%</td>
+                                </tr>
+                                <tr>
+                                    <td>nh</td><td>online</td><td>100%</td>
+                                </tr>
+                                <tr>
+                                    <td rowspan="2">pizzahut</td>
+                                    <td>zr</td><td>pilot</td><td>0%</td>
+                                </tr>
+                                <tr>
+                                    <td>nh</td><td>online</td><td>100%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" title="确定导入" onclick="importDeployInfo()">确定</button>
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
                 </div>
             </div>
@@ -398,7 +448,10 @@
                     physical = $("#physical2"+aid).val();
                     deployment_environment = $("#deployment_environment2"+aid).val();
                     reqData['name']= datas['name'];
-                    scripObj = JSON.parse($("#script2"+aid).val().replace(/'/g,'"'));
+                    var script2 = $("#script2"+aid).val();
+                    if(script2){
+                        scripObj = JSON.parse(script2.replace(/'/g,'"'));
+                    }
                 }else{
                     physical = $("#physical1"+pid).val();
                     deployment_environment = $("#deployment_environment1"+pid).val();
@@ -411,7 +464,10 @@
                         }
                     }
                     app_name = app_name.substring(0,app_name.length-1);
-                    scripObj = JSON.parse($("#script1"+aid).val().replace(/'/g,'"'));
+                    var script1 = $("#script1"+aid).val();
+                    if(script1){
+                        scripObj = JSON.parse(script1.replace(/'/g,'"'));
+                    }
                     reqData['name']= app_name;
                 }
                 reqData["parent_id"] = pid;
