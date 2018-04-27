@@ -19,7 +19,8 @@ Vue.component('task-list', {
 Vue.component('task-info', {
   data: function(){
     return {
-      taskInfo:{}
+      taskInfo:{},
+        curCmd:{}
     }
   },
   template: '#task-info',
@@ -57,12 +58,12 @@ Vue.component('task-info', {
         Vue.set(curStep['lines'], e.newIndex, {list:[cmd],activeIndex:0});
       }
     },
-    showEdit:function(id){
-      $(id).modal('show')
+    showEdit:function(index){
+      this.curCmd = this.curCmds[index]['list'][this.curCmds[index]['list']['activeIndex']||0];
+       $('#dialogModal').modal('show')
     },
-    closeEdit:function(id){
-      // alert(id);
-      $(id).modal('hide')
+    closeEdit:function(){
+      $('#dialogModal').modal('hide')
     },
     selectTool:function(index){
       // alert(index);
@@ -94,8 +95,8 @@ Vue.component('task-cmds', {
         for(var i in _taskCmds.data){
           top[_taskCmds.data[i].tool_set_prime_type] = _taskCmds.data[i].tool_set_prime_type_zh;
           left[_taskCmds.data[i].tool_set_type] = _taskCmds.data[i].tool_set_type_zh;
-          taskCmds  = _taskCmds.data;
         }
+        var taskCmds  = _taskCmds.data;
 
         var cmds = [];
         var initTop = Object.getOwnPropertyNames(top)[0];
@@ -160,7 +161,7 @@ var transApiDataToLocal  = function(apiData){
           list:[]
         };
       }
-      tmp.tlines[item.sub_seq_no-1].list.push(tmp.lines[i]);
+      tmp.tlines[item.sub_seq_no-1].list.push(tmp.lines[i$1]);
     }
     tmp.lines = tmp.tlines;
     delete tmp.tlines;

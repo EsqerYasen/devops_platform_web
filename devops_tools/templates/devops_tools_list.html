@@ -32,4 +32,21 @@
         {% endfor %}
         </tbody>
     </table>
+
+    <link rel="stylesheet" href="/static/hplus/codemirror/codemirror.css">
+    <link rel="stylesheet" href="/static/hplus/codemirror/eclipse.css">
+    <script src="/static/hplus/codemirror/codemirror.js"></script>
+    <script src="/static/hplus/codemirror/active-line.js"></script>
+    <script src="/static/hplus/codemirror/shell.js"></script>
+    <textarea id="code" name="code" style="display: none;"></textarea>
+    <script>
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        lineNumbers: true,
+        styleActiveLine: true,
+        matchBrackets: true,
+          theme: 'eclipse'
+      });
+    editor.setValue('#!/bin/sh');
+      console.log(editor.getValue());
+    </script>
 {% endblock %}
