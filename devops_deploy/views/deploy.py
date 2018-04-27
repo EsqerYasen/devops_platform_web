@@ -52,6 +52,7 @@ class DeployListView(LoginRequiredMixin, OrderableListMixin, ListView):
             context['is_paginated'] = count > 0
             context['page_obj'] = paginator.page(self.request.offset)
             context['paginator'] = paginator
+            context['devops_group'] = self.request.devopsgroup
         except Exception as e:
             logger.error(e)
         return context
@@ -505,8 +506,17 @@ class DeployPreExecView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin,
     def post_ajax(self, request, *args, **kwargs):
         result = {}
         try:
-            pass
-
+            req = self.request
+            hu = HttpUtils(req)
+            reqData = hu.getRequestParam()
+            preResult = hu.post(serivceName="job", restName="/rest/deploy/pre_download/", datas=reqData)
+            preResult = preResult.json()
+            if preResult["status"] == "SUCCESS":
+                result['status'] = 0
+                result['msg'] = "删除成功"
+            else:
+                result['status'] = 1
+                result['msg'] = "删除失败"
         except Exception as e:
             result['status'] = 1
             result['msg'] = "pre执行异常"
