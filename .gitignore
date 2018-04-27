@@ -85,4 +85,5 @@ venv.bak/
 .idea/
 nohup.out
 celerybeat*
-#settings.py
+settings.py
+logs/
