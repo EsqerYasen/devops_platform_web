@@ -62,6 +62,51 @@ class CommandSetCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMix
             logger.error(e)
         return context
 
+    # def post_ajax(self, request, *args, **kwargs):
+    #     result = {'status': 0}
+    #     try:
+    #         user = request.user
+    #         files = request.FILES
+    #         command_set = request.POST.get("command_set",None)
+    #
+    #         hu = HttpUtils(request)
+    #         #检查是否有高级查询信息 如果有高级查询信息 需要创建临时组
+    #         commandSet = json.loads(command_set)
+    #         commandStep = commandSet['steps']
+    #         resultJson = hu.post(serivceName="job", restName="/rest/job/add/", datas=command_set)
+    #         resultJson  = eval(resultJson.text)
+    #         if(resultJson["status"] == "FAILURE"):
+    #             result['status'] = 1
+    #         else:
+    #             localParamList = commandSet['localParamList']
+    #
+    #             bool = True
+    #             data = resultJson["data"]
+    #             for k in data:
+    #                 if bool:
+    #                     if len(localParamList) > 0:
+    #                         for l in localParamList:
+    #                             l['set_id'] = int(k)
+    #                         resultJson = hu.post(serivceName="job", restName="/rest/para/add/", datas=localParamList)
+    #                     bool = False
+    #                 step_ids = data[k]
+    #                 for file in files:
+    #                     t = file.split(',')
+    #                     step = step_ids[int(t[0])]
+    #                     f = files[file]
+    #                     path = UPLOAD_SCRIPT_PATH + k + "/"
+    #                     for k2 in step:
+    #                         line = step[k2]
+    #                         path += str(k2) + "/"+str(line[int(t[1])])+"/"
+    #                         os.makedirs(path)
+    #                         destination = open(os.path.join(path, f.name), 'wb+')
+    #                         for chunk in f.chunks():
+    #                             destination.write(chunk)
+    #                         destination.close()
+    #     except Exception as e:
+    #         logger.error(e)
+    #     return HttpResponse(json.dumps(result),content_type='application/json')
+
     def post_ajax(self, request, *args, **kwargs):
         result = {'status': 0}
         try:
@@ -69,44 +114,41 @@ class CommandSetCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMix
             files = request.FILES
             command_set = request.POST.get("command_set",None)
 
+            t = time.time()
+            filePath = "/opt/devops/shell_script/%s/"%(int(round(t * 1000)))
+
             hu = HttpUtils(request)
             #检查是否有高级查询信息 如果有高级查询信息 需要创建临时组
             commandSet = json.loads(command_set)
             commandStep = commandSet['steps']
+            for setp in commandStep:
+                seq_no = setp['seq_no']
+                lines = setp['lines']
+                for i in range(len(lines)):
+                    source_file_name = lines[i]['source_file_name']
+                    if source_file_name:
+                        f = None
+                        try:
+                            if not os.path.exists(filePath):
+                                os.makedirs(filePath)
+                            fileName = "%s%s_%s.sh" % (filePath,seq_no,i)
+                            f = open(fileName, 'w')
+                            f.write(source_file_name)
+                            f.close()
+                            lines[i]['source_file_name'] = fileName
+                        except Exception as e:
+                            logger.error(e)
+                            f.close()
+
             resultJson = hu.post(serivceName="job", restName="/rest/job/add/", datas=command_set)
             resultJson  = eval(resultJson.text)
             if(resultJson["status"] == "FAILURE"):
                 result['status'] = 1
             else:
-                localParamList = commandSet['localParamList']
-
-                bool = True
-                data = resultJson["data"]
-                for k in data:
-                    if bool:
-                        if len(localParamList) > 0:
-                            for l in localParamList:
-                                l['set_id'] = int(k)
-                            resultJson = hu.post(serivceName="job", restName="/rest/para/add/", datas=localParamList)
-                        bool = False
-                    step_ids = data[k]
-                    for file in files:
-                        t = file.split(',')
-                        step = step_ids[int(t[0])]
-                        f = files[file]
-                        path = UPLOAD_SCRIPT_PATH + k + "/"
-                        for k2 in step:
-                            line = step[k2]
-                            path += str(k2) + "/"+str(line[int(t[1])])+"/"
-                            os.makedirs(path)
-                            destination = open(os.path.join(path, f.name), 'wb+')
-                            for chunk in f.chunks():
-                                destination.write(chunk)
-                            destination.close()
+                result['status'] = 0
         except Exception as e:
             logger.error(e)
         return HttpResponse(json.dumps(result),content_type='application/json')
-
 
 class CommandSetUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, TemplateView):
     template_name = "command_set_form.html"

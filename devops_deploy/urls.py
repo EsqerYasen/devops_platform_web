@@ -13,5 +13,6 @@ urlpatterns = [
     url(r'^executeLog/',ExecuteLogView.as_view(), name='executeLog'),
     url(r'^operationLog/',OperationLogView.as_view(), name='operationLog'),
     url(r'^deleteApp/',DeleteAppView.as_view(), name='deleteApp'),
-    url(r'^deployVersion/',DeployVersionView.as_view(), name='deployVersion')
+    url(r'^deployVersion/',DeployVersionView.as_view(), name='deployVersion'),
+    url(r'^deployPre/',DeployPreExecView.as_view(), name='deployPre')
 ]
