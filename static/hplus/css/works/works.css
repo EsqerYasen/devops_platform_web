@@ -1,0 +1,513 @@
+.works_box .clear:after{content:'';display:block;clear:both;height:0;overflow:hidden;visibility:hidden;}
+.works_box .clear{zoom:1;overflow: inherit}
+.fl{
+    float: left;
+}
+
+.works_box{
+    background: #ffffff;
+}
+
+.left-task,.task-content,.right-tast{
+    float: left;
+    overflow: hidden;
+}
+.left-task{
+    box-sizing: border-box;
+    width: 15%;
+    font-size: 15px;
+    float: left;
+    border-right: none;
+}
+
+.left-task-warp{
+    padding: 15px;
+}
+
+.left-task-warp .plus{
+    width: 100%;
+    height: 90px;
+    line-height: 80px;
+    text-align: center;
+    border:1px dotted #cccccc;
+    /*line-height: 90px;*/
+    font-size: 40px;
+    color: #aaa;
+    cursor: pointer;
+    box-shadow: 0px 0px 10px #efefef;
+
+}
+
+.left-task-warp .plus i{
+    font-size: 30px;
+}
+
+
+.left-task-warp ul{
+    list-style-type: none;
+    padding: 0px;
+    margin: 0px;
+    /*max-height: 300px;*/
+    margin-bottom: 20px;
+
+
+}
+.left-task-warp ul li{
+    line-height: 40px;
+    min-height:40px;
+    /*height: 40px;*/
+    padding: 0 10px;
+    border: 1px solid #eee;
+    border-radius: 3px;
+    margin-bottom: 10px;
+    position: relative;
+    background: #f8f8f8;
+    color: #555;
+    cursor: pointer;
+}
+
+.left-task-warp ul li.active{
+    background: #0098cd;
+    color: #ffffff;
+    border-color: #0098cd;
+}
+.left-task-warp ul li .num{
+
+    font-size: 22px;
+    float: left;
+    margin-right: 5px;
+    position: absolute;
+    left: 5px;
+    top: 0px;
+}
+.left-task-warp ul li .cdis{
+    float: left;
+
+    line-height: 25px;
+    margin-top: 8px;
+    font-size: 13px;
+    word-break: break-all;
+    padding-left: 10px;
+}
+
+.left-task-warp ul li .cdis span:first-child{
+    display: none;
+}
+
+.left-task-warp ul li .cdis.edit span:first-child{
+    display: inline;
+}
+.left-task-warp ul li .cdis.edit span:last-child{
+    display: none;
+}
+
+.left-task-warp ul li .stype{
+    color: #FFFFFF;
+    background: #0098cd;
+    font-size: 15px;
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    float: right;
+    margin-left: 5px;
+    border: 1px solid #eee;
+    margin-top:5px;
+    border-radius: 5px;
+}
+
+.left-task-warp .edit-input{
+    background: none;
+    height: 30px;
+    border: 1px solid #ddd;
+    /*text-indent: 1em;*/
+    width: 90%;
+    padding: 0px 5px;
+}
+
+.left-task-warp ul li i{
+    display: inline-block;
+    font-size: 12px!important;
+    display: inline-block;
+    position: absolute;
+    background: #666666;
+    color: #fff;
+    width: 22px;
+    height: 22px;
+    text-align: center;
+    line-height: 22px;
+    top:-10px;
+    right: -10px;
+    border-radius: 22px;
+    transform: scale(.7);
+
+
+}
+
+.task-content{
+    width: 85%;
+    /*border: 1px solid #eee;*/
+    background:url(/imgs/teskbg.png) repeat #eeeeee;
+}
+
+.task-content .topbar{
+    background: #f1f1f2;
+    padding: 7px 20px;
+    line-height: 25px;
+    border-bottom: 1px solid #eee;
+    text-align: right;
+}
+
+.task-content .taskwap{
+    padding: 10px;
+
+}
+
+.task-content .taskwap .top{
+    text-align: right;
+}
+.tesklist{
+    padding: 0px 0px 0px 20px;
+    width: 100%;
+    overflow: auto;
+
+}
+
+.tesklist .tesk{
+    width: 120px;
+    font-size: 13px;
+
+    border: 1px solid #dddddd;
+    background: #fff;
+    float: left;
+    position: relative;
+    border-radius: 5px;
+    margin-top: 40px;
+    margin-left: 15px;
+    cursor:move;
+    box-shadow: 1px 1px 10px rgba(0,0,0,.1);
+}
+
+.tesklist .tesk.active{
+    border-color: #0098cd;
+}
+
+
+.tesklist .tesk.active .teskbottom{
+    background: #0098cd;
+    color: #ffffff;
+}
+.teskwap{
+    /*height: 60px;*/
+    line-height: 22px;
+    height: 44px;
+    padding: 2px 15px;
+    overflow: hidden;
+    border-bottom: 1px solid #ddd;
+}
+.teskwap p{
+    padding-right: 15px;
+    padding-bottom: 0px;
+    padding-top: 7px;
+    overflow: hidden;
+    text-overflow:ellipsis;
+    white-space: nowrap;
+
+
+}
+.teskbottom{
+    height: 30px;
+    text-align: center;
+    background: #fefefe;
+    line-height: 30px;
+    border-radius: 0px 0px 5px 5px;
+}
+
+
+.tesklist .tesk p.center{
+    text-align: center;
+}
+
+.tesk .number{
+    display: inline-block;
+    padding: 0px 5px;
+    color: #ffffff;
+    background: #aaa;
+    border-radius: 2px;
+    position: absolute;
+    left: -8px;
+    top: -8px;
+}
+.tesk.active .number{
+    background: #0098cd;
+    color: #ffffff;
+}
+
+.tesklist .tesk .edit{
+    font-size: 24px;
+    display: inline-block;
+    position: absolute;
+    right: 10px;
+    top: 2px;
+    width: 24px;
+    height: 27px;
+    overflow: hidden;
+    color: #777;
+    cursor: pointer;
+}
+
+.tesklist .tesk.active .edit{
+    color: #0098cd;
+}
+.tesk i.teskico {
+    font-size: 12px;
+    display: block;
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    text-align: center;
+    line-height: 22px;
+    border-radius: 22px;
+    right: -10px;
+    top: -10px;
+    cursor: pointer;
+    color: #ffffff;
+    background: #aaa;
+    transform: scale(0);
+    -webkit-transition: all 300ms;
+    -moz-transition: all 300ms;
+    -ms-transition: all 300ms;
+    -o-transition: all 300ms;
+    transition: all 300ms;
+}
+.tesk.active i.teskico {
+    background: #0098cd;
+}
+.tesk:hover i.teskico {
+    transform: scale(.8);
+
+}
+
+i.teskico:hover{
+    transform: scale(.9);
+
+}
+
+
+.right-tast{
+    width: 20%;
+    border-left: none;
+}
+.right-tast .title{
+    line-height: 45px;
+    text-align: center;
+    background: #fefefe;
+    font-size: 16px;
+    border-bottom:1px solid #eee;
+}
+.right-tast .rt-left{
+    width:40%;
+    height:100%;
+    border-right: 1px solid #eee;
+    background:#fefefe;
+    float:left;
+    margin-top: 10px;
+}
+.right-task .rt-top{
+    width:100%;
+    height:30px;
+}
+.rt-top ul{
+    width:100%;
+    margin:0;
+    padding:  0;
+    border-bottom:1px solid #eee;
+}
+.rt-top li{
+    list-style:none;
+    margin:0;
+    font-size:15px;
+    line-height:21px;
+    padding:10px;
+    width:60px;
+    border-right:1px solid #eee;
+     display:inline-block;
+    cursor: pointer;
+}
+
+.rt-top li.act{
+    background: #0098cd;
+    color: #ffffff;
+}
+.rt-left ul{
+    width:100%;
+    margin:0;
+    padding:  0;
+}
+.rt-left li{
+    cursor:pointer;
+    width:100%;
+    padding:10px;
+    border-bottom: 1px dotted #efefef;
+    list-style:none;
+    margin:0;
+    font-size:15px;
+    line-height:21px;
+}
+.rt-left .act{
+    background:#0098cd;
+    color: #ffffff;
+}
+.right-tast .rt-right{
+    width:60%;
+    height:100%;
+    float:left;
+}
+
+.rt-right ul{
+    padding:0;
+    margin:0;
+    height:100%;
+}
+.rt-right li{
+    height:60px;
+    background:#f1f1f1;
+    list-style:none;
+    text-align: center;
+    padding-top:20px;
+    border-radius: 5px 5px;
+    cursor: move;
+    margin:10px;
+}
+
+.tesklist li {
+    display:none;
+    background: #ff0000;
+}
+
+
+
+.hide{
+    display: none;
+}
+.tesklist>div{
+    width: 100%;
+    min-height: 300px;
+    max-height: 500px;
+    overflow-y: scroll;
+}
+
+.tesk .tabs{
+    height: 22px;
+    line-height: 22px;
+    text-align: left;
+    margin-top: -24px;
+    padding: 0px;
+    position: absolute;
+}
+.tesk .tabs span{
+    display: inline-block;
+    padding: 0px 4px 0px 2px;
+    margin-left: 5px;
+    box-sizing: border-box;
+    cursor: pointer;
+    border-radius: 2px 2px 0px 0px;
+    background: #ffffff;
+    border-bottom-color: #0098cd;
+    border:1px solid #eeeeee;
+    position: relative;
+
+}
+.tesk .tabs span .con{
+    display: inline-block;
+    padding-left: 0px;
+}
+
+.tesk.active .tabs span{
+    border:1px solid #0098cd;
+    cursor: pointer;
+    background: #ffffff;
+    /*border-bottom: 1px solid #fff;*/
+}
+
+
+
+.tesk .tabs span.current{
+    border:1px solid #dddddd;
+    background: #ffffff;
+    border-bottom-color:#fff;
+}
+
+.tesk.active .tabs span.current{
+    border:1px solid #0098cd;
+    border-bottom-color:#fff;
+}
+.works_box .intags{
+    display: none;
+}
+.works_box .show{
+    display: block;
+}
+
+.works_box .tabClose{
+    font-size: 12px;
+    display: inline-block;
+    transform: scale(.6);
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background: #0098cd;
+    border-radius: 10px;
+    width: 20px;
+    height: 20px;
+    text-align: center;
+    color: #fff;
+}
+
+.layout_left{
+    float: left;
+    width: 80%;
+}
+
+.titlebar{
+    width: 100%;
+    height: 47px;
+    line-height: 47px;
+    border-bottom: 1px solid #efefef;
+    background: #fefefe;
+    border-right: 1px solid #efefef;
+}
+.titlebar .l{
+    width: 50%;
+    float: left;
+}
+.titlebar .r{
+    width: 50%;
+    float: left;
+    text-align: right;
+
+}
+.titlebar .warp {
+    padding: 0px 10px;
+    line-height: 45px;
+}
+
+.fade-enter-active, .fade-leave-active {
+    transition: opacity .5s
+}
+.fade-enter, .fade-leave-active {
+    opacity: 0
+}
+.bordero{
+    border-color: #efefef;
+}
+
+.alert-warning{
+    width: 300px;
+    text-align: center;
+    position: fixed;
+    top: 31%;
+    left: 50%;
+    margin-left: -150px;
+}
+

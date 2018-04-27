@@ -33,5 +33,8 @@ urlpatterns = [
     # url(r'^soft_load/', include([
     #     url(r'^page/', SoftLoadView.as_view(), name='page'),
     # ])),
+    url(r'^toolset/', include([
+        url(r'^list/', ToolSetListView.as_view(), name='list'),
+    ])),
 ]
 

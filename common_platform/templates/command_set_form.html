@@ -1,478 +1,226 @@
 {% extends 'common/basic_layout.html' %}
 
 {% block content %}
-<script type="text/javascript" src="/static/hplus/js/fileinput.min.js"></script>
-<script type="text/javascript" src="/static/hplus/js/fileinput.zh.js"></script>
-<script type="text/javascript" src="/static/hplus/js/zTree/jquery.ztree.core.js"></script>
-<script type="text/javascript" src="/static/hplus/js/zTree/jquery.ztree.excheck.js"></script>
-<script type="text/javascript" src="/static/hplus/js/zTree/jquery.ztree.exedit.js"></script>
-<script type="text/javascript" src="/static/hplus/js/chosen/chosen.jquery.js"></script>
-<link href="/static/hplus/css/fileinput.min.css" rel="stylesheet">
-<link href="/static/hplus/css/zTree/bootstrapStyle.css" rel="stylesheet">
-<link href="/static/hplus/css/chosen/chosen.css" rel="stylesheet">
+<script type="text/javascript" src="/static/hplus/js/works/vue.min.js"></script>
+<script type="text/javascript" src="/static/hplus/js/works/vuex.js"></script>
+<script type="text/javascript" src="/static/hplus/js/works/sortable.js"></script>
+<script type="text/javascript" src="/static/hplus/js/works/vuedraggable.js"></script>
+<script type="text/javascript" src="/static/hplus/js/works/alert.js"></script>
+<script type="text/javascript" src="/static/hplus/js/works/works.js"></script>
+<script type="text/javascript" src="/static/hplus/js/works/components/works.js"></script>
+<link href="/static/hplus/css/works/works.css" rel="stylesheet">
+<link href="/static/hplus/css/works/yum-font.css" rel="stylesheet">
 
-<div class="wrapper wrapper-content animated fadeInRight">
-        <div class="row">
-            <div class="col-sm-12">
-                <div class="ibox float-e-margins">
-                    <div class="ibox-title">
-                        <h5>常用作业 {% if view_num == 0 %}新增{% elif view_num == 1 %}编辑{% else %}执行{% endif %}</h5>
-                    </div>
-                    <div class="ibox-content">
-                        <form method="post" class="form-horizontal">
-                            {% csrf_token %}
-                            <input type="hidden" id="command_set_id" name="id" value="{{ result_dict.id }}"/>
-                            <div class="form-group">
-                                <label class="col-sm-2 control-label" style="width: 10%"> 作业名称</label>
-                                <div class="col-sm-10" style="width: 85%">
-                                    <input type="text" id="command_set_name" name="name" {{ readOnly }} class="form-control" value="{{ result_dict.name }}"/>
-                                </div>
-                            </div>
-                            {% ifnotequal view_num '2' %}
-                            <div class="form-group">
-                                <label class="col-sm-2 control-label" style="width: 10%"> 是否有效</label>
-                                <div class="col-sm-10" style="width: 85%">
-                                    <div class="switch">
-                                        <input type="checkbox" id="switch_checkbox" data-on-color="success" data-off-color="danger" checked data-on-text="是" data-off-text="否"/>
+<div class="wrapper wrapper-content fadeInRight" style="z-index: inherit">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>常用作业 {% if view_num == 0 %}新增{% elif view_num == 1 %}编辑{% else %}执行{% endif %}</h5>
+                </div>
+                <div class="ibox-content">
+                    <div class="works_box clear" id="container">
+                        <div class="layout_left clear">
+                            <div class="titlebar clear">
+                                <div class="l">
+                                    <div class="warp">
+                                        <input type="text" class="form-control bordero" style="margin-top: 5px;" v-model="$store.state.basic.name" value="作业管理平台-上线任务1">
                                     </div>
-                                    <input type="hidden" id="is_enabled" name="is_enabled" value="True"/>
+                                </div>
+                                <div class="r">
+                                    <div class="warp">
+                                      <button class="btn btn-default">预览</button>
+
+                                      <button class="btn btn-primary" @click="save">保存</button>
+
+                                    </div>
                                 </div>
                             </div>
-                            {% endifnotequal %}
-                            <div class="form-group">
-                                <label class="col-sm-2 control-label" style="width: 10%"> 备注</label>
-                                <div class="col-sm-10" style="width: 85%">
-                                    <textarea id="comment" name="comment"  class="form-control" {{ readOnly }} style="height: 100px;resize:none;">{{ result_dict.comment }}</textarea>
+                            <task-list></task-list>
+                            <task-info></task-info>
+                        </div>
+                        <transation name="fade">
+                            <yum-alert :message="$store.state.message" transiton="fade"></yum-alert>
+                        </transation>
+                        <task-cmds></task-cmds>
+                    </div>
+                    <template id="task-list">
+                        <div class="left-task">
+                            <div class="left-task-warp">
+                                <ul>
+                                   <draggable v-model="store.state.steps" :options="{animation:160}">
+                                      <li v-for="(item,index) in store.state.steps"  class="clear tesklist_li" :class="{active:index==store.state.activeIndex}">
+                                          <div class="clear" style="width: 85%;float: left" @click="changeActive(index)">
+                                              <span class="num"> {% verbatim %}{{index+1}}{% endverbatim %} </span>
+                                              <div class="cdis">
+                                                  <span>
+                                                      <input type="text" class="edit-input" v-model="item.name">
+                                                  </span>
+                                                  <span>
+                                                    {% verbatim %}{{item.name}}{% endverbatim %}
+                                                  </span>
+                                              </div>
+                                          </div>
+                                        <i class="yum-font icon-guanbi del" style="font-size: 12px" @click="delTask(index)"></i>
+                                      </li>
+                                   </draggable>
+                                </ul>
+                                <div class="plus" @dblclick="addTask()">
+                                    <i class="yum-font icon-plus-bold"></i>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label class="col-sm-2 control-label" style="width: 10%"> </label>
-                                <div class="col-sm-10" style="width: 85%">
-                                    <div class="panel-group" id="accordion">
-                                        <div class="panel panel-default">
-                                            <div class="panel-heading">
-                                                <h4 class="panel-title">
-                                                    <a data-toggle="collapse" data-parent="" href="#collapseOne">
-                                                        本地参数
-                                                    </a>
-                                                </h4>
+                        </div>
+                    </template>
+                    <template id="task-info">
+                        <div class="task-content">
+                            <div class="taskwap">
+                                  <div class="top" >
+                                    <div class="btn-group">
+                                      <button :class="{'btn-danger':!($store.state.steps.length && $store.state.steps[$store.state.activeIndex].isGroup)}" class="btn " @click="changeSeqType(0)"> 串行 </button>
+                                      <button :class="{'btn-danger':$store.state.steps.length && $store.state.steps[$store.state.activeIndex].isGroup}" class="btn"  @click="changeSeqType(1)"> 并行 </button>
+                                    </div>
+                                    <div class="tesklist clear">
+                                      <draggable :list="curCmds"  :options="{group:'task',animation:160,sort:true,scroll:true}" class="dragga clear" @add="updateLines">
+
+                                        <div class="tesk"   v-for="(it, index) in curCmds" :class="{'active':$store.state.steps[$store.state.activeIndex]&&$store.state.steps[$store.state.activeIndex].activeIndex==index}" @click="selectTool(index)">
+                                          <div class="tabs" v-if="it.list&&it.list.length>1">
+                                            <span class="btns"
+                                                  :class={'current':i==it['activeIndex']}
+                                                  v-for="(item,i) in it.list">
+                                              <div class="con" @click="tabClick({ind1:index,ind2:i})">{% verbatim %}{{index+1}}-{{i+1}}{% endverbatim %}</div>
+                                              <i class="yum-font icon-guanbi tabClose" @click="deleteTask({ind1:index,ind2:i})"></i>
+                                            </span>
+                                          </div>
+                                          <div class="tabscon">
+                                            <div class="intags"  v-for="(item,i) in it.list" :class={'show':i==(it['activeIndex']||0)}>
+                                              <i class="yum-font icon-edit edit" @click="showEdit('#edit_'+index+'_'+i)" ></i>
+                                              <div class="teskwap" :title="item.value">
+                                                <p class="center">{% verbatim %}{{ item.value || item.name }}{% endverbatim %}</p>
+                                              </div>
+                                              <div class="teskbottom" :title="item.name" >
+                                                <p>{% verbatim %}{{ item.name }}{% endverbatim %}</p>
+                                              </div>
+                                              <i class="yum-font teskico icon-guanbi" @click="deleteTaskAll(index)"></i>
+                                              <div v-if="it.list&&it.list.length==1" class="number">{% verbatim %}{{ index+1 }}{% endverbatim %}</div>
                                             </div>
-                                            <div id="collapseOne" class="panel-collapse collapse in">
-                                                <div class="row">
-                                                    <div class="col-sm-12" style="margin-left: 10px;margin-top: 10px">
-                                                        <table id="localParamTb" width="100%" style="border-spacing:10px 10px;border-collapse:separate">
-                                                            {% for localParam in localParam_list %}
-                                                                <tr>
-                                                                   <td width='30%'>
-                                                                       <input name='localParamKey' type='text' class='form-control' placeholder='参数名' {% if view_num == '2'%} readonly {% endif %} value="{{ localParam.name }}"/>
-                                                                   </td>
-                                                                   <td width='60%'>
-                                                                       <input name='localParamValue' type='text' class='form-control' placeholder='参数值' {% if view_num == '2'%} readonly {% endif %} value="{{ localParam.value }}"/>
-                                                                   </td>
-                                                                   <td width='10%'>
-                                                                       <button name='localParamBtn' type='button' class='btn btn-danger' {% if view_num == '2'%} disabled {% endif %} onclick='delLocalParam(this)'><i class='fa fa-trash'></i> 删除</button>
-                                                                   </td>
-                                                                </tr>
-                                                            {% endfor %}
-                                                        </table>
-                                                    </div>
-                                                </div>
-                                                <div class="row">
-                                                    <div class="col-sm-2" style="margin-left: 20px">
-                                                        <button type='button' class='btn btn-sm btn-info' onclick="addLocalParam()">添加本地参数</button>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                          </div>
                                         </div>
+                                      </draggable>
+
                                     </div>
+
+
+                                  <template class="tesk"  v-for="(it, index) in curCmds" :class="{'active':$store.state.steps[$store.state.activeIndex]&&$store.state.steps[$store.state.activeIndex].activeIndex==index}" @click="selectTool(index)">
+                                      <template v-for="(item,i) in it.list" :class={'show':i==it['activeIndex']}">
+                                          <div class="modal fade" style="text-align: left; z-index: 99" :id="'edit_'+index+'_'+i" >
+                                              <div class="modal-dialog">
+                                                  <div class="modal-content">
+                                                      <div class="modal-header">
+                                                        <span type="button" class="close close_hide" @click="closeEdit('#edit_'+index+'_'+i)">
+                                                           <i class="yum-font icon-guanbi"></i>
+                                                        </span>
+                                                        <h4 class="modal-title" id="myModalLabel">编辑-{% verbatim %}{{steps['lines'][index]['list'][i]['name']}}{% endverbatim %}</h4>
+                                                      </div>
+                                                      <div class="modal-body">
+                                                          <form class="form-horizontal">
+                                                              <div class="form-group" v-for="ites in steps['lines'][index]['list'][i]['param']">
+                                                                <label class="col-sm-2 control-label">{% verbatim %}{{ites.paramNameZh}}{% endverbatim %}</label>
+
+                                                                <div class="col-sm-10">
+                                                                  <div v-if="ites.type==='textshell'">
+                                                                    <textarea style="height: 150px" class="form-control" v-model="ites.value"  placeholder="请输入shell脚本"></textarea>
+                                                                  </div>
+                                                                  <div v-if="ites.type==='text'">
+                                                                    <input type="text" class="form-control" v-model="ites.value" placeholder="请输入shell脚本">
+                                                                  </div>
+                                                                </div>
+                                                              </div>
+                                                          </form>
+
+{#                                                          <pre style="text-align: left">{% verbatim %}{{ steps['lines'][index]['list'][i]['param'] }}{% endverbatim %}</pre>#}
+                                                      </div>
+                                                      <div class="modal-footer">
+                                                        <button type="button" class="btn btn-primary" @click="closeEdit('#edit_'+index+'_'+i)">保存</button>
+                                                      </div>
+                                                  </div>
+                                              </div>
+                                          </div>
+                                      </template>
+                                  </template>
+
                                 </div>
+{#                                <div style="position: fixed; bottom: 1px; left: 0px; width: 100%; max-height: 300px; overflow:auto">#}
+{#                                    <button class="btn btn-danger shu"> 数据 </button>#}
+{#                                    <pre style="text-align: left; display: none">{% verbatim %}{{$store.state.steps}}{% endverbatim %}</pre>#}
+{#                                </div>#}
                             </div>
-                            {% if view_num == '0' or view_num == 0 %}
-                                {% include 'command_step_add.html' %}
-                            {% elif view_num == '1' or view_num == 1 %}
-                                {% include 'command_step_edit.html' %}
-                            {% else %}
-                                {% include 'command_step_execute.html' %}
-                            {% endif %}
-                            <div class="form-group">
-                                <div class="col-sm-8 col-sm-offset-2">
-                                    {% ifnotequal view_num '2' %}
-                                    <button class="btn btn-primary" type="button" onclick="command_set_save()"><span class="glyphicon glyphicon-floppy-saved" aria-hidden="true"></span> 保存</button>
-                                    <a class="btn btn-white" href="javascript:history.go(-1)">取消</a>
-                                    {% else %}
-                                    <button class="btn btn-primary" type="button" onclick="command_set_exec()"><span class="glyphicon glyphicon-play" aria-hidden="true"></span> 执行</button>
-                                    <a class="btn btn-white" href="javascript:history.go(-1)">取消</a>
-                                    <a class="btn btn-primary" href="../execLog?setId={{ result_dict.id }}&name={{ result_dict.name }}" style="margin-left: 200px"><span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> 执行日志</a>
-                                    {% endifnotequal %}
-                                </div>
+                        </div>
+                    </template>
+                    <template id="task-cmds">
+                        <div class="right-tast clear">
+                            <div class="title">工具箱</div>
+                            <div class="rt-top">
+                              <ul>
+                                <li v-for="(item, index) in top" @click="changeCmdTopIndex(item, index)" :class="{act:cmdIndexTop==index}">{% verbatim %}{{ item }}{% endverbatim %}</li>
+                              </ul>
                             </div>
-                        </form>
-                    </div>
+                            <div class="rt-left">
+                              <ul>
+                                <li v-for="(item, index) in left" @click="changeCmdLeftIndex(item, index)" :class="{act:cmdIndexLeft==index}">{% verbatim %}{{ item }}{% endverbatim %}</li>
+                              </ul>
+                            </div>
+                            <div class="rt-right">
+                              <ul>
+                                <draggable  :list="cmds"  :options="{group:{name:'task', pull:'clone', put:false },animation:160,filter:'.dragga',scroll:true}">
+                                  <li v-for="(cmd, i) in cmds" class="cmds">{% verbatim %}{{ cmd.name }}{% endverbatim %}</li>
+                                </draggable>
+                              </ul>
+                            </div>
+                        </div>
+                    </template>
                 </div>
             </div>
         </div>
+    </div>
 </div>
 <script>
-    $(document).ready(function () {
-        $("#switch_checkbox").bootstrapSwitch("onSwitchChange",function(event,state) {
-            var val = '';
-           if(state){
-               val = 'True';
-           }else{
-               val = 'False';
-           }
-            $('#is_enabled').val(val);
-        });
-        {% if view_num == 1 %}
-            var state = false;
-            {% if result_dict.is_enabled %}
-                state = true;
-            {% endif %}
-            $("#switch_checkbox").bootstrapSwitch('state',state);
-        {% endif %}
+    $(function(){
 
-        $(".i-checks").iCheck({checkboxClass: "icheckbox_square-green", radioClass: "iradio_square-green",})
-        $('#checkall').on('ifChecked', function (event) {
-            $('.icheck').iCheck('check');
-        });
-        $('#checkall').on('ifUnchecked', function (event) {
-            $('.icheck').iCheck('uncheck');
-        });
-        initSelectHostModal();
-        initSelectFileModal();
-
-        $('#step_div').DDSort({
-             target: 'li',		// 示例而用，默认即 li，
-             delay: 100,         // 延时处理，默认为 50 ms，防止手抖点击 A 链接无效
-             floatStyle: {
-                 'border': '1px solid #ccc',
-                 'background-color': '#fff'
-             }
+        $(".works_box").on('dblclick','.tesklist_li',function () {
+          var $sdis = $(this).find('.cdis');
+          if(!$sdis.hasClass('edit')){
+            $sdis.addClass('edit');
+            $sdis.find('input').focus();
+          }else{
+            $sdis.removeClass('edit');
+          }
         });
 
-        var hostGroupTreeList = {{ hostGroup_list|safe }};
-        readHostGroupTreeNext(hostGroupTreeList,0);
-        var fileTreeList = {{ file_tree|safe }};
-        readFileTreeNext(fileTreeList,{path:'/opt/devops/filetrunk/'});
-        zHostGroupTreeInit();
-        filezTreeInit();
-
+        $(".works_box").on('blur','.tesklist_li input',function () {
+          var $p = $(this).parents('.cdis');
+          $p.removeClass('edit');
+        });
+        $(".shu").on("click",function(){
+          var ps = $(this).parent().find('pre');
+          if(ps.is(":hidden")){
+            ps.show()
+          }else{
+            ps.hide()
+          }
+        })
     });
-
-    function initSelectHostModal(){
-        $("#select_host_modal").on('show.bs.modal',function(event){
-            var datas = $(event.relatedTarget).data();
-            var gid = datas['gid'];
-            $(this).data('gid',gid);
-            var selectHostValue = $("#selectHostValue"+gid);
-            var hostValue = selectHostValue.val();
-            if(hostValue){
-                hostValue = hostValue.replace(/\'/g,"\"");
-                var obj = JSON.parse(hostValue);
-                var target_group_ids = obj['target_group_ids'];
-                var tree = $.fn.zTree.getZTreeObj('host_group_tree');
-                if(target_group_ids){
-                    $(target_group_ids.split(',')).each(function(i,item){
-                        tree.checkNode(tree.getNodeByParam('id',item), true, true);
-                    });
-                    createSelectHostIpTable(target_group_ids);
-                }
-            }
-            var golive = selectHostValue.attr('golive');
-            if(golive){
-                $("#host_go_live").val(golive);
-            }
-        });
-
-        $("#select_host_modal").on('hide.bs.modal',function(event){
-            var datas = $(this).data();
-            var gid = datas['gid'];
-            $.fn.zTree.getZTreeObj("host_group_tree").checkAllNodes(false);
-            $("#host_go_live").val(2);
-        });
-    }
-
-    function initSelectFileModal(){
-        $("#select_file_modal").on('show.bs.modal',function(event){
-             var datas = $(event.relatedTarget).data();
-             var gid = datas['gid'];
-             $(this).data('gid',gid);
-        })
-    }
-
-
-</script>
-
-<div class="modal fade" id="select_host_modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-          <div class="modal-content" style="width: 600px;margin-left: -100px">
-              <div class="modal-header">
-                  <h5 class="modal-title" id="exampleModalLabel">选择机器</h5>
-                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                      <span aria-hidden="true">&times;</span>
-                   </button>
-              </div>
-              <div class="modal-body">
-                  <div class="row">
-                      <div class="col-sm-6" style="max-height: 400px;overflow:auto">
-                          <ul id="host_group_tree" name="host_group_tree" class="ztree"></ul>
-                      </div>
-                      <div class="col-sm-6" style="max-height: 400px;overflow:auto">
-                          <div style="max-height: 400px;overflow: auto">
-                              <table id="hostIpTb" class="table table-striped table-bordered table-hover dataTables-example dataTable">
-                                  <thead>
-                                    <tr>
-                                        <th style="width:5%;"><input id="checkall" type="checkbox" class="i-checks"></th>
-                                        <th>IP<span id="hostIpBadge" class="badge" style="margin-left: 20px;background-color: green;color: white">总：0台</span></th>
-                                    </tr>
-                                  </thead>
-                                  <tbody></tbody>
-                              </table>
-                          </div>
-                      </div>
-                  </div>
-              </div>
-              <div class="modal-footer">
-                  <div class="row">
-                      <div class="col-sm-5" style="margin-left: 15px">
-                          <div class="input-group">
-                              <select id="host_go_live" class="form-control">
-                                  <option value="2" selected>待上线主机</option>
-                                  <option value="3">已上线主机</option>
-                              </select>
-                              <span class="input-group-btn">
-                                  <button type="button" class="btn btn-primary" onclick="queryHostIp()">查询</button>
-                              </span>
-                          </div>
-                      </div>
-                      <div class="col-sm-6">
-                          <button type="button" class="btn btn-primary" title="确定" onclick="determineSelectHost()">确定</button>
-                          <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
-                      </div>
-                  </div>
-              </div>
-          </div>
-    </div>
-</div>
-
-
-<div class="modal fade" id="select_file_modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-              <div class="modal-header">
-                  <h5 class="modal-title" id="exampleModalLabel">选择本地脚本</h5>
-                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                      <span aria-hidden="true">&times;</span>
-                  </button>
-              </div>
-              <div class="modal-body" style="max-height: 500px;overflow:auto">
-                  <ul id="file_tree" class="ztree"></ul>
-              </div>
-              <div class="modal-footer">
-                  <button type="button" class="btn btn-primary" title="确定" onclick="getFileTreeCheckNodes()">确定</button>
-                  <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
-              </div>
-        </div>
-    </div>
-</div>
-
-<script>
-
-    var zHostGroupNodes = [];
-    var zFileListNodes = [];
-
-    function readHostGroupTreeNext(list,pid){
-        $(list).each(function(i,item){
-            var ids = item.id;
-            var nodeData = {id:ids,pId:pid,name:item.name,nodeId:ids,open:true,hasIp:item.has_ip};
-            zHostGroupNodes.push(nodeData);
-            if(item.childs){
-                readHostGroupTreeNext(item.childs,ids);
-            }
-        });
-    }
-
-    function readFileTreeNext(list,parentNode){
-        $(list).each(function(i,item){
-            var nodeData = {id:item.id,pId:item.parent_id,name:item.name,file_type:item.file_type,node_type:item.type,open:true,nocheck:true} //iconSkin
-            if(parentNode.path)
-                var path = parentNode.path + item.name;
-                nodeData.path = parentNode.path + item.name;
-                if(item.childs){
-                    path += "/";
-                }
-                nodeData.path = path
-            if(item.appId){
-                nodeData.appId = item.appId;
-            }
-
-            if(item.type == 1 || item.type == '1'){
-                nodeData.default_parameter = item.default_parameter
-                nodeData.nocheck = false;
-            }
-            zFileListNodes.push(nodeData)
-            if(item.childs){
-                readFileTreeNext(item.childs,nodeData)
-            }
-        })
-    }
-
-     function zHostGroupTreeInit(){
-        var setting = {
-            view: {
-                selectedMulti: false,
-            },
-            check: {
-                enable: true,
-                chkboxType:  { "Y": "", "N": "" }
-            },
-            data: {
-                simpleData: {
-                    enable: true
-                }
-            },
-            edit: {
-                enable: false
-            }
-        };
-        $.fn.zTree.init($("#host_group_tree"), setting, zHostGroupNodes);
-    }
-
-    function filezTreeInit(){
-        var setting = {
-            view: {
-                selectedMulti: false,
-            },
-            check: {
-                enable: true
-            },
-            data: {
-                simpleData: {
-                    enable: true
-                }
-            },
-            edit: {
-                enable: true,
-                showRenameBtn:false,
-                removeTitle:'删除'
-            },
-            callback: {
-
-            }
-        };
-        var tree = $.fn.zTree.init($("#file_tree"), setting, zFileListNodes);
-    }
-
-    function addLocalParam(){
-        var tr_html = "<tr>" +
-            "   <td width='30%'>" +
-            "       <input name='localParamKey' type='text' class='form-control' placeholder='参数名'/>" +
-            "   </td>" +
-            "   <td width='60%'>" +
-            "       <input name='localParamValue' type='text' class='form-control' placeholder='参数值'/>" +
-            "   </td>" +
-            "   <td width='10%'>" +
-            "       <button name='localParamBtn' type='button' class='btn btn-danger' onclick='delLocalParam(this)'><i class='fa fa-trash'></i> 删除</button>" +
-            "   </td>" +
-            "</tr>";
-        $("#localParamTb").append(tr_html);
-    }
-
-    function delLocalParam(btn){
-        $(btn).parents("tr").remove();
-    }
-
-    function getSelectHostFromModal(){
-        var result = {};
-        var tabIds = $("#select_host_tab li[class='active'] a").attr('href');
-        var host_group_tree=$.fn.zTree.getZTreeObj("host_group_tree");
-        var nodes = host_group_tree.getCheckedNodes(true);
-        var groupIds = "";
-        $(nodes).each(function(i,item){
-            groupIds += item.nodeId+",";
-        });
-        if(groupIds){
-            groupIds = groupIds.substring(0,groupIds.length-1);
+      new Vue( {el: '#container',
+        store:store,
+        data:{
+        },
+        methods:{
+          save: function(){
+            var res = transLocalToApiData(this.$store.state.basic, this.$store.state.steps);
+          }
         }
-        result['group_id'] = groupIds;
-
-        if(!$.isEmptyObject(result)){
-            result['go_live'] = $("#host_go_live").val();
-        }
-        return result;
-    }
-
-    function getCheckedHostIP() {
-        var str = document.getElementsByName("trCheckbox");
-        var objarray = str.length;
-        var idList = [];
-        for (i = 0; i < objarray; i++) {
-            if (str[i].checked == true) {
-                idList.push($(str[i]).attr('hostip'));
-            }
-        }
-        return idList;
-    }
-
-    function queryHostIp(){
-        var values = getSelectHostFromModal();
-        if(!$.isEmptyObject(values)){
-            values['csrfmiddlewaretoken'] = '{{ csrf_token }}';
-            values['limit'] = 100;
-            $.ajax({
-                type: "POST",
-                url: '/platform/command_set/listByQueryCriteria/',
-                data:values,
-                error: function (request) {
-                    layer.closeAll('loading');
-                },
-                success: function (data) {
-                    createSelectHostIpTable(data.host_list.data);
-                    layer.closeAll('loading');
-                }
-            });
-        }else{
-            Alertwin.alert({message:"选择机器功能异常"});
-        }
-    }
-
-    function createSelectHostIpTable(data){
-        var hostIpTb = $("#hostIpTb tbody");
-        hostIpTb.empty();
-        $("#hostIpBadge").text('总：0台');
-        $("#checkall").unbind();
-
-        if(data){
-            $(data).each(function(i,item){
-
-                var htmlStr =  htmlStr = "<tr>" +
-                    "   <td>" +
-                    "       <input type='checkbox' class='i-checks icheck' hostip='"+item+"' name='trCheckbox'>" +
-                    "   </td>" +
-                    "   <td>" + item +"</td>"+
-                    "</tr>";
-                hostIpTb.append(htmlStr);
-            });
-            $("#hostIpBadge").text('总：'+data.length+'台');
-            $(".i-checks").iCheck({checkboxClass: "icheckbox_square-green", radioClass: "iradio_square-green",});
-            $('#checkall').on('ifChecked', function (event) {
-                $('.icheck').iCheck('check');
-            });
-            $('#checkall').on('ifUnchecked', function (event) {
-                $('.icheck').iCheck('uncheck');
-            });
-        }
-    }
-
-    function getLocalParam(){
-        var result = []
-        $($("#localParamTb tr")).each(function(i,item){
-           var tr = $(item);
-           result.push({'name':tr.find("input[name='localParamKey']").val(),'value':tr.find("input[name='localParamValue']").val()});
-        });
-        return result;
-    }
-
+      });
+      //transApiDataToLocal({"name":"ttteeeeeeeeeeeeeee","steps":[{"lines":[{"id":1,"name":"SHELL脚本","tool_set_prime_type":1,"tool_set_type":1,"command":"cp","param":[{"paramNameEn ":"content ","paramNameZh ":"源代码 ","type ":"textshell ","desc ":"自定义shell文件内容 ","no ":"0 ","valueSet ":[],"default ":""},{"paramNameEn ":"param ","paramNameZh ":"参数列表 ","type ":"text ","desc ":"把所有参数全列出来","no ":"1 ","valueSet ":[],"default ":""}],"is_enabled":true,"created_by":"admin","updated_by":"admin","tool_set_type_zh":"指令","tool_set_prime_type_zh":"原子","sub_seq_no":1},{"id":1,"name":"SHELL脚本","tool_set_prime_type":1,"tool_set_type":1,"command":"cp","param":[{"paramNameEn":"content ","paramNameZh":"源代码 ","type":"textshell","desc":"自定义shell文件内容 ","no":"0 ","valueSet":[],"default":""},{"paramNameEn":"param ","paramNameZh":"参数列表 ","type":"text","desc":"把所有参数全列出来","no":"1 ","valueSet":[],"default":""}],"is_enabled":true,"created_by":"admin","updated_by":"admin","tool_set_type_zh":"指令","tool_set_prime_type_zh":"原子","sub_seq_no":2},{"id":1,"name":"SHELL脚本","tool_set_prime_type":1,"tool_set_type":1,"command":"cp","param":[{"paramNameEn":"content ","paramNameZh":"源代码 ","type":"textshell","desc":"自定义shell文件内容 ","no":"0 ","valueSet":[],"default":""},{"paramNameEn":"param ","paramNameZh":"参数列表 ","type":"text","desc":"把所有参数全列出来","no":"1 ","valueSet":[],"default":""}],"is_enabled":true,"created_by":"admin","updated_by":"admin","tool_set_type_zh":"指令","tool_set_prime_type_zh":"原子","sub_seq_no":3},{"id":1,"name":"SHELL脚本","tool_set_prime_type":1,"tool_set_type":1,"command":"cp","param":[{"paramNameEn":"content ","paramNameZh":"源代码 ","type":"textshell","desc":"自定义shell文件内容 ","no":"0 ","valueSet":[],"default":""},{"paramNameEn":"param ","paramNameZh":"参数列表 ","type":"text","desc":"把所有参数全列出来","no":"1 ","valueSet":[],"default":""}],"is_enabled":true,"created_by":"admin","updated_by":"admin","tool_set_type_zh":"指令","tool_set_prime_type_zh":"原子","sub_seq_no":4},{"id":1,"name":"SHELL脚本","tool_set_prime_type":1,"tool_set_type":1,"command":"cp","param":[{"paramNameEn":"content ","paramNameZh":"源代码 ","type":"textshell","desc":"自定义shell文件内容 ","no":"0 ","valueSet":[],"default":""},{"paramNameEn":"param ","paramNameZh":"参数列表 ","type":"text","desc":"把所有参数全列出来","no":"1 ","valueSet":[],"default":""}],"is_enabled":true,"created_by":"admin","updated_by":"admin","tool_set_type_zh":"指令","tool_set_prime_type_zh":"原子","sub_seq_no":5}],"name":"fffff","activeIndex":0,"seq_no":1}]});
+    transApiDataToLocal({"name":"ttteeeeeeeeeeeeeee","steps":[{"lines":[{"id":1,"name":"SHELL脚本","tool_set_prime_type":1,"tool_set_type":1,"command":"cp","param":[{"paramNameEn":"content","paramNameZh":"源代码","type":"textshell","desc":"自定义shell文件内容","no":"0","valueSet":[],"default":""},{"paramNameEn":"param","paramNameZh":"参数列表","type":"text","desc":"把所有参数全列出来","no":"1","valueSet":[],"default":""}],"is_enabled":true,"created_by":"admin","updated_by":"admin","tool_set_type_zh":"指令","tool_set_prime_type_zh":"原子","sub_seq_no":1},{"id":1,"name":"SHELL脚本","tool_set_prime_type":1,"tool_set_type":1,"command":"cp","param":[{"paramNameEn":"content","paramNameZh":"源代码","type":"textshell","desc":"自定义shell文件内容","no":"0","valueSet":[],"default":""},{"paramNameEn":"param","paramNameZh":"参数列表","type":"text","desc":"把所有参数全列出来","no":"1","valueSet":[],"default":""}],"is_enabled":true,"created_by":"admin","updated_by":"admin","tool_set_type_zh":"指令","tool_set_prime_type_zh":"原子","sub_seq_no":2},{"id":1,"name":"SHELL脚本","tool_set_prime_type":1,"tool_set_type":1,"command":"cp","param":[{"paramNameEn":"content","paramNameZh":"源代码","type":"textshell","desc":"自定义shell文件内容","no":"0","valueSet":[],"default":""},{"paramNameEn":"param","paramNameZh":"参数列表","type":"text","desc":"把所有参数全列出来","no":"1","valueSet":[],"default":""}],"is_enabled":true,"created_by":"admin","updated_by":"admin","tool_set_type_zh":"指令","tool_set_prime_type_zh":"原子","sub_seq_no":3},{"id":1,"name":"SHELL脚本","tool_set_prime_type":1,"tool_set_type":1,"command":"cp","param":[{"paramNameEn":"content","paramNameZh":"源代码","type":"textshell","desc":"自定义shell文件内容","no":"0","valueSet":[],"default":""},{"paramNameEn":"param","paramNameZh":"参数列表","type":"text","desc":"把所有参数全列出来","no":"1","valueSet":[],"default":""}],"is_enabled":true,"created_by":"admin","updated_by":"admin","tool_set_type_zh":"指令","tool_set_prime_type_zh":"原子","sub_seq_no":4},{"id":1,"name":"SHELL脚本","tool_set_prime_type":1,"tool_set_type":1,"command":"cp","param":[{"paramNameEn":"content","paramNameZh":"源代码","type":"textshell","desc":"自定义shell文件内容","no":"0","valueSet":[],"default":""},{"paramNameEn":"param","paramNameZh":"参数列表","type":"text","desc":"把所有参数全列出来","no":"1","valueSet":[],"default":""}],"is_enabled":true,"created_by":"admin","updated_by":"admin","tool_set_type_zh":"指令","tool_set_prime_type_zh":"原子","sub_seq_no":5}],"name":"fffff","activeIndex":0,"seq_no":1}]});
 </script>
 
 {% endblock %}

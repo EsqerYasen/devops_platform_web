@@ -280,3 +280,15 @@ class CommandExecuteStop(LoginRequiredMixin,JSONResponseMixin, AjaxResponseMixin
             logger.error(e)
         return self.render_json_response(result_json)
 
+
+class ToolSetListView(LoginRequiredMixin,JSONResponseMixin, AjaxResponseMixin, View):
+    def get_ajax(self, request, *args, **kwargs):
+        result_json = {}
+        try:
+            req = self.request
+            hu = HttpUtils(req)
+            tool_list_result = hu.get(serivceName="job", restName="/rest/job/list_tool_set/", datas={})
+            result_json['data'] = tool_list_result.get("data",{})
+        except Exception as e:
+            logger.error(e)
+        return self.render_json_response(result_json)
