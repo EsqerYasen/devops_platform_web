@@ -135,6 +135,7 @@ class CommandSetCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMix
                             f = open(fileName, 'w')
                             f.write(source_file_name)
                             f.close()
+                            os.chmod(fileName, stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
                             lines[i]['source_file_name'] = fileName
                         except Exception as e:
                             logger.error(e)
