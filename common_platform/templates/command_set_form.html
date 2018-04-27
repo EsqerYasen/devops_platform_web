@@ -93,7 +93,7 @@
                                           </div>
                                           <div class="tabscon">
                                             <div class="intags"  v-for="(item,i) in it.list" :class={'show':i==(it['activeIndex']||0)}>
-                                              <i class="yum-font icon-edit edit" @click="showEdit('#edit_'+index+'_'+i)" ></i>
+                                              <i class="yum-font icon-edit edit" @click="showEdit(index)" ></i>
                                               <div class="teskwap" :title="item.value">
                                                 <p class="center">{% verbatim %}{{ item.value || item.name }}{% endverbatim %}</p>
                                               </div>
@@ -110,20 +110,18 @@
                                     </div>
 
 
-                                  <template class="tesk"  v-for="(it, index) in curCmds" :class="{'active':$store.state.steps[$store.state.activeIndex]&&$store.state.steps[$store.state.activeIndex].activeIndex==index}" @click="selectTool(index)">
-                                      <template v-for="(item,i) in it.list" :class={'show':i==it['activeIndex']}">
-                                          <div class="modal fade" style="text-align: left; z-index: 99" :id="'edit_'+index+'_'+i" >
+                                          <div class="modal fade" style="text-align: left; z-index: 99;" id="dialogModal">
                                               <div class="modal-dialog">
                                                   <div class="modal-content">
                                                       <div class="modal-header">
-                                                        <span type="button" class="close close_hide" @click="closeEdit('#edit_'+index+'_'+i)">
+                                                        <span type="button" class="close close_hide" @click="closeEdit">
                                                            <i class="yum-font icon-guanbi"></i>
                                                         </span>
-                                                        <h4 class="modal-title" id="myModalLabel">编辑-{% verbatim %}{{steps['lines'][index]['list'][i]['name']}}{% endverbatim %}</h4>
+                                                        <h4 class="modal-title" id="myModalLabel">编辑-{% verbatim %}{{curCmd.name}}{% endverbatim %}</h4>
                                                       </div>
                                                       <div class="modal-body">
                                                           <form class="form-horizontal">
-                                                              <div class="form-group" v-for="ites in steps['lines'][index]['list'][i]['param']">
+                                                              <div class="form-group" v-for="(ites, i$1) in curCmd.param">
                                                                 <label class="col-sm-2 control-label">{% verbatim %}{{ites.paramNameZh}}{% endverbatim %}</label>
 
                                                                 <div class="col-sm-10">
@@ -136,17 +134,13 @@
                                                                 </div>
                                                               </div>
                                                           </form>
-
-{#                                                          <pre style="text-align: left">{% verbatim %}{{ steps['lines'][index]['list'][i]['param'] }}{% endverbatim %}</pre>#}
                                                       </div>
                                                       <div class="modal-footer">
-                                                        <button type="button" class="btn btn-primary" @click="closeEdit('#edit_'+index+'_'+i)">保存</button>
+                                                        <button type="button" class="btn btn-primary" @click="closeEdit">保存</button>
                                                       </div>
                                                   </div>
                                               </div>
                                           </div>
-                                      </template>
-                                  </template>
 
                                 </div>
 {#                                <div style="position: fixed; bottom: 1px; left: 0px; width: 100%; max-height: 300px; overflow:auto">#}
@@ -220,7 +214,7 @@
         }
       });
       //transApiDataToLocal({"name":"ttteeeeeeeeeeeeeee","steps":[{"lines":[{"id":1,"name":"SHELL脚本","tool_set_prime_type":1,"tool_set_type":1,"command":"cp","param":[{"paramNameEn ":"content ","paramNameZh ":"源代码 ","type ":"textshell ","desc ":"自定义shell文件内容 ","no ":"0 ","valueSet ":[],"default ":""},{"paramNameEn ":"param ","paramNameZh ":"参数列表 ","type ":"text ","desc ":"把所有参数全列出来","no ":"1 ","valueSet ":[],"default ":""}],"is_enabled":true,"created_by":"admin","updated_by":"admin","tool_set_type_zh":"指令","tool_set_prime_type_zh":"原子","sub_seq_no":1},{"id":1,"name":"SHELL脚本","tool_set_prime_type":1,"tool_set_type":1,"command":"cp","param":[{"paramNameEn":"content ","paramNameZh":"源代码 ","type":"textshell","desc":"自定义shell文件内容 ","no":"0 ","valueSet":[],"default":""},{"paramNameEn":"param ","paramNameZh":"参数列表 ","type":"text","desc":"把所有参数全列出来","no":"1 ","valueSet":[],"default":""}],"is_enabled":true,"created_by":"admin","updated_by":"admin","tool_set_type_zh":"指令","tool_set_prime_type_zh":"原子","sub_seq_no":2},{"id":1,"name":"SHELL脚本","tool_set_prime_type":1,"tool_set_type":1,"command":"cp","param":[{"paramNameEn":"content ","paramNameZh":"源代码 ","type":"textshell","desc":"自定义shell文件内容 ","no":"0 ","valueSet":[],"default":""},{"paramNameEn":"param ","paramNameZh":"参数列表 ","type":"text","desc":"把所有参数全列出来","no":"1 ","valueSet":[],"default":""}],"is_enabled":true,"created_by":"admin","updated_by":"admin","tool_set_type_zh":"指令","tool_set_prime_type_zh":"原子","sub_seq_no":3},{"id":1,"name":"SHELL脚本","tool_set_prime_type":1,"tool_set_type":1,"command":"cp","param":[{"paramNameEn":"content ","paramNameZh":"源代码 ","type":"textshell","desc":"自定义shell文件内容 ","no":"0 ","valueSet":[],"default":""},{"paramNameEn":"param ","paramNameZh":"参数列表 ","type":"text","desc":"把所有参数全列出来","no":"1 ","valueSet":[],"default":""}],"is_enabled":true,"created_by":"admin","updated_by":"admin","tool_set_type_zh":"指令","tool_set_prime_type_zh":"原子","sub_seq_no":4},{"id":1,"name":"SHELL脚本","tool_set_prime_type":1,"tool_set_type":1,"command":"cp","param":[{"paramNameEn":"content ","paramNameZh":"源代码 ","type":"textshell","desc":"自定义shell文件内容 ","no":"0 ","valueSet":[],"default":""},{"paramNameEn":"param ","paramNameZh":"参数列表 ","type":"text","desc":"把所有参数全列出来","no":"1 ","valueSet":[],"default":""}],"is_enabled":true,"created_by":"admin","updated_by":"admin","tool_set_type_zh":"指令","tool_set_prime_type_zh":"原子","sub_seq_no":5}],"name":"fffff","activeIndex":0,"seq_no":1}]});
-    transApiDataToLocal({"name":"ttteeeeeeeeeeeeeee","steps":[{"lines":[{"id":1,"name":"SHELL脚本","tool_set_prime_type":1,"tool_set_type":1,"command":"cp","param":[{"paramNameEn":"content","paramNameZh":"源代码","type":"textshell","desc":"自定义shell文件内容","no":"0","valueSet":[],"default":""},{"paramNameEn":"param","paramNameZh":"参数列表","type":"text","desc":"把所有参数全列出来","no":"1","valueSet":[],"default":""}],"is_enabled":true,"created_by":"admin","updated_by":"admin","tool_set_type_zh":"指令","tool_set_prime_type_zh":"原子","sub_seq_no":1},{"id":1,"name":"SHELL脚本","tool_set_prime_type":1,"tool_set_type":1,"command":"cp","param":[{"paramNameEn":"content","paramNameZh":"源代码","type":"textshell","desc":"自定义shell文件内容","no":"0","valueSet":[],"default":""},{"paramNameEn":"param","paramNameZh":"参数列表","type":"text","desc":"把所有参数全列出来","no":"1","valueSet":[],"default":""}],"is_enabled":true,"created_by":"admin","updated_by":"admin","tool_set_type_zh":"指令","tool_set_prime_type_zh":"原子","sub_seq_no":2},{"id":1,"name":"SHELL脚本","tool_set_prime_type":1,"tool_set_type":1,"command":"cp","param":[{"paramNameEn":"content","paramNameZh":"源代码","type":"textshell","desc":"自定义shell文件内容","no":"0","valueSet":[],"default":""},{"paramNameEn":"param","paramNameZh":"参数列表","type":"text","desc":"把所有参数全列出来","no":"1","valueSet":[],"default":""}],"is_enabled":true,"created_by":"admin","updated_by":"admin","tool_set_type_zh":"指令","tool_set_prime_type_zh":"原子","sub_seq_no":3},{"id":1,"name":"SHELL脚本","tool_set_prime_type":1,"tool_set_type":1,"command":"cp","param":[{"paramNameEn":"content","paramNameZh":"源代码","type":"textshell","desc":"自定义shell文件内容","no":"0","valueSet":[],"default":""},{"paramNameEn":"param","paramNameZh":"参数列表","type":"text","desc":"把所有参数全列出来","no":"1","valueSet":[],"default":""}],"is_enabled":true,"created_by":"admin","updated_by":"admin","tool_set_type_zh":"指令","tool_set_prime_type_zh":"原子","sub_seq_no":4},{"id":1,"name":"SHELL脚本","tool_set_prime_type":1,"tool_set_type":1,"command":"cp","param":[{"paramNameEn":"content","paramNameZh":"源代码","type":"textshell","desc":"自定义shell文件内容","no":"0","valueSet":[],"default":""},{"paramNameEn":"param","paramNameZh":"参数列表","type":"text","desc":"把所有参数全列出来","no":"1","valueSet":[],"default":""}],"is_enabled":true,"created_by":"admin","updated_by":"admin","tool_set_type_zh":"指令","tool_set_prime_type_zh":"原子","sub_seq_no":5}],"name":"fffff","activeIndex":0,"seq_no":1}]});
+    transApiDataToLocal({"name":"ttteeeeeeeeeeeeeee","steps":[{"lines":[{"id":1,"name":"SHELL脚本111111","tool_set_prime_type":1,"tool_set_type":1,"command":"cp","param":[{"paramNameEn":"content","paramNameZh":"源代码","type":"textshell","desc":"自定义shell文件内容","no":"0","valueSet":[],"default":""},{"paramNameEn":"param","paramNameZh":"参数列表","type":"text","desc":"把所有参数全列出来","no":"1","valueSet":[],"default":""}],"is_enabled":true,"created_by":"admin","updated_by":"admin","tool_set_type_zh":"指令","tool_set_prime_type_zh":"原子","sub_seq_no":1},{"id":1,"name":"SHELL脚本","tool_set_prime_type":1,"tool_set_type":1,"command":"cp","param":[{"paramNameEn":"content","paramNameZh":"源代码","type":"textshell","desc":"自定义shell文件内容","no":"0","valueSet":[],"default":""},{"paramNameEn":"param","paramNameZh":"参数列表","type":"text","desc":"把所有参数全列出来","no":"1","valueSet":[],"default":""}],"is_enabled":true,"created_by":"admin","updated_by":"admin","tool_set_type_zh":"指令","tool_set_prime_type_zh":"原子","sub_seq_no":2},{"id":1,"name":"SHELL脚本","tool_set_prime_type":1,"tool_set_type":1,"command":"cp","param":[{"paramNameEn":"content","paramNameZh":"源代码","type":"textshell","desc":"自定义shell文件内容","no":"0","valueSet":[],"default":""},{"paramNameEn":"param","paramNameZh":"参数列表","type":"text","desc":"把所有参数全列出来","no":"1","valueSet":[],"default":""}],"is_enabled":true,"created_by":"admin","updated_by":"admin","tool_set_type_zh":"指令","tool_set_prime_type_zh":"原子","sub_seq_no":3},{"id":1,"name":"SHELL脚本","tool_set_prime_type":1,"tool_set_type":1,"command":"cp","param":[{"paramNameEn":"content","paramNameZh":"源代码","type":"textshell","desc":"自定义shell文件内容","no":"0","valueSet":[],"default":""},{"paramNameEn":"param","paramNameZh":"参数列表","type":"text","desc":"把所有参数全列出来","no":"1","valueSet":[],"default":""}],"is_enabled":true,"created_by":"admin","updated_by":"admin","tool_set_type_zh":"指令","tool_set_prime_type_zh":"原子","sub_seq_no":4},{"id":1,"name":"SHELL脚本","tool_set_prime_type":1,"tool_set_type":1,"command":"cp","param":[{"paramNameEn":"content","paramNameZh":"源代码","type":"textshell","desc":"自定义shell文件内容","no":"0","valueSet":[],"default":""},{"paramNameEn":"param","paramNameZh":"参数列表","type":"text","desc":"把所有参数全列出来","no":"1","valueSet":[],"default":""}],"is_enabled":true,"created_by":"admin","updated_by":"admin","tool_set_type_zh":"指令","tool_set_prime_type_zh":"原子","sub_seq_no":5}],"name":"fffff","activeIndex":0,"seq_no":1}]});
 </script>
 
 {% endblock %}
