@@ -1,0 +1,327 @@
+<style>
+    .wrap {
+        /* margin: 10px auto; */
+            padding: 2px;
+            border: 1px solid #ccc;
+            overflow: auto;
+            overflow-x: hidden;
+            position: relative;
+        }
+   .wrap ul {
+            padding: 0;
+            margin: 0;
+        }
+
+   .wrap li {
+        /*padding: 5px;*/
+        margin-top: 2px;
+        /*border: 1px solid #ccc; */
+        /*border-bottom: 1px solid #ccc; */
+        font: 14px/1.5 "微软雅黑";
+        list-style: none;
+        /*cursor: move;*/
+    }
+
+   .wrap li:hover {
+        background-color: #eaeedd;
+    }
+
+    .parent{
+        /*position: absolute;*/
+        width: 42px;
+        height: 42px;
+    }
+    .parent .text{
+        display: inline-block;
+        transform: rotate(-45deg);
+        position: absolute;
+        /*padding: 20px; */
+        color: #fff;
+        padding-left: 0px;
+        z-index: 100;
+    }
+    .triangle-topleft{
+        width: 0;
+        height: 0;
+        /*border-top: 42px solid #0d8ddb;
+        position: absolute; */
+        border-right: 42px solid transparent;
+        top: 0;
+        z-index: 5;
+    }
+
+</style>
+
+<div class="form-group">
+     <label class="col-sm-2 control-label" style="width: 10%"> 步骤配置</label>
+     <div class="col-sm-10" style="width: 85%">
+        <div id="step_div" class="wrap">
+            <ul>
+                 {% for step in result_dict.steps %}
+                     {% if step.type == 0 or step.type == '0'%}
+                     <li tag='0' gid='{{ step.seq_no }}'>
+                        <table width="100%">
+                            <tr>
+                                <td width="34px" align="center">
+                                    <input type="checkbox" class="i-checks icheck" id="icheck{{ step.seq_no }}" checked />
+                                </td>
+                                <td>
+                                    <div class='panel' style='margin-bottom:0px; border: 1px solid #ccc;'>
+                                        <div class='panel-heading' style='background-color: #00d95a;padding: 0px 0px;height: 42px'>
+                                            <table width='100%' height='100%'>
+                                                <tr>
+                                                    <td width='8%'>
+                                                        <div class='parent'>
+                                                            <span class='text'>脚本</span>
+                                                            <div class='triangle-topleft' style='border-top: 42px solid #C52727;'></div>
+                                                        </div>
+                                                    </td>
+                                                    <td width='10%'>命令脚本</td>
+                                                    <td width='50%'>
+                                                        <input type='text' id='stepName{{ step.seq_no }}' value='{{ step.name }}' readonly class='form-control' style='width: 40%' placeholder='步骤名称'/>
+                                                        <input type='hidden' id='selectHostValue{{ step.seq_no }}' golive="{{ step.go_live }}" value='{"target_group_ids":"{{ step.target_group_ids }}"{% if step.target_host_list %},"target_host_list":{{ step.target_host_list }}{% endif %}}' />
+                                                    </td>
+                                                    <td width='32%'>
+                                                        <button type='button' class='btn btn-sm btn-warning' data-toggle='modal' data-gid='{{ step.seq_no }}' data-target='#select_host_modal' style='margin-top: 5px;margin-right: 10px'>选机器</button>
+                                                        <a data-toggle='collapse' data-parent='' href='#step{{ step.seq_no }}' class='btn btn-sm btn-warning' style='margin-top: 5px;margin-right: 10px'><i class='fa fa-chevron-down'></i> 展开</a>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                        <div id='step{{ step.seq_no }}' class='panel-body accordion-body collapse' style='height: 0px;'>
+                                            <table id='tb{{ step.seq_no }}' width='100%' style='border-collapse:separate;border-spacing:0px 10px;'>
+                                            {% for line in step.lines %}
+                                               {% if line.type == 0 or line.type == '0' %}
+                                                   <tr tag='0' gid='{{ line.sub_seq_no }}'>
+                                                       <td width='49%'>
+                                                           <input id='file{{ line.sub_seq_no }}' class='form-control' style='width: 99%' type='text' readonly value="{{ line.source_file_name }}"/>
+                                                       </td>
+                                                       <td width='49%'>
+                                                           <input type='text' id='param{{ line.sub_seq_no }}' value='{{ line.default_script_parameter }}' class='form-control' style='width: 99%' placeholder='执行参数' />
+                                                       </td>
+                                                       <td>
+                                                           <input type="checkbox" class="i-checks icheck" id="icheck1{{ line.sub_seq_no }}" checked />
+                                                       </td>
+                                                   </tr>
+                                               {% else %}
+                                                   <tr tag='1' gid='{{ line.sub_seq_no }}'>
+                                                        <td width='49%'>
+                                                            <input id='file_path{{ line.sub_seq_no }}' name='script1' type='text' readonly class='form-control' value="{{ line.source_file_name }}" style='width: 99%' placeholder='远程脚本路径'>
+                                                        </td>
+                                                        <td width='49%'>
+                                                            <input type='text' id='param{{ line.sub_seq_no }}' name='script2' value='{{ line.default_script_parameter }}' class='form-control' style='width: 99%' placeholder='执行参数'>
+                                                        </td>
+                                                        <td align="center">
+                                                            <input type="checkbox" class="i-checks icheck" id="icheck1{{ line.sub_seq_no }}" checked/>
+                                                        </td>
+                                                    </tr>
+                                               {% endif %}
+                                            {% endfor %}
+                                            </table>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                     </li>
+                     {% else %}
+                     <li tag='1' gid='{{ step.seq_no }}'>
+                        <table width="100%">
+                            <tr>
+                                <td width="34px" align="center">
+                                    <input type="checkbox" class="i-checks icheck" id="icheck{{ step.seq_no }}" checked />
+                                </td>
+                                 <td>
+                                    <div class='panel' style='margin-bottom:0px;border: 1px solid #ccc;'>
+                                        <div class='panel-heading'  style='background-color:#0e9aef ;padding: 0px 0px;height: 42px'>
+                                             <table width='100%' height='100%'>
+                                              <tr>
+                                                 <td width='8%'>
+                                                     <div class='parent'>
+                                                     <span class='text'>文件</span>
+                                                     <div class='triangle-topleft' style='border-top: 42px solid #C52727;'></div>
+                                                     </div>
+                                                 </td>
+                                                 <td width='10%'>文件传输<input type='hidden' id='selTreeNodeIds{{ step.seq_no }}' value=''/></td>
+                                                 <td width='50%'>
+                                                     <input type='text' id='stepName{{ step.seq_no }}' value='{{ step.name }}' readonly class='form-control' style='width: 40%' placeholder='步骤名称'/>
+                                                     <input type='hidden' id='selectHostValue{{ step.seq_no }}' golive="{{ step.go_live }}" value='{"target_group_ids":"{{ step.target_group_ids }}"{% if step.target_host_list %},"target_host_list":{{ step.target_host_list }}{% endif %}}'/>
+                                                 </td>
+                                                 <td width='32%'>
+                                                     <button type='button' class='btn btn-sm btn-warning' data-toggle='modal' data-gid='{{ step.seq_no }}' data-target='#select_host_modal' style='margin-top: 5px;margin-right: 10px'>选机器</button>
+                                                     <a data-toggle='collapse' data-parent='' href='#step{{ step.seq_no }}' class='btn btn-sm btn-warning' style='margin-top: 5px;margin-right: 10px'><i class='fa fa-chevron-down'></i> 展开</a>
+                                                 </td>
+                                                </tr>
+                                             </table>
+                                        </div>
+                                        <div id='step{{ step.seq_no }}' class='panel-body accordion-body collapse' style='height: 0px;'>
+                                              <table id='tb{{ step.seq_no }}' width='100%' style='border-collapse: separate;border-spacing:0px 10px;'>
+                                              {% for line in step.lines %}
+                                                  {% if line.type == 0 or line.type == '0' %}
+                                                  <tr tag='0' gid='{{ line.sub_seq_no }}'>
+                                                     <td width='49%'>
+                                                        <input id='file{{ line.sub_seq_no }}' type='text' readonly class='form-control' style='width: 99%' value="{{ line.source_file_name }}"/>
+                                                     </td>
+                                                     <td width='49%'>
+                                                        <input type='text' id='file_path{{ line.sub_seq_no }}' readonly value='{{ line.file_deploy_path }}' class='form-control' style='width: 99%' placeholder='目标路径'>
+                                                     </td>
+                                                     <td align="center">
+                                                        <input type="checkbox" class="i-checks icheck" id="icheck1{{ line.sub_seq_no }}" checked />
+                                                     </td>
+                                                  </tr>
+                                                  {% else %}
+                                                   <tr tag='1' gid='{{ line.sub_seq_no }}'>
+                                                        <td colspan='2' width='98%'>
+                                                           <input id='ip{{ line.sub_seq_no }}' name='script1' type='text' class='form-control' readonly value="{{ line.source_remote_host }}" style='width: 20%;display: -webkit-inline-box' placeholder='IP地址'>
+                                                           <input id='file_path{{ line.sub_seq_no }}' name='script1' type='text' readonly value="{{ line.source_file_name }}" class='form-control' style='width: 39%;display: -webkit-inline-box' placeholder='远程路径'>
+                                                           <input id='file_path2{{ line.sub_seq_no }}' name='script2' type='text' readonly value="{{ line.file_deploy_path }}" class='form-control' style='width: 39%;display: -webkit-inline-box' placeholder='目标路径'>
+                                                        </td>
+                                                        <td align="center">
+                                                           <input type="checkbox" class="i-checks icheck" id="icheck{{ line.sub_seq_no }}" checked />
+                                                        </td>
+                                                   </tr>
+                                                  {% endif %}
+                                              {% endfor %}
+                                             </table>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                     </li>
+                     {% endif %}
+                 {% endfor %}
+            </ul>
+        </div>
+     </div>
+ </div>
+
+
+<script>
+    function determineSelectHost(){
+        var select_host_modal = $('#select_host_modal');
+        var gid = select_host_modal.data('gid');
+        var selectHostValue = $("#selectHostValue"+gid);
+        var ips = getCheckedHostIP();
+        selectHostValue.val('');
+        selectHostValue.attr('golive','')
+        selectHostValue.val('');
+
+        var values = getSelectHostFromModal();
+        if(!$.isEmptyObject(values)){
+            var obj = {};
+            obj = {'target_group_ids':values['group_id']}
+            if(ips.length > 0){
+                obj['target_host_list']= ips;
+            }
+            selectHostValue.attr('golive',values['go_live']);
+            selectHostValue.val(JSON.stringify(obj));
+            select_host_modal.modal('hide');
+        }else{
+            Alertwin.alert({message:"请选择主机组或勾选机器"});
+        }
+
+    }
+
+     function command_set_exec() {
+         var saveJson = {}
+         var set_id = $("#command_set_id").val();
+         saveJson['command_set_id'] = set_id
+
+         var stepList = []
+         var paraDict = {}
+         saveJson['localParamList'] = getLocalParam();
+         var ul = $("#step_div > ul > li");
+         $(ul).each(function(i,item){
+             var tItem = $(item);
+             var gid = tItem.attr("gid");
+
+             if($("#icheck"+gid).is(':checked')){
+                 var type = tItem.attr("tag");
+                 stepList.push(i+1)
+
+                 if(type == 0){
+                     var lineDict = {}
+                     var line = $("#tb"+gid).find("tr");
+                     var selectHostValue = $("#selectHostValue"+gid);
+                     var hostValue = selectHostValue.val();
+                     if(hostValue){
+                          hostValue = hostValue.replace(/\'/g,"\"");
+                     }
+                     var selectHostValueObj = JSON.parse(hostValue);
+
+                     $(line).each(function(i2,item2){
+                        var tItem2 = $(item2);
+                        var gid2 = tItem2.attr("gid");
+                        if($("#icheck1"+gid).is(':checked')){
+                            lineDict[i2+1] = {'parameter':$("#param"+gid2).val()};
+                        }
+                     })
+                     var bool = true;
+                     if(selectHostValueObj['target_group_ids']){
+                            lineDict['target_group_ids'] = selectHostValueObj['target_group_ids'];
+                            lineDict['target_type'] = 1;
+                            bool = false;
+                     }
+                     if(selectHostValueObj['target_host_list']){
+                            lineDict['target_host_list'] = selectHostValueObj['target_host_list'];
+                            lineDict['target_type'] = 3;
+                            bool = false;
+                     }
+                     if(bool){
+                            lineDict['target_host_list'] = '127.0.0.1';
+                            lineDict['target_type'] = 3;
+                     }
+                     lineDict['go_live'] = selectHostValue.attr('golive');
+                     paraDict[i+1] = lineDict
+                 }else if(type == 1){
+                     var lineDict = {}
+                     var line = $("#tb"+gid).find("tr");
+                     var selectHostValue = $("#selectHostValue"+gid);
+                     var hostValue = selectHostValue.val();
+                     if(hostValue){
+                          hostValue = hostValue.replace(/\'/g,"\"");
+                     }
+                     var selectHostValueObj = JSON.parse(hostValue);
+                     var bool = true;
+                     if(selectHostValueObj['target_group_ids']){
+                         lineDict['target_group_ids'] = selectHostValueObj['target_group_ids'];
+                         lineDict['target_type'] = 1;
+                         bool = false;
+                     }
+                     if(selectHostValueObj['target_host_list']){
+                         lineDict['target_host_list'] = selectHostValueObj['target_host_list'];
+                         lineDict['target_type'] = 3;
+                         bool = false;
+                     }
+                     if(bool){
+                         lineDict['target_host_list'] = '127.0.0.1';
+                         lineDict['target_type'] = 3;
+                     }
+                     lineDict['go_live'] = selectHostValue.attr('golive');
+                     paraDict[i+1] = lineDict
+                 }
+             }
+         })
+
+        saveJson['steps'] = stepList;
+        saveJson['paras'] = paraDict;
+
+        $.ajax({
+            type : 'POST',
+            url: '/platform/command_set/{{ result_dict.id }}/exec/',
+            data:{"execJson":JSON.stringify(saveJson),"csrfmiddlewaretoken":'{{ csrf_token }}'},
+            success : function(responseStr) {
+                if(responseStr.status==0){
+                    window.location.href = "../execLog?setId="+responseStr.set_id+"&jobId="+responseStr.job_id
+                }else{
+                    Alertwin.alert({message:"失败"});
+                }
+            },
+            error : function(responseStr) {
+                console.log(responseStr);
+            }
+        });
+     }
+
+</script>
