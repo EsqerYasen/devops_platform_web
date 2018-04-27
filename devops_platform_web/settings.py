@@ -83,29 +83,29 @@ WSGI_APPLICATION = 'devops_platform_web.wsgi.application'
 
 DATABASES = {
     #本地
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'devops_web',
-        'USER': 'root',
-        'PASSWORD': 'mysql1234',
-        'HOST': 'localhost',
-        'PORT': '3306',
-        'OPTIONS': {
-            'init_command': 'SET default_storage_engine=INNODB',
-        },
-    }
-    #测试
     # 'default': {
     #     'ENGINE': 'django.db.backends.mysql',
-    #     'NAME': 'devops_workshop_dev_web',
+    #     'NAME': 'devops_web',
     #     'USER': 'root',
-    #     'PASSWORD': 'password',
-    #     'HOST': '172.29.164.91',
+    #     'PASSWORD': 'mysql1234',
+    #     'HOST': 'localhost',
     #     'PORT': '3306',
     #     'OPTIONS': {
     #         'init_command': 'SET default_storage_engine=INNODB',
     #     },
     # }
+    #测试
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'devops_workshop_dev_web',
+        'USER': 'root',
+        'PASSWORD': 'password',
+        'HOST': '172.29.164.91',
+        'PORT': '3306',
+        'OPTIONS': {
+            'init_command': 'SET default_storage_engine=INNODB',
+        },
+    }
     #生产
     # 'default': {
     #     'ENGINE': 'django.db.backends.mysql',
