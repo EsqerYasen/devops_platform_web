@@ -220,7 +220,7 @@ class HostListByQueryCriteria(LoginRequiredMixin,JSONResponseMixin, AjaxResponse
         return self.render_json_response(result_json)
 
 class CommandSetExecuteView(LoginRequiredMixin, TemplateView):
-    template_name = "command_set_form.html"
+    template_name = "command_step_execute.html"
 
     def get_context_data(self, **kwargs):
         context = super(CommandSetExecuteView, self).get_context_data(**kwargs)
@@ -230,18 +230,28 @@ class CommandSetExecuteView(LoginRequiredMixin, TemplateView):
         hu = HttpUtils(self.request)
         resultJson = hu.get(serivceName="job", restName="/rest/job/list_detail/", datas={'id': kwargs.get('pk',0)})
         results = resultJson.get("data", [])
+        result_dcit = {}
+        result_dcit['id'] = results['id']
+        result_dcit['name'] = results['name']
+        steps = []
+        for step in results['steps']:
+            stepDict = {}
+            stepDict['id'] = step['id']
+            stepDict['name'] = step['name']
+            stepDict['activeIndex'] = step['host_filter']
+            stepDict['seq_no'] = step['seq_no']
+            lines = []
+            for line in step['lines']:
+                lineDict = json.loads(line['file_display_name'])
+                lineDict['id'] = line['id']
+                del lineDict['is_enabled']
+                lines.append(lineDict)
+            stepDict['lines'] = lines
+            steps.append(stepDict)
 
-        getData = {'offset': 0, 'limit': 1000, 'is_enabled': 1}
+        result_dcit['steps'] = steps
 
-        hostgroupResult = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_tree/", datas=getData)
-        fileResult = hu.get(serivceName="job", restName="/rest/file/list_tree/", datas={})
-        getData['id'] = results['id']
-        localParamResult = hu.get(serivceName="job", restName="/rest/para/list/", datas=getData)
-
-        context['result_dict'] = results
-        context['hostGroup_list'] = hostgroupResult.get("data", [])
-        context['file_tree'] = json.dumps(fileResult.get("data", []))
-        context['localParam_list'] = localParamResult.get("results", [])
+        context['result_dict'] = result_dcit
         return context
 
     def post(self, request, *args, **kwargs):
