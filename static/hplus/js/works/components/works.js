@@ -161,6 +161,12 @@ var transApiDataToLocal  = function(apiData){
           list:[]
         };
       }
+        {
+          var x = tmp.lines[i$1];
+          if(!x  ){
+            console.error('命令解析失败')
+          }
+        }
       tmp.tlines[item.sub_seq_no-1].list.push(tmp.lines[i$1]);
     }
     tmp.lines = tmp.tlines;
@@ -169,7 +175,7 @@ var transApiDataToLocal  = function(apiData){
   delete apiData.steps;
   store.commit('setBasic', apiData);
   store.commit('setSteps', steps);
-  console.log(arguments.callee.name, apiData, steps);
+  console.log('解析接口数据: ', apiData, steps);
 };
 var transLocalToApiData = function(basic, steps){
   var res = {name: basic.name};
