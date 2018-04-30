@@ -28,6 +28,11 @@ Vue.component('task-info', {
     deleteTask:function(indexObj){
       store.commit('deleteDesk', indexObj);
     },
+      selectHost:function(){
+
+      $("#select_host_modal").modal({show:true});
+
+      },
 
     deleteTaskAll:function(index){
       store.commit('deleteDeskAll', index);
