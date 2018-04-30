@@ -18,7 +18,7 @@
                 <div class="ibox-title">
                     <h5>常用作业</h5>
                 </div>
-                <div class="ibox-content">
+                <div class="ibox-content" style="padding: 0 0 0 0">
                     <div class="works_box clear" id="container">
                         <div class="layout_left clear">
                             <div class="titlebar clear">
@@ -30,9 +30,7 @@
                                 <div class="r">
                                     <div class="warp">
                                       <button class="btn btn-default">预览</button>
-
                                       <button class="btn btn-primary" @click="save">保存</button>
-
                                     </div>
                                 </div>
                             </div>
@@ -74,11 +72,23 @@
                     <template id="task-info">
                         <div class="task-content">
                             <div class="taskwap">
-                                  <div class="top" >
-                                    <div class="btn-group">
-                                      <button :class="{'btn-danger':!($store.state.steps.length && $store.state.steps[$store.state.activeIndex].isGroup)}" class="btn " @click="changeSeqType(0)"> 串行 </button>
-                                      <button :class="{'btn-danger':$store.state.steps.length && $store.state.steps[$store.state.activeIndex].isGroup}" class="btn"  @click="changeSeqType(1)"> 并行 </button>
-                                    </div>
+                                  <div class="top" style="text-align: left">
+	                                  <div class="clear1">
+
+		                                   <div class="btn-group" style="float: right">
+		                                      <button :class="{'btn-danger':!($store.state.steps.length && $store.state.steps[$store.state.activeIndex].isGroup)}" class="btn " @click="changeSeqType(0)"> 串行 </button>
+		                                      <button :class="{'btn-danger':$store.state.steps.length && $store.state.steps[$store.state.activeIndex].isGroup}" class="btn"  @click="changeSeqType(1)"> 并行 </button>
+		                                   </div>
+
+		                                  <div class="comput" style="float: left;width: 80%;text-align: left">
+			                                  <button class="btn btn-primary">选择机器</button>
+		                                  </div>
+
+
+
+	                                  </div>
+
+
                                     <div class="tesklist clear">
                                       <draggable :list="curCmds"  :options="{group:'task',animation:160,sort:true,scroll:true}" class="dragga clear" @add="updateLines">
 
