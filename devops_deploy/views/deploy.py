@@ -507,16 +507,27 @@ class DeployPreExecView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin,
         result = {}
         try:
             req = self.request
+            devopsgroup = req.devopsgroup
             hu = HttpUtils(req)
             reqData = hu.getRequestParam()
+            env = reqData.get("env",None)
             preResult = hu.post(serivceName="job", restName="/rest/deploy/pre_download/", datas=reqData)
             preResult = preResult.json()
             if preResult["status"] == "SUCCESS":
                 result['status'] = 0
-                result['msg'] = "删除成功"
+                result['msg'] = "pre执行成功"
+                if devopsgroup == 'store':
+                    if env == 'pilot':
+                        appId = reqData.get("appId", None)
+                        version = reqData.get("param4", None)
+                        addResult = hu.post(serivceName="job", restName="/rest/deploy/app_add_version/", datas={"id":appId,"version":version})
+                        addResult = addResult.json()
+                        if addResult["status"] == "FAILURE":
+                            result['status'] = 0
+                            result['msg'] = "pre灰度保存版本失败"
             else:
                 result['status'] = 1
-                result['msg'] = "删除失败"
+                result['msg'] = "pre执行失败"
         except Exception as e:
             result['status'] = 1
             result['msg'] = "pre执行异常"

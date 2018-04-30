@@ -82,7 +82,7 @@ def bool_to_human(value):
 
 
 @register.filter()
-def replace_to_br(value: str):
+def replace_to_br(value, str):
     """
     将换行符转为html到换行符
     :param value: 
@@ -164,3 +164,11 @@ def emptyValueConversion(value,arg="0"):
         return value;
     else:
         return arg;
+
+@register.filter(name='devopsToolsTypeTrans')
+def devopsToolsTypeTrans(value):
+    tools_type_dict = {1:'指令',2:'上传文件',3:'远程文件',4:'shell'}
+    if value:
+        return tools_type_dict[value]
+    else:
+        return ""
