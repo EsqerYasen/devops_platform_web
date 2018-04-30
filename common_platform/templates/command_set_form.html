@@ -443,6 +443,19 @@
     }
 
 
+     function getCheckedHostIP() {
+        var str = document.getElementsByName("trCheckbox");
+        var objarray = str.length;
+        var idList = [];
+        for (i = 0; i < objarray; i++) {
+            if (str[i].checked == true) {
+                idList.push($(str[i]).attr('hostip'));
+            }
+        }
+        return idList;
+    }
+
+
 
 
 
