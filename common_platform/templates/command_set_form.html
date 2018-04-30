@@ -283,15 +283,16 @@
     function initSelectHostModal(){
         $("#select_host_modal").on('show.bs.modal',function(event){
             var datas = $(event.relatedTarget).data();
-            debugger;
             var gid = datas&&datas['gid'];
             $(this).data('gid',gid);
             var selectHostValue = $("#selectHostValue"+gid);
             var hostValue = selectHostValue.val();
-            if(hostValue){
-                hostValue = hostValue.replace(/\'/g,"\"");
-                var obj = JSON.parse(hostValue);
-                var target_group_ids = obj['target_group_ids'];
+            var obj = store.state.steps[store.state.activeIndex];
+            var target_group_ids = obj['target_group_ids'];
+            if(obj && target_group_ids){
+                //hostValue = hostValue.replace(/\'/g,"\"");
+                //var obj = JSON.parse(hostValue);
+
                 var tree = $.fn.zTree.getZTreeObj('host_group_tree');
                 if(target_group_ids){
                     $(target_group_ids.split(',')).each(function(i,item){
@@ -367,6 +368,7 @@
             }
             selectHostValue.val(JSON.stringify(obj));
             select_host_modal.modal('hide');
+            store.commit('setHost', values);
         }else{
             Alertwin.alert({message:"请选择主机组或勾选机器"});
         }

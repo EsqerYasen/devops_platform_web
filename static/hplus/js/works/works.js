@@ -9,6 +9,10 @@ var store = new Vuex.Store({
       state.basic = basic;
       console.log(arguments.callee.name, basic, '------');
     },
+      setHost:function(state, obj){
+        state.steps[state.activeIndex].target_group_ids = obj.group_id;
+        state.steps[state.activeIndex].target_host_list = obj.go_live;
+      },
     removeTesk:function(state,index){
       state.steps.splice(index,1)
     },
