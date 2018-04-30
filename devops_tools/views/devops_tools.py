@@ -21,6 +21,8 @@ class DevopsToolsListView(LoginRequiredMixin, OrderableListMixin, ListView):
             reqData = hu.getRequestParam()
             tool_list_result = hu.get(serivceName="job", restName="/rest/job/list_tool_set/",datas=reqData)
             tool_list = tool_list_result.get("results", {})
+            for tool in tool_list:
+                tool['param'] = json.loads(tool['param'])
             paginator = Paginator(tool_list, req.limit)
             count = tool_list_result.get("count", 0)
             paginator.count = count
@@ -41,6 +43,45 @@ class DevopsToolsCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMi
         try:
             hu = HttpUtils(self.request)
             context["result_dict"] = {}
+        except Exception as e:
+            logger.error(e)
+        return context
+
+    def post_ajax(self, request, *args, **kwargs):
+        result = {'status': 0}
+        try:
+            hu = HttpUtils(self.request)
+            reqData = hu.getRequestParam()
+            if reqData:
+                addResult = hu.post(serivceName="job", restName="/rest/job/add_tool_set/", datas=reqData)
+                addResultJson = addResult.json()
+                if addResultJson['status'] == 'SUCCESS':
+                    result['status'] = 0
+                    result['msg'] = '保存成功'
+                else:
+                    result['status'] = 1
+                    result['msg'] = '保存失败'
+            else:
+                result['status'] = 1
+                result['msg'] = '保存值为空'
+
+        except Exception as e:
+            logger.error(e)
+        return HttpResponse(json.dumps(result),content_type='application/json')
+
+
+class DevopsToolsUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, TemplateView):
+    template_name = "devops_tools_edit.html"
+
+    def get_context_data(self, **kwargs):
+        context = {}
+        try:
+            hu = HttpUtils(self.request)
+            tool_list_result = hu.get(serivceName="job", restName="/rest/job/list_tool_set/", datas={"id":kwargs.get('pk',0),"offset":0,"limit":"1"})
+            tool_list = tool_list_result.get("results", [])
+            for tool in tool_list:
+                tool['param'] = json.loads(tool['param'])
+            context["result_dict"] = tool_list[0]
         except Exception as e:
             logger.error(e)
         return context

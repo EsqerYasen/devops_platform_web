@@ -414,7 +414,10 @@ class ToolSetListView(LoginRequiredMixin,JSONResponseMixin, AjaxResponseMixin, V
             req = self.request
             hu = HttpUtils(req)
             tool_list_result = hu.get(serivceName="job", restName="/rest/job/list_tool_set/", datas={"offset":0,"limit":10000})
-            result_json['data'] = tool_list_result.get("results",[])
+            tool_list = tool_list_result.get("results",[])
+            for tool in tool_list:
+                tool['param'] = json.loads(tool['param'])
+            result_json['data'] = tool_list
         except Exception as e:
             logger.error(e)
         return self.render_json_response(result_json)

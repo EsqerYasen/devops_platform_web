@@ -18,7 +18,7 @@
             <div class="col-sm-12">
                 <div class="ibox float-e-margins">
                     <div class="ibox-title">
-                        <h5>新增工具</h5>
+                        <h5>修改工具</h5>
                     </div>
                     <div class="ibox-content" id="tool_add">
                          <form class="form-horizontal" @submit.prevent="submit">
@@ -190,19 +190,19 @@
         el:'#tool_add',
         data: {
            formData:{
-                //id: 1,
-                name: '',
-                tool_set_prime_type: 1,
-                tool_set_type: 4,
-                command: '',
+                id: {{ result_dict.id }},
+                name: '{{ result_dict.name }}',
+                tool_set_prime_type: {{ result_dict.tool_set_prime_type }},
+                tool_set_type: {{ result_dict.tool_set_type }},
+                command: '{{ result_dict.command }}',
                 param: [{
-                    paramNameEn: '',
-                    paramNameZh: '',
-                    type: '',
-                    desc: '',
-                    no: 0,
-                    valueSet: [],
-                    default: ''
+                    paramNameEn: '{{ result_dict.param.paramNameEn }}',
+                    paramNameZh: '{{ result_dict.param.paramNameZh }}',
+                    type: '{{ result_dict.param.type }}',
+                    desc: '{{ result_dict.param.desc }}',
+                    no: '{{ result_dict.param.no }}',
+                    valueSet: {{ result_dict.param.valueSet }},
+                    default: '{{ result_dict.param.default }}'
                 }],
                ret:[{
                     name:'',
