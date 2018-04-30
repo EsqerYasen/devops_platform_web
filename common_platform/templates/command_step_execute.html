@@ -16,7 +16,7 @@
         <div class="col-sm-12">
             <div class="ibox float-e-margins">
                 <div class="ibox-title">
-                    <h5>常用作业</h5>
+                    <h5>常用作业 执行</h5>
                 </div>
                 <div class="ibox-content">
                     <div class="works_box clear" id="container">
@@ -217,8 +217,45 @@
         methods:{
           save: function(){
             var res = transLocalToApiData(this.$store.state.basic, this.$store.state.steps);
-            var command_set = {};
+            var exec_json = {};
+            if(res.id){
+                exec_json['command_set_id'] = res.id;
+                var paras = {}
+                var steps1 = res.steps;
+                $(steps1).each(function(i,item){
+                    var temp = {'target_type':3,'target_host_list':'172.29.164.90'};
+                    var lines1 = item.lines;
+                    $(lines1).each(function(i2,item2){
+                        var parma = item2['param'];
+                        var default_script_parameter = "";
+                        $(parma).each(function(pi,pitme){
+                            if(pitme.type != 'textshell'){
+                               default_script_parameter += pitme.value+" ";
+                            }
+                        });
+                        default_script_parameter = default_script_parameter.substring(0,default_script_parameter.length-1);
+                        temp[item2.id] = {"parameter":default_script_parameter}
+                    })
+                    paras[item.seq_no] = temp;
+                });
+                exec_json['paras'] = paras;
 
+                $.ajax({
+                    type : 'POST',
+                    url: '/platform/command_set/'+res.id+'/exec/',
+                    data:{"execJson":JSON.stringify(exec_json),"csrfmiddlewaretoken":'{{ csrf_token }}'},
+                    success : function(responseStr) {
+                        if(responseStr.status==0){
+                            window.location.href = "../execLog?setId="+responseStr.set_id+"&jobId="+responseStr.job_id
+                        }else{
+                            Alertwin.alert({message:"失败"});
+                        }
+                    },
+                    error : function(responseStr) {
+                        console.log(responseStr);
+                    }
+                });
+            }
           }
         }
       });

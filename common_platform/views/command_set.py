@@ -152,32 +152,104 @@ class CommandSetCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMix
         return HttpResponse(json.dumps(result),content_type='application/json')
 
 class CommandSetUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, TemplateView):
-    template_name = "command_set_form.html"
+    template_name = "command_step_edit.html"
 
-    def get_context_data(self, **kwargs):
-        context = {}
-        try:
-            hu = HttpUtils(self.request)
+    # def get_context_data(self, **kwargs):
+    #     context = {}
+    #     try:
+    #         hu = HttpUtils(self.request)
+    #
+    #         resultJson = hu.get(serivceName="job", restName="/rest/job/list_detail/", datas={'id': kwargs.get('pk', 0)})
+    #         results = resultJson.get("data", [])
+    #         getData = {'offset': 0, 'limit': 1000, 'is_enabled': 1}
+    #         hostgroupResult = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_tree/", datas=getData)
+    #         fileResult = hu.get(serivceName="job", restName="/rest/file/list_tree/", datas={})
+    #         getData['id'] = results['id']
+    #         localParamResult = hu.get(serivceName="job", restName="/rest/para/list/", datas=getData)
+    #
+    #         context["view_num"] = 1
+    #         context['result_dict'] = results
+    #         context['hostGroup_list'] = hostgroupResult.get("data", [])
+    #         context['file_tree'] = json.dumps(fileResult.get("data", []))
+    #         context['localParam_list'] = localParamResult.get("results", [])
+    #     except Exception as e:
+    #         logger.error(e)
+    #     return context
 
-            resultJson = hu.get(serivceName="job", restName="/rest/job/list_detail/", datas={'id': kwargs.get('pk', 0)})
-            results = resultJson.get("data", [])
-            getData = {'offset': 0, 'limit': 1000, 'is_enabled': 1}
-            hostgroupResult = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_tree/", datas=getData)
-            fileResult = hu.get(serivceName="job", restName="/rest/file/list_tree/", datas={})
-            getData['id'] = results['id']
-            localParamResult = hu.get(serivceName="job", restName="/rest/para/list/", datas=getData)
+    def get_context_data(self,**kwargs):
+        context = super(CommandSetUpdateView, self).get_context_data(**kwargs)
+        context["view_num"] = '2'
+        context['readOnly'] = 'readonly'
 
-            context["view_num"] = 1
-            context['result_dict'] = results
-            context['hostGroup_list'] = hostgroupResult.get("data", [])
-            context['file_tree'] = json.dumps(fileResult.get("data", []))
-            context['localParam_list'] = localParamResult.get("results", [])
-        except Exception as e:
-            logger.error(e)
+        hu = HttpUtils(self.request)
+        resultJson = hu.get(serivceName="job", restName="/rest/job/list_detail/", datas={'id': kwargs.get('pk', 0)})
+        results = resultJson.get("data", [])
+        result_dcit = {}
+        result_dcit['id'] = results['id']
+        result_dcit['name'] = results['name']
+        steps = []
+        for step in results['steps']:
+            stepDict = {}
+            stepDict['id'] = step['id']
+            stepDict['name'] = step['name']
+            stepDict['activeIndex'] = step['host_filter']
+            stepDict['seq_no'] = step['seq_no']
+            lines = []
+            for line in step['lines']:
+                lineDict = json.loads(line['file_display_name'])
+                lineDict['id'] = line['id']
+                lineDict['filePath'] = line['source_file_name']
+                del lineDict['is_enabled']
+                lines.append(lineDict)
+            stepDict['lines'] = lines
+            steps.append(stepDict)
+
+        result_dcit['steps'] = steps
+
+        context['result_dict'] = result_dcit
         return context
 
     def post_ajax(self, request, *args, **kwargs):
-        pass
+        result = {'status': 0}
+        try:
+            command_set = request.POST.get("command_set", None)
+            commandSet = json.loads(command_set)
+            commandStep = commandSet['steps']
+            for setp in commandStep:
+                seq_no = setp['seq_no']
+                lines = setp['lines']
+                for i in range(len(lines)):
+                    source_file_name = lines[i]['source_file_name']
+                    fileName = lines[i]['filePath']
+                    filePath = fileName[0:fileName.rindex("/")+1]
+                    if os.path.exists(fileName):
+                        os.remove(fileName)
+                    if source_file_name:
+                        f = None
+                        try:
+
+                            if not os.path.exists(filePath):
+                                os.makedirs(filePath)
+                            fileName = "%s%s_%s.sh" % (filePath, seq_no, i)
+                            f = open(fileName, 'w')
+                            f.write(source_file_name)
+                            f.close()
+                            os.chmod(fileName, stat.S_IRWXO | stat.S_IRWXG | stat.S_IRWXU)
+                            lines[i]['source_file_name'] = fileName
+                        except Exception as e:
+                            logger.error(e)
+                            f.close()
+            hu = HttpUtils(request)
+            resultJson = hu.post(serivceName="job", restName="/rest/job/update/", datas=command_set)
+            resultJson = eval(resultJson.text)
+            if (resultJson["status"] == "FAILURE"):
+                result['status'] = 1
+            else:
+                result['status'] = 0
+
+        except Exception as e:
+            logger.error(e)
+        return HttpResponse(json.dumps(result), content_type='application/json')
 
 
 class CommandSetDeleteView(LoginRequiredMixin,JSONResponseMixin, View):
