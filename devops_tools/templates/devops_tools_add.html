@@ -21,6 +21,7 @@
                         <h5>新增工具</h5>
                     </div>
                     <div class="ibox-content" id="tool_add">
+                         <form class="form-horizontal" @submit.prevent="submit">
 	                        <div class="form-group">
                                 <label class="col-sm-2 control-label"><span class="red">*</span> 工具名称</label>
 	                            <div class="col-sm-10">
@@ -175,6 +176,7 @@
 							      <button type="submit" class="btn btn-primary" @click="submit">提交</button>
 							    </div>
 							  </div>
+                         </form>
                     </div>
                 </div>
             </div>
@@ -232,7 +234,7 @@
                 this.formData.ret.splice(index, 1);
             },
             checkForm: function(){
-                
+                console.log(arguments.callee.name);
             },
             submit: function(){
                 this.checkForm();
