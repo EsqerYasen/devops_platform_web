@@ -282,27 +282,28 @@
 
     function initSelectHostModal(){
         $("#select_host_modal").on('show.bs.modal',function(event){
-            {#var datas = $(event.relatedTarget).data();#}
-            {#var gid = datas['gid'];#}
-            {#$(this).data('gid',gid);#}
-            {#var selectHostValue = $("#selectHostValue"+gid);#}
-            {#var hostValue = selectHostValue.val();#}
-            {#if(hostValue){#}
-            {#    hostValue = hostValue.replace(/\'/g,"\"");#}
-            {#    var obj = JSON.parse(hostValue);#}
-            {#    var target_group_ids = obj['target_group_ids'];#}
-            {#    var tree = $.fn.zTree.getZTreeObj('host_group_tree');#}
-            {#    if(target_group_ids){#}
-            {#        $(target_group_ids.split(',')).each(function(i,item){#}
-            {#            tree.checkNode(tree.getNodeByParam('id',item), true, true);#}
-            {#        });#}
-            {#        createSelectHostIpTable(target_group_ids);#}
-            {#    }#}
-            {#}#}
-            {#var golive = selectHostValue.attr('golive');#}
-            {#if(golive){#}
-            {#    $("#host_go_live").val(golive);#}
-            {#}#}
+            var datas = $(event.relatedTarget).data();
+            debugger;
+            var gid = datas&&datas['gid'];
+            $(this).data('gid',gid);
+            var selectHostValue = $("#selectHostValue"+gid);
+            var hostValue = selectHostValue.val();
+            if(hostValue){
+                hostValue = hostValue.replace(/\'/g,"\"");
+                var obj = JSON.parse(hostValue);
+                var target_group_ids = obj['target_group_ids'];
+                var tree = $.fn.zTree.getZTreeObj('host_group_tree');
+                if(target_group_ids){
+                    $(target_group_ids.split(',')).each(function(i,item){
+                        tree.checkNode(tree.getNodeByParam('id',item), true, true);
+                    });
+                    createSelectHostIpTable(target_group_ids);
+                }
+            }
+            var golive = selectHostValue.attr('golive');
+            if(golive){
+                $("#host_go_live").val(golive);
+            }
         });
 
         $("#select_host_modal").on('hide.bs.modal',function(event){
@@ -357,6 +358,7 @@
         selectHostValue.val('');
 
         var values = getSelectHostFromModal();
+
         if(!$.isEmptyObject(values)){
             var obj = {};
             obj = {'target_group_ids':values['id']}
@@ -368,7 +370,6 @@
         }else{
             Alertwin.alert({message:"请选择主机组或勾选机器"});
         }
-
     }
 
     function queryHostIp(){
@@ -454,10 +455,6 @@
         }
         return idList;
     }
-
-
-
-
 
 
 
