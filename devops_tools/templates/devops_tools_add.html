@@ -21,7 +21,6 @@
                         <h5>新增工具</h5>
                     </div>
                     <div class="ibox-content" id="tool_add">
-                        <form class="form-horizontal">
 	                        <div class="form-group">
                                 <label class="col-sm-2 control-label"><span class="red">*</span> 工具名称</label>
 	                            <div class="col-sm-10">
@@ -173,17 +172,16 @@
 	                        </div>
 	                        <div class="form-group">
 							    <div class="col-sm-offset-2 col-sm-10">
-							      <button type="submit" class="btn btn-primary" @click="checkForm">提交</button>
+							      <button type="submit" class="btn btn-primary" @click="submit">提交</button>
 							    </div>
 							  </div>
-                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
     <script>
-    new Vue({
+    var page = new Vue({
         el:'#tool_add',
         data: {
            formData:{
@@ -235,6 +233,12 @@
             },
             checkForm: function(){
                 
+            },
+            submit: function(){
+                this.checkForm();
+                $.post('url', this.formData, function(r){ //提交数据
+
+                })
             }
         }
     });
@@ -258,6 +262,7 @@
     editor.setValue('#!/bin/sh');
     console.log(editor.getValue());
 
+    console.log(JSON.stringify( page.formData ));
 
     </script>
 {% endblock %}
