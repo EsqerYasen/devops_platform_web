@@ -76,3 +76,7 @@
 .parmabox .pabx{
     margin-right: 18px;
 }
+.add_button{
+    cursor: pointer;
+    color: #0a6aa1;
+}
