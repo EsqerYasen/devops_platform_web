@@ -14,7 +14,7 @@
 }
 .left-task{
     box-sizing: border-box;
-    width: 15%;
+    width: 22%;
     font-size: 15px;
     float: left;
     border-right: none;
@@ -164,8 +164,7 @@ i.del{
 }
 
 .task-content{
-    width: 85%;
-    /*border: 1px solid #eee;*/
+    width: 78%;
     background:url(./imgs/teskbg.png) repeat #eeeeee;
 }
 
