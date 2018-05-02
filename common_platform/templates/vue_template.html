@@ -4,7 +4,7 @@
             <ul>
                <draggable v-model="store.state.steps" :options="{animation:160}">
                   <li v-for="(item,index) in store.state.steps"  class="clear tesklist_li" :class="{active:index==store.state.activeIndex}">
-                      <div class="clear" style="width: 85%;float: left" @click="changeActive(index)">
+                      <div class="clear" style="width: 70%;float: left" @click="changeActive(index)">
                           <span class="num"> {% verbatim %}{{index+1}}{% endverbatim %} </span>
                           <div class="cdis">
                               <span>
@@ -14,6 +14,16 @@
                                 {% verbatim %}{{item.name}}{% endverbatim %}
                               </span>
                           </div>
+
+
+	                      <label class="is_tru" style="position: absolute;top: 0px; right: 10px">
+                            <input type="checkbox" value="1" v-model="item.is_skip">
+                            <span class="swc" :class="{'active':!item.is_skip}">
+							    <span class="swci"></span>
+						    </span>
+                          </label>
+
+
                       </div>
                     <i class="yum-font icon-guanbi del" style="font-size: 12px" @click="delTask(index)"></i>
                   </li>
@@ -109,10 +119,10 @@
                       </div>
 
             </div>
-{#            <div style="position: fixed; bottom: 1px; left: 0px; width: 100%; max-height: 300px; overflow:auto">#}
-{#                <button class="btn btn-danger shu"> 数据 </button>#}
-{#                <pre style="text-align: left; display: none">{% verbatim %}{{$store.state.steps}}{% endverbatim %}</pre>#}
-{#            </div>#}
+            <div style="position: fixed; bottom: 1px; left: 0px; width: 100%; max-height: 300px; overflow:auto">
+                <button class="btn btn-danger shu"> 数据 </button>
+                <pre style="text-align: left; display: none">{% verbatim %}{{$store.state.steps}}{% endverbatim %}</pre>
+            </div>
         </div>
     </div>
 </template>
