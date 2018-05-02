@@ -195,15 +195,19 @@
                 tool_set_prime_type: {{ result_dict.tool_set_prime_type }},
                 tool_set_type: {{ result_dict.tool_set_type }},
                 command: '{{ result_dict.command }}',
-                param: [{
-                    paramNameEn: '{{ result_dict.param.paramNameEn }}',
-                    paramNameZh: '{{ result_dict.param.paramNameZh }}',
-                    type: '{{ result_dict.param.type }}',
-                    desc: '{{ result_dict.param.desc }}',
-                    no: '{{ result_dict.param.no }}',
-                    valueSet: {{ result_dict.param.valueSet }},
-                    default: '{{ result_dict.param.default }}'
-                }],
+                param: [
+                {% for p in result_dict.param %}
+                {
+                    paramNameEn: '{{ p.paramNameEn }}',
+                    paramNameZh: '{{ p.paramNameZh }}',
+                    type: '{{ p.type }}',
+                    desc: '{{ p.desc }}',
+                    no: '{{ p.no }}',
+                    valueSet: {{ p.valueSet }},
+                    default: '{{ p.default }}'
+                },
+                {% endfor %}
+               ],
                ret:[{
                     name:'',
                     desc:'',
@@ -242,11 +246,12 @@
             submit: function(){
                 this.checkForm();
                 var formData = this.formData;
-                delete formData.ret
+                delete formData.ret;
+
                 $.ajax({
                     type: "POST",
-                    url: '../add/',
-                    data:{"csrfmiddlewaretoken":'{{ csrf_token }}','name':formData.name,'tool_set_prime_type':formData.tool_set_prime_type,
+                    url: '../edit/',
+                    data:{"csrfmiddlewaretoken":'{{ csrf_token }}','id':{{ result_dict.id }},'name':formData.name,'tool_set_prime_type':formData.tool_set_prime_type,
                         'tool_set_type':formData.tool_set_type,'command':formData.command,'param':JSON.stringify(formData.param)},
                     error: function (request) {},
                     success: function (data) {

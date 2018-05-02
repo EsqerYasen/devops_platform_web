@@ -92,7 +92,7 @@
                 </td>
                 <td>
                     {% if devops_group != 'store' and devops_group != 'brand' %}
-                    <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='#deploy_pre_modal' data-pid="{{ o.id }}" data-aid="0" style="margin-right: 10px"><i class="glyphicon glyphicon-magnet"></i> pre</button>
+                    <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='#deploy_pre_modal' data-pid="{{ o.id }}" data-pname="{{ o.name }}" data-aid="0" style="margin-right: 10px"><i class="glyphicon glyphicon-magnet"></i> pre</button>
                     {% endif %}
                     <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='#deploy_flow_modal' data-pid="{{ o.id }}" data-aid="0" style="margin-right: 10px"><i class="glyphicon glyphicon-info-sign"></i> 流量</button>
                     <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='#deploy_modal' data-pid="{{ o.id }}" data-aid="0" data-cv="{{ o.current_version}}" style="margin-right: 10px"><i class="glyphicon glyphicon-play"></i> 发布</button>
@@ -138,7 +138,7 @@
                             </td>
                             <td>
                                 {% if devops_group == 'ec' %}
-                                    <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='#deploy_pre_modal' data-pid="{{ o.id }}" data-aid="{{ a.id }}" data-name="{{ a.name }}" style="margin-right: 10px"><i class="glyphicon glyphicon-magnet"></i> pre</button>
+                                    <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='#deploy_pre_modal' data-pid="{{ o.id }}" data-pname="{{ o.name }}" data-aid="{{ a.id }}" data-name="{{ a.name }}" style="margin-right: 10px"><i class="glyphicon glyphicon-magnet"></i> pre</button>
                                 {% elif devops_group == 'brand' %}
                                     <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='#deploy_pre_brand_modal' data-pid="{{ o.id }}" data-aid="{{ a.id }}" data-name="{{ a.name }}" style="margin-right: 10px"><i class="glyphicon glyphicon-magnet"></i> pre</button>
                                 {% elif devops_group == 'store' %}
@@ -225,27 +225,27 @@
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content" style="width: 700px">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">pre</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">ec pre</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                       <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body" style="max-height: 500px;overflow:auto">
                    <div class="row" style="margin-bottom: 10px">
-                       <label class="col-sm-1 control-label" style="width: 9%"> 脚本:</label><label id="pre_script_name" class="col-sm-4 control-label"></label>
-                   </div>
-                   <div class="row" style="margin-bottom: 10px">
-                        <table id="deploy_pre_param_table" class="table table-striped table-bordered table-hover dataTables-example dataTable accordion">
-                            <thead>
-                                <th style="width: 15%;">
-                                    名称
-                                </th>
-                                <th style="width: 85%;">
-                                    值
-                                </th>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
+                        <form method="post" class="form-horizontal">
+                           <div class="form-group">
+                                <label class="col-sm-2 control-label" style="width: 20%">版本(Jira-Svn)</label>
+                                <div class="col-sm-10" style="width: 80%">
+                                    <input type="text" id="param1" name="param1" class="form-control" value=""/>
+                                </div>
+                           </div>
+                           <div class="form-group">
+                                <label class="col-sm-2 control-label" style="width: 20%"> 路径</label>
+                                <div class="col-sm-10" style="width: 80%">
+                                    <input type="text" id="param2" name="param2" class="form-control" value=""/>
+                                </div>
+                           </div>
+                       </form>
                    </div>
                    <div class="row">
                        <table id="deploy_pre_modal_table" class="table table-striped table-bordered table-hover dataTables-example dataTable accordion">
@@ -540,24 +540,26 @@
                 var pid = datas['pid'];
                 var aid = datas['aid'];
                 var cv = datas['cv'];
+                var pname = datas['pname'];
                 $(this).data('pid',pid);
                 $(this).data('aid',aid);
                 $(this).data('cv',cv);
+                $(this).data('pname',pname);
                 var physical = "";
                 var deployment_environment = "";
                 var current_version = "";
                 var physical = "";
                 var deployment_environment = "";
-                var scripObj = {};
+{#                var scripObj = {};#}
                 var reqData = {};
                 if(aid > 0){
                     physical = $("#physical2"+aid).val();
                     deployment_environment = $("#deployment_environment2"+aid).val();
                     reqData['name']= datas['name'];
-                    var script2 = $("#script2"+aid).val();
-                    if(script2){
-                        scripObj = JSON.parse(script2.replace(/'/g,'"'));
-                    }
+{#                    var script2 = $("#script2"+aid).val();#}
+{#                    if(script2){#}
+{#                        scripObj = JSON.parse(script2.replace(/'/g,'"'));#}
+{#                    }#}
                 }else{
                     physical = $("#physical1"+pid).val();
                     deployment_environment = $("#deployment_environment1"+pid).val();
@@ -570,10 +572,10 @@
                         }
                     }
                     app_name = app_name.substring(0,app_name.length-1);
-                    var script1 = $("#script1"+aid).val();
-                    if(script1){
-                        scripObj = JSON.parse(script1.replace(/'/g,'"'));
-                    }
+{#                    var script1 = $("#script1"+aid).val();#}
+{#                    if(script1){#}
+{#                        scripObj = JSON.parse(script1.replace(/'/g,'"'));#}
+{#                    }#}
                     reqData['name']= app_name;
                 }
                 reqData["parent_id"] = pid;
@@ -585,17 +587,17 @@
                     $("#deploy_pre_modal_table tbody").append("<tr><td colspan='3'>请选择机房、环境、版本</td></tr>");
                     $("#deploy_pre_modal_btn").attr("disabled",true);
                 }else{
-                    $("#pre_script_name").text(scripObj['script_path']);
-                    if(scripObj['script_type'] == '1'){
-                        $(scripObj['script_param_names'].split(',')).each(function(i,item){
-                            //#deploy_pre_modal_table
-                            var htmlStr = "<tr>" +
-                                "<td>"+item+"</td>" +
-                                "<td><input name='pre_param_text' type='text' value='' class='form-control'/></td>" +
-                                "</tr>";
-                            $("#deploy_pre_param_table tbody").append(htmlStr);
-                        })
-                    }
+{#                    $("#pre_script_name").text(scripObj['script_path']);#}
+{#                    if(scripObj['script_type'] == '1'){#}
+{#                        $(scripObj['script_param_names'].split(',')).each(function(i,item){#}
+{#                            //#deploy_pre_modal_table#}
+{#                            var htmlStr = "<tr>" +#}
+{#                                "<td>"+item+"</td>" +#}
+{#                                "<td><input name='pre_param_text' type='text' value='' class='form-control'/></td>" +#}
+{#                                "</tr>";#}
+{#                            $("#deploy_pre_param_table tbody").append(htmlStr);#}
+{#                        })#}
+{#                    }#}
                     $.ajax({
                         type: "GET",
                         url: '/deploy/getAppListByPid/',
@@ -607,7 +609,7 @@
                             var tbody = $("#deploy_pre_modal_table tbody");
                             $(appList).each(function(i,item){
                                 var style = "";
-                                var inputStr = "<input type='hidden' id='app_id' value='"+item.id+"'/>";
+                                var inputStr = "<input type='hidden' id='app_id' appName='"+item.name+"' value='"+item.id+"'/>";
                                 if(item.empty_flag == 1){
                                     //emptyFlag += 1;
                                     style  = " style='color: red' ";
@@ -636,12 +638,13 @@
             })
             $("#deploy_pre_modal").on('hide.bs.modal',function(event){
                 $("#deploy_pre_modal_table tbody").empty();
-                $("#deploy_pre_param_table tbody").empty();
+{#                $("#deploy_pre_param_table tbody").empty();#}
                 $("#deploy_pre_modal_btn").attr("disabled",false);
                 $(this).data('pid','');
                 $(this).data('aid','');
                 $(this).data('idc','');
                 $(this).data('env','');
+                $(this).data('pname','');
                 $("#pre_script_name").text('');
             })
 
@@ -999,18 +1002,36 @@
         function preExec(){
             var app_ids = [];
             $($("#deploy_pre_modal_table tbody input")).each(function(i,item){
-                app_ids.push($(item).val());
+                app_ids.push({"id":$(item).val(),"name":$(item).attr("appName")});
             });
             if(app_ids.length == 0){
                 Alertwin.alert({ message: "没有应用记录"});
                 return;
             }
-            var script_param = [];
-            $("#deploy_pre_param_table input").each(function(i,item){
-                script_param.push($(item).val());
+{#            var script_param = [];#}
+{#            $("#deploy_pre_param_table input").each(function(i,item){#}
+{#                script_param.push($(item).val());#}
+{#            });#}
+            var param1 = $("#param1").val();
+            if(!param1){
+                Alertwin.alert({ message: "请填写版本号"});
+                return;
+            }
+            var param2 = $("#param2").val();
+            var datas = $("#deploy_pre_modal").data();
+            var pname = datas['pname'];
+            var env = datas['env'];
+            $.ajax({
+                type: "POST",
+                url: '/deploy/deployPre/',
+                data:{"csrfmiddlewaretoken":'{{ csrf_token }}',"appIds":JSON.stringify(app_ids),"param1":param1,"param2":param2,"env":env,'pname':pname},
+                success: function (data) {
+                    Alertwin.alert({ message: data.msg});
+                },
+                error:function(data) {
+                    console.log(data);
+                }
             });
-            var script_path = $("#pre_script_name").text();
-
         }
 
         function preStoreExec(){
