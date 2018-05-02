@@ -70,6 +70,7 @@ Vue.component('task-info', {
     closeEdit:function(){
       $('#dialogModal').modal('hide')
     },
+
     selectTool:function(index){
       // alert(index);
       store.commit('selectTool',index);
