@@ -9,7 +9,20 @@
 	      </div>
 
 	    <div class="modal-body">
-		    ..........
+		    <div class="showlist" v-for="(rootlist,rootIndex) in $store.state.steps">
+			    <h3>{% verbatim %}{{ rootIndex+1 }}.{{ rootlist.name }}{% endverbatim %}</h3>
+
+			    <template v-for="(lines,linesIndex) in rootlist.lines">
+
+				    <template v-for="(list,listIndex) in lines.list">
+					    <div class="co">
+						    {% verbatim %}{{ rootIndex+1 }}-{{ linesIndex + 1 }}-{{ listIndex + 1 }} . {{ list.name }}{% endverbatim %}
+					    </div>
+				    </template>
+
+			    </template>
+		    </div>
+		    <div class="clear"></div>
 	    </div>
 
 
