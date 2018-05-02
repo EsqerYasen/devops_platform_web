@@ -66,6 +66,8 @@ class DevopsToolsCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMi
                 result['msg'] = '保存值为空'
 
         except Exception as e:
+            result['status'] = 1
+            result['msg'] = '保存异常'
             logger.error(e)
         return HttpResponse(json.dumps(result),content_type='application/json')
 
@@ -92,18 +94,40 @@ class DevopsToolsUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMi
             hu = HttpUtils(self.request)
             reqData = hu.getRequestParam()
             if reqData:
-                addResult = hu.post(serivceName="job", restName="/rest/job/add_tool_set/", datas=reqData)
+                addResult = hu.post(serivceName="job", restName="/rest/job/update_tool_set/", datas=reqData)
                 addResultJson = addResult.json()
                 if addResultJson['status'] == 'SUCCESS':
                     result['status'] = 0
-                    result['msg'] = '保存成功'
+                    result['msg'] = '更新成功'
                 else:
                     result['status'] = 1
-                    result['msg'] = '保存失败'
+                    result['msg'] = '更新失败'
             else:
                 result['status'] = 1
-                result['msg'] = '保存值为空'
+                result['msg'] = '更新值为空'
 
         except Exception as e:
+            result['status'] = 1
+            result['msg'] = '更新异常'
             logger.error(e)
         return HttpResponse(json.dumps(result),content_type='application/json')
+
+class DevopsToolsDeleteView(LoginRequiredMixin,JSONResponseMixin, View):
+    def get(self, request, *args, **kwargs):
+        result = {'status': 0}
+        try:
+            req = self.request
+            id = req.GET.get("id",0)
+            hu = HttpUtils(req)
+            resultJson = hu.get(serivceName="job", restName="/rest/job/delete_tool_set/",datas={"id": id})
+            if resultJson['status'] == 'SUCCESS':
+                result['status'] = 0
+                result['msg'] = '删除成功'
+            else:
+                result['status'] = 1
+                result['msg'] = '删除失败'
+        except Exception as e:
+            result['status'] = 1
+            result['msg'] = '删除异常'
+            logger.error(e)
+        return self.render_json_response(result)
