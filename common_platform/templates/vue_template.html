@@ -56,7 +56,7 @@
                             <p class="center">{% verbatim %}{{ item.value || item.name }}{% endverbatim %}</p>
                           </div>
                           <div class="teskbottom" :title="item.name" >
-                            <p>{% verbatim %}{{ item.name }}{% endverbatim %}</p>
+                            <p><label><input type="checkbox" value="1" v-model="item.is_skip">是否跳过</label> </p>
                           </div>
                           <i class="yum-font teskico icon-guanbi" @click="deleteTaskAll(index)"></i>
                           <div v-if="it.list&&it.list.length==1" class="number">{% verbatim %}{{ index+1 }}{% endverbatim %}</div>
