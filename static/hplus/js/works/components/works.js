@@ -65,7 +65,7 @@ Vue.component('task-info', {
       }
     },
     showEdit:function(index){
-      var cmd = JSON.parse(JSON.stringify(this.curCmds[index]['list'][this.curCmds[index]['activeIndex']||0]));
+      var cmd = this.curCmds[index]['list'][this.curCmds[index]['activeIndex']||0];
       this.curCmd = cmd;
        $('#dialogModal').modal('show')
     },
