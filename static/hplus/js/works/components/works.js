@@ -49,7 +49,8 @@ Vue.component('task-info', {
     updateLines: function(e){
       var curStep = this.$store.state.steps[this.$store.state.activeIndex];
       if(!curStep)return;
-      var cmd = curStep['lines'][e.newIndex];
+      var cmd = JSON.parse(JSON.stringify(curStep['lines'][e.newIndex])) ;
+      cmd.is_skip = cmd.is_skip || 0;
       curStep['lines'].splice(e.newIndex, 1);
       if(curStep.isGroup && curStep.activeIndex>=0&&curStep['lines'][curStep.activeIndex]){//并
         if(curStep['lines'][curStep.activeIndex]['list']){
@@ -64,8 +65,8 @@ Vue.component('task-info', {
       }
     },
     showEdit:function(index){
-      this.curCmds[index]['list'][this.curCmds[index]['activeIndex']||0] = JSON.parse(JSON.stringify(this.curCmds[index]['list'][this.curCmds[index]['activeIndex']||0]))
-      this.curCmd = this.curCmds[index]['list'][this.curCmds[index]['activeIndex']||0];
+      var cmd = JSON.parse(JSON.stringify(this.curCmds[index]['list'][this.curCmds[index]['activeIndex']||0]));
+      this.curCmd = cmd;
        $('#dialogModal').modal('show')
     },
     closeEdit:function(){
