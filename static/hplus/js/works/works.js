@@ -14,7 +14,11 @@ var store = new Vuex.Store({
         state.steps[state.activeIndex].target_host_list = obj.go_live;
       },
     removeTesk:function(state,index){
-      state.steps.splice(index,1)
+      state.steps.splice(index,1);
+      state.activeIndex--;
+      if(state.steps.length && state.activeIndex<0){
+        state.activeIndex = 0;
+      }
     },
     addTask:function (state) {
       state.steps.push({
