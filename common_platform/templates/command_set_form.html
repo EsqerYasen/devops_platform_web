@@ -352,6 +352,9 @@
                     temp['host_filter'] = item.activeIndex;
                     temp['seq_no'] = item.seq_no;
                     temp['type'] = 0;
+                    temp['target_group_ids'] = item.target_group_ids;
+                    temp['target_host_list'] = item.target_host_list;
+
                     var line1 = item.lines;
                     var line2 = [];
                     $(line1).each(function(i2,item2){
@@ -375,7 +378,7 @@
                     step2.push(temp);
                 })
                 command_set['steps'] = step2;
-
+                
                 $.ajax({
                     type: "POST",
                     url: '/platform/command_set/add/',

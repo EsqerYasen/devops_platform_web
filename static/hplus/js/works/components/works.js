@@ -64,7 +64,8 @@ Vue.component('task-info', {
       }
     },
     showEdit:function(index){
-      this.curCmd = this.curCmds[index]['list'][this.curCmds[index]['list']['activeIndex']||0];
+      this.curCmds[index]['list'][this.curCmds[index]['activeIndex']||0] = JSON.parse(JSON.stringify(this.curCmds[index]['list'][this.curCmds[index]['activeIndex']||0]))
+      this.curCmd = this.curCmds[index]['list'][this.curCmds[index]['activeIndex']||0];
        $('#dialogModal').modal('show')
     },
     closeEdit:function(){
@@ -191,7 +192,7 @@ var transLocalToApiData = function(basic, steps){
   res.steps = [];
   for(var i=0; i<steps.length; i++ ){
     var step = steps[i];//左边大步
-    res.steps[i] = {lines:[],name:steps[i].name,activeIndex:steps[i].activeIndex, seq_no:i+1 };
+    res.steps[i] = {lines:[],name:steps[i].name,activeIndex:steps[i].activeIndex, seq_no:i+1, target_group_ids:steps[i].target_group_ids,target_host_list:steps[i].target_host_list };
     for(var i$1=0; i$1<step.lines.length; i$1++ ){//中间一块
       for(var i$$1=0; i$$1<step.lines[i$1].list.length; i$$1++){//一个命令块
         var tls = JSON.parse(JSON.stringify(step.lines[i$1].list[i$$1]));
