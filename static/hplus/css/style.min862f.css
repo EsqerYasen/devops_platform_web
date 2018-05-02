@@ -6917,3 +6917,70 @@ body.skin-3 {
         font-size: 12px
     }
 }
+
+
+
+.swc{
+    width: 28px;
+    height: 14px;
+    background: #efefef;
+    border-radius: 20px;
+    border: 1px solid #ccc;
+    -webkit-transition: all 500ms;
+    -moz-transition: all 500ms;
+    -ms-transition: all 500ms;
+    -o-transition: all 500ms;
+    transition: all 500ms;
+    position: relative;
+    display: inline-block;
+}
+
+.swc .swci{
+    width: 12px;
+    display: block;
+    height: 12px;
+    border: 1px solid #fff;
+    background: #fff;
+    border-radius: 6px;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    -webkit-transition: all 500ms;
+    -moz-transition: all 500ms;
+    -ms-transition: all 500ms;
+    -o-transition: all 500ms;
+    transition: all 500ms;
+    display: inline-block;
+}
+
+
+.swc.active {
+    border: 1px solid #ed5565;
+    background: #ed5565;
+
+}
+
+.swc.active .swci{
+
+    left: 14px;
+    top: 0px;
+
+}
+
+.is_tru{
+    display: block;
+    position: relative;
+}
+
+.is_tru input{
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    top: 0px;
+    left: 0px;
+    opacity: 0;
+}
+.is_skipa{
+    opacity: .2;
+}
