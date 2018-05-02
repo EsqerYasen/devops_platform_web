@@ -87,7 +87,7 @@
     margin-top: 8px;
     font-size: 13px;
     word-break: break-all;
-    padding-left: 10px;
+    padding-left: 25px;
 }
 
 .left-task-warp ul li .cdis span:first-child{
@@ -528,5 +528,39 @@ i.teskico:hover{
     top: 31%;
     left: 50%;
     margin-left: -150px;
+}
+
+
+.showlist{
+
+    float: left;
+    border:1px solid #dedede;
+    padding: 10px;
+    width: 160px;
+    margin-right: 20px;
+    border-radius: 10px;
+
+    margin-bottom: 15px;
+    clear: all!important;
+
+}
+.showlist h3{
+    color: #1ab394;
+
+}
+
+.cin{
+    height: 150px;
+    overflow: auto;
+}
+
+.showlist .co{
+    padding-left: 10px;
+
+}
+
+
+.retrue_style{
+    opacity: .3;
 }
 

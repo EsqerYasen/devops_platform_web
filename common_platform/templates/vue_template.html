@@ -1,30 +1,30 @@
 <template id="task-list">
-                        <div class="left-task">
-                            <div class="left-task-warp">
-                                <ul>
-                                   <draggable v-model="store.state.steps" :options="{animation:160}">
-                                      <li v-for="(item,index) in store.state.steps"  class="clear tesklist_li" :class="{active:index==store.state.activeIndex}">
-                                          <div class="clear" style="width: 85%;float: left" @click="changeActive(index)">
-                                              <span class="num"> {% verbatim %}{{index+1}}{% endverbatim %} </span>
-                                              <div class="cdis">
-                                                  <span>
-                                                      <input type="text" class="edit-input" v-model="item.name">
-                                                  </span>
-                                                  <span>
-                                                    {% verbatim %}{{item.name}}{% endverbatim %}
-                                                  </span>
-                                              </div>
-                                          </div>
-                                        <i class="yum-font icon-guanbi del" style="font-size: 12px" @click="delTask(index)"></i>
-                                      </li>
-                                   </draggable>
-                                </ul>
-                                <div class="plus" @dblclick="addTask()">
-                                    <i class="yum-font icon-plus-bold"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </template>
+    <div class="left-task">
+        <div class="left-task-warp">
+            <ul>
+               <draggable v-model="store.state.steps" :options="{animation:160}">
+                  <li v-for="(item,index) in store.state.steps"  class="clear tesklist_li" :class="{active:index==store.state.activeIndex}">
+                      <div class="clear" style="width: 85%;float: left" @click="changeActive(index)">
+                          <span class="num"> {% verbatim %}{{index+1}}{% endverbatim %} </span>
+                          <div class="cdis">
+                              <span>
+                                  <input type="text" class="edit-input" v-model="item.name">
+                              </span>
+                              <span>
+                                {% verbatim %}{{item.name}}{% endverbatim %}
+                              </span>
+                          </div>
+                      </div>
+                    <i class="yum-font icon-guanbi del" style="font-size: 12px" @click="delTask(index)"></i>
+                  </li>
+               </draggable>
+            </ul>
+            <div class="plus" @dblclick="addTask()">
+                <i class="yum-font icon-plus-bold"></i>
+            </div>
+        </div>
+    </div>
+</template>
 <template id="task-info">
     <div class="task-content">
         <div class="taskwap">
@@ -50,13 +50,20 @@
                         </span>
                       </div>
                       <div class="tabscon">
-                        <div class="intags"  v-for="(item,i) in it.list" :class={'show':i==(it['activeIndex']||0)}>
+                        <div class="intags"  v-for="(item,i) in it.list" :class={'show':i==(it['activeIndex']||0),'is_skipa':item.is_skip}>
                           <i class="yum-font icon-edit edit" @click="showEdit(index)" ></i>
                           <div class="teskwap" :title="item.value">
                             <p class="center">{% verbatim %}{{ item.value || item.name }}{% endverbatim %}</p>
                           </div>
                           <div class="teskbottom" :title="item.name" >
-                            <p>{% verbatim %}{{ item.name }}{% endverbatim %}</p>
+                            <p>
+	                            <label class="is_tru">
+	                                <input type="checkbox" value="1" v-model="item.is_skip">
+		                            <span class="swc" :class="{'active':!item.is_skip}">
+									    <span class="swci"></span>
+								    </span>
+                                </label>
+                            </p>
                           </div>
                           <i class="yum-font teskico icon-guanbi" @click="deleteTaskAll(index)"></i>
                           <div v-if="it.list&&it.list.length==1" class="number">{% verbatim %}{{ index+1 }}{% endverbatim %}</div>
@@ -102,10 +109,10 @@
                       </div>
 
             </div>
-            <div style="position: fixed; bottom: 1px; left: 0px; width: 100%; max-height: 300px; overflow:auto">
-                <button class="btn btn-danger shu"> 数据 </button>
-                <pre style="text-align: left; display: none">{% verbatim %}{{$store.state.steps}}{% endverbatim %}</pre>
-            </div>
+{#            <div style="position: fixed; bottom: 1px; left: 0px; width: 100%; max-height: 300px; overflow:auto">#}
+{#                <button class="btn btn-danger shu"> 数据 </button>#}
+{#                <pre style="text-align: left; display: none">{% verbatim %}{{$store.state.steps}}{% endverbatim %}</pre>#}
+{#            </div>#}
         </div>
     </div>
 </template>
