@@ -46,4 +46,20 @@
         {% endfor %}
         </tbody>
     </table>
+    <script>
+        function deleteToolSet(id){
+             Alertwin.confirm({ message: "确认要删除选择的数据吗？" }).on(function (e) {
+                 $.ajax({
+                    type: "GET",
+                    url: '../delete',
+                    data:{"id":id},
+                    error: function (request) {},
+                    success: function (data) {
+                        location.reload();
+                    }
+                });
+             });
+        }
+
+    </script>
 {% endblock %}
