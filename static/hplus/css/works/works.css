@@ -87,7 +87,7 @@
     margin-top: 8px;
     font-size: 13px;
     word-break: break-all;
-    padding-left: 10px;
+    padding-left: 25px;
 }
 
 .left-task-warp ul li .cdis span:first-child{
@@ -536,9 +536,10 @@ i.teskico:hover{
     float: left;
     border:1px solid #dedede;
     padding: 10px;
-    width: 140px;
+    width: 160px;
     margin-right: 20px;
     border-radius: 10px;
+
     margin-bottom: 15px;
     clear: all!important;
 
@@ -548,8 +549,18 @@ i.teskico:hover{
 
 }
 
+.cin{
+    height: 150px;
+    overflow: auto;
+}
+
 .showlist .co{
     padding-left: 10px;
 
+}
+
+
+.retrue_style{
+    opacity: .3;
 }
 
