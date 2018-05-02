@@ -8,7 +8,7 @@
 	        <h4 class="modal-title" id="myModalLabel">预览</h4>
 	      </div>
 	    <div class="modal-body">
-		    <div class="showlist" v-for="(rootlist,rootIndex) in $store.state.steps">
+		    <div class="showlist" v-for="(rootlist,rootIndex) in $store.state.steps" :class="{'opacity5':rootlist.is_skip}">
 
 			    <h3>{% verbatim %}{{ rootIndex+1 }}.{{ rootlist.name }}{% endverbatim %}</h3>
 
