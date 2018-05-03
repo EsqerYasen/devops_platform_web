@@ -565,5 +565,13 @@ i.teskico:hover{
     opacity: .2;
 }
 
+.showlist h3{
+
+    overflow: hidden;
+text-overflow:ellipsis;
+white-space: nowrap;
+
+}
+
 
 
