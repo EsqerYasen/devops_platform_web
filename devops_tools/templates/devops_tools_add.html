@@ -58,12 +58,12 @@
 		                            <input type="number" min="0" max="100" style="width: 80px" class="form-control input_inline" v-model="formData.timeout"> 分钟
 	                            </div>
 	                        </div>
-	                        <div class="form-group">
-                                <label class="col-sm-2 control-label"> 工具命令</label>
-	                            <div class="col-sm-10">
-		                            <textarea  class="form-control text_ar" style="height: 70px" v-model="formData.command"></textarea>
-	                            </div>
-	                        </div>
+{#	                        <div class="form-group">#}
+{#                                <label class="col-sm-2 control-label"> 工具命令</label>#}
+{#	                            <div class="col-sm-10">#}
+{#		                            <textarea  class="form-control text_ar" style="height: 70px" v-model="formData.command"></textarea>#}
+{#	                            </div>#}
+{#	                        </div>#}
                             <div class="form-group">
                                 <label class="col-sm-2 control-label"> tool_set_prime_type</label>
 	                            <div class="col-sm-10">
@@ -178,7 +178,7 @@
                                              <option value="python">python</option>
                                         </select>
                                     </p>
-		                                <textarea id="code" name="code" style="display: none;"></textarea>
+		                                <textarea id="code" name="code"  style="display: none;"></textarea>
 	                            </div>
 	                        </div>
 	                        <div class="form-group">
@@ -251,14 +251,19 @@
                 this.checkForm();
                 var formData = this.formData;
                 delete formData.ret
+
                 $.ajax({
                     type: "POST",
                     url: '../add/',
                     data:{"csrfmiddlewaretoken":'{{ csrf_token }}','name':formData.name,'tool_set_prime_type':formData.tool_set_prime_type,
-                        'tool_set_type':formData.tool_set_type,'command':formData.command,'param':JSON.stringify(formData.param)},
+                        'tool_set_type':formData.tool_set_type,'command':editor.getValue(),'param':JSON.stringify(formData.param)},
                     error: function (request) {},
                     success: function (data) {
-
+                        if(data.status==0){
+                            location.href = '../list'
+                        }else{
+                            Alertwin.alert({ message: data.msg});
+                        }
                     }
                 });
             }

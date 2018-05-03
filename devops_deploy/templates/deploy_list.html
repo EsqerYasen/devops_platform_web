@@ -1027,6 +1027,7 @@
 {#            });#}
             var param1 = $("#param1").val();
             var param3 = $("#param3").val();
+            var param2 = $("#param2").val();
             if(!param1){
                 Alertwin.alert({ message: "请填写版本号"});
                 return;
@@ -1039,7 +1040,11 @@
                 Alertwin.alert({ message: "请填写Brand"});
                 return;
             }
-            var param2 = $("#param2").val();
+            if(!param2){
+                Alertwin.alert({ message: "请填写路径"});
+                return;
+            }
+
             var datas = $("#deploy_pre_modal").data();
             //var pname = datas['pname'];
             var env = datas['env'];
