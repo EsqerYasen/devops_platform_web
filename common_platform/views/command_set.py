@@ -128,7 +128,7 @@ class CommandSetCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMix
                     line = lines[i]
                     tool_set_type = line.get('tool_set_type', None)
                     del line['tool_set_type']
-                    if tool_set_type == '4':  # 1-指令 2-上传文件 3-远程文件 4-shell
+                    if tool_set_type == 4:  # 1-指令 2-上传文件 3-远程文件 4-shell
                         source_file_name = line.get('source_file_name',None)
                         if source_file_name:
                             f = None
@@ -234,7 +234,7 @@ class CommandSetUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMix
                     line = lines[i]
                     tool_set_type = line.get('tool_set_type', None)
                     del line['tool_set_type']
-                    if tool_set_type == '4':
+                    if tool_set_type == 4:
                         source_file_name = line['source_file_name']
                         fileName = line['filePath']
                         filePath = fileName[0:fileName.rindex("/")+1]
