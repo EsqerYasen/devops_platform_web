@@ -348,19 +348,25 @@
     function determineSelectHost(){
         var select_host_modal = $('#select_host_modal');
         var gid = select_host_modal.data('gid');
-        var selectHostValue = $("#selectHostValue"+gid);
+        //var selectHostValue = $("#selectHostValue"+gid);
         var ips = getCheckedHostIP();
-        selectHostValue.val('');
+        //selectHostValue.val('');
 
         var values = getSelectHostFromModal();
 
         if(!$.isEmptyObject(values)){
-            var obj = {};
-            obj = {'target_group_ids':values['id']}
+            //var obj = {};
+            //obj = {'target_group_ids':values['id']}
+            var target_type = 1;
             if(ips.length > 0){
-                obj['target_host_list']= ips;
+                values['target_host_list']= ips;
+                target_type = 3;
+            }else{
+                values['target_host_list']= "";
             }
-            selectHostValue.val(JSON.stringify(obj));
+            values['target_type'] = target_type;
+            //obj['go_live'] = values['go_live'];
+            //selectHostValue.val(JSON.stringify(obj));
             select_host_modal.modal('hide');
             store.commit('setHost', values);
         }else{
@@ -467,7 +473,7 @@
                 var paras = {}
                 var steps1 = res.steps;
                 $(steps1).each(function(i,item){
-                    var temp = {'target_type':1,'target_group_ids':item.target_group_ids};
+                    var temp = {'target_type':item.target_type,'target_group_ids':item.target_group_ids,'target_host_list':item.target_host_list,'go_live':item.go_live};
                     var lines1 = item.lines;
                     $(lines1).each(function(i2,item2){
                         var parma = item2['param'];

@@ -195,6 +195,9 @@ class CommandSetUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMix
             stepDict['activeIndex'] = step['host_filter']
             stepDict['seq_no'] = step['seq_no']
             stepDict['target_group_ids'] = step['target_group_ids']
+            stepDict['target_host_list'] = step['target_host_list']
+            stepDict['go_live'] = step['go_live']
+            stepDict['target_type'] = step['target_type']
             lines = []
             for line in step['lines']:
                 lineDict = json.loads(line['file_display_name'])
@@ -318,6 +321,9 @@ class CommandSetExecuteView(LoginRequiredMixin, TemplateView):
             stepDict['activeIndex'] = step['host_filter']
             stepDict['seq_no'] = step['seq_no']
             stepDict['target_group_ids'] = step['target_group_ids']
+            stepDict['target_host_list'] = step['target_host_list']
+            stepDict['go_live'] = step['go_live']
+            stepDict['target_type'] = step['target_type']
             lines = []
             for line in step['lines']:
                 lineDict = json.loads(line['file_display_name'])

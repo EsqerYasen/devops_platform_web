@@ -11,7 +11,9 @@ var store = new Vuex.Store({
     },
       setHost:function(state, obj){
         state.steps[state.activeIndex].target_group_ids = obj.group_id;
-        state.steps[state.activeIndex].target_host_list = obj.go_live;
+        state.steps[state.activeIndex].go_live = obj.go_live;
+        state.steps[state.activeIndex].target_host_list = obj.target_host_list;
+        state.steps[state.activeIndex].target_type = obj.target_type;
       },
     removeTesk:function(state,index){
       state.steps.splice(index,1);
