@@ -14,16 +14,12 @@
                                 {% verbatim %}{{item.name}}{% endverbatim %}
                               </span>
                           </div>
-
-
 	                      <label class="is_tru" style="position: absolute;top: 0px; right: 10px">
                             <input type="checkbox" value="1" v-model="item.is_skip">
                             <span class="swc" :class="{'active':!item.is_skip}">
 							    <span class="swci"></span>
 						    </span>
                           </label>
-
-
                       </div>
                     <i class="yum-font icon-guanbi del" style="font-size: 12px" @click="delTask(index)"></i>
                   </li>
@@ -35,6 +31,7 @@
         </div>
     </div>
 </template>
+
 <template id="task-info">
     <div class="task-content">
         <div class="taskwap">
@@ -126,6 +123,7 @@
         </div>
     </div>
 </template>
+
 <template id="task-cmds">
     <div class="right-tast clear">
         <div class="title">工具箱</div>
