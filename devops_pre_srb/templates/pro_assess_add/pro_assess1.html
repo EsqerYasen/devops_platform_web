@@ -1,0 +1,249 @@
+<div class="tab-pane" id="tab1">
+    <div class="row" style="margin-top: 20px;margin-bottom: 20px">
+         <div class="col-md-4">
+            <label class="col-sm-2 control-label" style="width: 20%">
+                新项目
+            </label>
+            <div class="col-sm-10" style="width: 80%">
+                <div class="input-group">
+                  <span class="input-group-addon">
+                    <input id="newProjectRadio"  name="projectRadio" type="radio" value="0" aria-label="..." onclick="radioClick(1)" checked>
+                  </span>
+                  <input id="projectName" type="text" class="form-control" aria-label="...">
+                </div>
+                <input type="hidden" id="project_id" value=""/>
+                <input type="hidden" id="is_add" value="{{ is_add }}"/>
+               <!--   <input type="text" class="form-control" id="projectName" value=""/> -->
+            </div>
+         </div>
+         <div class="col-md-4">
+            <label class="col-sm-2 control-label" style="width: 20%">
+                已有项目
+            </label>
+            <div class="col-sm-10" style="width: 75%">
+                <div class="input-group">
+                    <span class="input-group-addon">
+                        <input id="oldProjectRadio" name="projectRadio" type="radio" aria-label="..." value="1" onclick="radioClick(2)">
+                    </span>
+                    <select id="projectNameSel"  class="form-control" onchange="" disabled="disabled">
+                        <option value="">--------请选择--------</option>
+                    </select>
+                </div>
+            </div>
+         </div>
+    </div>
+    <div class="row" style="margin-bottom: 20px">
+         <div class="col-md-8">
+             <label class="col-sm-2 control-label" style="width: 10%">
+                 项目简书
+             </label>
+             <div class="col-sm-10" style="width: 90%">
+                <textarea id="description" style="width: 100%;height: 50px;resize: none;background: white;font: caption;color: black;"></textarea>
+             </div>
+         </div>
+    </div>
+    <div class="row"  style="margin-bottom: 20px">
+         <div class="col-md-2">
+              <label class="col-sm-2 control-label" style="width: 40%">
+                 申请人
+             </label>
+             <div class="col-sm-10" style="width: 60%">
+                <input type="text" id="applicant" class="form-control" value=""/>
+             </div>
+         </div>
+         <div class="col-md-4">
+              <label class="col-sm-2 control-label" style="width: 15%">
+                 Email
+             </label>
+             <div class="col-sm-10" style="width: 85%">
+                <input type="text" class="form-control" id="applicant_email" value=""/>
+             </div>
+         </div>
+         <div class="col-md-2">
+              <label class="col-sm-2 control-label" style="width: 35%">
+                  分机
+             </label>
+             <div class="col-sm-10" style="width: 65%">
+                <input type="text" id="applicant_phone" class="form-control" value=""/>
+             </div>
+         </div>
+    </div>
+    <div class="row" style="margin-bottom: 20px">
+        <div class="col-md-4">
+             <label class="col-sm-2 control-label" style="width: 33%">
+                 预计上PILOT时间
+             </label>
+             <div class="col-sm-10" style="width: 67%">
+                <div class='input-group date'  id='datetimepicker1' style="width: 100%">
+                    <input id="estimated_pilot_date" type='text' name="estimated_rollout_date1" class="form-control" placeholder="预计上线时间"/>
+                    <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                    </span>
+                </div>
+             </div>
+        </div>
+        <div class="col-md-4" style="margin-bottom: 20px">
+             <label class="col-sm-2 control-label" style="width: 30%">
+                 预计上生产时间
+             </label>
+             <div class="col-sm-10" style="width: 70%">
+                <div class='input-group date'  id='datetimepicker2' style="width: 100%">
+                    <input id="estimated_online_date" type='text' name="estimated_rollout_date2" class="form-control" placeholder="预计上线时间"/>
+                    <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                    </span>
+                </div>
+             </div>
+        </div>
+    </div>
+    <div class="row" style="margin-bottom: 20px">
+        <div class="col-md-4">
+             <label class="col-sm-2 control-label" style="width: 33%">
+                审核人
+             </label>
+             <div class="col-sm-10" style="width: 67%">
+                <select id="assignee" class="form-control" onchange="">
+                    <option value="">请选择</option>
+                    {% for auditor in auditor_list %}
+                        <option value="{{ auditor.id }}">{{ auditor.name }}</option>
+                    {% endfor %}
+                </select>
+             </div>
+         </div>
+    </div>
+</div>
+
+<script>
+
+    function initProAssess1(){
+        var now = new Date();
+        now.setMonth(now.getMonth()+1);
+        $('#datetimepicker1').datetimepicker({
+            format: 'YYYY-MM-DD',
+            locale: moment.locale('zh-cn'),
+            defaultDate:now
+        });
+        now.setMonth(now.getMonth()+1);
+        $('#datetimepicker2').datetimepicker({
+            format: 'YYYY-MM-DD',
+            locale: moment.locale('zh-cn'),
+            defaultDate:now
+        });
+    }
+
+    function radioClick(v){
+        if(v == 1){
+            $("#projectNameSel").attr("disabled",true);
+            $("#projectName").attr("disabled",false);
+        }else{
+            $("#projectNameSel").attr("disabled",false);
+            $("#projectName").attr("disabled",true);
+        }
+    }
+
+    function tab1Save(){
+        var p_id = $("#project_id").val();
+        var name = $("#projectName").val();
+        var is_legacy_project = $(":radio[name='projectRadio']:checked").val();
+        var description = $("#description").val();
+        var applicant = $("#applicant").val();
+        var applicant_email = $("#applicant_email").val();
+        var applicant_phone = $("#applicant_phone").val();
+        var assignee = $("#assignee").val();
+        var estimated_pilot_date = $("#estimated_pilot_date").val();
+        var estimated_online_date = $("#estimated_online_date").val();
+        var is_add = $("#is_add").val();
+
+        var saveJson = {"is_legacy_project":is_legacy_project}
+        var bool = true;
+        if(is_add != 1){
+            if(!p_id){
+                Alertwin.alert({ message: "未获获取到更新主键"});
+                bool = false;
+                return bool;
+            }
+        }
+        if(!p_id){
+            saveJson['p_id'] = p_id;
+        }
+        if(!name){
+            Alertwin.alert({ message: "项目名称为空"});
+            bool = false;
+            return bool;
+        }
+        saveJson['name'] = name;
+        if(!description){
+            Alertwin.alert({ message: "部署计划为空"});
+            bool = false;
+            return bool;
+        }
+         saveJson['description'] = description;
+        if(!applicant){
+            Alertwin.alert({ message: "申请人为空"});
+            bool = false;
+            return bool;
+        }
+        saveJson['applicant'] = applicant;
+        if(!applicant_email){
+            Alertwin.alert({ message: "Email为空"});
+            bool = false;
+            return bool;
+        }
+        saveJson['applicant_email'] = applicant_email;
+        if(!applicant_phone){
+            Alertwin.alert({ message: "手机为空"});
+            bool = false;
+            return bool;
+        }
+        saveJson['applicant_phone'] = applicant_phone;
+        if(!assignee){
+            Alertwin.alert({ message: "指派人为空"});
+            bool = false;
+            return bool;
+        }
+        saveJson['assignee'] = assignee;
+        if(!estimated_pilot_date){
+            Alertwin.alert({ message: "预计上PILOT时间"});
+            bool = false;
+            return bool;
+        }
+        saveJson['estimated_pilot_date'] = estimated_pilot_date;
+        if(!estimated_online_date){
+            Alertwin.alert({ message: "预计上线时间"});
+            bool = false;
+            return bool;
+        }
+        saveJson['estimated_online_date'] = estimated_online_date;
+        var postUrl ="";
+
+        if(p_id){
+            postUrl = "";
+        }else{
+            postUrl = "/presrb/project/pro_assess_add/";
+        }
+
+        if(postUrl){
+            $.ajax({
+                type: "POST",
+                url: '/presrb/project/pro_assess_add/',
+                async:false,
+                data:{"saveJson":JSON.stringify(saveJson),"csrfmiddlewaretoken":'{{ csrf_token }}'},
+                error: function (request) {
+                     bool = false;
+                },
+                success: function (data) {
+                    if(data.status = "SUCCESS"){
+                        bool = true;
+                        $("#project_id").val(data.p_id);
+                        Alertwin.alert({ message: "操作成功"});
+                    }else{
+                         bool = false;
+                        Alertwin.alert({ message: "操作失败"});
+                    }
+                }
+            })
+        }
+        return bool;
+    }
+
+</script>

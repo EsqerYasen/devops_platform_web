@@ -1,0 +1,154 @@
+<div class="tab-pane" id="tab2">
+    <div class="row" style="margin-top: 20px;margin-bottom: 20px">
+        <div class="col-md-6">
+            <label class="col-sm-1 control-label" style="width: 15%">
+                部署架构图
+            </label>
+            <div class="col-sm-10" style="width: 85%">
+                 <input id="uploadFrameworkFile" type="file">
+            </div>
+        </div>
+        <div class="col-md-6" style="display: none">
+            <label >
+                部署架构图.vbs
+            </label>
+            <a href="" class="btn btn-sm btn-success"><i class="fa fa-download"></i> 下载</a>
+        </div>
+    </div>
+    <div class="row" style="margin-bottom: 20px">
+        <div class="col-md-4">
+            <label class="col-sm-1 control-label" style="width: 45%">
+              预计架构能够承载的业务量
+            </label>
+            <div class="col-sm-10" style="width: 55%">
+                 <div class="input-group">
+                      <input id="estimated_total_capacity" type="text" class="form-control" aria-label="...">
+                      <div class="input-group-btn">
+                        <button id="estimated_total_capacity_btn" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">秒并发数 <span class="caret"></span></button>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            <li><a href="javascript:void(0)" onclick="estimated_total_capacityClick(this)">秒并发数 （每秒并发或保持常连接数量）</a></li>
+                          <li><a href="javascript:void(0)" onclick="estimated_total_capacityClick(this)">秒次请求 （每秒多少次请求数量）</a></li>
+{#                          <li><a href="javascript:void(0)" onclick="estimated_total_capacityClick(this)">次请求</a></li>#}
+                        </ul>
+                      </div>
+                </div>
+                <input id="is_save2" type="hidden" value="0">
+            </div>
+        </div>
+        <div class="col-md-4" style="width: 30%">
+            <label class="col-sm-1 control-label" style="width: 40%">
+              每台能够承载量
+            </label>
+            <div class="col-sm-10" style="width: 60%">
+                 <div class="input-group">
+                     <div class="input-group">
+                          <input id="estimated_singleton_capacity" type="text" class="form-control" placeholder="" aria-describedby="basic-addon2" />
+                          <span id="estimated_singleton_capacity_span" class="input-group-addon" id="basic-addon2">单台</span>
+                     </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4" style="width: 30%">
+            <label class="col-sm-1 control-label" style="width: 40%">
+              预计机器台数预计机器台数
+            </label>
+            <div class="col-sm-10" style="width: 60%">
+                 <div class="input-group">
+                     <div class="input-group">
+                          <input id="estimated_server_amount" type="text" class="form-control" placeholder="" aria-describedby="basic-addon2" readonly/>
+                          <span id="estimated_singleton_capacity_span" class="input-group-addon" id="basic-addon2">台</span>
+                     </div>
+                </div>
+                <input id="is_save2" type="hidden" value="0">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function initProAssess2(){
+        $("#uploadFrameworkFile").fileinput({
+            showPreview: false,
+            showUpload: false,
+            allowedFileExtensions: ['sh','vsd'],
+            maxFilesNum:1,
+            language:'zh'
+        });
+        estimatedTotalCapacityBlur();
+    }
+    function estimatedTotalCapacityBlur(){
+       $("#estimated_singleton_capacity").blur(function(){
+            var a = $(this).val()
+            if(a){
+               var total = $("#estimated_total_capacity").val();
+               if(total > 0 && total != '0'){
+                   var b = parseInt(total/a)
+                   $("#estimated_server_amount").val(b);
+               }
+            }
+       });
+    }
+
+    function tab2Save(){
+        var p_id = $("#project_id").val();
+        if(!p_id){
+            Alertwin.alert({ message: "请先保存项目"});
+            return false;
+        }
+        var sum = $("#estimated_server_amount").val();
+        if(sum == 0 && sum == '0'){
+            Alertwin.alert({ message: "预计机器台数预计机器台数为空"});
+            return false;
+        }
+        var estimated_total_capacity = $("#estimated_total_capacity").val();
+        if(!estimated_total_capacity){
+            Alertwin.alert({ message: "预计架构能够承载的业务量为空"});
+            return false;
+        }
+        var estimated_singleton_capacity = $("#estimated_singleton_capacity").val();
+        if(!estimated_singleton_capacity){
+            Alertwin.alert({ message: "每台能够承载量为空"});
+            return false;
+        }
+        var saveJson = {"p_id":p_id,"estimated_server_amount":sum,"estimated_total_capacity":estimated_total_capacity,"estimated_singleton_capacity":estimated_singleton_capacity}
+        var files = $("#uploadFrameworkFile")[0].files
+        var formData = new FormData();
+            formData.append('files',files[0]);
+            formData.append("csrfmiddlewaretoken",'{{ csrf_token }}');
+            formData.append("saveJson",JSON.stringify(saveJson));
+        var bool = false;
+        $.ajax({
+            url : '/presrb/project/pro_estimated_add/',
+            type : 'POST',
+            async:false,
+            processData : false,
+            contentType : false,
+            data: formData,
+            beforeSend:function(){
+                //Alertwin.alert({ message:"正在进行，请稍候"});
+            },
+            success : function(data) {
+                if(data.status == 'SUCCESS'){
+                    $("#is_save2").val(1);
+                    Alertwin.alert({message:"保存成功"});
+                    //location.reload()
+                    bool = true;
+                }else{
+                    Alertwin.alert({message:"保存失败"});
+                }
+            },
+            error : function(responseStr) {
+                console.log(responseStr);
+            }
+        });
+        return bool;
+    }
+
+    function estimated_total_capacityClick(obj){
+        var text = $(obj).text();
+        text = text.split(' ')[0];
+        $("#estimated_total_capacity_btn")[0].innerHTML=text+' <span class="caret"></span>';
+        $("#estimated_singleton_capacity_span").text(text);
+    }
+
+</script>
