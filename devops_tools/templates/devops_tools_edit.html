@@ -282,7 +282,7 @@
         matchBrackets: true,
           theme: 'eclipse'
       });
-    var commandStr = '{{ result_dict.command }}'.replace(/\r/g,'\\r').replace(/\n/g,'\\n');
+    var commandStr = '{{ result_dict.command|safe }}'.replace(/\r/g,'\\r').replace(/\n/g,'\\n');
     editor.setValue('#!/bin/sh');
     editor.setValue(commandStr);
     console.log(editor.getValue());
