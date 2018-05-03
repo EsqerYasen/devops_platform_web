@@ -10,7 +10,7 @@
 	    <div class="modal-body">
 		    <div class="showlist" v-for="(rootlist,rootIndex) in $store.state.steps" :class="{'opacity5':rootlist.is_skip}">
 
-			    <h3>{% verbatim %}{{ rootIndex+1 }}.{{ rootlist.name }}{% endverbatim %}</h3>
+			    <h3 :title="rootlist.name">{% verbatim %}{{ rootIndex+1 }}.{{ rootlist.name }}{% endverbatim %}</h3>
 
 			    <div class="cin">
 
