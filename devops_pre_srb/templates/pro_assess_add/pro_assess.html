@@ -1,0 +1,150 @@
+{% extends 'common/basic_layout.html' %}
+
+{% block content %}
+<script type="text/javascript" src="/static/hplus/js/fileinput.min.js"></script>
+<script type="text/javascript" src="/static/hplus/js/fileinput.zh.js"></script>
+<script type="text/javascript" src="/static/hplus/js/bwizard/jquery.bootstrap.wizard.min.js"></script>
+<script type="text/javascript" src="/static/hplus/js/datetimepicker/bootstrap-datetimepicker.min.js"></script>
+{#<script type="text/javascript" src="/static/hplus/js/chosen/chosen.jquery.js"></script>#}
+<script type="text/javascript" src="/static/hplus/js/chosen/amazeui.chosen.min.js"></script>
+<link href="/static/hplus/css/fileinput.min.css" rel="stylesheet">
+<link href="/static/hplus/css/bwizard/bwizard.min.css" rel="stylesheet">
+<link href="/static/hplus/css/datetimepicker/bootstrap-datetimepicker.min.css" rel="stylesheet">
+<link href="/static/hplus/css/chosen/chosen.css" rel="stylesheet">
+<link href="/static/hplus/css/chosen/amazeui.chosen.css" rel="stylesheet">
+{#    <link href="/static/hplus/css/chosen/amazeui.min.css" rel="stylesheet">#}
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>PreSRB项目评估</h5>
+                </div>
+                <div class="ibox-content">
+
+                    <div id="rootwizard">
+                        <ul>
+                            <li><a href="#tab1" data-toggle="tab"><span class="label">1</span>项目信息</a></li>
+{#                            <li><a href="#tab2" data-toggle="tab"><span class="label">2</span>容量需求</a></li>#}
+                            <li><a href="#tab3" data-toggle="tab"><span class="label">2</span>应用配置</a></li>
+                            <li><a href="#tab4" data-toggle="tab"><span class="label">3</span>评估报告</a></li>
+                            <li><a href="#tab5" data-toggle="tab"><span class="label">4</span>项目文档</a></li>
+                        </ul>
+                        <div class="tab-content">
+                            {% include 'pro_assess_add/pro_assess1.html' %}
+{#                            {% include 'pro_assess_add/pro_assess2.html' %}#}
+                            {% include 'pro_assess_add/pro_assess3.html' %}
+                            {% include 'pro_assess_add/pro_assess4.html' %}
+                            {% include 'pro_assess_add/pro_assess5.html' %}
+                            <ul class="pager wizard">
+                                <li id="previous" class="previous"><a href="#">上一页</a></li>
+                                <li id="next" class="next"><a href="#" title="点击下一页会触发本页数据保存">下一页</a></li>
+                                <button id="submit2" type='button' class='btn btn-sm btn-success' style="float:right;display: none" onclick="submit()"><i class="fa fa-save"></i> 提交审核</button>
+                            </ul>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+	   $('#rootwizard').bootstrapWizard({'tabClass': 'bwizard-steps',
+           onNext:onNextEvent,
+           onPrevious:onPreviousEvent,
+           onTabClick:onTabClickEvent
+	   });
+	   initProAssess1();
+	   {#initProAssess2();#}
+       initProAssess3();
+       initProAssess4();
+       initProAssess5();
+
+	   //$(".i-checks").iCheck({checkboxClass: "icheckbox_square-green", radioClass: "iradio_square-green",})
+
+    })
+
+    function onNextEvent(tab, navigation, index){
+        if(index == 1){
+            var b = tab1Save();
+            if(!b){
+                return false
+            }
+        }else if(index == 2){
+            var b = tab2Save();
+            if(!b){
+                return false
+            }
+        }else if(index == 3){
+           var b = tab3Save();
+           if(!b){
+               return false
+           }
+           tab4ReportView();
+        }
+        if(index == 3){
+            //$("#next").hide();
+            //$("#submit").css("display","block");
+            $("#submit2").css("display","block");
+        }
+    }
+
+    function onTabClickEvent(){
+        $("#submit2").css("display","none");
+        //return false;
+    }
+
+    function onPreviousEvent(tab, navigation, index){
+        //$("#next").css("display","block");
+        //$("#submit").css("display","none");
+        if(index == 3){
+            //$("#next").hide();
+            //$("#submit").css("display","block");
+            $("#submit2").css("display","block");
+        }else{
+            $("#submit2").css("display","none");
+        }
+    }
+
+
+    function submit(){
+        var p_id = $("#project_id").val();
+        if(!p_id){
+            Alertwin.alert({ message: "请先保存项目"});
+            return false;
+        }
+        var is_save2 = $("#is_save2").val();
+        if(is_save2 == 0 && is_save2 == '0'){
+            Alertwin.alert({ message: "请先保存容量需求"});
+            return false;
+        }
+        var is_save3 = $("#is_save3").val();
+        if(is_save3 == 0 && is_save3 == '0'){
+            Alertwin.alert({ message: "请先保存应用配置"});
+            return false;
+        }
+        $.ajax({
+            type: "GET",
+            url: '/presrb/project/pro_change/',
+            data:{"p_id":p_id,"status":2},
+            error: function (request) {},
+            success: function (data) {
+                if(data.status == "SUCCESS"){
+                    bool = true;
+                    Alertwin.alert({ message: "提交成功"});
+                    //window.location.href="../pro_report_views/?id="+p_id;
+                    //window.location.href="../list/"
+                }else{
+                    bool = false;
+                    Alertwin.alert({ message: "提交失败"});
+                }
+            }
+        })
+    }
+</script>
+
+
+{% endblock %}

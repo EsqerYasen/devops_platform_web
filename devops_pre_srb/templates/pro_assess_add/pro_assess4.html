@@ -1,0 +1,47 @@
+<div class="tab-pane" id="tab4">
+     <div id="tab4ReportDiv" class="row" style="margin-top: 20px">
+     </div>
+      <div class="row" style="margin-top: 20px">
+         <div class="col-md-4">
+            <div class="alert alert-success">
+                S级 : 主站节点全部高可用 有备份机房
+            </div>
+         </div>
+    </div>
+    <div class="row">
+         <div class="col-md-4">
+            <div class="alert alert-warning">
+                B级 : 主站存在单节点 有备份机房 /  主站节点全部高可用 无备份机房
+            </div>
+         </div>
+    </div>
+    <div class="row" style="margin-bottom: 20px">
+         <div class="col-md-4">
+            <div class="alert alert-danger">
+                A级 : 主站存在单节点 无备份机房 /  主站节点全部单节点 有备份机房
+            </div>
+         </div>
+    </div>
+</div>
+
+<script>
+     function initProAssess4(){
+
+     }
+     function tab4ReportView(){
+         $("#tab4ReportDiv").empty();
+        var p_id = $("#project_id").val();
+        $.ajax({
+            type: "GET",
+            url: '/presrb/project/pro_report_views/',
+            async:false,
+            data:{"id":p_id,'t':1},
+            error: function (request) {
+                 bool = false;
+            },
+            success: function (data) {
+                $("#tab4ReportDiv").append(data);
+            }
+        })
+     }
+</script>
