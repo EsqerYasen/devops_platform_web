@@ -194,6 +194,7 @@ class CommandSetUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMix
             stepDict['name'] = step['name']
             stepDict['activeIndex'] = step['host_filter']
             stepDict['seq_no'] = step['seq_no']
+            stepDict['target_group_ids'] = step['target_group_ids']
             lines = []
             for line in step['lines']:
                 lineDict = json.loads(line['file_display_name'])
@@ -205,6 +206,10 @@ class CommandSetUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMix
             steps.append(stepDict)
 
         result_dcit['steps'] = steps
+
+        getData = {'offset': 0, 'limit': 1000, 'is_enabled': 1}
+        hostgroupResult = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_tree/", datas=getData)
+        context['hostGroup_list'] = hostgroupResult.get("data", [])
 
         context['result_dict'] = result_dcit
         return context
@@ -312,6 +317,7 @@ class CommandSetExecuteView(LoginRequiredMixin, TemplateView):
             stepDict['name'] = step['name']
             stepDict['activeIndex'] = step['host_filter']
             stepDict['seq_no'] = step['seq_no']
+            stepDict['target_group_ids'] = step['target_group_ids']
             lines = []
             for line in step['lines']:
                 lineDict = json.loads(line['file_display_name'])
@@ -324,6 +330,9 @@ class CommandSetExecuteView(LoginRequiredMixin, TemplateView):
 
         result_dcit['steps'] = steps
 
+        getData = {'offset': 0, 'limit': 1000, 'is_enabled': 1}
+        hostgroupResult = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_tree/", datas=getData)
+        context['hostGroup_list'] = hostgroupResult.get("data", [])
         context['result_dict'] = result_dcit
         return context
 
