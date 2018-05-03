@@ -8,8 +8,12 @@
 <script type="text/javascript" src="/static/hplus/js/works/alert.js"></script>
 <script type="text/javascript" src="/static/hplus/js/works/works.js"></script>
 <script type="text/javascript" src="/static/hplus/js/works/components/works.js"></script>
+<script type="text/javascript" src="/static/hplus/js/zTree/jquery.ztree.core.js"></script>
+<script type="text/javascript" src="/static/hplus/js/zTree/jquery.ztree.excheck.js"></script>
+<script type="text/javascript" src="/static/hplus/js/zTree/jquery.ztree.exedit.js"></script>
 <link href="/static/hplus/css/works/works.css" rel="stylesheet">
 <link href="/static/hplus/css/works/yum-font.css" rel="stylesheet">
+<link href="/static/hplus/css/zTree/bootstrapStyle.css" rel="stylesheet">
 
 <div class="wrapper wrapper-content fadeInRight" style="z-index: inherit">
     <div class="row">
@@ -44,146 +48,201 @@
                         </transation>
                         <task-cmds></task-cmds>
                     </div>
-                    <template id="task-list">
-                        <div class="left-task">
-                            <div class="left-task-warp">
-                                <ul>
-                                   <draggable v-model="store.state.steps" :options="{animation:160}">
-                                      <li v-for="(item,index) in store.state.steps"  class="clear tesklist_li" :class="{active:index==store.state.activeIndex}">
-                                          <div class="clear" style="width: 85%;float: left" @click="changeActive(index)">
-                                              <span class="num"> {% verbatim %}{{index+1}}{% endverbatim %} </span>
-                                              <div class="cdis">
-                                                  <span>
-                                                      <input type="text" class="edit-input" v-model="item.name">
-                                                  </span>
-                                                  <span>
-                                                    {% verbatim %}{{item.name}}{% endverbatim %}
-                                                  </span>
-                                              </div>
-                                          </div>
-                                        <i class="yum-font icon-guanbi del" style="font-size: 12px" @click="delTask(index)"></i>
-                                      </li>
-                                   </draggable>
-                                </ul>
-                                <div class="plus" @dblclick="addTask()">
-                                    <i class="yum-font icon-plus-bold"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </template>
-                    <template id="task-info">
-                        <div class="task-content">
-                            <div class="taskwap">
-                                  <div class="top" >
-                                    <div class="btn-group">
-                                      <button :class="{'btn-danger':!($store.state.steps.length && $store.state.steps[$store.state.activeIndex].isGroup)}" class="btn " @click="changeSeqType(0)"> 串行 </button>
-                                      <button :class="{'btn-danger':$store.state.steps.length && $store.state.steps[$store.state.activeIndex].isGroup}" class="btn"  @click="changeSeqType(1)"> 并行 </button>
-                                    </div>
-                                    <div class="tesklist clear">
-                                      <draggable :list="curCmds"  :options="{group:'task',animation:160,sort:true,scroll:true}" class="dragga clear" @add="updateLines">
-
-                                        <div class="tesk"   v-for="(it, index) in curCmds" :class="{'active':$store.state.steps[$store.state.activeIndex]&&$store.state.steps[$store.state.activeIndex].activeIndex==index}" @click="selectTool(index)">
-                                          <div class="tabs" v-if="it.list&&it.list.length>1">
-                                            <span class="btns"
-                                                  :class={'current':i==it['activeIndex']}
-                                                  v-for="(item,i) in it.list">
-                                              <div class="con" @click="tabClick({ind1:index,ind2:i})">{% verbatim %}{{index+1}}-{{i+1}}{% endverbatim %}</div>
-                                              <i class="yum-font icon-guanbi tabClose" @click="deleteTask({ind1:index,ind2:i})"></i>
-                                            </span>
-                                          </div>
-                                          <div class="tabscon">
-                                            <div class="intags"  v-for="(item,i) in it.list" :class={'show':i==(it['activeIndex']||0)}>
-                                              <i class="yum-font icon-edit edit" @click="showEdit('#edit_'+index+'_'+i)" ></i>
-                                              <div class="teskwap" :title="item.value">
-                                                <p class="center">{% verbatim %}{{ item.value || item.name }}{% endverbatim %}</p>
-                                              </div>
-                                              <div class="teskbottom" :title="item.name" >
-                                                <p>{% verbatim %}{{ item.name }}{% endverbatim %}</p>
-                                              </div>
-                                              <i class="yum-font teskico icon-guanbi" @click="deleteTaskAll(index)"></i>
-                                              <div v-if="it.list&&it.list.length==1" class="number">{% verbatim %}{{ index+1 }}{% endverbatim %}</div>
-                                            </div>
-                                          </div>
-                                        </div>
-                                      </draggable>
-
-                                    </div>
-
-
-                                  <template class="tesk"  v-for="(it, index) in curCmds" :class="{'active':$store.state.steps[$store.state.activeIndex]&&$store.state.steps[$store.state.activeIndex].activeIndex==index}" @click="selectTool(index)">
-                                      <template v-for="(item,i) in it.list" :class={'show':i==it['activeIndex']}">
-                                          <div class="modal fade" style="text-align: left; z-index: 99" :id="'edit_'+index+'_'+i" >
-                                              <div class="modal-dialog">
-                                                  <div class="modal-content">
-                                                      <div class="modal-header">
-                                                        <span type="button" class="close close_hide" @click="closeEdit('#edit_'+index+'_'+i)">
-                                                           <i class="yum-font icon-guanbi"></i>
-                                                        </span>
-                                                        <h4 class="modal-title" id="myModalLabel">编辑-{% verbatim %}{{steps['lines'][index]['list'][i]['name']}}{% endverbatim %}</h4>
-                                                      </div>
-                                                      <div class="modal-body">
-                                                          <form class="form-horizontal">
-                                                              <div class="form-group" v-for="ites in steps['lines'][index]['list'][i]['param']">
-                                                                <label class="col-sm-2 control-label">{% verbatim %}{{ites.paramNameZh}}{% endverbatim %}</label>
-
-                                                                <div class="col-sm-10">
-                                                                  <div v-if="ites.type==='textshell'">
-                                                                    <textarea style="height: 150px" class="form-control" v-model="ites.value"  placeholder="请输入shell脚本"></textarea>
-                                                                  </div>
-                                                                  <div v-if="ites.type==='text'">
-                                                                    <input type="text" class="form-control" v-model="ites.value" placeholder="请输入shell脚本">
-                                                                  </div>
-                                                                </div>
-                                                              </div>
-                                                          </form>
-                                                          <!--
-                                                          <pre style="text-align: left">{% verbatim %}{{ steps['lines'][index]['list'][i]['param'] }}{% endverbatim %}</pre>
-                                                           -->
-                                                      </div>
-                                                      <div class="modal-footer">
-                                                        <button type="button" class="btn btn-primary" @click="closeEdit('#edit_'+index+'_'+i)">保存</button>
-                                                      </div>
-                                                  </div>
-                                              </div>
-                                          </div>
-                                      </template>
-                                  </template>
-
-                                </div>
+                    {% include 'vue_template.html' %}
+{#                    <template id="task-list">#}
+{#                        <div class="left-task">#}
+{#                            <div class="left-task-warp">#}
+{#                                <ul>#}
+{#                                   <draggable v-model="store.state.steps" :options="{animation:160}">#}
+{#                                      <li v-for="(item,index) in store.state.steps"  class="clear tesklist_li" :class="{active:index==store.state.activeIndex}">#}
+{#                                          <div class="clear" style="width: 85%;float: left" @click="changeActive(index)">#}
+{#                                              <span class="num"> {% verbatim %}{{index+1}}{% endverbatim %} </span>#}
+{#                                              <div class="cdis">#}
+{#                                                  <span>#}
+{#                                                      <input type="text" class="edit-input" v-model="item.name">#}
+{#                                                  </span>#}
+{#                                                  <span>#}
+{#                                                    {% verbatim %}{{item.name}}{% endverbatim %}#}
+{#                                                  </span>#}
+{#                                              </div>#}
+{#                                          </div>#}
+{#                                        <i class="yum-font icon-guanbi del" style="font-size: 12px" @click="delTask(index)"></i>#}
+{#                                      </li>#}
+{#                                   </draggable>#}
+{#                                </ul>#}
+{#                                <div class="plus" @dblclick="addTask()">#}
+{#                                    <i class="yum-font icon-plus-bold"></i>#}
+{#                                </div>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                    </template>#}
+{#                    <template id="task-info">#}
+{#                        <div class="task-content">#}
+{#                            <div class="taskwap">#}
+{#                                  <div class="top" >#}
+{#                                    <div class="btn-group">#}
+{#                                      <button :class="{'btn-danger':!($store.state.steps.length && $store.state.steps[$store.state.activeIndex].isGroup)}" class="btn " @click="changeSeqType(0)"> 串行 </button>#}
+{#                                      <button :class="{'btn-danger':$store.state.steps.length && $store.state.steps[$store.state.activeIndex].isGroup}" class="btn"  @click="changeSeqType(1)"> 并行 </button>#}
+{#                                    </div>#}
+{#                                    <div class="tesklist clear">#}
+{#                                      <draggable :list="curCmds"  :options="{group:'task',animation:160,sort:true,scroll:true}" class="dragga clear" @add="updateLines">#}
+{##}
+{#                                        <div class="tesk"   v-for="(it, index) in curCmds" :class="{'active':$store.state.steps[$store.state.activeIndex]&&$store.state.steps[$store.state.activeIndex].activeIndex==index}" @click="selectTool(index)">#}
+{#                                          <div class="tabs" v-if="it.list&&it.list.length>1">#}
+{#                                            <span class="btns"#}
+{#                                                  :class={'current':i==it['activeIndex']}#}
+{#                                                  v-for="(item,i) in it.list">#}
+{#                                              <div class="con" @click="tabClick({ind1:index,ind2:i})">{% verbatim %}{{index+1}}-{{i+1}}{% endverbatim %}</div>#}
+{#                                              <i class="yum-font icon-guanbi tabClose" @click="deleteTask({ind1:index,ind2:i})"></i>#}
+{#                                            </span>#}
+{#                                          </div>#}
+{#                                          <div class="tabscon">#}
+{#                                            <div class="intags"  v-for="(item,i) in it.list" :class={'show':i==(it['activeIndex']||0)}>#}
+{#                                              <i class="yum-font icon-edit edit" @click="showEdit('#edit_'+index+'_'+i)" ></i>#}
+{#                                              <div class="teskwap" :title="item.value">#}
+{#                                                <p class="center">{% verbatim %}{{ item.value || item.name }}{% endverbatim %}</p>#}
+{#                                              </div>#}
+{#                                              <div class="teskbottom" :title="item.name" >#}
+{#                                                <p>{% verbatim %}{{ item.name }}{% endverbatim %}</p>#}
+{#                                              </div>#}
+{#                                              <i class="yum-font teskico icon-guanbi" @click="deleteTaskAll(index)"></i>#}
+{#                                              <div v-if="it.list&&it.list.length==1" class="number">{% verbatim %}{{ index+1 }}{% endverbatim %}</div>#}
+{#                                            </div>#}
+{#                                          </div>#}
+{#                                        </div>#}
+{#                                      </draggable>#}
+{##}
+{#                                    </div>#}
+{##}
+{##}
+{#                                  <template class="tesk"  v-for="(it, index) in curCmds" :class="{'active':$store.state.steps[$store.state.activeIndex]&&$store.state.steps[$store.state.activeIndex].activeIndex==index}" @click="selectTool(index)">#}
+{#                                      <template v-for="(item,i) in it.list" :class={'show':i==it['activeIndex']}">#}
+{#                                          <div class="modal fade" style="text-align: left; z-index: 99" :id="'edit_'+index+'_'+i" >#}
+{#                                              <div class="modal-dialog">#}
+{#                                                  <div class="modal-content">#}
+{#                                                      <div class="modal-header">#}
+{#                                                        <span type="button" class="close close_hide" @click="closeEdit('#edit_'+index+'_'+i)">#}
+{#                                                           <i class="yum-font icon-guanbi"></i>#}
+{#                                                        </span>#}
+{#                                                        <h4 class="modal-title" id="myModalLabel">编辑-{% verbatim %}{{steps['lines'][index]['list'][i]['name']}}{% endverbatim %}</h4>#}
+{#                                                      </div>#}
+{#                                                      <div class="modal-body">#}
+{#                                                          <form class="form-horizontal">#}
+{#                                                              <div class="form-group" v-for="ites in steps['lines'][index]['list'][i]['param']">#}
+{#                                                                <label class="col-sm-2 control-label">{% verbatim %}{{ites.paramNameZh}}{% endverbatim %}</label>#}
+{##}
+{#                                                                <div class="col-sm-10">#}
+{#                                                                  <div v-if="ites.type==='textshell'">#}
+{#                                                                    <textarea style="height: 150px" class="form-control" v-model="ites.value"  placeholder="请输入shell脚本"></textarea>#}
+{#                                                                  </div>#}
+{#                                                                  <div v-if="ites.type==='text'">#}
+{#                                                                    <input type="text" class="form-control" v-model="ites.value" placeholder="请输入shell脚本">#}
+{#                                                                  </div>#}
+{#                                                                </div>#}
+{#                                                              </div>#}
+{#                                                          </form>#}
+{#                                                          <!--#}
+{#                                                          <pre style="text-align: left">{% verbatim %}{{ steps['lines'][index]['list'][i]['param'] }}{% endverbatim %}</pre>#}
+{#                                                           -->#}
+{#                                                      </div>#}
+{#                                                      <div class="modal-footer">#}
+{#                                                        <button type="button" class="btn btn-primary" @click="closeEdit('#edit_'+index+'_'+i)">保存</button>#}
+{#                                                      </div>#}
+{#                                                  </div>#}
+{#                                              </div>#}
+{#                                          </div>#}
+{#                                      </template>#}
+{#                                  </template>#}
+{##}
+{#                                </div>#}
 {#                                <div style="position: fixed; bottom: 1px; left: 0px; width: 100%; max-height: 300px; overflow:auto">#}
 {#                                    <button class="btn btn-danger shu"> 数据 </button>#}
 {#                                    <pre style="text-align: left; display: none">{% verbatim %}{{$store.state.steps}}{% endverbatim %}</pre>#}
 {#                                </div>#}
-                            </div>
-                        </div>
-                    </template>
-                    <template id="task-cmds">
-                        <div class="right-tast clear">
-                            <div class="title">工具箱</div>
-                            <div class="rt-top">
-                              <ul>
-                                <li v-for="(item, index) in top" @click="changeCmdTopIndex(item, index)" :class="{act:cmdIndexTop==index}">{% verbatim %}{{ item }}{% endverbatim %}</li>
-                              </ul>
-                            </div>
-                            <div class="rt-left">
-                              <ul>
-                                <li v-for="(item, index) in left" @click="changeCmdLeftIndex(item, index)" :class="{act:cmdIndexLeft==index}">{% verbatim %}{{ item }}{% endverbatim %}</li>
-                              </ul>
-                            </div>
-                            <div class="rt-right">
-                              <ul>
-                                <draggable  :list="cmds"  :options="{group:{name:'task', pull:'clone', put:false },animation:160,filter:'.dragga',scroll:true}">
-                                  <li v-for="(cmd, i) in cmds" class="cmds">{% verbatim %}{{ cmd.name }}{% endverbatim %}</li>
-                                </draggable>
-                              </ul>
-                            </div>
-                        </div>
-                    </template>
+{#                            </div>#}
+{#                        </div>#}
+{#                    </template>#}
+{#                    <template id="task-cmds">#}
+{#                        <div class="right-tast clear">#}
+{#                            <div class="title">工具箱</div>#}
+{#                            <div class="rt-top">#}
+{#                              <ul>#}
+{#                                <li v-for="(item, index) in top" @click="changeCmdTopIndex(item, index)" :class="{act:cmdIndexTop==index}">{% verbatim %}{{ item }}{% endverbatim %}</li>#}
+{#                              </ul>#}
+{#                            </div>#}
+{#                            <div class="rt-left">#}
+{#                              <ul>#}
+{#                                <li v-for="(item, index) in left" @click="changeCmdLeftIndex(item, index)" :class="{act:cmdIndexLeft==index}">{% verbatim %}{{ item }}{% endverbatim %}</li>#}
+{#                              </ul>#}
+{#                            </div>#}
+{#                            <div class="rt-right">#}
+{#                              <ul>#}
+{#                                <draggable  :list="cmds"  :options="{group:{name:'task', pull:'clone', put:false },animation:160,filter:'.dragga',scroll:true}">#}
+{#                                  <li v-for="(cmd, i) in cmds" class="cmds">{% verbatim %}{{ cmd.name }}{% endverbatim %}</li>#}
+{#                                </draggable>#}
+{#                              </ul>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                    </template>#}
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="select_host_modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+          <div class="modal-content" style="width: 600px;margin-left: -100px">
+              <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLabel" style="float:left;">选择机器</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                   </button>
+              </div>
+              <div class="modal-body">
+                  <div class="row">
+                      <div class="col-sm-6" style="max-height: 400px;overflow:auto">
+                          <ul id="host_group_tree" name="host_group_tree" class="ztree"></ul>
+                      </div>
+                      <div class="col-sm-6" style="max-height: 400px;overflow:auto">
+                          <div style="max-height: 400px;overflow: auto">
+                              <table id="hostIpTb" class="table table-striped table-bordered table-hover dataTables-example dataTable">
+                                  <thead>
+                                    <tr>
+                                        <th style="width:5%;"><input id="checkall" type="checkbox" class="i-checks"></th>
+                                        <th>IP<span id="hostIpBadge" class="badge" style="margin-left: 20px;background-color: green;color: white">总：0台</span></th>
+                                    </tr>
+                                  </thead>
+                                  <tbody></tbody>
+                              </table>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+              <div class="modal-footer">
+                  <div class="row">
+                      <div class="col-sm-5" style="margin-left: 15px">
+                          <div class="input-group">
+                              <select id="host_go_live" class="form-control">
+                                  <option value="2" selected>待上线主机</option>
+                                  <option value="3">已上线主机</option>
+                              </select>
+                              <span class="input-group-btn">
+                                  <button type="button" class="btn btn-primary" onclick="queryHostIp()">查询</button>
+                              </span>
+                          </div>
+                      </div>
+                      <div class="col-sm-6">
+                          <button type="button" class="btn btn-primary" title="确定" onclick="determineSelectHost()">确定</button>
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                      </div>
+                  </div>
+              </div>
+          </div>
+    </div>
+</div>
+
+
 <script>
     $(function(){
 
@@ -209,7 +268,192 @@
             ps.hide()
           }
         })
+
+        var hostGroupTreeList = {{ hostGroup_list|safe }};
+        readHostGroupTreeNext(hostGroupTreeList,0);
+        zHostGroupTreeInit();
+        initSelectHostModal();
+
     });
+
+    function initSelectHostModal(){
+        $("#select_host_modal").on('show.bs.modal',function(event){
+            var datas = $(event.relatedTarget).data();
+            var gid = datas&&datas['gid'];
+            $(this).data('gid',gid);
+            var selectHostValue = $("#selectHostValue"+gid);
+            var hostValue = selectHostValue.val();
+            var obj = store.state.steps[store.state.activeIndex];
+            var target_group_ids = obj['target_group_ids'];
+            if(obj && target_group_ids){
+                //hostValue = hostValue.replace(/\'/g,"\"");
+                //var obj = JSON.parse(hostValue);
+
+                var tree = $.fn.zTree.getZTreeObj('host_group_tree');
+                if(target_group_ids){
+                    $(target_group_ids.split(',')).each(function(i,item){
+                        tree.checkNode(tree.getNodeByParam('id',item), true, true);
+                    });
+                    createSelectHostIpTable(target_group_ids);
+                }
+            }
+            var golive = selectHostValue.attr('golive');
+            if(golive){
+                $("#host_go_live").val(golive);
+            }
+        });
+
+        $("#select_host_modal").on('hide.bs.modal',function(event){
+            var datas = $(this).data();
+            var gid = datas['gid'];
+            $.fn.zTree.getZTreeObj("host_group_tree").checkAllNodes(false);
+            $("#host_go_live").val(2);
+        });
+    }
+
+     var zHostGroupNodes = [];
+
+    function readHostGroupTreeNext(list,pid){
+        $(list).each(function(i,item){
+            var ids = item.id;
+            var nodeData = {id:ids,pId:pid,name:item.name,nodeId:ids,open:true,hasIp:item.has_ip};
+            zHostGroupNodes.push(nodeData);
+            if(item.childs){
+                readHostGroupTreeNext(item.childs,ids);
+            }
+        });
+    }
+
+    function zHostGroupTreeInit(){
+        var setting = {
+            view: {
+                selectedMulti: false,
+            },
+            check: {
+                enable: true,
+                chkboxType:  { "Y": "", "N": "" }
+            },
+            data: {
+                simpleData: {
+                    enable: true
+                }
+            },
+            edit: {
+                enable: false
+            }
+        };
+        $.fn.zTree.init($("#host_group_tree"), setting, zHostGroupNodes);
+    }
+
+    function determineSelectHost(){
+        var select_host_modal = $('#select_host_modal');
+        var gid = select_host_modal.data('gid');
+        var selectHostValue = $("#selectHostValue"+gid);
+        var ips = getCheckedHostIP();
+        selectHostValue.val('');
+
+        var values = getSelectHostFromModal();
+
+        if(!$.isEmptyObject(values)){
+            var obj = {};
+            obj = {'target_group_ids':values['id']}
+            if(ips.length > 0){
+                obj['target_host_list']= ips;
+            }
+            selectHostValue.val(JSON.stringify(obj));
+            select_host_modal.modal('hide');
+            store.commit('setHost', values);
+        }else{
+            Alertwin.alert({message:"请选择主机组或勾选机器"});
+        }
+    }
+
+    function queryHostIp(){
+        var values = getSelectHostFromModal();
+        if(!$.isEmptyObject(values)){
+            values['csrfmiddlewaretoken'] = '{{ csrf_token }}';
+            values['limit'] = 100;
+            $.ajax({
+                type: "POST",
+                url: '/platform/command_set/listByQueryCriteria/',
+                data:values,
+                error: function (request) {
+                    layer.closeAll('loading');
+                },
+                success: function (data) {
+                    createSelectHostIpTable(data.host_list.data);
+                    layer.closeAll('loading');
+                }
+            });
+        }else{
+            Alertwin.alert({message:"选择机器功能异常"});
+        }
+    }
+
+     function getSelectHostFromModal(){
+        var result = {};
+        var tabIds = $("#select_host_tab li[class='active'] a").attr('href');
+        var host_group_tree=$.fn.zTree.getZTreeObj("host_group_tree");
+        var nodes = host_group_tree.getCheckedNodes(true);
+        var groupIds = "";
+        $(nodes).each(function(i,item){
+            groupIds += item.nodeId+",";
+        });
+        if(groupIds){
+            groupIds = groupIds.substring(0,groupIds.length-1);
+        }
+        result['group_id'] = groupIds;
+
+        if(!$.isEmptyObject(result)){
+            result['go_live'] = $("#host_go_live").val();
+        }
+        return result;
+    }
+
+
+    function createSelectHostIpTable(data){
+        var hostIpTb = $("#hostIpTb tbody");
+        hostIpTb.empty();
+        $("#hostIpBadge").text('总：0台');
+        $("#checkall").unbind();
+
+        if(data){
+            $(data).each(function(i,item){
+
+                var htmlStr =  htmlStr = "<tr>" +
+                    "   <td>" +
+                    "       <input type='checkbox' class='i-checks icheck' hostip='"+item+"' name='trCheckbox'>" +
+                    "   </td>" +
+                    "   <td>" + item +"</td>"+
+                    "</tr>";
+                hostIpTb.append(htmlStr);
+            });
+            $("#hostIpBadge").text('总：'+data.length+'台');
+            $(".i-checks").iCheck({checkboxClass: "icheckbox_square-green", radioClass: "iradio_square-green",});
+            $('#checkall').on('ifChecked', function (event) {
+                $('.icheck').iCheck('check');
+            });
+            $('#checkall').on('ifUnchecked', function (event) {
+                $('.icheck').iCheck('uncheck');
+            });
+        }
+    }
+
+
+     function getCheckedHostIP() {
+        var str = document.getElementsByName("trCheckbox");
+        var objarray = str.length;
+        var idList = [];
+        for (i = 0; i < objarray; i++) {
+            if (str[i].checked == true) {
+                idList.push($(str[i]).attr('hostip'));
+            }
+        }
+        return idList;
+    }
+
+
+
       new Vue( {el: '#container',
         store:store,
         data:{
@@ -223,7 +467,7 @@
                 var paras = {}
                 var steps1 = res.steps;
                 $(steps1).each(function(i,item){
-                    var temp = {'target_type':3,'target_host_list':'172.29.164.90'};
+                    var temp = {'target_type':1,'target_group_ids':item.target_group_ids};
                     var lines1 = item.lines;
                     $(lines1).each(function(i2,item2){
                         var parma = item2['param'];

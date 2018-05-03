@@ -45,37 +45,37 @@
          </div>
     </div>
     <div class="row"  style="margin-bottom: 20px">
-         <div class="col-md-2">
-              <label class="col-sm-2 control-label" style="width: 40%">
+         <div class="col-md-4">
+              <label class="col-sm-4 control-label" style="text-align: right">
                  申请人
              </label>
-             <div class="col-sm-10" style="width: 60%">
+             <div class="col-sm-8">
                 <input type="text" id="applicant" class="form-control" value=""/>
              </div>
          </div>
          <div class="col-md-4">
-              <label class="col-sm-2 control-label" style="width: 15%">
+              <label class="col-sm-4 control-label" style="text-align: right">
                  Email
              </label>
-             <div class="col-sm-10" style="width: 85%">
+             <div class="col-sm-8">
                 <input type="text" class="form-control" id="applicant_email" value=""/>
              </div>
          </div>
-         <div class="col-md-2">
-              <label class="col-sm-2 control-label" style="width: 35%">
+         <div class="col-md-4">
+              <label class="col-sm-4 control-label" style="text-align: right">
                   分机
              </label>
-             <div class="col-sm-10" style="width: 65%">
+             <div class="col-sm-4">
                 <input type="text" id="applicant_phone" class="form-control" value=""/>
              </div>
          </div>
     </div>
     <div class="row" style="margin-bottom: 20px">
         <div class="col-md-4">
-             <label class="col-sm-2 control-label" style="width: 33%">
-                 预计上PILOT时间
+             <label class="col-sm-4 control-label" style="text-align: right">
+                 项目正式上线时间
              </label>
-             <div class="col-sm-10" style="width: 67%">
+             <div class="col-sm-8">
                 <div class='input-group date'  id='datetimepicker1' style="width: 100%">
                     <input id="estimated_pilot_date" type='text' name="estimated_rollout_date1" class="form-control" placeholder="预计上线时间"/>
                     <span class="input-group-addon">
@@ -84,12 +84,12 @@
                 </div>
              </div>
         </div>
-        <div class="col-md-4" style="margin-bottom: 20px">
-             <label class="col-sm-2 control-label" style="width: 30%">
-                 预计上生产时间
+        <div class="col-md-4" style="margin-bottom:20px;text-align: right">
+             <label class="col-sm-4 control-label">
+                 需要运维接入时间
              </label>
-             <div class="col-sm-10" style="width: 70%">
-                <div class='input-group date'  id='datetimepicker2' style="width: 100%">
+             <div class="col-sm-8">
+                <div class='input-group date'  id='datetimepicker2'>
                     <input id="estimated_online_date" type='text' name="estimated_rollout_date2" class="form-control" placeholder="预计上线时间"/>
                     <span class="input-group-addon">
                         <span class="glyphicon glyphicon-calendar"></span>
@@ -97,22 +97,52 @@
                 </div>
              </div>
         </div>
+
+
+{#	    <div class="col-md-4">#}
+{#             <label class="col-sm-4 control-label" style="text-align: right">#}
+{#                审核人#}
+{#             </label>#}
+{#             <div class="col-sm-4" >#}
+{#                <select id="assignee" class="form-control" onchange="">#}
+{#                    <option value="">请选择</option>#}
+{#                    {% for auditor in auditor_list %}#}
+{#                        <option value="{{ auditor.id }}">{{ auditor.name }}</option>#}
+{#                    {% endfor %}#}
+{#                </select>#}
+{#             </div>#}
+{#         </div>#}
     </div>
-    <div class="row" style="margin-bottom: 20px">
+
+
+
+	<div class="row" style="margin-bottom: 20px">
         <div class="col-md-4">
-             <label class="col-sm-2 control-label" style="width: 33%">
-                审核人
+             <label class="col-sm-4 control-label" style="text-align: right">
+                 预估架构能够承载的业务量
              </label>
-             <div class="col-sm-10" style="width: 67%">
-                <select id="assignee" class="form-control" onchange="">
-                    <option value="">请选择</option>
-                    {% for auditor in auditor_list %}
-                        <option value="{{ auditor.id }}">{{ auditor.name }}</option>
-                    {% endfor %}
-                </select>
+             <div class="col-sm-8">
+                <div class='input-group date'  id='datetimepicker1' style="width: 100%">
+                     <input type="number" class="form-control" placeholder="订单量或请求数"  value=""/>
+                </div>
              </div>
-         </div>
-    </div>
+        </div>
+        <div class="col-md-4" style="margin-bottom:20px;text-align: right">
+             <label class="col-sm-4 control-label">
+                 预估每秒最高并发
+             </label>
+             <div class="col-sm-8">
+                <div class='input-group date'  id='datetimepicker2'>
+                    <input type="number" class="form-control" placeholder="请求数"  value=""/>
+                </div>
+             </div>
+        </div>
+	</div>
+
+
+
+
+
 </div>
 
 <script>
@@ -158,6 +188,7 @@
 
         var saveJson = {"is_legacy_project":is_legacy_project}
         var bool = true;
+        debugger;
         if(is_add != 1){
             if(!p_id){
                 Alertwin.alert({ message: "未获获取到更新主键"});
