@@ -112,14 +112,14 @@ class CommandSetCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMix
         try:
             user = request.user
             files = request.FILES
-            command_set = request.POST.get("command_set",None)
+            command_set_str = request.POST.get("command_set",None)
 
             t = time.time()
             filePath = "/opt/devops/shell_script/%s/"%(int(round(t * 1000)))
 
             hu = HttpUtils(request)
             #检查是否有高级查询信息 如果有高级查询信息 需要创建临时组
-            commandSet = json.loads(command_set)
+            commandSet = json.loads(command_set_str)
             commandStep = commandSet['steps']
             for setp in commandStep:
                 seq_no = setp['seq_no']
@@ -145,7 +145,7 @@ class CommandSetCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMix
                                 logger.error(e)
                                 f.close()
 
-            resultJson = hu.post(serivceName="job", restName="/rest/job/add/", datas=command_set)
+            resultJson = hu.post(serivceName="job", restName="/rest/job/add/", datas=commandSet)
             resultJson  = eval(resultJson.text)
             if(resultJson["status"] == "FAILURE"):
                 result['status'] = 1
@@ -224,8 +224,8 @@ class CommandSetUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMix
     def post_ajax(self, request, *args, **kwargs):
         result = {'status': 0}
         try:
-            command_set = request.POST.get("command_set", None)
-            commandSet = json.loads(command_set)
+            command_set_str = request.POST.get("command_set", None)
+            commandSet = json.loads(command_set_str)
             commandStep = commandSet['steps']
             for setp in commandStep:
                 seq_no = setp['seq_no']
@@ -256,7 +256,7 @@ class CommandSetUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMix
                                 logger.error(e)
                                 f.close()
             hu = HttpUtils(request)
-            resultJson = hu.post(serivceName="job", restName="/rest/job/update/", datas=command_set)
+            resultJson = hu.post(serivceName="job", restName="/rest/job/update/", datas=commandSet)
             resultJson = eval(resultJson.text)
             if (resultJson["status"] == "FAILURE"):
                 result['status'] = 1
