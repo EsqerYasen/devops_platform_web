@@ -24,15 +24,15 @@
 
                     <div id="rootwizard">
                         <ul>
-                            <li><a href="#tab1" data-toggle="tab"><span class="label">1</span> 项目信息</a></li>
-                            <li><a href="#tab2" data-toggle="tab"><span class="label">2</span> 容量需求</a></li>
-                            <li><a href="#tab3" data-toggle="tab"><span class="label">3</span> 应用配置</a></li>
-                            <li><a href="#tab4" data-toggle="tab"><span class="label">4</span> 评估报告</a></li>
-                            <li><a href="#tab5" data-toggle="tab"><span class="label">5</span> 项目文档</a></li>
+                            <li><a href="#tab1" data-toggle="tab"><span class="label">1</span>项目信息</a></li>
+{#                            <li><a href="#tab2" data-toggle="tab"><span class="label">2</span>容量需求</a></li>#}
+                            <li><a href="#tab3" data-toggle="tab"><span class="label">2</span>应用配置</a></li>
+                            <li><a href="#tab4" data-toggle="tab"><span class="label">3</span>评估报告</a></li>
+                            <li><a href="#tab5" data-toggle="tab"><span class="label">4</span>项目文档</a></li>
                         </ul>
                         <div class="tab-content">
                             {% include 'pro_assess_add/pro_assess1.html' %}
-                            {% include 'pro_assess_add/pro_assess2.html' %}
+{#                            {% include 'pro_assess_add/pro_assess2.html' %}#}
                             {% include 'pro_assess_add/pro_assess3.html' %}
                             {% include 'pro_assess_add/pro_assess4.html' %}
                             {% include 'pro_assess_add/pro_assess5.html' %}
@@ -58,7 +58,7 @@
            onTabClick:onTabClickEvent
 	   });
 	   initProAssess1();
-	   initProAssess2();
+	   {#initProAssess2();#}
        initProAssess3();
        initProAssess4();
        initProAssess5();

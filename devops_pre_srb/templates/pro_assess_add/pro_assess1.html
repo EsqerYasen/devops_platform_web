@@ -1,26 +1,28 @@
 <div class="tab-pane" id="tab1">
     <div class="row" style="margin-top: 20px;margin-bottom: 20px">
          <div class="col-md-4">
-            <label class="col-sm-2 control-label" style="width: 20%">
+            <label class="col-sm-4 control-label" style="text-align: right">
                 新项目
             </label>
-            <div class="col-sm-10" style="width: 80%">
+            <div class="col-sm-8">
                 <div class="input-group">
                   <span class="input-group-addon">
                     <input id="newProjectRadio"  name="projectRadio" type="radio" value="0" aria-label="..." onclick="radioClick(1)" checked>
                   </span>
-                  <input id="projectName" type="text" class="form-control" aria-label="...">
+                    <input id="projectName" type="text" placeholder="中文名" class="form-control projectInput" aria-label="...">
+	                <input id="projectNameEn" type="text" placeholder="英文名" class="form-control projectInput" aria-label="...">
                 </div>
+
                 <input type="hidden" id="project_id" value=""/>
                 <input type="hidden" id="is_add" value="{{ is_add }}"/>
                <!--   <input type="text" class="form-control" id="projectName" value=""/> -->
             </div>
          </div>
          <div class="col-md-4">
-            <label class="col-sm-2 control-label" style="width: 20%">
+            <label class="col-sm-4 control-label" style="text-align: right">
                 已有项目
             </label>
-            <div class="col-sm-10" style="width: 75%">
+            <div class="col-sm-8">
                 <div class="input-group">
                     <span class="input-group-addon">
                         <input id="oldProjectRadio" name="projectRadio" type="radio" aria-label="..." value="1" onclick="radioClick(2)">
@@ -32,13 +34,13 @@
             </div>
          </div>
     </div>
-    <div class="row" style="margin-bottom: 20px">
+	<div class="row" style="margin-bottom: 20px">
          <div class="col-md-8">
-             <label class="col-sm-2 control-label" style="width: 10%">
+             <label class="col-sm-2 control-label" style="text-align: right">
                  项目简书
              </label>
-             <div class="col-sm-10" style="width: 90%">
-                <textarea id="description" style="width: 100%;height: 50px;resize: none;background: white;font: caption;color: black;"></textarea>
+             <div class="col-sm-10">
+                <textarea id="description" class="form-control" style="width: 100%;height: 50px;resize: none;background: white;font: caption;color: black;"></textarea>
              </div>
          </div>
     </div>
@@ -134,10 +136,10 @@
     function radioClick(v){
         if(v == 1){
             $("#projectNameSel").attr("disabled",true);
-            $("#projectName").attr("disabled",false);
+            $(".projectInput").attr("disabled",false);
         }else{
             $("#projectNameSel").attr("disabled",false);
-            $("#projectName").attr("disabled",true);
+            $(".projectInput").attr("disabled",true);
         }
     }
 
