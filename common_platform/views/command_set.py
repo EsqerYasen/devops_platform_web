@@ -125,21 +125,25 @@ class CommandSetCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMix
                 seq_no = setp['seq_no']
                 lines = setp['lines']
                 for i in range(len(lines)):
-                    source_file_name = lines[i].get('source_file_name',None)
-                    if source_file_name:
-                        f = None
-                        try:
-                            if not os.path.exists(filePath):
-                                os.makedirs(filePath)
-                            fileName = "%s%s_%s.sh" % (filePath,seq_no,i)
-                            f = open(fileName, 'w')
-                            f.write(source_file_name)
-                            f.close()
-                            os.chmod(fileName, stat.S_IRWXO | stat.S_IRWXG | stat.S_IRWXU)
-                            lines[i]['source_file_name'] = fileName
-                        except Exception as e:
-                            logger.error(e)
-                            f.close()
+                    line = lines[i]
+                    tool_set_type = line.get('tool_set_type', None)
+                    del line['tool_set_type']
+                    if tool_set_type == '4':  # 1-指令 2-上传文件 3-远程文件 4-shell
+                        source_file_name = line.get('source_file_name',None)
+                        if source_file_name:
+                            f = None
+                            try:
+                                if not os.path.exists(filePath):
+                                    os.makedirs(filePath)
+                                fileName = "%s%s_%s.sh" % (filePath,seq_no,i)
+                                f = open(fileName, 'w')
+                                f.write(source_file_name)
+                                f.close()
+                                os.chmod(fileName, stat.S_IRWXO | stat.S_IRWXG | stat.S_IRWXU)
+                                line['source_file_name'] = fileName
+                            except Exception as e:
+                                logger.error(e)
+                                f.close()
 
             resultJson = hu.post(serivceName="job", restName="/rest/job/add/", datas=command_set)
             resultJson  = eval(resultJson.text)
@@ -227,26 +231,30 @@ class CommandSetUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMix
                 seq_no = setp['seq_no']
                 lines = setp['lines']
                 for i in range(len(lines)):
-                    source_file_name = lines[i]['source_file_name']
-                    fileName = lines[i]['filePath']
-                    filePath = fileName[0:fileName.rindex("/")+1]
-                    if os.path.exists(fileName):
-                        os.remove(fileName)
-                    if source_file_name:
-                        f = None
-                        try:
+                    line = lines[i]
+                    tool_set_type = line.get('tool_set_type', None)
+                    del line['tool_set_type']
+                    if tool_set_type == '4':
+                        source_file_name = line['source_file_name']
+                        fileName = line['filePath']
+                        filePath = fileName[0:fileName.rindex("/")+1]
+                        if os.path.exists(fileName):
+                            os.remove(fileName)
+                        if source_file_name:
+                            f = None
+                            try:
 
-                            if not os.path.exists(filePath):
-                                os.makedirs(filePath)
-                            fileName = "%s%s_%s.sh" % (filePath, seq_no, i)
-                            f = open(fileName, 'w')
-                            f.write(source_file_name)
-                            f.close()
-                            os.chmod(fileName, stat.S_IRWXO | stat.S_IRWXG | stat.S_IRWXU)
-                            lines[i]['source_file_name'] = fileName
-                        except Exception as e:
-                            logger.error(e)
-                            f.close()
+                                if not os.path.exists(filePath):
+                                    os.makedirs(filePath)
+                                fileName = "%s%s_%s.sh" % (filePath, seq_no, i)
+                                f = open(fileName, 'w')
+                                f.write(source_file_name)
+                                f.close()
+                                os.chmod(fileName, stat.S_IRWXO | stat.S_IRWXG | stat.S_IRWXU)
+                                line['source_file_name'] = fileName
+                            except Exception as e:
+                                logger.error(e)
+                                f.close()
             hu = HttpUtils(request)
             resultJson = hu.post(serivceName="job", restName="/rest/job/update/", datas=command_set)
             resultJson = eval(resultJson.text)
