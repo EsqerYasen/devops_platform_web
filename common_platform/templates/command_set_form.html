@@ -362,15 +362,20 @@
                         temp3['sub_seq_no'] = item2['sub_seq_no'];
                         temp3['type'] = 0;
                         var parma = item2['param'];
-                        var default_script_parameter = "";
-                        $(parma).each(function(pi,pitme){
-                            if(pi == 0 && pitme.type == 'textshell'){
-                                temp3['source_file_name'] = pitme.value;
-                            }else{
-                                default_script_parameter += pitme.value+" ";
-                            }
-                        })
-                        temp3['default_script_parameter'] = default_script_parameter.substring(0,default_script_parameter.length-1);
+                        var command = item2['command'];
+                        if(command){
+                            temp3['source_file_name'] = command;
+                        }else{
+                            var default_script_parameter = "";
+                            $(parma).each(function(pi,pitme){
+                                if(pi == 0 && pitme.type == 'textshell'){
+                                    temp3['source_file_name'] = pitme.value;
+                                }else{
+                                    default_script_parameter += pitme.value+" ";
+                                }
+                            })
+                            temp3['default_script_parameter'] = default_script_parameter.substring(0,default_script_parameter.length-1);
+                        }
                         temp3['file_display_name'] = JSON.stringify(item2);
                         line2.push(temp3);
                     })

@@ -125,7 +125,7 @@ class CommandSetCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMix
                 seq_no = setp['seq_no']
                 lines = setp['lines']
                 for i in range(len(lines)):
-                    source_file_name = lines[i]['source_file_name']
+                    source_file_name = lines[i].get('source_file_name',None)
                     if source_file_name:
                         f = None
                         try:
