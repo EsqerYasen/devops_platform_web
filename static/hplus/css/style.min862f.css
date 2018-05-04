@@ -6984,3 +6984,65 @@ body.skin-3 {
 .is_skipa{
     opacity: .7;
 }
+
+
+.line_24{
+    line-height: 24px;
+}
+
+
+
+.devbox{
+    float: left;
+    height: 24px;
+    border:1px solid #efefef;
+    overflow: hidden;
+    border-radius: 3px;
+    margin-right: 15px;
+    margin-bottom: 10px;
+
+}
+
+.devbox .fix{
+    display: inline-block;
+    padding: 0px 4px;
+    background: #efefef;
+
+
+}
+
+.devbox .content{
+    padding: 0px 2px;
+
+}
+
+
+.mb10 {
+    margin-bottom: 10px;
+}
+
+
+.fl_title{
+    float: left;
+    margin-right: 10px;
+}
+
+
+.totaldis{
+    clear: both;
+    padding: 0px 15px;
+    font-size: 18px;
+}
+
+
+.processbox{
+    border:1px solid #efefef;
+    padding: 10px;
+    margin: 0px;
+}
+
+
+
+
+
+

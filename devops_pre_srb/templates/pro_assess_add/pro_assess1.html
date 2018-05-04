@@ -1,10 +1,10 @@
 <div class="tab-pane" id="tab1">
     <div class="row" style="margin-top: 20px;margin-bottom: 20px">
-         <div class="col-md-4">
-            <label class="col-sm-4 control-label" style="text-align: right">
+         <div class="col-md-6">
+            <label class="col-sm-5 control-label" style="text-align: right">
                 新项目
             </label>
-            <div class="col-sm-8">
+            <div class="col-sm-7">
                 <div class="input-group">
                   <span class="input-group-addon">
                     <input id="newProjectRadio"  name="projectRadio" type="radio" value="0" aria-label="..." onclick="radioClick(1)" checked>
@@ -18,11 +18,17 @@
                <!--   <input type="text" class="form-control" id="projectName" value=""/> -->
             </div>
          </div>
-         <div class="col-md-4">
-            <label class="col-sm-4 control-label" style="text-align: right">
+
+    </div>
+
+
+	<div class="row" style="margin-top: 20px;margin-bottom: 20px">
+
+		 <div class="col-md-6">
+            <label class="col-sm-5 control-label" style="text-align: right">
                 已有项目
             </label>
-            <div class="col-sm-8">
+            <div class="col-sm-7">
                 <div class="input-group">
                     <span class="input-group-addon">
                         <input id="oldProjectRadio" name="projectRadio" type="radio" aria-label="..." value="1" onclick="radioClick(2)">
@@ -33,70 +39,142 @@
                 </div>
             </div>
          </div>
-    </div>
+
+	</div>
+
+
+	<hr>
+
+
+
+
 	<div class="row" style="margin-bottom: 20px">
-         <div class="col-md-8">
-             <label class="col-sm-2 control-label" style="text-align: right">
+         <div class="col-md-6">
+             <label class="col-sm-5 control-label" style="text-align: right">
                  项目简书
              </label>
-             <div class="col-sm-10">
-                <textarea id="description" class="form-control" style="width: 100%;height: 50px;resize: none;background: white;font: caption;color: black;"></textarea>
+             <div class="col-sm-7">
+                <textarea id="description" class="form-control" style="width: 100%;height: 70px;resize: none;background: white;font: caption;color: black;"></textarea>
              </div>
          </div>
     </div>
-    <div class="row"  style="margin-bottom: 20px">
-         <div class="col-md-4">
-              <label class="col-sm-4 control-label" style="text-align: right">
+
+
+	<hr>
+
+
+
+
+	<div class="row" style="margin-bottom: 20px">
+         <div class="col-md-6">
+             <label class="col-sm-5 control-label" style="text-align: right">
                  申请人
              </label>
-             <div class="col-sm-8">
-                <input type="text" id="applicant" class="form-control" value=""/>
+             <div class="col-sm-7">
+	             <input type="text" id="applicant" class="form-control" value=""/>
              </div>
          </div>
-         <div class="col-md-4">
-              <label class="col-sm-4 control-label" style="text-align: right">
+    </div>
+
+
+
+	<div class="row" style="margin-bottom: 20px">
+         <div class="col-md-6">
+             <label class="col-sm-5 control-label" style="text-align: right">
                  Email
              </label>
-             <div class="col-sm-8">
+             <div class="col-sm-7">
                 <input type="text" class="form-control" id="applicant_email" value=""/>
              </div>
          </div>
-         <div class="col-md-4">
-              <label class="col-sm-4 control-label" style="text-align: right">
-                  分机
+    </div>
+
+
+	<div class="row" style="margin-bottom: 20px">
+         <div class="col-md-6">
+             <label class="col-sm-5 control-label" style="text-align: right">
+                 分机
              </label>
-             <div class="col-sm-4">
+             <div class="col-sm-7">
                 <input type="text" id="applicant_phone" class="form-control" value=""/>
              </div>
          </div>
     </div>
-    <div class="row" style="margin-bottom: 20px">
-        <div class="col-md-4">
-             <label class="col-sm-4 control-label" style="text-align: right">
+
+
+	<hr>
+
+
+
+
+	<div class="row" style="margin-bottom: 20px">
+         <div class="col-md-6">
+             <label class="col-sm-5 control-label" style="text-align: right">
                  项目正式上线时间
              </label>
-             <div class="col-sm-8">
-                <div class='input-group date'  id='datetimepicker1' style="width: 100%">
+             <div class="col-sm-7">
+	             <div class='input-group date'  id='datetimepicker1' style="width: 100%">
                     <input id="estimated_pilot_date" type='text' name="estimated_rollout_date1" class="form-control" placeholder="预计上线时间"/>
                     <span class="input-group-addon">
                         <span class="glyphicon glyphicon-calendar"></span>
                     </span>
                 </div>
              </div>
-        </div>
-        <div class="col-md-4" style="margin-bottom:20px;text-align: right">
-             <label class="col-sm-4 control-label">
+         </div>
+    </div>
+
+
+
+	<div class="row" style="margin-bottom: 20px">
+         <div class="col-md-6">
+             <label class="col-sm-5 control-label" style="text-align: right">
                  需要运维接入时间
              </label>
-             <div class="col-sm-8">
-                <div class='input-group date'  id='datetimepicker2'>
+             <div class="col-sm-7">
+	             <div class='input-group date'  id='datetimepicker2'>
                     <input id="estimated_online_date" type='text' name="estimated_rollout_date2" class="form-control" placeholder="预计上线时间"/>
                     <span class="input-group-addon">
                         <span class="glyphicon glyphicon-calendar"></span>
                     </span>
                 </div>
              </div>
-        </div>
+         </div>
+    </div>
+
+
+	<hr>
+
+
+
+	<div class="row" style="margin-bottom: 20px">
+         <div class="col-md-6">
+             <label class="col-sm-5 control-label" style="text-align: right">
+                 预估架构能够承载的业务量
+             </label>
+             <div class="col-sm-7">
+	             <div class='input-group date'  id='datetimepicker1' style="width: 100%">
+                     <input type="number" class="form-control" placeholder="订单量或请求数"  value=""/>
+                </div>
+             </div>
+         </div>
+    </div>
+
+
+
+	<div class="row" style="margin-bottom: 20px">
+         <div class="col-md-6">
+             <label class="col-sm-5 control-label" style="text-align: right">
+                 预估每秒最高并发
+             </label>
+             <div class="col-sm-7">
+	             <div class='input-group date'  id='datetimepicker2' style="width: 100%">
+                    <input type="number" class="form-control" placeholder="请求数"  value=""/>
+                </div>
+             </div>
+         </div>
+    </div>
+
+
 
 
 {#	    <div class="col-md-4">#}
@@ -112,34 +190,6 @@
 {#                </select>#}
 {#             </div>#}
 {#         </div>#}
-    </div>
-
-
-
-	<div class="row" style="margin-bottom: 20px">
-        <div class="col-md-4">
-             <label class="col-sm-4 control-label" style="text-align: right">
-                 预估架构能够承载的业务量
-             </label>
-             <div class="col-sm-8">
-                <div class='input-group date'  id='datetimepicker1' style="width: 100%">
-                     <input type="number" class="form-control" placeholder="订单量或请求数"  value=""/>
-                </div>
-             </div>
-        </div>
-        <div class="col-md-4" style="margin-bottom:20px;text-align: right">
-             <label class="col-sm-4 control-label">
-                 预估每秒最高并发
-             </label>
-             <div class="col-sm-8">
-                <div class='input-group date'  id='datetimepicker2'>
-                    <input type="number" class="form-control" placeholder="请求数"  value=""/>
-                </div>
-             </div>
-        </div>
-	</div>
-
-
 
 
 
