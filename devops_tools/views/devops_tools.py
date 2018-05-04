@@ -83,6 +83,7 @@ class DevopsToolsUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMi
             tool_list = tool_list_result.get("results", [])
             for tool in tool_list:
                 tool['param'] = json.loads(tool['param'])
+                tool['command'] = tool['command'].replace('\r','\\r').replace('\n','\\n')
             context["result_dict"] = tool_list[0]
         except Exception as e:
             logger.error(e)

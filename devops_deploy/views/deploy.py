@@ -535,6 +535,16 @@ class DeployPreExecView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin,
                         if addResult["status"] == "FAILURE":
                             result['status'] = 0
                             result['msg'] = "pre灰度保存版本失败"
+                elif devopsgroup == 'brand':
+                    appId = reqData.get("appId", None)
+                    version_list = preResult['version_list']
+                    for version in version_list:
+                        addResult = hu.post(serivceName="job", restName="/rest/deploy/app_add_version/",
+                                            datas={"id": appId, "version": version})
+                        addResult = addResult.json()
+                        if addResult["status"] == "FAILURE":
+                            result['status'] = 0
+                            result['msg'] = "pre灰度保存版本失败"
             else:
                 result['status'] = 1
                 result['msg'] = "pre执行失败"

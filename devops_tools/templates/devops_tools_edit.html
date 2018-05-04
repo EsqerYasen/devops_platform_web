@@ -283,7 +283,7 @@
           theme: 'eclipse'
       });
     editor.setValue('#!/bin/sh');
-    editor.setValue('{{ result_dict.command }}');
+    editor.setValue("{{ result_dict.command|safe }}");
     console.log(editor.getValue());
 
     console.log(JSON.stringify( page.formData ));

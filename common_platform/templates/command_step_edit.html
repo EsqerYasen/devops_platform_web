@@ -347,19 +347,25 @@
     function determineSelectHost(){
         var select_host_modal = $('#select_host_modal');
         var gid = select_host_modal.data('gid');
-        var selectHostValue = $("#selectHostValue"+gid);
+        //var selectHostValue = $("#selectHostValue"+gid);
         var ips = getCheckedHostIP();
-        selectHostValue.val('');
+        //selectHostValue.val('');
 
         var values = getSelectHostFromModal();
 
         if(!$.isEmptyObject(values)){
-            var obj = {};
-            obj = {'target_group_ids':values['id']}
+            //var obj = {};
+            //obj = {'target_group_ids':values['id']}
+            var target_type = 1;
             if(ips.length > 0){
-                obj['target_host_list']= ips;
+                values['target_host_list']= ips;
+                target_type = 3;
+            }else{
+                values['target_host_list']= "";
             }
-            selectHostValue.val(JSON.stringify(obj));
+            values['target_type'] = target_type;
+            //obj['go_live'] = values['go_live'];
+            //selectHostValue.val(JSON.stringify(obj));
             select_host_modal.modal('hide');
             store.commit('setHost', values);
         }else{
@@ -455,8 +461,7 @@
 
       new Vue( {el: '#container',
         store:store,
-        data:{
-        },
+        data:{},
         methods:{
           save: function(){
             var res = transLocalToApiData(this.$store.state.basic, this.$store.state.steps);
@@ -473,6 +478,9 @@
                     temp['host_filter'] = item.activeIndex;
                     temp['seq_no'] = item.seq_no;
                     temp['type'] = 0;
+                    temp['go_live'] = item.go_live;
+                    temp['target_group_ids'] = item.target_group_ids;
+                    temp['target_type'] = item.target_type;
                     var line1 = item.lines;
                     var line2 = [];
                     $(line1).each(function (i2, item2) {
@@ -480,14 +488,19 @@
                         temp3['sub_seq_no'] = item2['sub_seq_no'];
                         temp3['type'] = 0;
                         var parma = item2['param'];
+                        var tool_set_type = item2.tool_set_type; //1-指令 2-上传文件 3-远程文件 4-shell
                         var default_script_parameter = "";
+                        if(tool_set_type == 1){
+                            temp3['source_file_name'] = command;
+                        }
                         $(parma).each(function (pi, pitme) {
-                            if (pi == 0 && pitme.type == 'textshell') {
+                            if (pi == 0 && tool_set_type == 4) {
                                 temp3['source_file_name'] = pitme.value;
                             } else {
                                 default_script_parameter += pitme.value + " ";
                             }
                         })
+                        temp3['tool_set_type'] = tool_set_type;
                         temp3['default_script_parameter'] = default_script_parameter.substring(0, default_script_parameter.length - 1);
                         temp3['file_display_name'] = JSON.stringify(item2);
                         temp3['filePath'] = item2['filePath'];

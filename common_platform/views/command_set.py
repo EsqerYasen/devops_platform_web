@@ -112,36 +112,40 @@ class CommandSetCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMix
         try:
             user = request.user
             files = request.FILES
-            command_set = request.POST.get("command_set",None)
+            command_set_str = request.POST.get("command_set",None)
 
             t = time.time()
             filePath = "/opt/devops/shell_script/%s/"%(int(round(t * 1000)))
 
             hu = HttpUtils(request)
             #检查是否有高级查询信息 如果有高级查询信息 需要创建临时组
-            commandSet = json.loads(command_set)
+            commandSet = json.loads(command_set_str)
             commandStep = commandSet['steps']
             for setp in commandStep:
                 seq_no = setp['seq_no']
                 lines = setp['lines']
                 for i in range(len(lines)):
-                    source_file_name = lines[i].get('source_file_name',None)
-                    if source_file_name:
-                        f = None
-                        try:
-                            if not os.path.exists(filePath):
-                                os.makedirs(filePath)
-                            fileName = "%s%s_%s.sh" % (filePath,seq_no,i)
-                            f = open(fileName, 'w')
-                            f.write(source_file_name)
-                            f.close()
-                            os.chmod(fileName, stat.S_IRWXO | stat.S_IRWXG | stat.S_IRWXU)
-                            lines[i]['source_file_name'] = fileName
-                        except Exception as e:
-                            logger.error(e)
-                            f.close()
+                    line = lines[i]
+                    tool_set_type = line.get('tool_set_type', None)
+                    del line['tool_set_type']
+                    if tool_set_type == 4:  # 1-指令 2-上传文件 3-远程文件 4-shell
+                        source_file_name = line.get('source_file_name',None)
+                        if source_file_name:
+                            f = None
+                            try:
+                                if not os.path.exists(filePath):
+                                    os.makedirs(filePath)
+                                fileName = "%s%s_%s.sh" % (filePath,seq_no,i)
+                                f = open(fileName, 'w')
+                                f.write(source_file_name)
+                                f.close()
+                                os.chmod(fileName, stat.S_IRWXO | stat.S_IRWXG | stat.S_IRWXU)
+                                line['source_file_name'] = fileName
+                            except Exception as e:
+                                logger.error(e)
+                                f.close()
 
-            resultJson = hu.post(serivceName="job", restName="/rest/job/add/", datas=command_set)
+            resultJson = hu.post(serivceName="job", restName="/rest/job/add/", datas=commandSet)
             resultJson  = eval(resultJson.text)
             if(resultJson["status"] == "FAILURE"):
                 result['status'] = 1
@@ -195,6 +199,9 @@ class CommandSetUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMix
             stepDict['activeIndex'] = step['host_filter']
             stepDict['seq_no'] = step['seq_no']
             stepDict['target_group_ids'] = step['target_group_ids']
+            stepDict['target_host_list'] = step['target_host_list']
+            stepDict['go_live'] = step['go_live']
+            stepDict['target_type'] = step['target_type']
             lines = []
             for line in step['lines']:
                 lineDict = json.loads(line['file_display_name'])
@@ -217,35 +224,39 @@ class CommandSetUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMix
     def post_ajax(self, request, *args, **kwargs):
         result = {'status': 0}
         try:
-            command_set = request.POST.get("command_set", None)
-            commandSet = json.loads(command_set)
+            command_set_str = request.POST.get("command_set", None)
+            commandSet = json.loads(command_set_str)
             commandStep = commandSet['steps']
             for setp in commandStep:
                 seq_no = setp['seq_no']
                 lines = setp['lines']
                 for i in range(len(lines)):
-                    source_file_name = lines[i]['source_file_name']
-                    fileName = lines[i]['filePath']
-                    filePath = fileName[0:fileName.rindex("/")+1]
-                    if os.path.exists(fileName):
-                        os.remove(fileName)
-                    if source_file_name:
-                        f = None
-                        try:
+                    line = lines[i]
+                    tool_set_type = line.get('tool_set_type', None)
+                    del line['tool_set_type']
+                    if tool_set_type == 4:
+                        source_file_name = line['source_file_name']
+                        fileName = line['filePath']
+                        filePath = fileName[0:fileName.rindex("/")+1]
+                        if os.path.exists(fileName):
+                            os.remove(fileName)
+                        if source_file_name:
+                            f = None
+                            try:
 
-                            if not os.path.exists(filePath):
-                                os.makedirs(filePath)
-                            fileName = "%s%s_%s.sh" % (filePath, seq_no, i)
-                            f = open(fileName, 'w')
-                            f.write(source_file_name)
-                            f.close()
-                            os.chmod(fileName, stat.S_IRWXO | stat.S_IRWXG | stat.S_IRWXU)
-                            lines[i]['source_file_name'] = fileName
-                        except Exception as e:
-                            logger.error(e)
-                            f.close()
+                                if not os.path.exists(filePath):
+                                    os.makedirs(filePath)
+                                fileName = "%s%s_%s.sh" % (filePath, seq_no, i)
+                                f = open(fileName, 'w')
+                                f.write(source_file_name)
+                                f.close()
+                                os.chmod(fileName, stat.S_IRWXO | stat.S_IRWXG | stat.S_IRWXU)
+                                line['source_file_name'] = fileName
+                            except Exception as e:
+                                logger.error(e)
+                                f.close()
             hu = HttpUtils(request)
-            resultJson = hu.post(serivceName="job", restName="/rest/job/update/", datas=command_set)
+            resultJson = hu.post(serivceName="job", restName="/rest/job/update/", datas=commandSet)
             resultJson = eval(resultJson.text)
             if (resultJson["status"] == "FAILURE"):
                 result['status'] = 1
@@ -318,6 +329,9 @@ class CommandSetExecuteView(LoginRequiredMixin, TemplateView):
             stepDict['activeIndex'] = step['host_filter']
             stepDict['seq_no'] = step['seq_no']
             stepDict['target_group_ids'] = step['target_group_ids']
+            stepDict['target_host_list'] = step['target_host_list']
+            stepDict['go_live'] = step['go_live']
+            stepDict['target_type'] = step['target_type']
             lines = []
             for line in step['lines']:
                 lineDict = json.loads(line['file_display_name'])
