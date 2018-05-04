@@ -7046,6 +7046,36 @@ body.skin-3 {
 }
 
 
+.sc .fix{
+    background: #23c6c8;
+    color: #fff;
+}
+
+.zb .fix{
+    background: #1c84c6;
+    color: #fff;
+}
+
+.hd .fix{
+    background: #1ab394;
+    color: #fff;
+}
+
+
+
+.sc .devbox{
+    border-color: #23c6c8;
+}
+
+.zb .devbox{
+    border-color: #1c84c6;
+}
+
+.hd .devbox{
+    border-color: #1ab394;
+}
+
+
 
 
 
