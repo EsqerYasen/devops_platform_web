@@ -134,6 +134,7 @@
                                             <div class="panel-heading">配置</div>
                                             <div class="panel-body">
                                                 <table id="sourceConfigTb" style="width: 100%">
+                                                {% if len(app_info.files) >0 %}
                                                      {% for file in app_info.files %}
                                                         {% if file.source_type == 1 and file.type == 2 %}
                                                     <tr>
@@ -145,6 +146,15 @@
                                                     </tr>
                                                         {% endif %}
                                                      {% endfor %}
+                                                {% else %}
+                                                    <tr>
+                                                        <td style="width: 76%;"><input type="text" id="sourceConfigPath" name="sourceConfigPath" class="form-control" value=""/></td>
+                                                        <td>
+                                                            <button type="button" class="btn btn-sm btn-default" onclick="addTrToTable(this,'sourceConfigPath')" style="margin-left: 5px"><i class="glyphicon glyphicon-plus"></i></button>
+                                                            <button type="button" class="btn btn-sm btn-default" onclick="removeTrFromTable(this)"><i class="glyphicon glyphicon-trash"></i></button>
+                                                        </td>
+                                                    </tr>
+                                                {% endif %}
                                                 </table>
                                             </div>
                                         </div>
