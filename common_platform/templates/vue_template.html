@@ -96,8 +96,8 @@
                                           <div class="form-group" v-if="curCmd.tool_set_type==4">
                                               <label class="col-sm-2 control-label">{% verbatim %}SHELL脚本{% endverbatim %}</label>
                                               <div class="col-sm-10">
-                                                  <div>
-                                                    <textarea style="height: 150px" class="form-control" v-model="curCmd.command"  placeholder="请输入shell脚本"></textarea>
+                                                  <div style="height: 150px;">
+                                                    <textarea id="code" style="display:none;" class="form-control"  placeholder="请输入shell脚本"></textarea>
                                                   </div>
                                               </div>
                                           </div>

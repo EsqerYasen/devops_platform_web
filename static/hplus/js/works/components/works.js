@@ -67,9 +67,23 @@ Vue.component('task-info', {
     showEdit:function(index){
       var cmd = this.curCmds[index]['list'][this.curCmds[index]['activeIndex']||0];
       this.curCmd = cmd;
-       $('#dialogModal').modal('show')
+       $('#dialogModal').modal('show');
+      if(!window.editor){
+        setTimeout(function(){
+          window.editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+            lineNumbers: true,
+            styleActiveLine: true,
+            matchBrackets: true,
+            theme: 'eclipse'
+          });
+          window.editor.setValue(cmd.command);
+        },10)
+      }
     },
     closeEdit:function(){
+      if(window.editor){
+        this.curCmd.command =  window.editor.getValue() ;
+      }
       $('#dialogModal').modal('hide')
     },
 
