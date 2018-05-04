@@ -134,9 +134,9 @@
                                             <div class="panel-heading">配置</div>
                                             <div class="panel-body">
                                                 <table id="sourceConfigTb" style="width: 100%">
-                                                {% if len(app_info.files) >0 %}
-                                                     {% for file in app_info.files %}
-                                                        {% if file.source_type == 1 and file.type == 2 %}
+
+                                                 {% for file in app_info.files %}
+                                                    {% if file.source_type == 1 and file.type == 2 %}
                                                     <tr>
                                                         <td style="width: 76%;"><input type="text" id="sourceConfigPath" name="sourceConfigPath" class="form-control" value="{{ file.path|split:':'|getListLast }}"/></td>
                                                         <td>
@@ -144,9 +144,8 @@
                                                             <button type="button" class="btn btn-sm btn-default" onclick="removeTrFromTable(this)"><i class="glyphicon glyphicon-trash"></i></button>
                                                         </td>
                                                     </tr>
-                                                        {% endif %}
-                                                     {% endfor %}
-                                                {% else %}
+                                                    {% endif %}
+                                                 {% endfor %}
                                                     <tr>
                                                         <td style="width: 76%;"><input type="text" id="sourceConfigPath" name="sourceConfigPath" class="form-control" value=""/></td>
                                                         <td>
@@ -154,7 +153,6 @@
                                                             <button type="button" class="btn btn-sm btn-default" onclick="removeTrFromTable(this)"><i class="glyphicon glyphicon-trash"></i></button>
                                                         </td>
                                                     </tr>
-                                                {% endif %}
                                                 </table>
                                             </div>
                                         </div>
@@ -175,6 +173,13 @@
                                                     </tr>
                                                      {% endif %}
                                                      {% endfor %}
+                                                        <tr>
+                                                            <td style="width: 76%;"><input type="text" id="sourceStaticPath" name="sourceStaticPath" class="form-control" value=""/></td>
+                                                            <td>
+                                                                <button type="button" class="btn btn-sm btn-default" onclick="addTrToTable(this,'sourceStaticPath')" style="margin-left: 5px"><i class="glyphicon glyphicon-plus"></i></button>
+                                                                <button type="button" class="btn btn-sm btn-default" onclick="removeTrFromTable(this)"><i class="glyphicon glyphicon-trash"></i></button>
+                                                            </td>
+                                                        </tr>
                                                 </table>
                                             </div>
                                         </div>
@@ -208,6 +213,13 @@
                                                     </tr>
                                                         {% endif %}
                                                     {% endfor %}
+                                                        <tr>
+                                                            <td style="width: 76%;"><input type="text" id="targetConfigPath" name="targetConfigPath" class="form-control" value=""/></td>
+                                                            <td>
+                                                                <button type="button" class="btn btn-sm btn-default" onclick="addTrToTable(this,'targetConfigPath')" style="margin-left: 5px"><i class="glyphicon glyphicon-plus"></i></button>
+                                                                <button type="button" class="btn btn-sm btn-default" onclick="removeTrFromTable(this)"><i class="glyphicon glyphicon-trash"></i></button>
+                                                            </td>
+                                                        </tr>
                                                 </table>
                                             </div>
                                         </div>
@@ -228,6 +240,13 @@
                                                     </tr>
                                                         {% endif %}
                                                     {% endfor %}
+                                                        <tr>
+                                                            <td style="width: 76%;"><input type="text" id="targetConfigPath" name="targetConfigPath" class="form-control" value=""/></td>
+                                                            <td>
+                                                                <button type="button" class="btn btn-sm btn-default" onclick="addTrToTable(this,'targetConfigPath')" style="margin-left: 5px"><i class="glyphicon glyphicon-plus"></i></button>
+                                                                <button type="button" class="btn btn-sm btn-default" onclick="removeTrFromTable(this)"><i class="glyphicon glyphicon-trash"></i></button>
+                                                            </td>
+                                                        </tr>
                                                 </table>
                                             </div>
                                         </div>
