@@ -101,6 +101,11 @@
     display: none;
 }
 
+
+.left-task-warp ul li .cdis.edit{
+    margin-top: 8px;
+}
+
 .left-task-warp ul li .stype{
     color: #FFFFFF;
     background: #0098cd;
@@ -118,11 +123,16 @@
 
 .left-task-warp .edit-input{
     background: none;
-    height: 30px;
+    height: 25px;
+    background: rgba(255,255,255,.8);
     border: 1px solid #ddd;
+    color: #444;
+
+    border:none;
     /*text-indent: 1em;*/
-    width: 90%;
-    padding: 0px 5px;
+    width: 100%;
+
+    /*padding: 0px 5px;*/
 }
 
 .left-task-warp ul li i{
@@ -130,7 +140,7 @@
     font-size: 12px!important;
     display: inline-block;
     position: absolute;
-    background: #666666;
+    background: #666;
     color: #fff;
     width: 22px;
     height: 22px;
@@ -139,10 +149,19 @@
     top:-10px;
     right: -10px;
     border-radius: 22px;
-    transform: scale(.7);
+    transform: scale(0.01);
+    transition: all 500ms;
+}
 
+
+.left-task-warp ul li:hover i{
+
+    transform: scale(0.8);
 
 }
+
+
+
 
 i.del{
     display: inline-block;
