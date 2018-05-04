@@ -68,21 +68,25 @@ Vue.component('task-info', {
       var cmd = this.curCmds[index]['list'][this.curCmds[index]['activeIndex']||0];
       this.curCmd = cmd;
        $('#dialogModal').modal('show');
-      if(!window.editor){
-        setTimeout(function(){
-          window.editor = CodeMirror.fromTextArea(document.getElementById("code"), {
-            lineNumbers: true,
-            styleActiveLine: true,
-            matchBrackets: true,
-            theme: 'eclipse'
-          });
-          window.editor.setValue(cmd.command);
-        },10)
-      }
+
+        setTimeout(function() {
+            if (!window.editor) {
+              window.editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+                  lineNumbers: true,
+                  styleActiveLine: true,
+                  matchBrackets: true,
+                  theme: 'eclipse'
+              });
+              editor.setSize('auto', '250px');
+            }
+            window.editor.setValue(cmd.command);
+        },500)
+
     },
     closeEdit:function(){
       if(window.editor){
         this.curCmd.command =  window.editor.getValue() ;
+        window.editor.setValue('');
       }
       $('#dialogModal').modal('hide')
     },
