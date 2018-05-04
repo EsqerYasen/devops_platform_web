@@ -41,7 +41,7 @@
                           <button :class="{'btn-danger':!($store.state.steps.length && $store.state.steps[$store.state.activeIndex].isGroup)}" class="btn " @click="changeSeqType(0)"> 串行 </button>
                           <button :class="{'btn-danger':$store.state.steps.length && $store.state.steps[$store.state.activeIndex].isGroup}" class="btn"  @click="changeSeqType(1)"> 并行 </button>
                        </div>
-                      <div class="comput" style="float: left;width: 80%;text-align: left">
+                      <div class="comput" style="width: 80%;text-align: left">
                           <button class="btn btn-primary" @click="selectHost">选择机器</button>
                       </div>
                   </div>
