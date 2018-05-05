@@ -70,6 +70,8 @@ Vue.component('task-info', {
        $('#dialogModal').modal('show');
        if(parseInt(cmd.tool_set_type) !== 4)return;
         setTimeout(function() {
+          window.editor = null;
+          $('.CodeMirror').remove();
             if (!window.editor) {
               window.editor = CodeMirror.fromTextArea(document.getElementById("code"), {
                   lineNumbers: true,
