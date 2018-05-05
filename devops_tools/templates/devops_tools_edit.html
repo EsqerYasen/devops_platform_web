@@ -42,12 +42,12 @@
 	                            <div class="col-sm-10">
 		                            <div class="radiogroup">
 			                            <label>
-				                            <input type="radio" name="infom" checked="True" value="1" />
+				                            <input type="radio" name="infom" value="1" v-model="formData.infom"/>
 				                            <span>环境1</span>
 			                            </label>
 
 			                             <label>
-				                            <input type="radio" name="infom" value="1" />
+				                            <input type="radio" name="infom" value="2" v-model="formData.infom"/>
 				                             <span>环境2</span>
 			                            </label>
 		                            </div>
@@ -66,7 +66,7 @@
 {#	                            </div>#}
 {#	                        </div>#}
                             <div class="form-group">
-                                <label class="col-sm-2 control-label"> tool_set_prime_type</label>
+                                <label class="col-sm-2 control-label"> 类别</label>
 	                            <div class="col-sm-10">
 		                            <select v-model="formData.tool_set_prime_type" class="form-control" style="width:20%">
                                         <option value="1">原子</option>
@@ -74,13 +74,16 @@
 	                            </div>
 	                        </div>
                             <div class="form-group">
-                                <label class="col-sm-2 control-label"> tool_set_type</label>
+                                <label class="col-sm-2 control-label"> 类型</label>
 	                            <div class="col-sm-10">
 		                           <select v-model="formData.tool_set_type" class="form-control" style="width:20%">
                                        <option value="1">指令</option>
+                                       <!--
                                        <option value="2">上传文件</option>
                                        <option value="3">远程文件</option>
                                        <option value="4">shell</option>
+                                       -->
+                                       <option value="5">工具</option>
                                     </select>
 	                            </div>
 	                        </div>
@@ -110,11 +113,13 @@
 				                            <div class="fl pabx">
 											    <label >类型</label>
 					                            <select class="form-control" style="min-width: 80px" v-model="p.type">
+                                                  <option value="text">字符</option>
+                                                  <!--
 												  <option value="textshell">shell脚本</option>
-                                                  <option value="text">文本</option>
                                                   <option value="select">下拉框</option>
                                                   <option value="file">文件上传</option>
                                                   <option value="number">数字</option>
+                                                  -->
 												</select>
 				                            </div>
 
@@ -194,6 +199,8 @@
                 name: '{{ result_dict.name }}',
                 tool_set_prime_type: {{ result_dict.tool_set_prime_type }},
                 tool_set_type: {{ result_dict.tool_set_type }},
+                filename:'{{ result_dict.filename }}',
+                infom:{{ result_dict.infom }},
 {#                command: '{{ result_dict.command }}',#}
                 param: [
                 {% for p in result_dict.param %}
@@ -252,11 +259,11 @@
                     type: "POST",
                     url: '../edit/',
                     data:{"csrfmiddlewaretoken":'{{ csrf_token }}','id':{{ result_dict.id }},'name':formData.name,'tool_set_prime_type':formData.tool_set_prime_type,
-                        'tool_set_type':formData.tool_set_type,'command':editor.getValue(),'param':JSON.stringify(formData.param)},
+                        'tool_set_type':formData.tool_set_type,'command':editor.getValue(),'param':JSON.stringify(formData.param),'filename':formData.filename},
                     error: function (request) {},
                     success: function (data) {
                         if(data.status==0){
-                            location.href = '../list'
+                            location.href = '../../list'
                         }else{
                             Alertwin.alert({ message: data.msg});
                         }

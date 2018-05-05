@@ -167,7 +167,7 @@ def emptyValueConversion(value,arg="0"):
 
 @register.filter(name='devopsToolsTypeTrans')
 def devopsToolsTypeTrans(value):
-    tools_type_dict = {1:'指令',2:'上传文件',3:'远程文件',4:'shell'}
+    tools_type_dict = {1:'指令',2:'上传文件',3:'远程文件',4:'shell',5:'工具'}
     if value:
         return tools_type_dict[value]
     else:

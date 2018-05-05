@@ -3,7 +3,7 @@ from django.views.generic import *
 from common.utils.HttpUtils import *
 from django.http import HttpResponse
 from django.core.paginator import Paginator
-import logging
+import logging,time,os
 
 logger = logging.getLogger('devops_platform_log')
 
@@ -22,7 +22,11 @@ class DevopsToolsListView(LoginRequiredMixin, OrderableListMixin, ListView):
             tool_list_result = hu.get(serivceName="job", restName="/rest/job/list_tool_set/",datas=reqData)
             tool_list = tool_list_result.get("results", {})
             for tool in tool_list:
+                tool_set_prime_type = tool["tool_set_prime_type"]
+                tool_set_type = tool["tool_set_type"]
                 tool['param'] = json.loads(tool['param'])
+                if tool_set_prime_type == 1 and tool_set_type == 4:
+                    tool_list.remove(tool)
             paginator = Paginator(tool_list, req.limit)
             count = tool_list_result.get("count", 0)
             paginator.count = count
@@ -53,14 +57,36 @@ class DevopsToolsCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMi
             hu = HttpUtils(self.request)
             reqData = hu.getRequestParam()
             if reqData:
-                addResult = hu.post(serivceName="job", restName="/rest/job/add_tool_set/", datas=reqData)
-                addResultJson = addResult.json()
-                if addResultJson['status'] == 'SUCCESS':
-                    result['status'] = 0
-                    result['msg'] = '保存成功'
+                tool_set_prime_type = reqData.get("tool_set_prime_type",None)
+                tool_set_type = reqData.get("tool_set_type",None)
+                if tool_set_prime_type and tool_set_type:
+                    if tool_set_prime_type == '1' and tool_set_type == '5':
+                        t = time.time()
+                        toolScriptPath = '/opt/devops/tool_script/'
+                        command = reqData.get("command",None)
+                        try:
+                            if not os.path.exists(toolScriptPath):
+                                os.makedirs(toolScriptPath)
+                            fileName = "%s%s.sh" % (toolScriptPath, int(round(t * 1000)))
+                            f = open(fileName, 'w')
+                            f.write(command)
+                            reqData['command'] = fileName
+                        except Exception as e:
+                            logger.error(e)
+                        finally:
+                            f.close()
+
+                    addResult = hu.post(serivceName="job", restName="/rest/job/add_tool_set/", datas=reqData)
+                    addResultJson = addResult.json()
+                    if addResultJson['status'] == 'SUCCESS':
+                        result['status'] = 0
+                        result['msg'] = '保存成功'
+                    else:
+                        result['status'] = 1
+                        result['msg'] = '保存失败'
                 else:
                     result['status'] = 1
-                    result['msg'] = '保存失败'
+                    result['msg'] = '未检测到类别和类型信息，保存失败'
             else:
                 result['status'] = 1
                 result['msg'] = '保存值为空'
@@ -83,7 +109,21 @@ class DevopsToolsUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMi
             tool_list = tool_list_result.get("results", [])
             for tool in tool_list:
                 tool['param'] = json.loads(tool['param'])
-                tool['command'] = tool['command'].replace('\r','\\r').replace('\n','\\n')
+                tool_set_prime_type = tool["tool_set_prime_type"]
+                tool_set_type = tool["tool_set_type"]
+                if tool_set_prime_type == 1 and tool_set_type == 5:
+                    command = tool["command"]
+                    file_object = open(command, 'rU')
+                    tool['filename'] = command
+                    try:
+                        content = ""
+                        for line in file_object:
+                            content += line.replace('\r', '\\r').replace('\n', '\\n')
+                        tool["command"] = content
+                    finally:
+                        file_object.close()
+                else:
+                    tool['filename'] = ""
             context["result_dict"] = tool_list[0]
         except Exception as e:
             logger.error(e)
@@ -95,14 +135,31 @@ class DevopsToolsUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMi
             hu = HttpUtils(self.request)
             reqData = hu.getRequestParam()
             if reqData:
-                addResult = hu.post(serivceName="job", restName="/rest/job/update_tool_set/", datas=reqData)
-                addResultJson = addResult.json()
-                if addResultJson['status'] == 'SUCCESS':
-                    result['status'] = 0
-                    result['msg'] = '更新成功'
+                tool_set_prime_type = reqData.get("tool_set_prime_type", None)
+                tool_set_type = reqData.get("tool_set_type", None)
+                if tool_set_prime_type and tool_set_type:
+                    if tool_set_prime_type == '1' and tool_set_type == '5':
+                        command = reqData.get("command",None)
+                        try:
+                            fileName = reqData.get("filename",None)
+                            f = open(fileName, 'w')
+                            f.write(command)
+                            reqData['command'] = fileName
+                        except Exception as e:
+                            logger.error(e)
+                        finally:
+                            f.close()
+                    addResult = hu.post(serivceName="job", restName="/rest/job/update_tool_set/", datas=reqData)
+                    addResultJson = addResult.json()
+                    if addResultJson['status'] == 'SUCCESS':
+                        result['status'] = 0
+                        result['msg'] = '更新成功'
+                    else:
+                        result['status'] = 1
+                        result['msg'] = '更新失败'
                 else:
                     result['status'] = 1
-                    result['msg'] = '更新失败'
+                    result['msg'] = '未检测到类别和类型信息，保存失败'
             else:
                 result['status'] = 1
                 result['msg'] = '更新值为空'
