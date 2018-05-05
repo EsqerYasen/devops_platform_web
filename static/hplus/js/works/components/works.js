@@ -68,7 +68,7 @@ Vue.component('task-info', {
       var cmd = this.curCmds[index]['list'][this.curCmds[index]['activeIndex']||0];
       this.curCmd = cmd;
        $('#dialogModal').modal('show');
-
+       if(parseInt(cmd.tool_set_type) !== 4)return;
         setTimeout(function() {
             if (!window.editor) {
               window.editor = CodeMirror.fromTextArea(document.getElementById("code"), {
