@@ -63,8 +63,6 @@
 	<hr>
 
 
-
-
 	<div class="row" style="margin-bottom: 20px">
          <div class="col-md-6">
              <label class="col-sm-5 control-label" style="text-align: right">
@@ -226,6 +224,7 @@
     function tab1Save(){
         var p_id = $("#project_id").val();
         var name = $("#projectName").val();
+        var nameEn = $("#projectNameEn").val();
         var is_legacy_project = $(":radio[name='projectRadio']:checked").val();
         var description = $("#description").val();
         var applicant = $("#applicant").val();
@@ -238,7 +237,6 @@
 
         var saveJson = {"is_legacy_project":is_legacy_project}
         var bool = true;
-        debugger;
         if(is_add != 1){
             if(!p_id){
                 Alertwin.alert({ message: "未获获取到更新主键"});
@@ -255,6 +253,12 @@
             return bool;
         }
         saveJson['name'] = name;
+        if(!nameEn){
+            Alertwin.alert({message:"项目英文名称为空"});
+            bool = false;
+            return bool;
+        }
+        saveJson['nameEn'] = nameEn;
         if(!description){
             Alertwin.alert({ message: "部署计划为空"});
             bool = false;
@@ -274,17 +278,17 @@
         }
         saveJson['applicant_email'] = applicant_email;
         if(!applicant_phone){
-            Alertwin.alert({ message: "手机为空"});
+            Alertwin.alert({ message: "分机"});
             bool = false;
             return bool;
         }
         saveJson['applicant_phone'] = applicant_phone;
-        if(!assignee){
-            Alertwin.alert({ message: "指派人为空"});
-            bool = false;
-            return bool;
-        }
-        saveJson['assignee'] = assignee;
+{#        if(!assignee){#}
+{#            Alertwin.alert({ message: "指派人为空"});#}
+{#            bool = false;#}
+{#            return bool;#}
+{#        }#}
+{#        saveJson['assignee'] = assignee;#}
         if(!estimated_pilot_date){
             Alertwin.alert({ message: "预计上PILOT时间"});
             bool = false;
@@ -304,27 +308,27 @@
         }else{
             postUrl = "/presrb/project/pro_assess_add/";
         }
-
+        debugger;
         if(postUrl){
-            $.ajax({
-                type: "POST",
-                url: '/presrb/project/pro_assess_add/',
-                async:false,
-                data:{"saveJson":JSON.stringify(saveJson),"csrfmiddlewaretoken":'{{ csrf_token }}'},
-                error: function (request) {
-                     bool = false;
-                },
-                success: function (data) {
-                    if(data.status = "SUCCESS"){
-                        bool = true;
-                        $("#project_id").val(data.p_id);
-                        Alertwin.alert({ message: "操作成功"});
-                    }else{
-                         bool = false;
-                        Alertwin.alert({ message: "操作失败"});
-                    }
-                }
-            })
+{#            $.ajax({#}
+{#                type: "POST",#}
+{#                url: '/presrb/project/add/',#}
+{#                async:false,#}
+{#                data:{"saveJson":JSON.stringify(saveJson),"csrfmiddlewaretoken":'{{ csrf_token }}'},#}
+{#                error: function (request) {#}
+{#                     bool = false;#}
+{#                },#}
+{#                success: function (data) {#}
+{#                    if(data.status = "SUCCESS"){#}
+{#                        bool = true;#}
+{#                        $("#project_id").val(data.p_id);#}
+{#                        Alertwin.alert({ message: "操作成功"});#}
+{#                    }else{#}
+{#                         bool = false;#}
+{#                        Alertwin.alert({ message: "操作失败"});#}
+{#                    }#}
+{#                }#}
+{#            })#}
         }
         return bool;
     }
