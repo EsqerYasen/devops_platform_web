@@ -21,16 +21,19 @@ class DevopsToolsListView(LoginRequiredMixin, OrderableListMixin, ListView):
             reqData = hu.getRequestParam()
             tool_list_result = hu.get(serivceName="job", restName="/rest/job/list_tool_set/",datas=reqData)
             tool_list = tool_list_result.get("results", {})
+            count = tool_list_result.get("count", 0)
+            new_tool_list = []
             for tool in tool_list:
                 tool_set_prime_type = tool["tool_set_prime_type"]
                 tool_set_type = tool["tool_set_type"]
                 tool['param'] = json.loads(tool['param'])
-                if tool_set_prime_type == 1 and tool_set_type == 4:
-                    tool_list.remove(tool)
-            paginator = Paginator(tool_list, req.limit)
-            count = tool_list_result.get("count", 0)
+                if tool_set_prime_type == 1 and tool_set_type != 4 and tool_set_type != 6:
+                    new_tool_list.append(tool)
+                else:
+                    count -= 1
+            paginator = Paginator(new_tool_list, req.limit)
             paginator.count = count
-            context['result_list'] = tool_list
+            context['result_list'] = new_tool_list
             context['is_paginated'] = count > 0
             context['page_obj'] = paginator.page(req.offset)
             context['paginator'] = paginator
@@ -118,12 +121,13 @@ class DevopsToolsUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMi
                     try:
                         content = ""
                         for line in file_object:
-                            content += line.replace('\r', '\\r').replace('\n', '\\n')
+                            content += line
                         tool["command"] = content
                     finally:
                         file_object.close()
                 else:
                     tool['filename'] = ""
+                tool["command"] = tool["command"].replace('\r', '\\r').replace('\n', '\\n')
             context["result_dict"] = tool_list[0]
         except Exception as e:
             logger.error(e)

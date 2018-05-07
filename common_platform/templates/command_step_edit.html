@@ -11,15 +11,14 @@
 <script type="text/javascript" src="/static/hplus/js/zTree/jquery.ztree.core.js"></script>
 <script type="text/javascript" src="/static/hplus/js/zTree/jquery.ztree.excheck.js"></script>
 <script type="text/javascript" src="/static/hplus/js/zTree/jquery.ztree.exedit.js"></script>
+<script type="text/javascript" src="/static/hplus/codemirror/codemirror.js"></script>
+<script type="text/javascript" src="/static/hplus/codemirror/active-line.js"></script>
+<script type="text/javascript" src="/static/hplus/codemirror/shell.js"></script>
 <link href="/static/hplus/css/works/works.css" rel="stylesheet">
 <link href="/static/hplus/css/works/yum-font.css" rel="stylesheet">
 <link href="/static/hplus/css/zTree/bootstrapStyle.css" rel="stylesheet">
-
-    <link rel="stylesheet" href="/static/hplus/codemirror/codemirror.css">
+<link rel="stylesheet" href="/static/hplus/codemirror/codemirror.css">
 <link rel="stylesheet" href="/static/hplus/codemirror/eclipse.css">
-<script type="text/javascript" src="/static/hplus/codemirror/codemirror.js"></script>
-<script type="text/javascript" src="/static/hplus/codemirror/active-line.js"></script>
- <script type="text/javascript" src="/static/hplus/codemirror/shell.js"></script>
 
 <link href="/static/hplus/css/zTree/bootstrapStyle.css" rel="stylesheet">
 
@@ -57,141 +56,6 @@
                         <task-cmds></task-cmds>
                     </div>
                     {% include 'vue_template.html' %}
-{#                    <template id="task-list">#}
-{#                        <div class="left-task">#}
-{#                            <div class="left-task-warp">#}
-{#                                <ul>#}
-{#                                   <draggable v-model="store.state.steps" :options="{animation:160}">#}
-{#                                      <li v-for="(item,index) in store.state.steps"  class="clear tesklist_li" :class="{active:index==store.state.activeIndex}">#}
-{#                                          <div class="clear" style="width: 85%;float: left" @click="changeActive(index)">#}
-{#                                              <span class="num"> {% verbatim %}{{index+1}}{% endverbatim %} </span>#}
-{#                                              <div class="cdis">#}
-{#                                                  <span>#}
-{#                                                      <input type="text" class="edit-input" v-model="item.name">#}
-{#                                                  </span>#}
-{#                                                  <span>#}
-{#                                                    {% verbatim %}{{item.name}}{% endverbatim %}#}
-{#                                                  </span>#}
-{#                                              </div>#}
-{#                                          </div>#}
-{#                                        <i class="yum-font icon-guanbi del" style="font-size: 12px" @click="delTask(index)"></i>#}
-{#                                      </li>#}
-{#                                   </draggable>#}
-{#                                </ul>#}
-{#                                <div class="plus" @dblclick="addTask()">#}
-{#                                    <i class="yum-font icon-plus-bold"></i>#}
-{#                                </div>#}
-{#                            </div>#}
-{#                        </div>#}
-{#                    </template>#}
-{#                    <template id="task-info">#}
-{#                        <div class="task-content">#}
-{#                            <div class="taskwap">#}
-{#                                  <div class="top" >#}
-{#                                    <div class="btn-group">#}
-{#                                      <button :class="{'btn-danger':!($store.state.steps.length && $store.state.steps[$store.state.activeIndex].isGroup)}" class="btn " @click="changeSeqType(0)"> 串行 </button>#}
-{#                                      <button :class="{'btn-danger':$store.state.steps.length && $store.state.steps[$store.state.activeIndex].isGroup}" class="btn"  @click="changeSeqType(1)"> 并行 </button>#}
-{#                                    </div>#}
-{#                                    <div class="tesklist clear">#}
-{#                                      <draggable :list="curCmds"  :options="{group:'task',animation:160,sort:true,scroll:true}" class="dragga clear" @add="updateLines">#}
-{##}
-{#                                        <div class="tesk"   v-for="(it, index) in curCmds" :class="{'active':$store.state.steps[$store.state.activeIndex]&&$store.state.steps[$store.state.activeIndex].activeIndex==index}" @click="selectTool(index)">#}
-{#                                          <div class="tabs" v-if="it.list&&it.list.length>1">#}
-{#                                            <span class="btns"#}
-{#                                                  :class={'current':i==it['activeIndex']}#}
-{#                                                  v-for="(item,i) in it.list">#}
-{#                                              <div class="con" @click="tabClick({ind1:index,ind2:i})">{% verbatim %}{{index+1}}-{{i+1}}{% endverbatim %}</div>#}
-{#                                              <i class="yum-font icon-guanbi tabClose" @click="deleteTask({ind1:index,ind2:i})"></i>#}
-{#                                            </span>#}
-{#                                          </div>#}
-{#                                          <div class="tabscon">#}
-{#                                            <div class="intags"  v-for="(item,i) in it.list" :class={'show':i==(it['activeIndex']||0)}>#}
-{#                                              <i class="yum-font icon-edit edit" @click="showEdit('#edit_'+index+'_'+i)" ></i>#}
-{#                                              <div class="teskwap" :title="item.value">#}
-{#                                                <p class="center">{% verbatim %}{{ item.value || item.name }}{% endverbatim %}</p>#}
-{#                                              </div>#}
-{#                                              <div class="teskbottom" :title="item.name" >#}
-{#                                                <p>{% verbatim %}{{ item.name }}{% endverbatim %}</p>#}
-{#                                              </div>#}
-{#                                              <i class="yum-font teskico icon-guanbi" @click="deleteTaskAll(index)"></i>#}
-{#                                              <div v-if="it.list&&it.list.length==1" class="number">{% verbatim %}{{ index+1 }}{% endverbatim %}</div>#}
-{#                                            </div>#}
-{#                                          </div>#}
-{#                                        </div>#}
-{#                                      </draggable>#}
-{##}
-{#                                    </div>#}
-{##}
-{##}
-{#                                  <template class="tesk"  v-for="(it, index) in curCmds" :class="{'active':$store.state.steps[$store.state.activeIndex]&&$store.state.steps[$store.state.activeIndex].activeIndex==index}" @click="selectTool(index)">#}
-{#                                      <template v-for="(item,i) in it.list" :class={'show':i==it['activeIndex']}">#}
-{#                                          <div class="modal fade" style="text-align: left; z-index: 99" :id="'edit_'+index+'_'+i" >#}
-{#                                              <div class="modal-dialog">#}
-{#                                                  <div class="modal-content">#}
-{#                                                      <div class="modal-header">#}
-{#                                                        <span type="button" class="close close_hide" @click="closeEdit('#edit_'+index+'_'+i)">#}
-{#                                                           <i class="yum-font icon-guanbi"></i>#}
-{#                                                        </span>#}
-{#                                                        <h4 class="modal-title" id="myModalLabel">编辑-{% verbatim %}{{steps['lines'][index]['list'][i]['name']}}{% endverbatim %}</h4>#}
-{#                                                      </div>#}
-{#                                                      <div class="modal-body">#}
-{#                                                          <form class="form-horizontal">#}
-{#                                                              <div class="form-group" v-for="ites in steps['lines'][index]['list'][i]['param']">#}
-{#                                                                <label class="col-sm-2 control-label">{% verbatim %}{{ites.paramNameZh}}{% endverbatim %}</label>#}
-{##}
-{#                                                                <div class="col-sm-10">#}
-{#                                                                  <div v-if="ites.type==='textshell'">#}
-{#                                                                    <textarea style="height: 150px" class="form-control" v-model="ites.value"  placeholder="请输入shell脚本"></textarea>#}
-{#                                                                  </div>#}
-{#                                                                  <div v-if="ites.type==='text'">#}
-{#                                                                    <input type="text" class="form-control" v-model="ites.value" placeholder="请输入shell脚本">#}
-{#                                                                  </div>#}
-{#                                                                </div>#}
-{#                                                              </div>#}
-{#                                                          </form>#}
-{#                                                          <!--#}
-{#                                                          <pre style="text-align: left">{% verbatim %}{{ steps['lines'][index]['list'][i]['param'] }}{% endverbatim %}</pre>#}
-{#                                                           -->#}
-{#                                                      </div>#}
-{#                                                      <div class="modal-footer">#}
-{#                                                        <button type="button" class="btn btn-primary" @click="closeEdit('#edit_'+index+'_'+i)">保存</button>#}
-{#                                                      </div>#}
-{#                                                  </div>#}
-{#                                              </div>#}
-{#                                          </div>#}
-{#                                      </template>#}
-{#                                  </template>#}
-{##}
-{#                                </div>#}
-{#                                <div style="position: fixed; bottom: 1px; left: 0px; width: 100%; max-height: 300px; overflow:auto">#}
-{#                                    <button class="btn btn-danger shu"> 数据 </button>#}
-{#                                    <pre style="text-align: left; display: none">{% verbatim %}{{$store.state.steps}}{% endverbatim %}</pre>#}
-{#                                </div>#}
-{#                            </div>#}
-{#                        </div>#}
-{#                    </template>#}
-{#                    <template id="task-cmds">#}
-{#                        <div class="right-tast clear">#}
-{#                            <div class="title">工具箱</div>#}
-{#                            <div class="rt-top">#}
-{#                              <ul>#}
-{#                                <li v-for="(item, index) in top" @click="changeCmdTopIndex(item, index)" :class="{act:cmdIndexTop==index}">{% verbatim %}{{ item }}{% endverbatim %}</li>#}
-{#                              </ul>#}
-{#                            </div>#}
-{#                            <div class="rt-left">#}
-{#                              <ul>#}
-{#                                <li v-for="(item, index) in left" @click="changeCmdLeftIndex(item, index)" :class="{act:cmdIndexLeft==index}">{% verbatim %}{{ item }}{% endverbatim %}</li>#}
-{#                              </ul>#}
-{#                            </div>#}
-{#                            <div class="rt-right">#}
-{#                              <ul>#}
-{#                                <draggable  :list="cmds"  :options="{group:{name:'task', pull:'clone', put:false },animation:160,filter:'.dragga',scroll:true}">#}
-{#                                  <li v-for="(cmd, i) in cmds" class="cmds">{% verbatim %}{{ cmd.name }}{% endverbatim %}</li>#}
-{#                                </draggable>#}
-{#                              </ul>#}
-{#                            </div>#}
-{#                        </div>#}
-{#                    </template>#}
                 </div>
             </div>
         </div>
@@ -480,6 +344,7 @@
                 command_set['name'] = res.name;
                 var step1 = res.steps;
                 var step2 = [];
+                var hostMsgList = [];
                 $(step1).each(function (i, item) {
                     var temp = {};
                     temp['name'] = item.name;
@@ -488,7 +353,14 @@
                     temp['type'] = 0;
                     temp['go_live'] = item.go_live;
                     temp['target_group_ids'] = item.target_group_ids;
+                    temp['target_host_list'] = item.target_host_list;
                     temp['target_type'] = item.target_type;
+                    temp['go_live'] = item.go_live;
+
+                    if(!item.target_group_ids){
+                        hostMsgList.push(item.name)
+                    }
+
                     var line1 = item.lines;
                     var line2 = [];
                     $(line1).each(function (i2, item2) {
@@ -496,17 +368,16 @@
                         temp3['sub_seq_no'] = item2['sub_seq_no'];
                         temp3['type'] = 0;
                         var parma = item2['param'];
+                        var command = item2['command'];
                         var tool_set_type = item2.tool_set_type; //1-指令 2-上传文件 3-远程文件 4-shell
                         var default_script_parameter = "";
-                        if(tool_set_type == 1){
-                            temp3['source_file_name'] = command;
-                        }
+                        temp3['source_file_name'] = command;
                         $(parma).each(function (pi, pitme) {
-                            if (pi == 0 && tool_set_type == 4) {
-                                temp3['source_file_name'] = pitme.value;
-                            } else {
-                                default_script_parameter += pitme.value + " ";
-                            }
+                            if(tool_set_type == 5 || tool_set_type == 6){
+                                    default_script_parameter += pitme.paramNameZh+"="+pitme.value+",";
+                                }else{
+                                    default_script_parameter += pitme.value+" ";
+                                }
                         })
                         temp3['tool_set_type'] = tool_set_type;
                         temp3['default_script_parameter'] = default_script_parameter.substring(0, default_script_parameter.length - 1);
@@ -518,6 +389,10 @@
                     step2.push(temp);
                 })
                 command_set['steps'] = step2;
+                if(hostMsgList.length > 0){
+                    Alertwin.alert({message:hostMsgList[0]+" 未勾选机器组或机器"});
+                    return;
+                }
                 $.ajax({
                     type : 'POST',
                     url: '/platform/command_set/'+res.id+'/edit/',
@@ -539,10 +414,11 @@
         }
       });
 
-    var initJson = "{{ result_dict|safe }}";
-    initJson = initJson.replace(/'/g,'"').replace(/\r/g,'\\r').replace(/\n/g,'\\n');
+    var initJson = {{ result_dict|safe }};
+    //initJson = initJson.replace(/'/g,'"').replace(/\r/g,'\\r').replace(/\n/g,'\\n');
     //transApiDataToLocal({"name":"ttteeeeeeeeeeeeeee","steps":[{"lines":[{"id":1,"name":"SHELL脚本","tool_set_prime_type":1,"tool_set_type":1,"command":"cp","param":[{"paramNameEn":"content","paramNameZh":"源代码","type":"textshell","desc":"自定义shell文件内容","no":"0","valueSet":[],"default":""},{"paramNameEn":"param","paramNameZh":"参数列表","type":"text","desc":"把所有参数全列出来","no":"1","valueSet":[],"default":""}],"is_enabled":true,"created_by":"admin","updated_by":"admin","tool_set_type_zh":"指令","tool_set_prime_type_zh":"原子","sub_seq_no":1},{"id":1,"name":"SHELL脚本","tool_set_prime_type":1,"tool_set_type":1,"command":"cp","param":[{"paramNameEn":"content","paramNameZh":"源代码","type":"textshell","desc":"自定义shell文件内容","no":"0","valueSet":[],"default":""},{"paramNameEn":"param","paramNameZh":"参数列表","type":"text","desc":"把所有参数全列出来","no":"1","valueSet":[],"default":""}],"is_enabled":true,"created_by":"admin","updated_by":"admin","tool_set_type_zh":"指令","tool_set_prime_type_zh":"原子","sub_seq_no":2},{"id":1,"name":"SHELL脚本","tool_set_prime_type":1,"tool_set_type":1,"command":"cp","param":[{"paramNameEn":"content","paramNameZh":"源代码","type":"textshell","desc":"自定义shell文件内容","no":"0","valueSet":[],"default":""},{"paramNameEn":"param","paramNameZh":"参数列表","type":"text","desc":"把所有参数全列出来","no":"1","valueSet":[],"default":""}],"is_enabled":true,"created_by":"admin","updated_by":"admin","tool_set_type_zh":"指令","tool_set_prime_type_zh":"原子","sub_seq_no":3},{"id":1,"name":"SHELL脚本","tool_set_prime_type":1,"tool_set_type":1,"command":"cp","param":[{"paramNameEn":"content","paramNameZh":"源代码","type":"textshell","desc":"自定义shell文件内容","no":"0","valueSet":[],"default":""},{"paramNameEn":"param","paramNameZh":"参数列表","type":"text","desc":"把所有参数全列出来","no":"1","valueSet":[],"default":""}],"is_enabled":true,"created_by":"admin","updated_by":"admin","tool_set_type_zh":"指令","tool_set_prime_type_zh":"原子","sub_seq_no":4},{"id":1,"name":"SHELL脚本","tool_set_prime_type":1,"tool_set_type":1,"command":"cp","param":[{"paramNameEn":"content","paramNameZh":"源代码","type":"textshell","desc":"自定义shell文件内容","no":"0","valueSet":[],"default":""},{"paramNameEn":"param","paramNameZh":"参数列表","type":"text","desc":"把所有参数全列出来","no":"1","valueSet":[],"default":""}],"is_enabled":true,"created_by":"admin","updated_by":"admin","tool_set_type_zh":"指令","tool_set_prime_type_zh":"原子","sub_seq_no":5}],"name":"fffff","activeIndex":0,"seq_no":1}]});
-    transApiDataToLocal(JSON.parse(initJson));
+    //transApiDataToLocal(JSON.parse(initJson));
+    transApiDataToLocal(initJson);
 </script>
 
 {% endblock %}
