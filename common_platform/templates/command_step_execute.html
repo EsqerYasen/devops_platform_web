@@ -361,10 +361,12 @@
                         var tool_set_type = item2.tool_set_type; //1-指令 2-上传文件 3-远程文件 4-shell
                         var default_script_parameter = "";
                         $(parma).each(function(pi,pitme){
-                            if(tool_set_type == 5 || tool_set_type == 6){
-                                default_script_parameter += pitme.paramNameZh+"="+pitme.value+";";
-                            }else{
-                                default_script_parameter += pitme.value+" ";
+                            if(pitme.value){
+                                if(tool_set_type == 5 || tool_set_type == 6){
+                                    default_script_parameter += pitme.paramNameZh+"="+pitme.value+";";
+                                }else{
+                                    default_script_parameter += pitme.value+" ";
+                                }
                             }
                         });
                         default_script_parameter = default_script_parameter.substring(0,default_script_parameter.length-1);
