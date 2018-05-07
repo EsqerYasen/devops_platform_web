@@ -344,6 +344,7 @@
                 command_set['name'] = res.name;
                 var step1 = res.steps;
                 var step2 = [];
+                var hostMsgList = [];
                 $(step1).each(function (i, item) {
                     var temp = {};
                     temp['name'] = item.name;
@@ -352,6 +353,7 @@
                     temp['type'] = 0;
                     temp['go_live'] = item.go_live;
                     temp['target_group_ids'] = item.target_group_ids;
+                    temp['target_host_list'] = item.target_host_list;
                     temp['target_type'] = item.target_type;
                     temp['go_live'] = item.go_live;
 
@@ -366,6 +368,7 @@
                         temp3['sub_seq_no'] = item2['sub_seq_no'];
                         temp3['type'] = 0;
                         var parma = item2['param'];
+                        var command = item2['command'];
                         var tool_set_type = item2.tool_set_type; //1-指令 2-上传文件 3-远程文件 4-shell
                         var default_script_parameter = "";
                         temp3['source_file_name'] = command;
@@ -411,10 +414,11 @@
         }
       });
 
-    var initJson = "{{ result_dict|safe }}";
-    initJson = initJson.replace(/'/g,'"').replace(/\r/g,'\\r').replace(/\n/g,'\\n');
+    var initJson = {{ result_dict|safe }};
+    //initJson = initJson.replace(/'/g,'"').replace(/\r/g,'\\r').replace(/\n/g,'\\n');
     //transApiDataToLocal({"name":"ttteeeeeeeeeeeeeee","steps":[{"lines":[{"id":1,"name":"SHELL脚本","tool_set_prime_type":1,"tool_set_type":1,"command":"cp","param":[{"paramNameEn":"content","paramNameZh":"源代码","type":"textshell","desc":"自定义shell文件内容","no":"0","valueSet":[],"default":""},{"paramNameEn":"param","paramNameZh":"参数列表","type":"text","desc":"把所有参数全列出来","no":"1","valueSet":[],"default":""}],"is_enabled":true,"created_by":"admin","updated_by":"admin","tool_set_type_zh":"指令","tool_set_prime_type_zh":"原子","sub_seq_no":1},{"id":1,"name":"SHELL脚本","tool_set_prime_type":1,"tool_set_type":1,"command":"cp","param":[{"paramNameEn":"content","paramNameZh":"源代码","type":"textshell","desc":"自定义shell文件内容","no":"0","valueSet":[],"default":""},{"paramNameEn":"param","paramNameZh":"参数列表","type":"text","desc":"把所有参数全列出来","no":"1","valueSet":[],"default":""}],"is_enabled":true,"created_by":"admin","updated_by":"admin","tool_set_type_zh":"指令","tool_set_prime_type_zh":"原子","sub_seq_no":2},{"id":1,"name":"SHELL脚本","tool_set_prime_type":1,"tool_set_type":1,"command":"cp","param":[{"paramNameEn":"content","paramNameZh":"源代码","type":"textshell","desc":"自定义shell文件内容","no":"0","valueSet":[],"default":""},{"paramNameEn":"param","paramNameZh":"参数列表","type":"text","desc":"把所有参数全列出来","no":"1","valueSet":[],"default":""}],"is_enabled":true,"created_by":"admin","updated_by":"admin","tool_set_type_zh":"指令","tool_set_prime_type_zh":"原子","sub_seq_no":3},{"id":1,"name":"SHELL脚本","tool_set_prime_type":1,"tool_set_type":1,"command":"cp","param":[{"paramNameEn":"content","paramNameZh":"源代码","type":"textshell","desc":"自定义shell文件内容","no":"0","valueSet":[],"default":""},{"paramNameEn":"param","paramNameZh":"参数列表","type":"text","desc":"把所有参数全列出来","no":"1","valueSet":[],"default":""}],"is_enabled":true,"created_by":"admin","updated_by":"admin","tool_set_type_zh":"指令","tool_set_prime_type_zh":"原子","sub_seq_no":4},{"id":1,"name":"SHELL脚本","tool_set_prime_type":1,"tool_set_type":1,"command":"cp","param":[{"paramNameEn":"content","paramNameZh":"源代码","type":"textshell","desc":"自定义shell文件内容","no":"0","valueSet":[],"default":""},{"paramNameEn":"param","paramNameZh":"参数列表","type":"text","desc":"把所有参数全列出来","no":"1","valueSet":[],"default":""}],"is_enabled":true,"created_by":"admin","updated_by":"admin","tool_set_type_zh":"指令","tool_set_prime_type_zh":"原子","sub_seq_no":5}],"name":"fffff","activeIndex":0,"seq_no":1}]});
-    transApiDataToLocal(JSON.parse(initJson));
+    //transApiDataToLocal(JSON.parse(initJson));
+    transApiDataToLocal(initJson);
 </script>
 
 {% endblock %}

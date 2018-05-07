@@ -207,7 +207,8 @@ class CommandSetUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMix
                 lineDict = json.loads(line['file_display_name'])
                 lineDict['id'] = line['id']
                 lineDict['filePath'] = line['source_file_name']
-                del lineDict['is_enabled']
+                if lineDict.get('is_enabled',None):
+                    del lineDict['is_enabled']
                 lines.append(lineDict)
             stepDict['lines'] = lines
             steps.append(stepDict)
