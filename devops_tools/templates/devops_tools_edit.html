@@ -262,12 +262,15 @@
                 this.checkForm();
                 var formData = this.formData;
                 delete formData.ret;
-
+                var script_lang = formData.script_lang;
+                if(!script_lang){
+                    script_lang = "";
+                }
                 $.ajax({
                     type: "POST",
                     url: '../edit/',
                     data:{"csrfmiddlewaretoken":'{{ csrf_token }}','id':{{ result_dict.id }},'name':formData.name,'tool_set_prime_type':formData.tool_set_prime_type,
-                        'tool_set_type':formData.tool_set_type,'command':editor.getValue(),'param':JSON.stringify(formData.param),'filename':formData.filename},
+                        'tool_set_type':formData.tool_set_type,'script_lang':script_lang,'command':editor.getValue(),'param':JSON.stringify(formData.param),'filename':formData.filename},
                     error: function (request) {},
                     success: function (data) {
                         if(data.status==0){
