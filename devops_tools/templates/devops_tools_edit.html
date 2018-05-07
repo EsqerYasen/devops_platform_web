@@ -212,6 +212,7 @@
                 script_lang: '{{ result_dict.script_lang }}',
                 param: [
                 {% for p in result_dict.param %}
+                {% if p.paramNameZh != 'tags' and p.paramNameZh != 'skip-tags'%}
                 {
                     paramNameEn: '{{ p.paramNameEn }}',
                     paramNameZh: '{{ p.paramNameZh }}',
@@ -221,6 +222,22 @@
                     valueSet: {{ p.valueSet }},
                     default: '{{ p.default }}'
                 },
+                {% endif %}
+                {% endfor %}
+               ],
+               param2:[
+                {% for p in result_dict.param %}
+                {% if p.paramNameZh == 'tags' and p.paramNameZh == 'skip-tags'%}
+                {
+                    paramNameEn: '{{ p.paramNameEn }}',
+                    paramNameZh: '{{ p.paramNameZh }}',
+                    type: '{{ p.type }}',
+                    desc: '{{ p.desc }}',
+                    no: '{{ p.no }}',
+                    valueSet: {{ p.valueSet }},
+                    default: '{{ p.default }}'
+                },
+                {% endif %}
                 {% endfor %}
                ],
                ret:[{
@@ -261,6 +278,7 @@
             submit: function(){
                 this.checkForm();
                 var formData = this.formData;
+                formData.param = formData.param.concat(formData.param2);
                 delete formData.ret;
                 var script_lang = formData.script_lang;
                 if(!script_lang){
