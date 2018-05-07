@@ -111,7 +111,7 @@
 				                            </div>
 				                            <div class="fl pabx">
 											    <label >类型</label>
-					                            <select class="form-control" style="min-width: 80px" v-model="p.type">
+					                            <select class="form-control" style="min-width: 150px" v-model="p.type">
                                                   <option value="text">字符</option>
                                                   <!--
                                                   <option value="textshell">shell脚本</option>
@@ -124,7 +124,7 @@
 
 				                            <div class="fl pabx">
 											    <label >描述</label>
-					                             <input type="text" class="form-control" v-model="p.desc">
+					                             <input type="text" class="form-control" style="width: 250px" v-model="p.desc">
 				                            </div>
 			                            </div>
 
@@ -220,7 +220,7 @@
                 param: [{
                     paramNameEn: '',
                     paramNameZh: '',
-                    type: '',
+                    type: 'text',
                     desc: '',
                     no: 0,
                     valueSet: [],
@@ -239,7 +239,7 @@
                 this.formData.param.push({
                     paramNameEn: '',
                     paramNameZh: '',
-                    type: '',
+                    type: 'text',
                     desc: '',
                     no: 0,
                     valueSet: [],
