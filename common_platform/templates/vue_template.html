@@ -138,6 +138,10 @@
             <li v-for="(item, index) in top" @click="changeCmdTopIndex(item, index)" :class="{act:cmdIndexTop==index}">{% verbatim %}{{ item }}{% endverbatim %}</li>
           </ul>
         </div>
+        <div class="search clear">
+            <i class="yum-font icon-sousuo"></i>
+            <input @keyup="search" v-model="keywords" placeholder="请输入组件名称">
+        </div>
         <div class="rt-left">
           <ul>
             <li v-for="(item, index) in left" @click="changeCmdLeftIndex(item, index)" :class="{act:cmdIndexLeft==index}">{% verbatim %}{{ item }}{% endverbatim %}</li>
