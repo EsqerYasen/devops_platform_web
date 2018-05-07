@@ -129,7 +129,7 @@ class DevopsToolsUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMi
                         file_object.close()
                 else:
                     tool['filename'] = ""
-                tool["command"] = tool["command"].replace('\r', '\\r').replace('\n', '\\n')
+                tool["command"] = tool["command"].replace('"', '\\"').replace('\r', '\\r').replace('\n', '\\n')
             context["result_dict"] = tool_list[0]
         except Exception as e:
             logger.error(e)

@@ -209,7 +209,7 @@
                 filename:'{{ result_dict.filename }}',
                 infom:{{ result_dict.infom }},
 {#                command: '{{ result_dict.command }}',#}
-                script_lang: {{ result_dict.script_lang }},
+                script_lang: '{{ result_dict.script_lang }}',
                 param: [
                 {% for p in result_dict.param %}
                 {
