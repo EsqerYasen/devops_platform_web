@@ -376,6 +376,9 @@
                             var temp3 = {};
                             temp3['sub_seq_no'] = item2['sub_seq_no'];
                             temp3['type'] = 0;
+                            if(tool_set_type == 6){
+                                temp3['type'] = 1;
+                            }
                             var parma = item2['param'];
                             var command = item2['command'];
                             var tool_set_type = item2.tool_set_type; //1-指令 2-上传文件 3-远程文件 4-shell 5-工具
