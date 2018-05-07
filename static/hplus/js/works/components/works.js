@@ -148,6 +148,7 @@ Vue.component('task-cmds', {
       top: {},
       left: {},
       cmds:[],
+        keywords:'',
       cmdIndexLeft: '1',//当前选中的左边的index
       cmdIndexTop: '1'//当前选中的右边的index
     }
@@ -164,6 +165,17 @@ Vue.component('task-cmds', {
       }
       this.cmds = cmds;
     },
+      search: function(){
+        this.cmds = [];
+        var cmds = [];
+        for(var i in this.taskCmds){
+          var item = this.taskCmds[i];
+          if( (item.name && (item.name.indexOf(this.keywords)>=0) ) ){
+            cmds.push(item);
+          }
+        }
+        this.cmds = cmds;
+      },
     changeCmdLeftIndex: function(item, index){
       this.cmdIndexLeft = index;
       this.findCmdByTopLeft(this.cmdIndexTop, this.cmdIndexLeft);

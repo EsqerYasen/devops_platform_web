@@ -350,6 +350,19 @@ i.teskico:hover{
     float:left;
     margin-top: 10px;
 }
+.right-tast .search{
+    border: 1px solid #efefef;
+    margin: 8px 8px 0 8px;
+    padding: 5px;
+}
+.right-tast .search input{
+    border:none;
+    margin-left:5px;
+}
+.right-tast .search input:focus{
+    border:none;
+    outline:none;
+}
 .right-task .rt-top{
     width:100%;
     height:30px;
