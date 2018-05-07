@@ -195,3 +195,39 @@ class DevopsToolsDeleteView(LoginRequiredMixin,JSONResponseMixin, View):
             result['msg'] = '删除异常'
             logger.error(e)
         return self.render_json_response(result)
+
+
+class DevopsToolsYamlCheckView(LoginRequiredMixin,JSONResponseMixin, View):
+    def post(self, request, *args, **kwargs):
+        result = {'status': 1}
+        try:
+            req = self.request
+            t = time.time()
+            fileName = None
+            toolScriptPath = '/tmp/yumcheck/'
+            hu = HttpUtils(req)
+            reqData = hu.getRequestParam()
+            command = reqData.get("command", None)
+            try:
+                if not os.path.exists(toolScriptPath):
+                    os.makedirs(toolScriptPath)
+                fileName = "%s%s.yaml" % (toolScriptPath, int(round(t * 1000)))
+                f = open(fileName, 'w')
+                f.write(command)
+                reqData['command'] = fileName
+            except Exception as e:
+                logger.error(e)
+            finally:
+                f.close()
+            if fileName:
+                resultJson = hu.get(serivceName="job", restName="/rest/job/test_yaml/", datas={"file": fileName})
+                if resultJson['status'] == 'SUCCESS':
+                    result['status'] = 0
+                else:
+                    result['status'] = 1
+                    result['msg'] = resultJson['msg']
+        except Exception as e:
+            result['status'] = 1
+            result['msg'] = '检查脚本异常'
+            logger.error(e)
+        return self.render_json_response(result)

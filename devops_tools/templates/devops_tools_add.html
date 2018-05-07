@@ -268,21 +268,53 @@
                 formData.param = formData.param.concat(formData.param2);
                 delete formData.param2;
                 delete formData.ret;
-
-                $.ajax({
-                    type: "POST",
-                    url: '../add/',
-                    data:{"csrfmiddlewaretoken":'{{ csrf_token }}','name':formData.name,'infom':formData.infom,'tool_set_prime_type':formData.tool_set_prime_type,
-                        'tool_set_type':formData.tool_set_type,'script_lang':script_lang,'command':editor.getValue(),'param':JSON.stringify(formData.param)},
-                    error: function (request) {},
-                    success: function (data) {
-                        if(data.status==0){
-                            location.href = '../list'
-                        }else{
-                            Alertwin.alert({ message: data.msg});
+                var script_lang = formData.script_lang;
+                if(!script_lang){
+                    script_lang = "";
+                }
+                if(script_lang == 'yaml'){
+                    $.ajax({
+                        type: "POST",
+                        url: '../yamlCheck/',
+                        data:{"csrfmiddlewaretoken":'{{ csrf_token }}','command':editor.getValue()},
+                        error: function (request) {},
+                        success: function (data) {
+                            if(data.status==0){
+                                $.ajax({
+                                    type: "POST",
+                                    url: '../add/',
+                                    data:{"csrfmiddlewaretoken":'{{ csrf_token }}','name':formData.name,'infom':formData.infom,'tool_set_prime_type':formData.tool_set_prime_type,
+                                        'tool_set_type':formData.tool_set_type,'script_lang':script_lang,'command':editor.getValue(),'param':JSON.stringify(formData.param)},
+                                    error: function (request) {},
+                                    success: function (data) {
+                                        if(data.status==0){
+                                            location.href = '../list'
+                                        }else{
+                                            Alertwin.alert({ message: data.msg});
+                                        }
+                                    }
+                                });
+                            }else{
+                                Alertwin.alert({ message: data.msg});
+                            }
                         }
-                    }
-                });
+                    })
+                }else{
+                    $.ajax({
+                        type: "POST",
+                        url: '../add/',
+                        data:{"csrfmiddlewaretoken":'{{ csrf_token }}','name':formData.name,'infom':formData.infom,'tool_set_prime_type':formData.tool_set_prime_type,
+                            'tool_set_type':formData.tool_set_type,'script_lang':script_lang,'command':editor.getValue(),'param':JSON.stringify(formData.param)},
+                        error: function (request) {},
+                        success: function (data) {
+                            if(data.status==0){
+                                location.href = '../list'
+                            }else{
+                                Alertwin.alert({ message: data.msg});
+                            }
+                        }
+                    });
+                }
             }
         }
     });
