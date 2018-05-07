@@ -233,7 +233,7 @@
                ],
                param2:[
                 {% for p in result_dict.param %}
-                {% if p.paramNameZh == 'tags' and p.paramNameZh == 'skip-tags'%}
+                {% if p.paramNameZh == 'tags' or p.paramNameZh == 'skip-tags'%}
                 {
                     paramNameEn: '{{ p.paramNameEn }}',
                     paramNameZh: '{{ p.paramNameZh }}',
