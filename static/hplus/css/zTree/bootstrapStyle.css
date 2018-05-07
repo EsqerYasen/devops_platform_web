@@ -62,6 +62,10 @@ website:    http://code.google.com/p/jquerytree/
 .ztree li span.button.bottom_open{background-position: -105px -42px;}
 .ztree li span.button.bottom_close{background-position: -126px -42px;}
 .ztree li span.button.middleware_ico_docu{background-position: -189px -109px;}
+
+.ztree li span.button.empty_ico_docu{background-position: -155px -109px;}
+
+
 .ztree li span.button.noline_open{background-position: -105px -84px;}
 .ztree li span.button.noline_close{background-position: -126px -84px;}
 .ztree li span.button.root_docu{ background:none;}
