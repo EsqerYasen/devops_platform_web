@@ -367,20 +367,24 @@
                         var temp3 = {};
                         temp3['sub_seq_no'] = item2['sub_seq_no'];
                         temp3['type'] = 0;
-                        if(tool_set_type == 6){
-                            temp3['type'] = 1;
-                        }
                         var parma = item2['param'];
                         var command = item2['command'];
                         var tool_set_type = item2.tool_set_type; //1-指令 2-上传文件 3-远程文件 4-shell
+                        if(tool_set_type == 6){
+                            temp3['type'] = 1;
+                        }
+                        var script_lang = item2.script_lang;
+                        if(script_lang == 'yaml'){
+                            temp3['type'] = 2;
+                        }
                         var default_script_parameter = "";
                         temp3['source_file_name'] = command;
                         $(parma).each(function (pi, pitme) {
                             if(tool_set_type == 5 || tool_set_type == 6){
-                                    default_script_parameter += pitme.paramNameZh+"="+pitme.value+",";
-                                }else{
-                                    default_script_parameter += pitme.value+" ";
-                                }
+                                default_script_parameter += pitme.paramNameZh+"="+pitme.value+";";
+                            }else{
+                                default_script_parameter += pitme.value+" ";
+                            }
                         })
                         temp3['tool_set_type'] = tool_set_type;
                         temp3['default_script_parameter'] = default_script_parameter.substring(0, default_script_parameter.length - 1);
@@ -402,7 +406,8 @@
                     data:{"command_set":JSON.stringify(command_set),"csrfmiddlewaretoken":'{{ csrf_token }}'},
                     success : function(responseStr) {
                         if(responseStr.status==0){
-                            Alertwin.alert({message:"更新成功"});
+                            //Alertwin.alert({message:"更新成功"});
+                            location.href = '../../list'
                         }else{
                             Alertwin.alert({message:"更新失败"});
                         }

@@ -81,7 +81,7 @@
                                        <!--
                                        <option value="2">上传文件</option>
                                        <option value="3">远程文件</option>
-                                       <option value="4">shell</option>
+                                       <option value="4">脚本</option>
                                        -->
                                        <option value="5">工具</option>
                                     </select>
@@ -176,7 +176,14 @@
 	                        <div class="form-group">
                                 <label class="col-sm-2 control-label">脚本</label>
 	                            <div class="col-sm-10">
-		                                <textarea id="code" name="code" style="display: none;"></textarea>
+                                    <p class="col-sm-12" >
+                                        脚本语言: <select id="changeMode" v-model="formData.script_lang">
+                                            <option value="shell">shell</option>
+                                             <option value="python">python</option>
+                                         <option value="yaml">yaml</option>
+                                        </select>
+                                    </p>
+		                                <textarea id="code" name="code"  style="display: none;"></textarea>
 	                            </div>
 	                        </div>
 	                        <div class="form-group">
@@ -202,6 +209,7 @@
                 filename:'{{ result_dict.filename }}',
                 infom:{{ result_dict.infom }},
 {#                command: '{{ result_dict.command }}',#}
+                script_lang: {{ result_dict.script_lang }},
                 param: [
                 {% for p in result_dict.param %}
                 {
@@ -281,7 +289,26 @@
                val = 'False';
            }
             $('#is_enabled').val(val);
+     });
+
+     var initEditor = function(mode){
+         mode = mode || 'shell';
+         var modes = {
+             shell: '#!/bin/sh',
+             python:'#!/usr/bin/python',
+             yaml: '---'
+         };
+         $.getScript('/static/hplus/codemirror/' + mode + '.js', function(){
+            editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+            lineNumbers: true,
+            styleActiveLine: true,
+            matchBrackets: true,
+              theme: 'eclipse'
+          });
+             editor.setValue(modes[mode]);
         });
+
+     };
 
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         lineNumbers: true,
@@ -291,8 +318,15 @@
       });
     editor.setValue('#!/bin/sh');
     editor.setValue("{{ result_dict.command|safe }}");
-    console.log(editor.getValue());
+    $('#changeMode').change(function(){
+        var v = $(this).val();
+        localStorage.setItem('codemirror_lang', v);
+        page.formData.shell = editor.getValue();
+        localStorage.setItem('tools_info', JSON.stringify( page.formData ));
+        location.reload();
+    });
 
+    console.log(editor.getValue());
     console.log(JSON.stringify( page.formData ));
 
     </script>

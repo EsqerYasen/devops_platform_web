@@ -59,6 +59,7 @@ class DevopsToolsCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMi
         try:
             hu = HttpUtils(self.request)
             reqData = hu.getRequestParam()
+            script_lang_dict = {'shell':'sh','python':'py','yaml':'yaml'}
             if reqData:
                 tool_set_prime_type = reqData.get("tool_set_prime_type",None)
                 tool_set_type = reqData.get("tool_set_type",None)
@@ -67,10 +68,11 @@ class DevopsToolsCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMi
                         t = time.time()
                         toolScriptPath = '/opt/devops/tool_script/'
                         command = reqData.get("command",None)
+                        script_lang = reqData.get("script_lang","shell")
                         try:
                             if not os.path.exists(toolScriptPath):
                                 os.makedirs(toolScriptPath)
-                            fileName = "%s%s.sh" % (toolScriptPath, int(round(t * 1000)))
+                            fileName = "%s%s.%s" % (toolScriptPath, int(round(t * 1000)),script_lang_dict[script_lang])
                             f = open(fileName, 'w')
                             f.write(command)
                             reqData['command'] = fileName

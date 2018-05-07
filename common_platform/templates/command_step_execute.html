@@ -349,14 +349,22 @@
                     if(!item.target_group_ids){
                         hostMsgList.push(item.name)
                     }
-                    var temp = {'target_type':item.target_type,'target_group_ids':item.target_group_ids,'target_host_list':item.target_host_list,'go_live':item.go_live};
+                    var target_host_list = "";
+                    if(item.target_host_list){
+                        var host_list = JSON.parse(item.target_host_list.replace(/'/g,'"'));
+                        target_host_list = host_list.join(',');
+                    }
+                    var temp = {'target_type':item.target_type,'target_group_ids':item.target_group_ids,'target_host_list':target_host_list,'go_live':item.go_live};
                     var lines1 = item.lines;
                     $(lines1).each(function(i2,item2){
                         var parma = item2['param'];
+                        var tool_set_type = item2.tool_set_type; //1-指令 2-上传文件 3-远程文件 4-shell
                         var default_script_parameter = "";
                         $(parma).each(function(pi,pitme){
-                            if(pitme.type != 'textshell'){
-                               default_script_parameter += pitme.value+" ";
+                            if(tool_set_type == 5 || tool_set_type == 6){
+                                default_script_parameter += pitme.paramNameZh+"="+pitme.value+";";
+                            }else{
+                                default_script_parameter += pitme.value+" ";
                             }
                         });
                         default_script_parameter = default_script_parameter.substring(0,default_script_parameter.length-1);
