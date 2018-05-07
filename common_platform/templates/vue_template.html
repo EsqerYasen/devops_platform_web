@@ -107,6 +107,11 @@
                                               <div v-if="ites.type==='text'">
                                                 <input type="text" class="form-control" v-model="ites.value" :placeholder="ites.paramNameZh">
                                               </div>
+                                                <div v-if="ites.type === 'select'">
+                                                    <select class="form-control" v-model="ites.value">
+                                                        <option :ccc="v.key" v-for="v in ites.valueSet" :value="v.value">{{ v.key }}</option>
+                                                    </select>
+                                                </div>
                                             </div>
                                           </div>
                                       </form>
