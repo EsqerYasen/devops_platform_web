@@ -127,7 +127,7 @@ class CommandSetCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMix
                 for i in range(len(lines)):
                     line = lines[i]
                     tool_set_type = line.get('tool_set_type', None)
-                    del line['tool_set_type']
+                    #del line['tool_set_type']
                     if tool_set_type == 4:  # 1-指令 2-上传文件 3-远程文件 4-shell
                         source_file_name = line.get('source_file_name',None)
                         if source_file_name:

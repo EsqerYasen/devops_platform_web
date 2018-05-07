@@ -383,7 +383,7 @@
                             var default_script_parameter = "";
                             temp3['source_file_name'] = command;
                             $(parma).each(function(pi,pitme){
-                                if(tool_set_type == 5){
+                                if(tool_set_type == 5 || tool_set_type == 6){
                                     default_script_parameter += pitme.paramNameZh+"="+pitme.value+",";
                                 }else{
                                     default_script_parameter += pitme.value+" ";
