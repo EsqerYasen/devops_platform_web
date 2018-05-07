@@ -234,7 +234,7 @@ class CommandSetUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMix
                 for i in range(len(lines)):
                     line = lines[i]
                     tool_set_type = line.get('tool_set_type', None)
-                    del line['tool_set_type']
+                    #del line['tool_set_type']
                     if tool_set_type == 4:
                         source_file_name = line['source_file_name']
                         fileName = line['filePath']

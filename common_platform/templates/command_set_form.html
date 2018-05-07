@@ -376,17 +376,21 @@
                             var temp3 = {};
                             temp3['sub_seq_no'] = item2['sub_seq_no'];
                             temp3['type'] = 0;
-                            if(tool_set_type == 6){
-                                temp3['type'] = 1;
-                            }
                             var parma = item2['param'];
                             var command = item2['command'];
                             var tool_set_type = item2.tool_set_type; //1-指令 2-上传文件 3-远程文件 4-shell 5-工具
+                            if(tool_set_type == 6){
+                                temp3['type'] = 1;
+                            }
+                            var script_lang = item2.script_lang;
+                            if(script_lang == 'yaml'){
+                                temp3['type'] = 2;
+                            }
                             var default_script_parameter = "";
                             temp3['source_file_name'] = command;
                             $(parma).each(function(pi,pitme){
                                 if(tool_set_type == 5 || tool_set_type == 6){
-                                    default_script_parameter += pitme.paramNameZh+"="+pitme.value+",";
+                                    default_script_parameter += pitme.paramNameZh+"="+pitme.value+";";
                                 }else{
                                     default_script_parameter += pitme.value+" ";
                                 }
@@ -404,6 +408,7 @@
                         Alertwin.alert({message:hostMsgList[0]+" 未勾选机器组或机器"});
                         return;
                     }
+
                     $.ajax({
                         type: "POST",
                         url: '/platform/command_set/add/',

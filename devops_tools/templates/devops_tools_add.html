@@ -80,9 +80,8 @@
                                        <!--
                                        <option value="2">上传文件</option>
                                        <option value="3">远程文件</option>
-
+                                       <option value="4">脚本</option>
                                        -->
-                                       <option value="4">shell</option>
                                        <option value="5">工具</option>
                                     </select>
 	                            </div>
@@ -274,7 +273,7 @@
                     type: "POST",
                     url: '../add/',
                     data:{"csrfmiddlewaretoken":'{{ csrf_token }}','name':formData.name,'infom':formData.infom,'tool_set_prime_type':formData.tool_set_prime_type,
-                        'tool_set_type':formData.tool_set_type,'command':editor.getValue(),'param':JSON.stringify(formData.param)},
+                        'tool_set_type':formData.tool_set_type,'script_lang':script_lang,'command':editor.getValue(),'param':JSON.stringify(formData.param)},
                     error: function (request) {},
                     success: function (data) {
                         if(data.status==0){
