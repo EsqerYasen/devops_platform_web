@@ -3,46 +3,37 @@
         <div class="panel-heading">
             <div class="row">
                 <div class="col-md-1">
-                    生产 <input id="checkBox3IN0" type="checkbox" class="i-checks">
+                    生产 <input  type="checkbox" class="i-checks">
                 </div>
                 <div class="col-md-6">
-                    <select id="middlewareCSelOnline" name="middlewareCSel" panelId="tab3OnLine" data-placeholder="请选择需要的中间件" class="chosen-select" multiple tabindex="1">
-                        {% for category in category_list %}
-                            <option value="{{ category.id }}">{{ category.name }}</option>
-                        {% endfor %}
-                    </select>
+
                 </div>
             </div>
         </div>
-        <div id="tab3OnLine" class="panel-body"></div>
-        <input id="is_save3" type="hidden" value="0">
+        <div class="panel-body"></div>
     </div>
     <div  class="panel panel-success">
         <div class="panel-heading">
             <div class="row">
                 <div class="col-md-1">
-                    灾备  <input id="checkBox3IN1" type="checkbox" class="i-checks">
+                    灾备  <input type="checkbox" class="i-checks">
                 </div>
             </div>
         </div>
-        <div id="tab33in1" class="panel-body"></div>
+        <div class="panel-body"></div>
     </div>
     <div  class="panel panel-primary">
         <div class="panel-heading">
             <div class="row">
                 <div class="col-md-1">
-                    灰度  <input id="pilotCheckBox" type="checkbox" class="i-checks">
+                    灰度  <input  type="checkbox" class="i-checks">
                 </div>
                 <div class="col-md-6">
-                    <select id="middlewareCSelPilot" name="middlewareCSel" panelId="tab3Pilot" data-placeholder="请选择需要的中间件" class="chosen-select" multiple tabindex="1">
-                        {% for category in category_list %}
-                            <option value="{{ category.id }}">{{ category.name }}</option>
-                        {% endfor %}
-                    </select>
+
                 </div>
             </div>
         </div>
-        <div id="tab3Pilot" class="panel-body"></div>
+        <div class="panel-body"></div>
     </div>
     <div class="row">
          <div class="col-md-4">
@@ -67,336 +58,11 @@
     </div>
 </div>
 
+
+
+
+
 <script>
-    function initProAssess3(){
-        var sel = $("select[name='middlewareCSel']");
-	    sel.change(midOnChange)
-	    sel.chosen({width: '95%'});
 
-	    var cSelPilot = $("#middlewareCSelPilot")
-        cSelPilot.prop("disabled", true);
-        cSelPilot.trigger("chosen:updated");
-
-	    $(".i-checks").iCheck({checkboxClass: "icheckbox_square-green", radioClass: "iradio_square-green",})
-
-	    $("#checkBox3IN1").iCheck({
-            checkboxClass: "icheckbox_square-green",
-            radioClass: "iradio_square-green"
-        })
-
-	    $('#checkBox3IN1').on('ifChecked', function (event) {
-	        var htmlStr = $("#tab3OnLine")[0].innerHTML;
-	        if(htmlStr.length > 0){
-{#	            var cSelOnline = $("#middlewareCSelOnline");#}
-{#                cSelOnline.prop("disabled", true);#}
-{#                cSelOnline.trigger("chosen:updated");#}
-                $("#tab33in1").append("灾备配置同生产    1:1");
-            }else{
-	            Alertwin.alert({message:"请先配置生产"});
-            }
-        });
-        $('#checkBox3IN1').on('ifUnchecked', function (event) {
-{#            var cSelOnline = $("#middlewareCSelOnline")#}
-{#            cSelOnline.prop("disabled", false);#}
-{#            cSelOnline.trigger("chosen:updated");#}
-{##}
-{#            setDisabledAll("tab3OnLine",false);#}
-
-           $("#tab33in1").empty();
-        });
-
-        $("#pilotCheckBox").iCheck({
-            checkboxClass: "icheckbox_square-green",
-            radioClass: "iradio_square-green",
-        });
-        $('#pilotCheckBox').on('ifChecked', function (event) {
-            var cSelPilot = $("#middlewareCSelPilot")
-            cSelPilot.prop("disabled", false);
-            cSelPilot.trigger("chosen:updated");
-        });
-        $('#pilotCheckBox').on('ifUnchecked', function (event) {
-           var cSelPilot = $("#middlewareCSelPilot");
-           cSelPilot.val('');
-           cSelPilot.trigger("liszt:updated");
-           cSelPilot.prop("disabled", true);
-           cSelPilot.trigger("chosen:updated");
-           $("#tab3Pilot").empty();
-        });
-    }
-
-    function midOnChange(e,params){
-        var csel = $(this);
-        var optionList = csel.find("option:selected");
-        var panelId = csel.attr("panelId");
-        if(params.selected){
-            $(optionList).each(function(i,item){
-                if($(item).val() == params.selected){
-                    var t = {
-                        'mid':$(item).val(),
-                        'text':$(item).text(),
-                        'other_category_name':'',
-                        'comment':''
-                    }
-                    addConfig(t,panelId);
-                    return false;
-                }
-            })
-        }else{
-            $("#tab3Row"+panelId+params.deselected).remove();
-        }
-    }
-
-    function tab3Save(){
-         var p_id = $("#project_id").val();
-         if(!p_id){
-            Alertwin.alert({ message: "请先保存项目"});
-            return false;
-         }
-         var is_save2 = $("#is_save2").val();
-         if(is_save2  != 1 && is_save2 != "1"){
-            Alertwin.alert({ message: "请先保存容量需求"});
-            return false;
-         }
-         var deploy_env = 0;
-         var result1 = getRowsValues($("#tab3OnLine .row"),1);
-         if(!result1.status){
-            Alertwin.alert({ message: result1.msg});
-             return false;
-         }
-         var list1 = result1.items;
-         deploy_env = 1;
-
-         var list2 = []
-        if($("#checkBox3IN1").is(":checked")){
-            $(list1).each(function(i,item){
-                list2.push({
-                    'p_id':item.p_id,
-                    'app_category':item.app_category,
-                    'app_category_item':item.app_category_item,
-                    'other_category_name':item.other_category_name,
-                    'estimated_server_count':item.estimated_server_count,
-                    'estimated_singleton_memory_capacity':8,
-                    'estimated_singleton_CPU_core':4,
-                    'estimated_singleton_disk_capacity':100,
-                    'need_high_availability':item.need_high_availability,
-                    'comment':item.comment,
-                    'env':2
-                })
-            })
-            deploy_env += 1;
-        }
-        var list3 = []
-        if($("#pilotCheckBox").is(":checked")) {
-            var result2 = getRowsValues($("#tab3Pilot .row"),3);
-            if (!result2.status) {
-                Alertwin.alert({message: result2.msg});
-                return false;
-            }
-        }
-        list3 = result2.items;
-        deploy_env += 2;
-
-        var list = list1.concat(list2)
-        list = list.concat(list3);
-
-        var saveJson = {"p_id":p_id,"deploy_envs":deploy_env,"items":list}
-        var bool = false;
-        $.ajax({
-            type: "POST",
-            async:false,
-            url: '/presrb/project/projectItem_add/',
-            data:{"saveJson":JSON.stringify(saveJson),"csrfmiddlewaretoken":'{{ csrf_token }}'},
-            error: function (request) {
-                bool = false;
-            },
-            success: function (data) {
-                if(data.status == "SUCCESS"){
-                    $("#is_save3").val(1);
-                    bool = true;
-                    Alertwin.alert({ message: "操作成功"});
-                }else{
-                    bool = false;
-                    Alertwin.alert({ message: "操作失败"});
-                }
-            }
-        })
-        return bool;
-    }
-
-    function setDisabledAll(id,bool){
-        var row = $("#"+id);
-        $(row.find("input")).each(function(i,item){
-            $(item).attr('disabled',bool);
-        });
-         $(row.find("select")).each(function(i,item){
-            $(item).attr('disabled',bool);
-        });
-    }
-
-    function addConfig(opt,panelId){
-
-        var pid = opt['mid']
-        var readonly = 'readonly';
-        var isOther = 0;
-        if(opt['text'] == "其他"){
-            isOther = 1;
-            readonly = ''
-        }
-        $.ajax({
-            type: "GET",
-            url: '/presrb/project/categoryItemList_ajax/',
-            data:{"p_id":pid},
-            error: function (request) {},
-            success: function (data) {
-                var html_str = '<div id="tab3Row'+panelId+pid+'" rid="'+pid+'" isOther="'+isOther+'" class="row" style="margin-bottom: 30px">\n' +
-                    ' <div class="row" style="margin-bottom: 5px;margin-left:10px">'+
-                    '    <div class="col-md-1" style="width: 12%">\n' +
-                    '        <input name="app_category'+pid+'" class="form-control" type="text" value="'+opt['text']+'" readonly/>\n' +
-                    '    </div>\n' +
-                    '    <div class="col-md-1" style="width: 12%">\n';
-                    if(isOther == 1){
-                        html_str += '<input name="other_category_name'+pid+'" class="form-control" type="text" value="'+opt['other_category_name']+'" placeholder="名称" />\n';
-                    }else{
-                        html_str += '        <select name="app_category_item'+pid+'" class="form-control">\n';
-                        $(data).each(function(i,item){
-                            html_str += '<option value="'+item.id+'">'+item.name+'</option>';
-                        })
-                        html_str += '        </select>\n';
-                    }
-                    html_str += '  </div>\n';
-                    if(isOther == 1) {
-                        html_str += '<div class="col-md-2" style="width: 50%">\n' +
-                        '       <input name="comment'+pid+'" class="form-control" type="text" value="'+opt['comment']+'" placeholder="备注">' +
-                        '    </div>\n';
-                    }
-                    html_str += '   </div>\n';
-
-                    html_str += '<div class="row" style="margin-left:10px"> \n' +
-                    '    <div class="col-md-1" style="width: 20%">\n' +
-                    '		<div class="input-group">'+
-                    '           <span class="input-group-addon" style="background-color:#dedbdb">数量</span>'+
-                    '  			<input name="estimated_server_count'+pid+'" type="number" class="form-control" placeholder="" min="1" max="10000" aria-describedby="basic-addon2" value="1">'+
-                    '  			<span class="input-group-addon" style="background-color:#dedbdb">台</span>'+
-                    '		</div>'+
-                    '    </div>\n' +
-                    '    <div class="col-md-1" style="width: 20%">\n' +
-                    '        <div class="input-group">'+
-                    '            <span class="input-group-addon" style="background-color:#dedbdb">内存</span>'+
-                    '            <input name="estimated_singleton_memory_capacity'+pid+'" type="number" class="form-control" placeholder="" min="2" max="10000" step="2" aria-describedby="basic-addon2" '+readonly+' value="8">'+
-                    '            <span class="input-group-addon" style="background-color:#dedbdb">G</span>'+
-                    '        </div>'+
-                    '    </div>\n' +
-                    '    <div class="col-md-1" style="width: 20%">\n' +
-                    '        <div class="input-group">'+
-                     '           <span class="input-group-addon" style="background-color:#dedbdb">CPU</span>'+
-                    '            <input name="estimated_singleton_CPU_core'+pid+'" type="number" class="form-control" placeholder="" min="2" max="10000" step="2" aria-describedby="basic-addon2" '+readonly+' value="4">'+
-                    '            <span class="input-group-addon" style="background-color:#dedbdb">核</span>'+
-                    '        </div>'+
-                    '    </div>\n' +
-                    '    <div class="col-md-1" style="width: 20%">\n' +
-                    '		<div class="input-group">'+
-                    '           <span class="input-group-addon" style="background-color:#dedbdb">磁盘</span>'+
-                    '  			<input name="estimated_singleton_disk_capacity'+pid+'" type="number" class="form-control" placeholder="" min="10" max="10000" step="50" aria-describedby="basic-addon2" '+readonly+' value="100">'+
-                    '  			<span class="input-group-addon" style="background-color:#dedbdb">G</span>'+
-                    '		</div>'+
-                    '    </div>\n' +
-                    '    <div class="col-md-1" style="width: 10%">\n' +
-                    '		<div class="input-group">'+
-                    '           <span class="input-group-addon" style="background-color:#dedbdb">高可用</span>'+
-                    '			<input name="need_high_availability'+pid+'" type="checkbox" class="i-checks">'+
-                    '        </div>\n' +
-                    '    </div>\n';
-
-                    html_str += '</div></div>';
-
-                    $("#"+panelId).append(html_str)
-
-                    $("input[name='need_high_availability"+pid+"']").iCheck({checkboxClass: "icheckbox_square-green", radioClass: "iradio_square-green",})
-            }
-        })
-
-    }
-
-    function getRowsValues(rows,env){
-        var resultObj = {}
-        var bool = true;
-        var msg = "";
-        var itemList=[];
-        var p_id = $("#project_id").val();
-        $(rows).each(function(i,item){
-            var t = $(item);
-            var rid = t.attr("rid");
-            var isOther = t.attr("isOther");
-            var app_category = rid;
-
-            var app_category_item = '';
-            var other_category_name = '';
-            var comment = "";
-            if(isOther == 1 && isOther == "1"){
-                other_category_name = t.find("input[name='other_category_name"+rid+"']").val();
-                if(!other_category_name){
-                    msg = "请填写中间件名称";
-                    bool = false;
-                    return false;
-                }
-                comment  = t.find("input[name='comment"+rid+"']").val();
-            }else{
-                app_category_item = t.find("select[name='app_category_item"+rid+"']").val();
-                if(!app_category_item){
-                    msg = "请选择中间件";
-                    bool = false;
-                    return false;
-                }
-            }
-
-            var estimated_server_count = t.find("input[name='estimated_server_count"+rid+"']").val();
-            if(estimated_server_count == 0 || estimated_server_count == ""){
-                msg = "请选择机器数量";
-                bool = false;
-                return false;
-            }
-            var estimated_singleton_memory_capacity = t.find("input[name='estimated_singleton_memory_capacity"+rid+"']").val();
-            if(estimated_singleton_memory_capacity == 0 || estimated_singleton_memory_capacity == ""){
-                msg = "请填写内存大小";
-                bool = false;
-                return false;
-            }
-            var estimated_singleton_CPU_core = t.find("input[name='estimated_singleton_CPU_core"+rid+"']").val();
-            if(estimated_singleton_CPU_core == 0 || estimated_singleton_CPU_core == ""){
-                msg = "请填写CPU数量";
-                bool = false;
-                return false;
-            }
-            var estimated_singleton_disk_capacity = t.find("input[name='estimated_singleton_disk_capacity"+rid+"']").val();
-            if(estimated_singleton_disk_capacity == 0 || estimated_singleton_disk_capacity == ""){
-                msg = "请填写磁盘大小";
-                bool = false;
-                return false;
-            }
-
-            var need_high_availability = 0;
-            if($("input[name='need_high_availability"+rid+"']").is(':checked')){
-                need_high_availability = 1;
-            }
-            var o = {
-                'p_id':p_id,
-                'app_category':app_category,
-                'app_category_item':app_category_item,
-                'other_category_name':other_category_name,
-                'estimated_server_count':estimated_server_count,
-                'estimated_singleton_memory_capacity':estimated_singleton_memory_capacity,
-                'estimated_singleton_CPU_core':estimated_singleton_CPU_core,
-                'estimated_singleton_disk_capacity':estimated_singleton_disk_capacity,
-                'need_high_availability':need_high_availability,
-                'comment':comment,
-                'env':env
-            }
-            itemList.push(o);
-        });
-        resultObj['status'] = bool;
-        resultObj['msg'] = msg;
-        resultObj['items'] = itemList;
-        return resultObj;
-    }
 
 </script>
