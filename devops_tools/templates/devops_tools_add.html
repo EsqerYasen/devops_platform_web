@@ -64,11 +64,11 @@
 {#		                            <textarea  class="form-control text_ar" style="height: 70px" v-model="formData.command"></textarea>#}
 {#	                            </div>#}
 {#	                        </div>#}
-                            <div class="form-group">
+                            <div class="form-group" style="display: none;">
                                 <label class="col-sm-2 control-label"> 类别</label>
 	                            <div class="col-sm-10">
 		                            <select v-model="formData.tool_set_prime_type" class="form-control" style="width:20%">
-                                        <option value="1">原子</option>
+                                        <option value="1" selected>原子</option>
                                     </select>
 	                            </div>
 	                        </div>
@@ -217,15 +217,7 @@
                 tool_set_type: 1,
                 command: '',
                 script_lang: localStorage.getItem('codemirror_lang') || 'shell',
-                param: [{
-                    paramNameEn: '',
-                    paramNameZh: '',
-                    type: 'text',
-                    desc: '',
-                    no: 0,
-                    valueSet: [],
-                    default: ''
-                }],
+                param: [],
                param2:[],
                ret:[{
                     name:'',
@@ -265,6 +257,13 @@
             submit: function(){
                 this.checkForm();
                 var formData = this.formData;
+
+                if(!formData.param.every(function(item){
+                    return !!item.desc;
+                })){
+                    Alertwin.alert({ message: '请输入描述信息'});
+                    return;
+                }
                 formData.param = formData.param.concat(formData.param2);
                 delete formData.param2;
                 delete formData.ret;
@@ -365,7 +364,7 @@
              shell: '#!/bin/sh',
              python:'#!/usr/bin/python',
              yaml: '---\n' +
-             '- hosts: \'{{ hosts }}\'\n' +
+             '- hosts: \'{% verbatim %}{{ hosts }}{% endverbatim %}\'\n' +
              '  remote_user: root'
          };
          $.getScript('/static/hplus/codemirror/' + mode + '.js', function(){
