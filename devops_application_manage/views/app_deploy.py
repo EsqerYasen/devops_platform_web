@@ -118,14 +118,16 @@ class DevopsAppMgeDeployView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseM
 
 class GetCommandSetInfoView(LoginRequiredMixin, JSONResponseMixin, View):
     def get(self, request, *args, **kwargs):
-        result = []
+        result = {}
         try:
             req = self.request
             hu = HttpUtils(req)
             name = req.GET.get('name',None)
             if name:
                 resultJson = hu.get(serivceName="job", restName="/rest/job/list/", datas={'name': name})
-                result = resultJson.get("results", [])
+                resultList = resultJson.get("results", [])
+                if len(resultList) > 0:
+                    result = resultList[0]
         except Exception as e:
             logger.error(e)
         return HttpResponse(json.dumps(result), content_type='application/json')
