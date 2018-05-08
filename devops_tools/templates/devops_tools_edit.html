@@ -139,7 +139,7 @@
                              <div class="form-group" v-if="formData.script_lang === 'yaml'" v-for="ytag in formData.param2">
                                 <label class="col-sm-2 control-label"> {% verbatim %}{{ytag.paramNameZh}}{% endverbatim %}</label>
 	                            <div class="col-sm-10">
-		                            <input type="text"  class="form-control text_ar" placeholder="多个tags以 , 号分隔">
+		                            <input type="text" readonly  class="form-control text_ar" placeholder="多个tags以 , 号分隔">
 	                            </div>
 	                        </div>
 
@@ -323,7 +323,9 @@
          var modes = {
              shell: '#!/bin/sh',
              python:'#!/usr/bin/python',
-             yaml: '---'
+             yaml: '---\n' +
+             '- hosts: \'{{ hosts }}\'\n' +
+             '  remote_user: root'
          };
          $.getScript('/static/hplus/codemirror/' + mode + '.js', function(){
             editor = CodeMirror.fromTextArea(document.getElementById("code"), {
