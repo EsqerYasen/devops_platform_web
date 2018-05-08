@@ -1,6 +1,12 @@
 {% extends 'common/basic_layout.html' %}
 
 {% block content %}
+<link href="/static/hplus/css/zTree/bootstrapStyle.css" rel="stylesheet">
+<link href="/static/hplus/css/devops_tools_add.css" rel="stylesheet">
+<link href="/static/hplus/css/works/works.css" rel="stylesheet">
+<link href="/static/hplus/css/works/yum-font.css" rel="stylesheet">
+
+<script src="/static/hplus/js/works/vue.min.js"></script>
 
 <div class="wrapper wrapper-content fadeInRight" style="z-index: inherit">
     <div class="row addtoos">
@@ -9,14 +15,107 @@
                 <div class="ibox-title">
                     <h5>{% if is_add == 1 %}新增{% else %}修改{% endif %}应用部署</h5>
                 </div>
-                <div class="ibox-content">
-
+                <div class="ibox-content" id="add_deploy_record">
+                    <form class="form-horizontal" @submit.prevent="submit">
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label"><span class="red">*</span> 应用名称</label>
+                            <div class="col-sm-10">
+                                <input type="text"  class="form-control text_ar" v-model="formData.name" placeholder="应用名称">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">应用版本</label>
+                            <div class="col-sm-10">
+                                <div class="parmabox">
+                                    <div v-for="(v, i) in formData.version_list" class="verrow">
+                                        <i class="yum-font icon-guanbi del" style="right:0;font-size: 12px;position:relative;" @click="removeVersion(i)"></i>
+                                        <div class="fl ">
+                                            <input type="text" class="form-control" v-model="formData.version_list[i]" placeholder="请输入版本号">
+                                        </div>
+                                    </div>
+                                    <div class="clear1 add_button col-sm-12 row" @click="addVersion">
+                                        +添加版本
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label"><span class="red">*</span> </label>
+                            <div class="col-sm-10">
+                                <div class="fl" style=" margin-right: 18px;">
+                                    <input type="text"  class="form-control text_ar" v-model="formData.task_name" placeholder="请输入任务名称">
+                                </div>
+                                <button class="btn btn-primary" @click="bindTask">绑定</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-10">
+                                <button type="submit" class="btn btn-primary">提交</button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
 </div>
 <script>
-
+    var page = new Vue({
+        el: '#add_deploy_record',
+        data: {
+            formData: {
+                name:'',
+                task_name:'',
+                task_id:'',
+                version_list:[]
+            }
+        },
+        methods:{
+            addVersion:function(){
+                this.formData.version_list.push('');
+            },
+            removeVersion: function(index){
+                this.formData.version_list.splice(index, 1);
+            },
+            checkForm: function(){
+                var formData = this.formData;
+                if(!formData.name){
+                    Alertwin.alert({ message: '请输入应用名称'});
+                    return false;
+                }
+                if(!formData.task_id){
+                    Alertwin.alert({ message: '请绑定任务'});
+                    return false;
+                }
+                if(!formData.version_list.length || !formData.version_list.every(function(item){
+                        return !!item;
+                    })){
+                     Alertwin.alert({ message: '请输入版本'});
+                    return false;
+                }
+                return true;
+            },
+            submit: function(){
+                ///todo 提交表单
+                if(!this.checkForm())return;
+                var formData = this.formData;
+            },
+            bindTask: function(){
+                var name = this.formData.task_name;
+                if(!name){
+                    return Alertwin.alert({ message: '请输入任务名称'});
+                }
+                var t = this;
+                $.get('/application/manage/get_command_set_info?name='+name, function(r){
+                    if(r && r.id){
+                        t.formData.task_id = r.id;
+                        Alertwin.alert({ message: '绑定成功'});
+                    }else{
+                        Alertwin.alert({ message: '没有找到相关任务'});
+                    }
+                });
+            }
+        }
+    });
 </script>
 {% endblock %}
