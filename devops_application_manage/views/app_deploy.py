@@ -16,7 +16,18 @@ class DevopsAppMgeListView(LoginRequiredMixin, OrderableListMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super(DevopsAppMgeListView, self).get_context_data(**kwargs)
         try:
-            context['result_list'] = [{'id':1,'name':'Nginx'}]
+            req = self.request
+            hu = HttpUtils(req)
+            reqData = hu.getRequestParam()
+            app_list_result = hu.get(serivceName="job", restName="/rest/app/list_app/", datas=reqData)
+            app_list = app_list_result.get("results", {})
+            count = app_list_result.get("count", 0)
+            paginator = Paginator(app_list, req.limit)
+            paginator.count = count
+            context['result_list'] = app_list
+            context['is_paginated'] = count > 0
+            context['page_obj'] = paginator.page(req.offset)
+            context['paginator'] = paginator
         except Exception as e:
             logger.error(e)
         return context
@@ -27,8 +38,6 @@ class DevopsAppMgeCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseM
     def get_context_data(self, **kwargs):
         context = {}
         try:
-            hu = HttpUtils(self.request)
-            context["result_dict"] = {}
             context['is_add'] = 1
         except Exception as e:
             logger.error(e)
@@ -39,6 +48,7 @@ class DevopsAppMgeCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseM
         try:
             hu = HttpUtils(self.request)
             reqData = hu.getRequestParam()
+            version_list_str = reqData.get("version_list",None)
 
         except Exception as e:
             result['status'] = 1
@@ -95,8 +105,27 @@ class DevopsAppMgeDeployView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseM
             req = self.request
             hu = HttpUtils(req)
             id = kwargs.get('pk',0)
-            name = req.GET.get('name',"")
+            reqData = hu.getRequestParam()
+            name = reqData.get('name',"")
+            toolId = reqData.get('toolId')
+            commandId = reqData.get('commandId')
+
+            getData = {'offset': 0, 'limit': 1000, 'is_enabled': 1}
+            hostgroupResult = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_tree/", datas=getData)
+            versionListResult = hu.get(serivceName="job", restName="/rest/app/list_app_version/", datas={'id':id})
+            tool_list_result = hu.get(serivceName="job", restName="/rest/job/list_tool_set/",datas={'id':toolId})
+            tool_list = tool_list_result.get("results", [])
+            tool = {}
+            if len(tool_list) > 0:
+                for tool in tool_list:
+                    tool['param'] = json.loads(tool['param'])
+                    del tool['is_enabled']
+                tool = tool_list[0]
+
             context["result_dict"] = {}
+            context['hostGroup_list'] = hostgroupResult.get("data", [])
+            context['version_list'] = versionListResult.get("data", [])
+            context['tool_info'] = tool
             context['is_add'] = 1
             context['name'] = name
         except Exception as e:
@@ -124,7 +153,7 @@ class GetCommandSetInfoView(LoginRequiredMixin, JSONResponseMixin, View):
             hu = HttpUtils(req)
             name = req.GET.get('name',None)
             if name:
-                resultJson = hu.get(serivceName="job", restName="/rest/job/list/", datas={'name': name})
+                resultJson = hu.get(serivceName="job", restName="/rest/job/list_tool_set/", datas={'name': name})
                 resultList = resultJson.get("results", [])
                 if len(resultList) > 0:
                     result = resultList[0]

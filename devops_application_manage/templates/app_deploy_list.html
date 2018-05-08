@@ -37,13 +37,13 @@
                 <input type="checkbox" class="i-checks icheck" id="{{ o.id }}" name="trCheckbox">
             </td>
             <td>{{ o.name }}</td>
-            <td>{{ o.name }}</td>
-            <td>{{ o.name }}</td>
-            <td>{{ o.name }}</td>
-            <td>{{ o.name }}</td>
+            <td>{{ o.created_by }}</td>
+            <td>{{ o.updated_by }}</td>
+            <td>{{ o.create_time }}</td>
+            <td>{{ o.update_time }}</td>
             <td>
                 <a href="../{{ o.id }}/edit/" class="btn btn-sm btn-success"><i class="fa fa-edit"></i>&nbsp;编辑</a>
-                <a href="../{{ o.id }}/deploy/?name={{ o.name }}" class="btn btn-sm btn-success"><i class="fa fa-edit"></i>&nbsp;安装</a>
+                <a href="../{{ o.id }}/deploy/?name={{ o.name }}&toolId={{ o.tool_set_id }}&commandId={{ o.command_set_id }}" class="btn btn-sm btn-success"><i class="fa fa-edit"></i>安装</a>
                 <a href="javascript:void(0)" onclick="deleteToolSet('{{ o.id }}')" class="btn  btn-sm btn-danger"><i class="fa fa-trash"></i>&nbsp;删除</a>
             </td>
         {% endfor %}

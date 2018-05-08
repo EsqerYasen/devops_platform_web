@@ -32,7 +32,12 @@
                             <label class="col-sm-2 control-label"><span class="red">*</span> 版 本 号</label>
                             <div class="col-sm-3">
                                 <select class="form-control" v-model="formData.version">
-
+                                    {% for obj in version_list %}
+                                        {% if obj.first %}
+                                            <option value="" >-----请选择---</option>
+                                        {% endif %}
+                                        <option value="{{ obj.id }}" >{{ obj.version }}</option>
+                                    {% endfor %}
                                 </select>
                             </div>
                         </div>
@@ -292,7 +297,8 @@ new Vue({
     data:{
         formData:{
 
-        }
+        },
+        tool_info:{{ tool_info|safe }}
     },
     methods:{
         selectHost:function(){

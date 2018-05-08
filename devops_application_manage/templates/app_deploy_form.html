@@ -99,6 +99,25 @@
                 ///todo 提交表单
                 if(!this.checkForm())return;
                 var formData = this.formData;
+                var reqData = {
+                    'name':formData.name,
+                    'tool_set_id':formData.task_id,
+                    'version_list':JSON.stringify(formData.version_list),
+                    'csrfmiddlewaretoken':'{{csrf_token}}'
+                };
+                layer.load();
+                $.ajax({
+                    type: "POST",
+                    url: '../add/',
+                    data:formData,
+                    error: function (request) {
+                        layer.closeAll('loading');
+                    },
+                    success: function (data) {
+
+                        layer.closeAll('loading');
+                    }
+                });
             },
             bindTask: function(){
                 var name = this.formData.task_name;
