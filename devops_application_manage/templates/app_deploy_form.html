@@ -64,10 +64,11 @@
         el: '#add_deploy_record',
         data: {
             formData: {
-                name:'',
-                task_name:'',
-                task_id:'',
-                version_list:[]
+                id:'{{ app_info.id }}',
+                name:'{{ app_info.name }}',
+                task_name:'{{ app_info.tool_set_name }}',
+                task_id:'{{ app_info.tool_set_id }}',
+                version_list:{{ version_list|safe }}
             }
         },
         methods:{
@@ -99,23 +100,36 @@
                 ///todo 提交表单
                 if(!this.checkForm())return;
                 var formData = this.formData;
+                var is_add = {{ is_add }};
                 var reqData = {
                     'name':formData.name,
                     'tool_set_id':formData.task_id,
+                    'tool_set_name':formData.task_name,
                     'version_list':JSON.stringify(formData.version_list),
                     'csrfmiddlewaretoken':'{{csrf_token}}'
                 };
+                var req_url = "../add/";
+                var redirect_url = "../list";
+                if(is_add == 0){
+                    reqData['id'] = formData.id;
+                    req_url = "../edit/";
+                    redirect_url = "../../list"
+                }
                 layer.load();
                 $.ajax({
                     type: "POST",
-                    url: '../add/',
-                    data:formData,
+                    url: req_url,
+                    data:reqData,
                     error: function (request) {
                         layer.closeAll('loading');
                     },
                     success: function (data) {
-
                         layer.closeAll('loading');
+                        if(data.status == 0){
+                            location.href = redirect_url;
+                        }else{
+                            Alertwin.alert({ message:data.msg});
+                        }
                     }
                 });
             },

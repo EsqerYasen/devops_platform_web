@@ -8,5 +8,6 @@ urlpatterns = [
         url(r'^(?P<pk>\d+)/edit/', DevopsAppMgeUpdateView.as_view(), name='edit'),
         url(r'^(?P<pk>\d+)/deploy/', DevopsAppMgeDeployView.as_view(), name='deploy'),
         url(r'^get_command_set_info', GetCommandSetInfoView.as_view(), name='get_command_set_info'),
+        url(r'^delete/', DevopsAppMgeDeleteView.as_view(), name='delete'),
     ]))
 ]
