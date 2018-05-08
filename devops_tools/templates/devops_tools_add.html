@@ -266,6 +266,11 @@
                 this.checkForm();
                 var formData = this.formData;
                 formData.param = formData.param.concat(formData.param2);
+                $(formData.param).each(function(i,item){
+                    if(!item.paramNameZh){
+                        formData.param.splice(i,1);
+                    }
+                })
                 delete formData.param2;
                 delete formData.ret;
                 var script_lang = formData.script_lang;

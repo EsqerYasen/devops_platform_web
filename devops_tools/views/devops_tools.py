@@ -19,6 +19,7 @@ class DevopsToolsListView(LoginRequiredMixin, OrderableListMixin, ListView):
             req = self.request
             hu = HttpUtils(req)
             reqData = hu.getRequestParam()
+            reqData['flag'] = 1
             tool_list_result = hu.get(serivceName="job", restName="/rest/job/list_tool_set/",datas=reqData)
             tool_list = tool_list_result.get("results", {})
             count = tool_list_result.get("count", 0)
