@@ -378,15 +378,21 @@ i.teskico:hover{
     margin:0;
     font-size:15px;
     line-height:21px;
-    padding:10px;
-    width:60px;
+    padding:10px 0px;
     display:inline-block;
     cursor: pointer;
     text-align: center;
+    width: 50%;
+    box-sizing: border-box;
+    border-left: 1px solid #efefef;
+
+
 }
 
+
 .rt-top li.act{
-    color: #0098cd;
+    color: #ffffff;
+    background: #0098cd;
 }
 .rt-left ul{
     width:100%;

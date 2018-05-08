@@ -103,9 +103,9 @@
                                           </div>
                                           <div class="form-group" v-for="(ites, i$1) in curCmd.param">
                                             <label class="col-sm-2 control-label">{% verbatim %}{{ites.paramNameZh}}{% endverbatim %}</label>
-                                            <div class="col-sm-10">
+                                            <div class="col-sm-5">
                                               <div v-if="ites.type==='text'">
-                                                <input type="text" class="form-control" v-model="ites.value" :placeholder="ites.paramNameZh">
+                                                <input type="text" class="form-control" v-model="ites.value" :placeholder="ites.desc">
                                               </div>
                                                 <div v-if="ites.type === 'select'">
                                                     <select class="form-control" v-model="ites.value">
@@ -113,6 +113,9 @@
                                                     </select>
                                                 </div>
                                             </div>
+					                          <div class="col-sm-5" style="line-height: 35px">
+						                          * {% verbatim %}{{ites.desc}}{% endverbatim %}
+					                          </div>
                                           </div>
                                       </form>
 
@@ -145,7 +148,7 @@
         </div>
         <div class="search clear">
             <i class="yum-font icon-sousuo"></i>
-            <input @keyup="search" v-model="keywords" placeholder="请输入组件名称">
+            <input @keyup="search" v-model="keywords" placeholder="请输入工具名称">
         </div>
         <div class="rt-left">
           <ul>
