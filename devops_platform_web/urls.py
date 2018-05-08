@@ -32,5 +32,6 @@ urlpatterns = [
     url(r'^deploy/', include('devops_deploy.urls', namespace='deploy')),
     url(r'^console/', include('devops_console.urls', namespace='console')),
     url(r'^working/',include('devops_tools.urls',namespace='working')),
-    url(r'^presrb/',include('devops_pre_srb.urls',namespace='presrb'))
+    url(r'^presrb/',include('devops_pre_srb.urls',namespace='presrb')),
+    url(r'^application/',include('devops_application_manage.urls',namespace='application'))
 ]
