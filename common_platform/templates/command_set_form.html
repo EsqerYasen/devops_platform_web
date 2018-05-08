@@ -146,6 +146,38 @@
         })
 
 
+	    function layoutSize(){
+            var winHeight = $(window).height();
+            var contentHeight = winHeight-80;
+            var taskContentHeight = contentHeight-55;
+
+
+            $(".works_box").css({
+	            minHeight:contentHeight+"px"
+            });
+
+		    $(".task-content").css({
+			    minHeight:taskContentHeight+"px"
+		    })
+
+		    $(".tesklist .dragga").css({
+			    height:taskContentHeight-90+'px',
+			    overflow:'auto'
+		    })
+
+		    $(".rt-left ul,.rt-right ul div").css({
+			    height:taskContentHeight-90+'px',
+			    overflow:'auto'
+		    })
+
+
+
+
+	    }
+
+	    layoutSize();
+
+
 
 
         var hostGroupTreeList = {{ hostGroup_list|safe }};
