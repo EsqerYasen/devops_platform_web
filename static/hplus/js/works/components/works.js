@@ -181,6 +181,11 @@ Vue.component('task-cmds', {
       this.findCmdByTopLeft(this.cmdIndexTop, this.cmdIndexLeft);
     },
     changeCmdTopIndex: function(item, index){
+      if(parseInt(index) !== 1){
+        Alertwin.alert({ message: '本功能正在维护中'});
+        return;
+      }
+
       this.cmdIndexTop = index;
       this.findCmdByTopLeft(this.cmdIndexTop, this.cmdIndexLeft);
     }
