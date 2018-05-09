@@ -101,3 +101,20 @@ class PreSrbUpdateView(LoginRequiredMixin, TemplateView):
         resultJson = hu.post(serivceName="presrb", restName="/rest/presrb/project_add/", datas=saveJson)
 
         return HttpResponse(json.dumps(resultJson.json()),content_type='application/json')
+
+class  ProjectItemCreateView(LoginRequiredMixin,JSONResponseMixin, AjaxResponseMixin, View):
+    def post_ajax(self, request, *args, **kwargs):
+        saveJson = request.POST.get("saveJson", None)
+
+        saveJson = eval(saveJson)
+        resultJson = {"status":"FAILURE"}
+        hu = HttpUtils()
+        updateResult = hu.post(serivceName="presrb", restName="/rest/presrb/project_update/", datas={"p_id":saveJson.get("p_id",0),"deploy_envs":saveJson.get("deploy_envs",0),"change":0})
+        updateJson = updateResult.json()
+        if updateJson.get("status") == "SUCCESS":
+            hu = HttpUtils()
+            resultJson1 = hu.post(serivceName="presrb", restName="/rest/presrb/projectItem_add/", datas=saveJson)
+            resultJson2 = resultJson1.json()
+            if resultJson2.get("status") == "SUCCESS":
+                resultJson = {"status": "SUCCESS"}
+        return HttpResponse(json.dumps(resultJson), content_type='application/json')

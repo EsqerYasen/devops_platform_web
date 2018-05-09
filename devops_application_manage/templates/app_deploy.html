@@ -364,7 +364,7 @@ var app_page = new Vue({
             if(formData.target_host_list){
                 target_host_list = formData.target_host_list.join(',');
             }
-            var parameter = "";
+            var parameter = formData.version+",";
             $(params).each(function(pi,pitme){
                 if(pitme.value){
                     parameter += pitme.paramNameZh+"="+pitme.value+";";
