@@ -12,6 +12,7 @@
 
 
 <script src="/static/hplus/js/works/vue.min.js"></script>
+<script type="text/javascript" src="/static/hplus/js/works/components/vue-select.js"></script>
 
 <div class="wrapper wrapper-content fadeInRight" style="z-index: inherit">
     <div class="row addtoos">
@@ -49,8 +50,16 @@
                             </div>
                            <div v-if="parm.type === 'select'">
                                 <select class="form-control text_ar" v-model="parm.value">
-                                    <option  v-for="v in parm.valueSet" :value="v.value">{% verbatim %}{{v.key}}{% endverbatim %}</option>
+                                    <option  v-for="v in parm.valueSet" :value="v.name" v-html="v.name"></option>
                                 </select>
+                            </div>
+                            <div v-if="parm.type === 'multiple'">
+                                <v-select :placeholder="parm.desc"
+                                  multiple
+                                  :options="parm.valueSet"
+                                  label="name_desc"
+                                   @input="changeValue(parm)"
+                                  :value.sync="parm.value2"></v-select>
                             </div>
                         </div>
 
@@ -118,6 +127,7 @@
 	</div>
 
 <script>
+Vue.component('v-select', VueSelect.VueSelect);
 $(function(){
     var hostGroupTreeList = {{ hostGroup_list|safe }};
     readHostGroupTreeNext(hostGroupTreeList,0);
@@ -317,6 +327,14 @@ var app_page = new Vue({
         tool_info:{{ tool_info|safe }}
     },
     methods:{
+          changeValue:function(obj){
+              obj.value = [];
+              if(obj.value2){
+                obj.value2.map(function(item){
+                  obj.value.push(item.name);
+                })
+              }
+          },
         selectHost:function(){
             $("#select_host_modal").modal({show:true});
         },
@@ -410,7 +428,7 @@ var app_page = new Vue({
                 success: function (data) {
                     layer.closeAll('loading');
                     if(data.status==0){
-                        window.location.href = "../execLog?setId="+data.set_id+"&jobId="+data.job_id
+                        window.location.href = "/platform/command_set/"+data.set_id+"/execLog?setId="+data.set_id+"&jobId="+data.job_id
                     }else{
                         Alertwin.alert({message:data.msg});
                     }

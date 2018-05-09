@@ -106,6 +106,10 @@ class DevopsAppMgeUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseM
             version_list_str = reqData.get("version_list", None)
             app_id = reqData.get("id",None)
             if app_id:
+                del reqData['offset']
+                del reqData['limit']
+                del reqData['csrfmiddlewaretoken']
+                del reqData['version_list']
                 addAppResults = hu.post(serivceName="job", restName="/rest/app/update_app/", datas=reqData)
                 addAppResults = addAppResults.json()
                 if addAppResults['status'] == 'SUCCESS':
@@ -249,8 +253,8 @@ class DevopsAppMgeDeployView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseM
                 else:
                     result["status"] = "1"
                     result['msg'] = '安装失败'
-                resultJson['job_id'] = runJson.get("job_id", 0)
-                resultJson['set_id'] = commandSetId
+                result['job_id'] = runJson.get("job_id", 0)
+                result['set_id'] = commandSetId
             else:
                 result['status'] = 1
                 result['msg'] = '没有安装信息，安装失败'

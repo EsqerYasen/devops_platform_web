@@ -255,7 +255,7 @@
                     type: '{{ p.type }}',
                     desc: '{{ p.desc }}',
                     no: '{{ p.no }}',
-                    valueSet: {{ p.valueSet }},
+                    valueSet: {{ p.valueSet|safe }},
                     default: '{{ p.default }}'
                 },
                 {% endif %}
@@ -270,7 +270,7 @@
                     type: '{{ p.type }}',
                     desc: '{{ p.desc }}',
                     no: '{{ p.no }}',
-                    valueSet: {{ p.valueSet }},
+                    valueSet: {{ p.valueSet|safe }},
                     default: '{{ p.default }}'
                 },
                 {% endif %}
@@ -318,7 +318,7 @@
             },
             submit: function(){
                 this.checkForm();
-                var formData = this.formData;
+                var formData = JSON.parse(JSON.stringify(this.formData)) ;
 
                 if(!formData.param.every(function(item){
                     return !!item.desc;
@@ -326,6 +326,14 @@
                     Alertwin.alert({ message: '请输入描述信息'});
                     return;
                 }
+                 if(!formData.param2[0].valueSet.every(function(item){
+                    item.name_desc = item.name + item.desc;
+                    return !!item.desc;
+                })){
+                    Alertwin.alert({ message: '请输入tags描述信息'});
+                    return;
+                }
+
                 formData.param2[0].paramNameZh = 'tags';
                 formData.param2.push(formData.param2[0]);
                 formData.param2[1].paramNameZh = 'skip-tags';
