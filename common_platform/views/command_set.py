@@ -416,6 +416,19 @@ class GetCommandExecuteLogView(LoginRequiredMixin,JSONResponseMixin, AjaxRespons
             logger.error(e)
         return self.render_json_response(result_json)
 
+class GetCommandExecuteJobIdView(LoginRequiredMixin,JSONResponseMixin, AjaxResponseMixin, View):
+    def get_ajax(self, request, *args, **kwargs):
+        result_json = {"status": 1}
+        try:
+            req = self.request
+            hu = HttpUtils(req)
+            setId = req.GET.get("setId", None)
+            log_info = hu.get(serivceName="job", restName="/rest/job/list_history/", datas={'set_id':setId,'status':1})
+            result_json['log_info'] = log_info
+        except Exception as e:
+            logger.error(e)
+        return self.render_json_response(result_json)
+
 
 class CommandExecuteStop(LoginRequiredMixin,JSONResponseMixin, AjaxResponseMixin, View):
     def get_ajax(self, request, *args, **kwargs):

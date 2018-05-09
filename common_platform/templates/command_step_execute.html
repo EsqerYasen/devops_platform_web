@@ -365,6 +365,7 @@
                         var default_script_parameter = "";
                         $(parma).each(function(pi,pitme){
                             if(pitme.value){
+                                if(Array.isArray(pitme.value))pitme.value = pitme.value.join(',');
                                 if(tool_set_type == 5 || tool_set_type == 6){
                                     default_script_parameter += pitme.paramNameZh+"="+pitme.value+";";
                                 }else{
