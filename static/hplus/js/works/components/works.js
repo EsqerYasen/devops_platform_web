@@ -215,8 +215,10 @@ var transApiDataToLocal  = function(apiData){
     tmp.tlines = [];
     for(var i$1=0;i$1<tmp.lines.length; i$1++){
       var item = tmp.lines[i$1];
-      if(item.param && item.param.type === 'multiple' && item.value){
-        item.value = item.value.split(',');
+      if(item.param){
+        item.param.map(function(item){
+          if(item.value && item.type === 'multiple')item.value =  item.value.split(',') ;
+        })
       }
       if(!tmp.tlines[item.sub_seq_no-1]){
         tmp.tlines[item.sub_seq_no-1] = {

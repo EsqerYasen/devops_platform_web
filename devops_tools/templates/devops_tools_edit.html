@@ -335,11 +335,14 @@
                     return;
                 }
 
-                formData.param2[0].paramNameZh = 'tags';
-                formData.param2.push(Object.assign({}, formData.param2[0]));
-                formData.param2[1].paramNameZh = 'skip-tags';
+                if(formData.param2.length && script_lang == 'yaml'){
+                    formData.param2[0].paramNameZh = 'tags';
+                    formData.param2.push(Object.assign({}, formData.param2[0]));
+                    formData.param2[1].paramNameZh = 'skip-tags';
 
-                formData.param = formData.param.concat(formData.param2);
+                    formData.param = formData.param.concat(formData.param2);
+                }
+
                 delete formData.ret;
                 var script_lang = formData.script_lang;
                 if(!script_lang){
