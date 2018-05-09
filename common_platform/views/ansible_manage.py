@@ -26,11 +26,19 @@ class AnsibleMgeView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, Te
         try:
             hu = HttpUtils(self.request)
             reqData = hu.getRequestParam()
-            run_data = {}
-            if reqData.get("target_type",0) == "1":
-                run_data['target_group_ids'] = run_data
+            runJson = reqData.get("runJson",None)
+
+            if runJson:
+                run_data = json.loads(runJson)
+                runResult = hu.post(serivceName="job", restName="/rest/job/run_ansible/", datas=run_data)
+                runResult = runResult.json()
+                if runResult['status'] == "SUCCESS":
+                    result['data'] = runResult.get("data",[])
+                else:
+                    result['status'] = 1
+                    result['msg'] = "执行失败"
         except Exception as e:
             result['status'] = 1
-            result['msg'] = '保存异常'
+            result['msg'] = '执行异常'
             logger.error(e)
         return HttpResponse(json.dumps(result),content_type='application/json')

@@ -88,9 +88,9 @@
 							    <div class="col-sm-9">
 								    <select v-model="post.info" class="form-control">
 									    <option value="">请选择</option>
-									    <option value="v">v</option>
-									    <option value="vv">vv</option>
-									    <option value="vvvv">vvvv</option>
+									    <option value="1">v</option>
+									    <option value="2">vv</option>
+									    <option value="4">vvvv</option>
 								    </select>
 							    </div>
 							  </div>
@@ -111,11 +111,7 @@
 							</div>
 		                </div>
 		                <div class="logbox">
-			                <pre v-html="log" style="background: none;color: #ffff; border: none;"></pre>
-
-
-
-
+			                <pre v-html="log" style="background: none;color: #ffff; border: none;color:white"></pre>
 		                </div>
 		                <div style="clear: both; display: block; overflow: hidden"></div>
 	                </div>
@@ -126,7 +122,7 @@
 
 	<script>
 		Vue.component('v-select', VueSelect.default);
-		console.log(VueSelect);
+		//console.log(VueSelect);
 		var ansibleVm = new Vue({
 			el:"#ansibleApp",
 			data:{
@@ -192,15 +188,58 @@
 
 					this.post.tree = determineSelectHost();
 
-			        console.log(this.post);
+			        //console.log(this.post);
 
 			        var _this = this;
+                    var reqData = {}
+                    var group_id = this.post.tree.group_id;
+                    if(!group_id){
+                        Alertwin.alert({message:"未勾选机器组或机器"});
+                        return;
+                    }
+                    var target_type = this.post.tree.target_type;
+                    reqData['target_type'] = target_type;
+                    if(target_type == 1){
+                        reqData['go_live'] = this.post.tree.go_live;
+                        reqData['group_id'] = group_id;
+                    }else{
+                        reqData['target_host_list'] = this.post.tree.target_host_list.join(',');
+                    }
+                    reqData['module'] = this.post.moduleType;
+                    reqData['args'] = this.post.moduleValue;
+                    reqData['verbose'] = this.post.info;
+                    reqData['debug'] = this.post.debug;
 
-
-			        {#$.ajax({#}
-				     {#   #}
-				     {#   #}
-			        {#})#}
+                    layer.load();
+                    $.ajax({
+                        type : 'POST',
+                        url: '/platform/ansible/mge/',
+                        data:{"runJson":JSON.stringify(reqData),"csrfmiddlewaretoken":'{{ csrf_token }}'},
+                        success : function(response) {
+                            layer.closeAll('loading');
+                            if(response.status == 0){
+                                var logStr = "";
+                                var data = response.data;
+                                for(var k in data){
+                                    var data2 = data[k];
+                                    if(JSON.stringify(data2) != "{}"){
+                                        logStr +="-----------------------------------"+k+"-----------------------------------\r\n";
+                                        for(var k2 in data2){
+                                            logStr += data2[k2].replace(/\\r/g,'\r').replace(/\\n/g,'\n');
+                                        }
+                                        logStr +="\r\n--------------------------------------------------------------------------------\r\n";
+                                    }
+                                }
+                                _this.log = logStr;
+                            }else{
+                                Alertwin.alert({message:response.msg});
+                            }
+                        },
+                        error : function(response) {
+                            layer.closeAll('loading');
+                            console.log(response);
+                        }
+                    });
 				}
 			}
 		})
