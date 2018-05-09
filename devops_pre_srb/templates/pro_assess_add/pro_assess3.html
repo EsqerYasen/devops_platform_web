@@ -1,68 +1,105 @@
 <div class="tab-pane" id="tab3">
-    <div  class="panel panel-info">
-        <div class="panel-heading">
-            <div class="row">
-                <div class="col-md-1">
-                    生产 <input  type="checkbox" class="i-checks">
-                </div>
-                <div class="col-md-6">
 
-                </div>
-            </div>
-        </div>
-        <div class="panel-body"></div>
-    </div>
-    <div  class="panel panel-success">
-        <div class="panel-heading">
-            <div class="row">
-                <div class="col-md-1">
-                    灾备  <input type="checkbox" class="i-checks">
-                </div>
-            </div>
-        </div>
-        <div class="panel-body"></div>
-    </div>
-    <div  class="panel panel-primary">
-        <div class="panel-heading">
-            <div class="row">
-                <div class="col-md-1">
-                    灰度  <input  type="checkbox" class="i-checks">
-                </div>
-                <div class="col-md-6">
 
-                </div>
-            </div>
-        </div>
-        <div class="panel-body"></div>
-    </div>
-    <div class="row">
-         <div class="col-md-4">
-            <div class="alert alert-success">
-                S级 : 主站节点全部高可用 有备份机房
-            </div>
-         </div>
-    </div>
-    <div class="row">
-         <div class="col-md-4">
-            <div class="alert alert-warning">
-                A级 : 主站存在单节点 有备份机房 /  主站节点全部高可用 无备份机房
-            </div>
-         </div>
-    </div>
-    <div class="row" style="margin-bottom: 20px">
-         <div class="col-md-4">
-            <div class="alert alert-danger">
-                B级: 主站存在单节点 无备份机房 /  主站节点全部单节点 有备份机房
-            </div>
-         </div>
-    </div>
+
+	<evn-component
+			typekey="production"
+			:show_checkbox="False"
+			:show_add="True"
+			title="生产">
+	</evn-component>
+	<evn-component
+			typekey="disaster_recovery"
+			:show_checkbox="True"
+			:show_add="False"
+			title="灾备">
+	</evn-component>
+	<evn-component
+			typekey="preview"
+			:show_checkbox="True"
+			:show_add="True"
+			title="灰度">
+	</evn-component>
+
+
+
+	<level level="S"> S级 : 主站节点全部高可用 有备份机房 </level>
+	<level level="A"> A级 : 主站存在单节点 有备份机房 /  主站节点全部高可用 无备份机房 </level>
+	<level level="B"> B级: 主站存在单节点 无备份机房 /  主站节点全部单节点 有备份机房 </level>
+
+
 </div>
-
-
-
-
-
+{% include "pro_assess_add/temps.html" %}
 <script>
+	var store = new Vuex.Store({
+		modules:{
+		    evns:{
+		         state:{
+			        production:{
+			            data:[],
+				        msg:"1",
+				        selected:false,
+				        isDefectResut:''
+			        },
+				    disaster_recovery:{
+			            data:[],
+				        msg:"2",
+					    selected:false,
+					    isDefectResut:''
+				    },
+				    preview:{
+			            data:[],
+				        msg:"3",
+					    selected:false,
+					    isDefectResut:''
+				    }
+			    }
+		    }
+		}
+	});
+	Vue.component('evn-component',{
 
+	    template:"#evn-component",
+		props:{
+	        'typekey':{
+	            type:String,
+		        required:true
+	        },
+			'show_checkbox':{
+	            type:Boolean,
+				 default: false
+			},
+			'title':{
+	            type:String,
+				required:true,
+			}
+		}
 
+	});
+	Vue.component('level',{
+		template:"#level",
+		props:{
+		    'level':{
+			    validator: function (value) {
+			        return ['S', 'A', 'B'].indexOf(value) !== -1
+			    }
+
+		    }
+		}
+
+	});
+	function initProAssess3(){
+	    var vm = new Vue({
+			el:'#tab3',
+			store:store,
+			data:{
+			    title:"abc",
+				True:true,
+				False:false
+			},
+			mounted:function(){
+			    console.log(this.$store.state.evns);
+			}
+		})
+	}
 </script>
