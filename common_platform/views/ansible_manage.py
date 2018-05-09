@@ -26,7 +26,9 @@ class AnsibleMgeView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, Te
         try:
             hu = HttpUtils(self.request)
             reqData = hu.getRequestParam()
-
+            run_data = {}
+            if reqData.get("target_type",0) == "1":
+                run_data['target_group_ids'] = run_data
         except Exception as e:
             result['status'] = 1
             result['msg'] = '保存异常'

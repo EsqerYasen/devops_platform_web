@@ -19,6 +19,7 @@ urlpatterns = [
         url(r'execLog/', CommandExecuteLogView.as_view(), name='execLog'),
         url(r'getExecLog/', GetCommandExecuteLogView.as_view(), name='getExecLog'),
         url(r'stop/', CommandExecuteStop.as_view(), name='stop'),
+        url(r'getExecJobId',GetCommandExecuteJobIdView.as_view(),name='getExecJobId'),
     ])),
     url(r'^command_set2/', include([
         url(r'^list/', CommandSetList2View.as_view(), name='list'),

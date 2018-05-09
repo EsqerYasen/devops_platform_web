@@ -119,7 +119,7 @@
 												</select>
 				                            </div>
 
-				                            <div class="fl pabx">
+				                            <div class="fl pabx" v-if="p.type === 'text'">
 											    <label ><span class="red">*</span> 描述</label>
 					                             <input type="text" style="width: 250px" class="form-control" v-model="p.desc">
 				                            </div>
@@ -234,6 +234,8 @@
         </div>
     </div>
     <script>
+    var True = true;
+    var False = false;
     var page = new Vue({
         el:'#tool_add',
         data: {
@@ -321,24 +323,26 @@
                 var formData = JSON.parse(JSON.stringify(this.formData)) ;
 
                 if(!formData.param.every(function(item){
-                    return !!item.desc;
+                    return item.type==='text' && !!item.desc || item.type === 'select';
                 })){
                     Alertwin.alert({ message: '请输入描述信息'});
                     return;
                 }
-                 if(!formData.param2[0].valueSet.every(function(item){
-                    item.name_desc = item.name + item.desc;
+                 if(formData.param2.length && !formData.param2[0].valueSet.every(function(item){
                     return !!item.desc;
                 })){
                     Alertwin.alert({ message: '请输入tags描述信息'});
                     return;
                 }
 
-                formData.param2[0].paramNameZh = 'tags';
-                formData.param2.push(formData.param2[0]);
-                formData.param2[1].paramNameZh = 'skip-tags';
+                if(formData.param2.length && script_lang == 'yaml'){
+                    formData.param2[0].paramNameZh = 'tags';
+                    formData.param2.push(Object.assign({}, formData.param2[0]));
+                    formData.param2[1].paramNameZh = 'skip-tags';
 
-                formData.param = formData.param.concat(formData.param2);
+                    formData.param = formData.param.concat(formData.param2);
+                }
+
                 delete formData.ret;
                 var script_lang = formData.script_lang;
                 if(!script_lang){

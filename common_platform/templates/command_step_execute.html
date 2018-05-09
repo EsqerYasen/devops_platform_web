@@ -119,6 +119,8 @@
 
 
 <script>
+   var True = true;
+    var False = false;
     $(function(){
 
         $(".works_box").on('dblclick','.tesklist_li',function () {
@@ -342,6 +344,7 @@
         methods:{
           save: function(){
             var res = transLocalToApiData(this.$store.state.basic, this.$store.state.steps);
+          //  console.log(JSON.stringify(res));return;
             var exec_json = {};
             if(res.id){
                 exec_json['command_set_id'] = res.id;
@@ -365,6 +368,7 @@
                         var default_script_parameter = "";
                         $(parma).each(function(pi,pitme){
                             if(pitme.value){
+                                if(Array.isArray(pitme.value))pitme.value = pitme.value.join(',');
                                 if(tool_set_type == 5 || tool_set_type == 6){
                                     default_script_parameter += pitme.paramNameZh+"="+pitme.value+";";
                                 }else{

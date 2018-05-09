@@ -8,7 +8,6 @@
 <script type="text/javascript" src="/static/hplus/js/works/alert.js"></script>
 <script type="text/javascript" src="/static/hplus/js/works/works.js"></script>
 <script type="text/javascript" src="/static/hplus/js/works/components/works.js"></script>
-<script type="text/javascript" src="/static/hplus/js/works/components/vue-select.js"></script>
 
 <script type="text/javascript" src="/static/hplus/js/zTree/jquery.ztree.core.js"></script>
 <script type="text/javascript" src="/static/hplus/js/zTree/jquery.ztree.excheck.js"></script>
@@ -124,7 +123,7 @@
 	</div>
 
 <script>
-Vue.component('v-select', VueSelect.VueSelect);
+
     $(function(){
 
         $(".works_box").on('dblclick','.tesklist_li ',function () {
@@ -424,7 +423,9 @@ Vue.component('v-select', VueSelect.VueSelect);
                             var default_script_parameter = "";
                             temp3['source_file_name'] = command;
                             $(parma).each(function(pi,pitme){
+
                                 if(pitme.value){
+                                    if(Array.isArray(pitme.value))pitme.value = pitme.value.join(',');
                                     if(tool_set_type == 5 || tool_set_type == 6){
                                         default_script_parameter += pitme.paramNameZh+"="+pitme.value+";";
                                     }else{

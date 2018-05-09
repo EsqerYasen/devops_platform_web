@@ -118,7 +118,7 @@
 												</select>
 				                            </div>
 
-				                            <div class="fl pabx">
+				                            <div class="fl pabx"  v-if="p.type === 'text'">
 											    <label ><span class="red">*</span> 描述</label>
 					                             <input type="text" class="form-control" style="width: 250px" v-model="p.desc">
 				                            </div>
@@ -130,7 +130,7 @@
                                                         <label><span class="red">*</span> 枚举值</label>
                                                         <input type="text" class="form-control" v-model="vs.name">
                                                     </div>
-                                                    <div class="fl pabx">
+                                                    <div class="fl pabx" >
                                                         <label><span class="red">*</span> 描述</label>
                                                         <input type="text" class="form-control" v-model="vs.desc">
                                                     </div>
@@ -293,22 +293,24 @@
                 var formData = JSON.parse(JSON.stringify(this.formData)) ;
 
                 if(!formData.param.every(function(item){
-                    return !!item.desc;
+                    return item.type=='text' && !!item.desc || item.type === 'select';
                 })){
                     Alertwin.alert({ message: '请输入描述信息'});
                     return;
                 }
-                if(!formData.param2[0].valueSet.every(function(item){
-                    item.name_desc = item.name + item.desc;
+                if(formData.param2.length && !formData.param2[0].valueSet.every(function(item){
                     return !!item.desc;
                 })){
                     Alertwin.alert({ message: '请输入tags描述信息'});
                     return;
                 }
-                formData.param2[0].paramNameZh = 'tags';
-                formData.param2.push(formData.param2[0]);
-                formData.param2[1].paramNameZh = 'skip-tags';
-                formData.param = formData.param.concat(formData.param2);
+                if(formData.param2.length && script_lang == 'yaml'){
+                    formData.param2[0].paramNameZh = 'tags';
+                    formData.param2.push(Object.assign({}, formData.param2[0]));
+                    formData.param2[1].paramNameZh = 'skip-tags';
+                    formData.param = formData.param.concat(formData.param2);
+                }
+
 
                 $(formData.param).each(function(i,item){
                     if(!item.paramNameZh){
