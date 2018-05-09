@@ -13,7 +13,9 @@ class AnsibleMgeView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, Te
     def get_context_data(self, **kwargs):
         context = {}
         try:
-            pass
+            getData = {'offset': 0, 'limit': 1000, 'is_enabled': 1}
+            hostgroupResult = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_tree/", datas=getData)
+            context['hostGroup_list'] = hostgroupResult.get("data", [])
         except Exception as e:
             logger.error(e)
         return context
