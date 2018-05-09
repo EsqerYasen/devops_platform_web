@@ -50,16 +50,24 @@
                             </div>
                            <div v-if="parm.type === 'select'">
                                 <select class="form-control text_ar" v-model="parm.value">
-                                    <option  v-for="v in parm.valueSet" :value="v.value">{% verbatim %}{{v.key}}{% endverbatim %}</option>
+                                    <option  v-for="v in parm.valueSet" :value="v.name" v-html="v.name"></option>
                                 </select>
                             </div>
-                            <div v-if="parm.type === 'multiple'">
-                                <v-select :placeholder="parm.desc"
-                                  multiple
-                                  :options="parm.valueSet"
-                                  label="name"
-                                          @input="changeValue(parm)"
-                                  :value.sync="parm.value2"></v-select>
+{#                            <div v-if="parm.type === 'multiple'">#}
+{#                                <v-select :placeholder="parm.desc"#}
+{#                                  multiple#}
+{#                                  :options="parm.valueSet"#}
+{#                                  label="name_desc"#}
+{#                                   @input="changeValue(parm)"#}
+{#                                  :value.sync="parm.value2"></v-select>#}
+{#                            </div>#}
+                          <div class="checkbox" style="margin:10px;" v-if="parm.type === 'multiple'">
+
+                                <label v-for="it in parm.valueSet" style="margin-right:15px;">
+                                    <span>{% verbatim %}{{ it.name }}--{{ it.desc }}{% endverbatim %}</span>
+                                    <input style="margin-top:-15px;" @click.sync="changeValue2(parm, it)" type="checkbox" :value="it.name" v-model="it.checked"/>
+                                </label>
+
                             </div>
                         </div>
 
@@ -334,6 +342,13 @@ var app_page = new Vue({
                   obj.value.push(item.name);
                 })
               }
+          },
+          changeValue2:function(obj, it){
+            obj.value = [];
+            it.checked = !it.checked;
+            obj.valueSet.map(function(item){
+              item.checked? obj.value.push(item.name):'';
+            })
           },
         selectHost:function(){
             $("#select_host_modal").modal({show:true});

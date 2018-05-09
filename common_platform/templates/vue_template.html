@@ -109,16 +109,16 @@
                                               </div>
                                                 <div v-if="ites.type === 'select'">
                                                     <select class="form-control" v-model="ites.value">
-                                                        <option  v-for="v in ites.valueSet" :value="v.value">{% verbatim %}{{v.key}}{% endverbatim %}</option>
+                                                        <option  v-for="v in ites.valueSet" :value="v.name" v-html="v.name"></option>
                                                     </select>
                                                 </div>
-                                                <div v-if="ites.type === 'multiple'">
-                                                    <v-select :placeholder="placeholder"
-                                                      multiple
-                                                      :options="ites.valueSet"
-                                                      @input="changeValue(ites)"
-                                                      label="name"
-                                                      :value.sync="ites.value2"></v-select>
+                                                <div class="checkbox" style="margin:10px;" v-if="ites.type === 'multiple'">
+
+                                                    <label v-for="it in ites.valueSet" style="margin-right:15px;">
+                                                        <span>{% verbatim %}{{ it.name }}--{{ it.desc }}{% endverbatim %}</span>
+                                                        <input style="margin-top:-15px;" @click.sync="changeValue2(ites, it)" type="checkbox" :value="it.name" v-model="it.checked"/>
+                                                    </label>
+
                                                 </div>
                                             </div>
 					                          <div class="col-sm-5" style="line-height: 35px">
