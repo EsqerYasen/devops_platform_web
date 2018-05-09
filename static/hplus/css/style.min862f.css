@@ -7141,6 +7141,64 @@ fade-enter-active, .fade-leave-active {
 }
 
 
+.treebox{
+    width: 32%;
+    display: block;
+    float: left;
+    box-sizing: padding-box;
+    border-right: 1px solid #eee;
+    padding-right: 10px;
+    margin-right: 10px;
+    padding-left: 10px;
+    padding-bottom: 10px;
+    min-height: 500px;
+}
+
+
+.treebox h4{
+    text-align: center;
+    border-bottom: 1px solid #fefefe;
+    line-height: 35px;
+    padding: 0px;
+    margin: 0px;
+
+}
+
+
+
+.formbox_asb{
+    width: 26%;
+    box-sizing: padding-box;
+    float: left;
+    margin: 0px;
+
+    padding: 15px 0px;
+
+}
+
+.logbox{
+    width: 40%;
+    float: right;
+    height: 500px;
+    overflow: auto;
+    color: #ffffff;
+    background: #000000;
+    padding: 15px;
+    box-sizing: padding-box;
+}
+
+.scriptarea{
+    /*height: 90px;*/
+    /*min-height: 90px;*/
+    /*max-height: 120px;*/
+    word-wrap: break-word;
+    overflow-x: hidden;
+    overflow-y: auto;
+
+}
+
+
+
 
 
 
