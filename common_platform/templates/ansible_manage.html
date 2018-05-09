@@ -110,7 +110,13 @@
 							  </div>
 							</div>
 		                </div>
-		                <div class="logbox"></div>
+		                <div class="logbox">
+			                <pre v-html="log" style="background: none;color: #ffff; border: none;"></pre>
+
+
+
+
+		                </div>
 		                <div style="clear: both; display: block; overflow: hidden"></div>
 	                </div>
 	            </div>
@@ -145,6 +151,7 @@
 					debug:false,
 					costomModuleName:''
 				},
+				log:'执行中',
 				modulePlaceholder:'',
 				isCustom:false,
 			},
@@ -180,7 +187,20 @@
 			        }
 			    },
 				postSend:function(){
+
+			        {#console.log( determineSelectHost())#}
+
+					this.post.tree = determineSelectHost();
+
 			        console.log(this.post);
+
+			        var _this = this;
+
+
+			        {#$.ajax({#}
+				     {#   #}
+				     {#   #}
+			        {#})#}
 				}
 			}
 		})

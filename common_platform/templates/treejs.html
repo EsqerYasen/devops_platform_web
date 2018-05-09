@@ -41,12 +41,8 @@
     function determineSelectHost(){
         var select_host_modal = $('#select_host_modal');
         var gid = select_host_modal.data('gid');
-        //var selectHostValue = $("#selectHostValue"+gid);
         var ips = getCheckedHostIP();
-        //selectHostValue.val('');
-
         var values = getSelectHostFromModal();
-
         if(!$.isEmptyObject(values)){
             var obj = {};
             obj = {'target_group_ids':values['id']}
@@ -58,10 +54,7 @@
                 values['target_host_list']= "";
             }
             values['target_type'] = target_type;
-            //obj['go_live'] = values['go_live'];
-            //selectHostValue.val(JSON.stringify(obj));
-            select_host_modal.modal('hide');
-            store.commit('setHost', values);
+            return values;
         }else{
             Alertwin.alert({message:"请选择主机组或勾选机器"});
         }
