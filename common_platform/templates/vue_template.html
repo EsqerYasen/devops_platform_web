@@ -109,15 +109,15 @@
                                               </div>
                                                 <div v-if="ites.type === 'select'">
                                                     <select class="form-control" v-model="ites.value">
-                                                        <option  v-for="v in ites.valueSet" :value="v.value">{% verbatim %}{{v.key}}{% endverbatim %}</option>
+                                                        <option  v-for="v in ites.valueSet" :value="v.value2" v-html="v.name" @input="changeValue(v)"></option>
                                                     </select>
                                                 </div>
                                                 <div v-if="ites.type === 'multiple'">
-                                                    <v-select :placeholder="placeholder"
+                                                    <v-select :placeholder="ites.desc"
                                                       multiple
                                                       :options="ites.valueSet"
                                                       @input="changeValue(ites)"
-                                                      label="name"
+                                                      label="name_desc"
                                                       :value.sync="ites.value2"></v-select>
                                                 </div>
                                             </div>

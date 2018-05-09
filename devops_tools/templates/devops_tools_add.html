@@ -290,7 +290,7 @@
             },
             submit: function(){
                 this.checkForm();
-                var formData = this.formData;
+                var formData = JSON.parse(JSON.stringify(this.formData)) ;
 
                 if(!formData.param.every(function(item){
                     return !!item.desc;
@@ -299,6 +299,7 @@
                     return;
                 }
                 if(!formData.param2[0].valueSet.every(function(item){
+                    item.name_desc = item.name + item.desc;
                     return !!item.desc;
                 })){
                     Alertwin.alert({ message: '请输入tags描述信息'});
