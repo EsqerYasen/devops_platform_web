@@ -1,33 +1,31 @@
 <div class="tab-pane" id="tab3">
 
 
-
+	<pre v-html="$store.state.evns"></pre>
 	<evn-component
 			typekey="production"
 			:show_checkbox="False"
 			:show_add="True"
-			title="生产">
+			discribe="描述"
+			title="生产描述">
 	</evn-component>
 	<evn-component
 			typekey="disaster_recovery"
 			:show_checkbox="True"
 			:show_add="False"
+			discribe="灾备描述"
 			title="灾备">
 	</evn-component>
 	<evn-component
 			typekey="preview"
 			:show_checkbox="True"
 			:show_add="True"
+			discribe="灰度描述"
 			title="灰度">
 	</evn-component>
-
-
-
 	<level level="S"> S级 : 主站节点全部高可用 有备份机房 </level>
 	<level level="A"> A级 : 主站存在单节点 有备份机房 /  主站节点全部高可用 无备份机房 </level>
 	<level level="B"> B级: 主站存在单节点 无备份机房 /  主站节点全部单节点 有备份机房 </level>
-
-
 </div>
 {% include "pro_assess_add/temps.html" %}
 <script>
@@ -37,28 +35,43 @@
 		         state:{
 			        production:{
 			            data:[],
-				        msg:"1",
-				        selected:false,
+				        selected:true,
 				        isDefectResut:''
 			        },
 				    disaster_recovery:{
 			            data:[],
-				        msg:"2",
 					    selected:false,
 					    isDefectResut:''
 				    },
 				    preview:{
 			            data:[],
-				        msg:"3",
 					    selected:false,
 					    isDefectResut:''
 				    }
+			    },
+			    mutations:{
+		             addData:function(state,key){
+		                 state[key].data.push({
+			                 projectName:'名称',
+			                 service:'ngx',
+			                 num:10,
+			                 memory:1204,
+			                 cpu:1,
+			                 disk:800,
+			                 isHeight:true,
+			                 special:'特殊需求'
+		                 })
+		             }
+			    },
+			    actions:{
+		             addData:function(context,key){
+		                 context.commit('addData',key)
+		             }
 			    }
 		    }
 		}
 	});
 	Vue.component('evn-component',{
-
 	    template:"#evn-component",
 		props:{
 	        'typekey':{
@@ -72,9 +85,16 @@
 			'title':{
 	            type:String,
 				required:true,
+			},
+			'discribe':{
+	            type:String
 			}
+		},
+		methods:{
+		    onAddData:function(key){
+			    this.$store.dispatch('addData',key);
+		    }
 		}
-
 	});
 	Vue.component('level',{
 		template:"#level",
@@ -83,23 +103,30 @@
 			    validator: function (value) {
 			        return ['S', 'A', 'B'].indexOf(value) !== -1
 			    }
-
 		    }
 		}
 
 	});
+	var vm = new Vue({
+		el:'#tab3',
+		store:store,
+		data:{
+		    title:"abc",
+			True:true,
+			False:false
+		},
+		methods:{
+		  save:function(){
+		      console.log(this.$store.state.evns['__ob__'])
+		  }
+		},
+		mounted:function(){
+		    console.log(this.$store.state.evns);
+		}
+	});
 	function initProAssess3(){
-	    var vm = new Vue({
-			el:'#tab3',
-			store:store,
-			data:{
-			    title:"abc",
-				True:true,
-				False:false
-			},
-			mounted:function(){
-			    console.log(this.$store.state.evns);
-			}
-		})
+	}
+	function tab3Save(){
+	    vm.save()
 	}
 </script>
