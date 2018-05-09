@@ -30,8 +30,8 @@
                         </div>
                          <div class="form-group">
                             <label class="col-sm-2 control-label"><span class="red">*</span> 版 本 号</label>
-                            <div class="col-sm-3">
-                                <select class="form-control" v-model="formData.version">
+                            <div class="col-sm-10">
+                                <select class="form-control text_ar" v-model="formData.version">
                                     {% for obj in version_list %}
                                         {% if obj.first %}
                                             <option value="" >-----请选择---</option>
@@ -42,6 +42,23 @@
                             </div>
                         </div>
 
+                      <div class="form-group" v-for="parm in tool_info.param">
+                            <label class="col-sm-2 control-label"><span class="red"></span> {% verbatim %}{{ parm.paramNameZh }}{% endverbatim %}</label>
+                            <div class="col-sm-10" v-if="parm.type === 'text'">
+                                <input type="text" class="form-control text_ar" v-model="parm.value" :placeholder="parm.desc">
+                            </div>
+                           <div v-if="parm.type === 'select'">
+                                <select class="form-control text_ar" v-model="parm.value">
+                                    <option  v-for="v in parm.valueSet" :value="v.value">{% verbatim %}{{v.key}}{% endverbatim %}</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-10">
+                                <button type="submit" class="btn btn-primary">提交</button>
+                            </div>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -114,8 +131,8 @@ $(function(){
             $(this).data('gid',gid);
             var selectHostValue = $("#selectHostValue"+gid);
             var hostValue = selectHostValue.val();
-            var obj = store.state.steps[store.state.activeIndex];
-            var target_group_ids = obj['target_group_ids'];
+            var target_group_ids = app_page.formData.target_group_ids;
+            var obj = app_page.formData;
             if(obj && target_group_ids){
                 //hostValue = hostValue.replace(/\'/g,"\"");
                 //var obj = JSON.parse(hostValue);
@@ -141,8 +158,6 @@ $(function(){
             $("#host_go_live").val(2);
         });
     }
-
-
 
      var zHostGroupNodes = [];
 
@@ -198,10 +213,9 @@ $(function(){
                 values['target_host_list']= "";
             }
             values['target_type'] = target_type;
-            //obj['go_live'] = values['go_live'];
-            //selectHostValue.val(JSON.stringify(obj));
             select_host_modal.modal('hide');
-            store.commit('setHost', values);
+            app_page.formData.target_group_ids = values['id'];
+            app_page.formData.target_host_list = ips;
         }else{
             Alertwin.alert({message:"请选择主机组或勾选机器"});
         }
@@ -292,7 +306,7 @@ $(function(){
     }
 
 
-new Vue({
+var app_page = new Vue({
     el:'#app_deploy',
     data:{
         formData:{
@@ -304,6 +318,16 @@ new Vue({
         selectHost:function(){
             $("#select_host_modal").modal({show:true});
         },
+        checkForm: function(){
+           var formData = this.formData;
+           var params = this.tool_info.param;
+            return true;
+        },
+        submit:function(){
+            if(!this.checkForm())return;
+            var formData = this.formData;
+            var params = this.tool_info.param;
+        }
     }
 })
 </script>
