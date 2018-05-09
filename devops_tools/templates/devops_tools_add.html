@@ -118,7 +118,7 @@
 												</select>
 				                            </div>
 
-				                            <div class="fl pabx">
+				                            <div class="fl pabx"  v-if="p.type === 'text'">
 											    <label ><span class="red">*</span> 描述</label>
 					                             <input type="text" class="form-control" style="width: 250px" v-model="p.desc">
 				                            </div>
@@ -130,7 +130,7 @@
                                                         <label><span class="red">*</span> 枚举值</label>
                                                         <input type="text" class="form-control" v-model="vs.name">
                                                     </div>
-                                                    <div class="fl pabx">
+                                                    <div class="fl pabx" >
                                                         <label><span class="red">*</span> 描述</label>
                                                         <input type="text" class="form-control" v-model="vs.desc">
                                                     </div>
@@ -293,7 +293,7 @@
                 var formData = JSON.parse(JSON.stringify(this.formData)) ;
 
                 if(!formData.param.every(function(item){
-                    return !!item.desc;
+                    return item.type==='text' && !!item.desc;
                 })){
                     Alertwin.alert({ message: '请输入描述信息'});
                     return;
