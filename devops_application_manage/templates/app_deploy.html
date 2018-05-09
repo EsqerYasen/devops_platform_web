@@ -30,8 +30,8 @@
                         </div>
                          <div class="form-group">
                             <label class="col-sm-2 control-label"><span class="red">*</span> 版 本 号</label>
-                            <div class="col-sm-3">
-                                <select class="form-control" v-model="formData.version">
+                            <div class="col-sm-10">
+                                <select class="form-control text_ar" v-model="formData.version">
                                     {% for obj in version_list %}
                                         {% if obj.first %}
                                             <option value="" >-----请选择---</option>
@@ -42,6 +42,23 @@
                             </div>
                         </div>
 
+                      <div class="form-group" v-for="parm in tool_info.param">
+                            <label class="col-sm-2 control-label"><span class="red"></span> {% verbatim %}{{ parm.paramNameZh }}{% endverbatim %}</label>
+                            <div class="col-sm-10" v-if="parm.type === 'text'">
+                                <input type="text" class="form-control text_ar" v-model="parm.value" :placeholder="parm.desc">
+                            </div>
+                           <div v-if="parm.type === 'select'">
+                                <select class="form-control text_ar" v-model="parm.value">
+                                    <option  v-for="v in parm.valueSet" :value="v.value">{% verbatim %}{{v.key}}{% endverbatim %}</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-10">
+                                <button type="submit" class="btn btn-primary">提交</button>
+                            </div>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -102,7 +119,7 @@
 
 <script>
 $(function(){
-     var hostGroupTreeList = {{ hostGroup_list|safe }};
+    var hostGroupTreeList = {{ hostGroup_list|safe }};
     readHostGroupTreeNext(hostGroupTreeList,0);
     zHostGroupTreeInit();
     initSelectHostModal();
@@ -114,8 +131,8 @@ $(function(){
             $(this).data('gid',gid);
             var selectHostValue = $("#selectHostValue"+gid);
             var hostValue = selectHostValue.val();
-            var obj = store.state.steps[store.state.activeIndex];
-            var target_group_ids = obj['target_group_ids'];
+            var target_group_ids = app_page.formData.target_group_ids;
+            var obj = app_page.formData;
             if(obj && target_group_ids){
                 //hostValue = hostValue.replace(/\'/g,"\"");
                 //var obj = JSON.parse(hostValue);
@@ -141,8 +158,6 @@ $(function(){
             $("#host_go_live").val(2);
         });
     }
-
-
 
      var zHostGroupNodes = [];
 
@@ -188,8 +203,8 @@ $(function(){
         var values = getSelectHostFromModal();
 
         if(!$.isEmptyObject(values)){
-            var obj = {};
-            obj = {'target_group_ids':values['id']}
+            //var obj = {};
+            //obj = {'target_group_ids':values['id']}
             var target_type = 1;
             if(ips.length > 0){
                 values['target_host_list']= ips;
@@ -197,11 +212,12 @@ $(function(){
             }else{
                 values['target_host_list']= "";
             }
-            values['target_type'] = target_type;
-            //obj['go_live'] = values['go_live'];
-            //selectHostValue.val(JSON.stringify(obj));
+            //values['target_type'] = target_type;
             select_host_modal.modal('hide');
-            store.commit('setHost', values);
+            app_page.formData.target_group_ids = values['group_id'];
+            app_page.formData.target_host_list = values['target_host_list'];
+            app_page.formData.go_live = values['go_live'];
+            app_page.formData.target_type = target_type;
         }else{
             Alertwin.alert({message:"请选择主机组或勾选机器"});
         }
@@ -292,7 +308,7 @@ $(function(){
     }
 
 
-new Vue({
+var app_page = new Vue({
     el:'#app_deploy',
     data:{
         formData:{
@@ -304,6 +320,104 @@ new Vue({
         selectHost:function(){
             $("#select_host_modal").modal({show:true});
         },
+        checkForm: function(){
+           var formData = this.formData;
+           var params = this.tool_info.param;
+           return true;
+        },
+        submit:function(){
+            if(!this.checkForm())return;
+            var formData = this.formData;
+            var tool_info = this.tool_info;
+            var params = tool_info.param;
+            var command_set_id = {{ commandId }};
+            var commandLineId = {{ commandLineId }};
+            var name = '{{ name }}';
+            var reqData = {"command_set_id":command_set_id};
+            if(!formData.target_group_ids){
+                Alertwin.alert({message:"请选择机器"});
+                return;
+            }
+            if(!formData.version){
+                Alertwin.alert({message:"请选择版本号"});
+                return;
+            }
+            var target_host_list = "";
+            if(formData.target_host_list){
+                target_host_list = formData.target_host_list.join(',');
+            }
+            var parameter = "";
+            $(params).each(function(pi,pitme){
+                if(pitme.value){
+                    parameter += pitme.paramNameZh+"="+pitme.value+";";
+                }
+            })
+            parameter = parameter.substring(0,parameter.length-1);
+            if(command_set_id > 0){
+                var deploy_info = {
+                    "command_set_id":command_set_id,
+                    "paras":{
+                        1:{
+                            "target_type":formData.target_type,
+                            "target_group_ids":formData.target_group_ids,
+                            "target_host_list":target_host_list,
+                            "go_live":formData.go_live,
+                            commandLineId:{
+                                "parameter":parameter,
+                                "is_skip":0
+                            }
+                        }
+                    }
+                };
+                reqData['deploy_info'] = JSON.stringify(deploy_info);
+            }else{
+                var command_info = {
+                    "name":name+"安装",
+                    "type":2,
+                    "comment":"用于 "+name+" 应用安装",
+                    "steps":[
+                        {
+                            "name":name+"安装步骤1",
+                            "seq_no":1,
+                            "type":0,
+                            "target_group_ids":formData.target_group_ids,
+                            "target_host_list":target_host_list,
+                            "target_type":formData.target_type,
+                            "go_live":formData.go_live,
+                            "lines":[
+                                {
+                                    "sub_seq_no":1,
+                                    "type":2,
+                                    "source_file_name":tool_info.command,
+                                    "default_script_parameter":parameter,
+                                    "tool_set_type":6
+                                }
+                            ]
+                        }
+                    ]
+                };
+                reqData['command_info'] = JSON.stringify(command_info);
+            }
+            reqData['csrfmiddlewaretoken'] = '{{ csrf_token }}';
+            layer.load();
+            $.ajax({
+                type: "POST",
+                url: '../deploy/',
+                data:reqData,
+                error: function (request) {
+                    layer.closeAll('loading');
+                },
+                success: function (data) {
+                    layer.closeAll('loading');
+                    if(data.status==0){
+                        window.location.href = "../execLog?setId="+data.set_id+"&jobId="+data.job_id
+                    }else{
+                        Alertwin.alert({message:data.msg});
+                    }
+                }
+            });
+
+        }
     }
 })
 </script>
