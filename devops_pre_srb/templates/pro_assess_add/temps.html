@@ -5,23 +5,46 @@
 		'panel-primary':typekey=='preview'}">
         <div class="panel-heading">
             <div class="row">
-                <div class="col-md-1">
+                <div class="col-md-1" style="position: relative">
 	                <span v-html="title"></span>
-                    <input v-if="show_checkbox" v-model="$store.state.evns[typekey].selected" type="checkbox" class="i-checks">
+	                 <label v-if="show_checkbox" class="is_tru" style="position: absolute;top: 3px; left: 60px">
+                        <input type="checkbox" value="1" v-model="$store.state.evns[typekey].selected">
+                        <span class="swc" :class="{'active':$store.state.evns[typekey].selected}">
+						    <span class="swci"></span>
+					    </span>
+                      </label>
                 </div>
                 <div class="col-md-9">
-
+	                <span v-html="discribe"></span>
                 </div>
 	            <div class="col-md-2 text-right">
-		            <i class="yum-font icon-plus-bold" style="cursor: pointer"></i>
+		            <i class="yum-font icon-plus-bold" style="cursor: pointer" @click="onAddData(typekey)"></i>
 	            </div>
             </div>
         </div>
-        <div class="panel-body"></div>
+        <div class="panel-body">
+
+
+	        <transition name="bounce">
+		         <div v-if="!$store.state.evns[typekey].selected" class="contentb">
+			        <textarea class="form-control" placeholder="请输入缺失原因" v-model="$store.state.evns[typekey].isDefectResut"></textarea>
+		        </div>
+	        </transition>
+
+
+	        <transition name="bounce">
+		          <div v-if="$store.state.evns[typekey].selected" class="contentb">
+			          <div class="datashow">
+				          数据展示
+			          </div>
+
+		          </div>
+	        </transition>
+
+
+        </div>
     </div>
 </template>
-
-
 <template id="level">
 	<div class="row" style="clear: both;">
 	     <div class="col-md-4">

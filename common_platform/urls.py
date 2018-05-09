@@ -4,6 +4,7 @@ from common_platform.views.command_set import *
 from common_platform.views.command_set2 import *
 from common_platform.views.file_manage import *
 from common_platform.views.soft_load import *
+from common_platform.views.ansible_manage import *
 
 
 urlpatterns = [
@@ -35,6 +36,9 @@ urlpatterns = [
     # ])),
     url(r'^toolset/', include([
         url(r'^list/', ToolSetListView.as_view(), name='list'),
+    ])),
+    url(r'^ansible/', include([
+        url(r'^mge/', AnsibleMgeView.as_view(), name='mge'),
     ])),
 ]
 
