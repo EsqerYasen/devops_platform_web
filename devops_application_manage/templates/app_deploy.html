@@ -50,7 +50,7 @@
                             </div>
                            <div v-if="parm.type === 'select'">
                                 <select class="form-control text_ar" v-model="parm.value">
-                                    <option  v-for="v in parm.valueSet" :value="v.value">{% verbatim %}{{v.key}}{% endverbatim %}</option>
+                                    <option  v-for="v in parm.valueSet" :value="v.name" v-html="v.name"></option>
                                 </select>
                             </div>
                             <div v-if="parm.type === 'multiple'">
