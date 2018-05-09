@@ -136,9 +136,15 @@ class DevopsAppMgeDeleteView(LoginRequiredMixin, JSONResponseMixin, View):
         result = {'status': 0}
         try:
             req = self.request
-            id = req.GET.get("id", 0)
+            id = req.GET.get("id",0)
             hu = HttpUtils(req)
-
+            resultJson = hu.get(serivceName="job", restName="/rest/app/delete_app/",datas={"id": id})
+            if resultJson['status'] == 'SUCCESS':
+                result['status'] = 0
+                result['msg'] = '删除成功'
+            else:
+                result['status'] = 1
+                result['msg'] = '删除失败'
         except Exception as e:
             result['status'] = 1
             result['msg'] = '删除异常'
@@ -158,8 +164,12 @@ class DevopsAppMgeDeployView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseM
             reqData = hu.getRequestParam()
             name = reqData.get('name',"")
             toolId = reqData.get('toolId')
-            commandId = reqData.get('commandId')
-
+            commandId = reqData.get('commandId',0)
+            if not commandId or commandId == "None":
+                commandId = 0
+            commandLineId = reqData.get('commandLineId',0)
+            if not commandLineId or commandLineId == "None":
+                commandLineId = 0
             getData = {'offset': 0, 'limit': 1000, 'is_enabled': 1}
             hostgroupResult = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_tree/", datas=getData)
             versionListResult = hu.get(serivceName="job", restName="/rest/app/list_app_version/", datas={'id':id})
@@ -172,11 +182,16 @@ class DevopsAppMgeDeployView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseM
                     del tool['is_enabled']
                 tool = tool_list[0]
 
+            version_list = versionListResult.get("data", [])
+            new_version_list = []
+            for version in version_list:
+                new_version_list.append({'id':version['version'],'version':version['version']});
             context["result_dict"] = {}
             context['hostGroup_list'] = hostgroupResult.get("data", [])
-            context['version_list'] = versionListResult.get("data", [])
+            context['version_list'] = new_version_list
             context['tool_info'] = tool
             context['commandId'] = commandId
+            context['commandLineId'] = commandLineId
             context['is_add'] = 1
             context['name'] = name
         except Exception as e:
@@ -188,33 +203,63 @@ class DevopsAppMgeDeployView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseM
         try:
             hu = HttpUtils(self.request)
             reqData = hu.getRequestParam()
+            commandSetId = int(reqData.get("command_set_id",0))
+            command_info = reqData.get("command_info",None)
+            deploy_info = reqData.get("deploy_info",None)
+            if commandSetId == 0 and command_info:
+                jobAddResults = hu.post(serivceName="job", restName="/rest/job/add/", datas=command_info)
+                jobAddResults = jobAddResults.json()
+                if (jobAddResults["status"] == "FAILURE"):
+                    logger.error("创建安装job失败")
+                else:
+                    data = jobAddResults["data"]
+                    deploy_info = {}
+                    step = json.loads(command_info)['steps'][0]
+                    line = step['lines'][0]
+                    for k in data:
+                        commandSetId = k
+                        deploy_info['command_set_id'] = k
+                        deploy_info['paras'] = {
+                            1:{
+                                "target_type": step['target_type'],
+                                "target_group_ids": step['target_group_ids'],
+                                "target_host_list": step['target_host_list'],
+                                "go_live": step['go_live']
+                            }
+                        }
+                        step_ids = data[k]
+                        step = step_ids[0]
+                        for k2 in step:
+                            line_id = step[k2][0]
+                            deploy_info['paras'][1][line_id] = {
+                                "parameter": line['default_script_parameter'],
+                                "is_skip": 0
+                            }
+                            id = kwargs.get('pk', 0)
+                            addAppResults = hu.post(serivceName="job", restName="/rest/app/update_app/", datas={'id':id,"command_set_id":commandSetId,'command_line_id':line_id})
+                            addAppResults = addAppResults.json()
+                            if addAppResults['status'] == 'FAILURE':
+                                deploy_info = None
 
-        except Exception as e:
-            result['status'] = 1
-            result['msg'] = '保存异常'
-            logger.error(e)
-        return HttpResponse(json.dumps(result),content_type='application/json')
-
-
-class DevopsAppMgeDeleteView(LoginRequiredMixin,JSONResponseMixin, View):
-    def get(self, request, *args, **kwargs):
-        result = {'status': 0}
-        try:
-            req = self.request
-            id = req.GET.get("id",0)
-            hu = HttpUtils(req)
-            resultJson = hu.get(serivceName="job", restName="/rest/app/delete_app/",datas={"id": id})
-            if resultJson['status'] == 'SUCCESS':
-                result['status'] = 0
-                result['msg'] = '删除成功'
+            if deploy_info:
+                runResults = hu.post(serivceName="job", restName="/rest/job/run/", datas=deploy_info)
+                runJson = runResults.json()
+                if int(runJson.get("job_id", 0)) > 0:
+                    result["status"] = "0"
+                else:
+                    result["status"] = "1"
+                    result['msg'] = '安装失败'
+                resultJson['job_id'] = runJson.get("job_id", 0)
+                resultJson['set_id'] = commandSetId
             else:
                 result['status'] = 1
-                result['msg'] = '删除失败'
+                result['msg'] = '没有安装信息，安装失败'
+
         except Exception as e:
             result['status'] = 1
-            result['msg'] = '删除异常'
+            result['msg'] = '安装异常'
             logger.error(e)
-        return self.render_json_response(result)
+        return HttpResponse(json.dumps(result),content_type='application/json')
 
 
 class GetCommandSetInfoView(LoginRequiredMixin, JSONResponseMixin, View):
