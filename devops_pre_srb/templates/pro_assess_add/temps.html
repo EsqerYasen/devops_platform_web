@@ -1,0 +1,33 @@
+<template id="evn-component">
+	<div class="panel" :class="{
+		'panel-info':typekey=='production',
+		'panel-success':typekey=='disaster_recovery',
+		'panel-primary':typekey=='preview'}">
+        <div class="panel-heading">
+            <div class="row">
+                <div class="col-md-1">
+	                <span v-html="title"></span>
+                    <input v-if="show_checkbox" v-model="$store.state.evns[typekey].selected" type="checkbox" class="i-checks">
+                </div>
+                <div class="col-md-9">
+
+                </div>
+	            <div class="col-md-2 text-right">
+		            <i class="yum-font icon-plus-bold" style="cursor: pointer"></i>
+	            </div>
+            </div>
+        </div>
+        <div class="panel-body"></div>
+    </div>
+</template>
+
+
+<template id="level">
+	<div class="row" style="clear: both;">
+	     <div class="col-md-4">
+	        <div class="alert" :class="{'alert-success':level=='S','alert-warning':level=='A','alert-danger':level=='B'}">
+	            <slot></slot>
+	        </div>
+	     </div>
+	</div>
+</template>
