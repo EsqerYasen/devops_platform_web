@@ -112,6 +112,13 @@
                                                         <option  v-for="v in ites.valueSet" :value="v.value">{% verbatim %}{{v.key}}{% endverbatim %}</option>
                                                     </select>
                                                 </div>
+                                                <div v-if="ites.type === 'multiple'">
+                                                    <v-select :placeholder="placeholder"
+                                                      multiple
+                                                      :options="ites.valueSet"
+                                                      label="ites.paramNameZh"
+                                                      :value.sync="ites.value"></v-select>
+                                                </div>
                                             </div>
 					                          <div class="col-sm-5" style="line-height: 35px">
 						                          * {% verbatim %}{{ites.desc}}{% endverbatim %}

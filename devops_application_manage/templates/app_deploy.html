@@ -12,6 +12,7 @@
 
 
 <script src="/static/hplus/js/works/vue.min.js"></script>
+<script type="text/javascript" src="/static/hplus/js/works/components/vue-select.js"></script>
 
 <div class="wrapper wrapper-content fadeInRight" style="z-index: inherit">
     <div class="row addtoos">
@@ -51,6 +52,13 @@
                                 <select class="form-control text_ar" v-model="parm.value">
                                     <option  v-for="v in parm.valueSet" :value="v.value">{% verbatim %}{{v.key}}{% endverbatim %}</option>
                                 </select>
+                            </div>
+                            <div v-if="parm.type === 'multiple'">
+                                <v-select :placeholder="parm.desc"
+                                  multiple
+                                  :options="parm.valueSet"
+                                  label="parm.paramNameZh"
+                                  :value.sync="parm.value"></v-select>
                             </div>
                         </div>
 
