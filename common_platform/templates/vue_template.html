@@ -116,8 +116,9 @@
                                                     <v-select :placeholder="placeholder"
                                                       multiple
                                                       :options="ites.valueSet"
-                                                      label="ites.paramNameZh"
-                                                      :value.sync="ites.value"></v-select>
+                                                      @input="changeValue(ites)"
+                                                      label="name"
+                                                      :value.sync="ites.value2"></v-select>
                                                 </div>
                                             </div>
 					                          <div class="col-sm-5" style="line-height: 35px">

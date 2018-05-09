@@ -57,8 +57,9 @@
                                 <v-select :placeholder="parm.desc"
                                   multiple
                                   :options="parm.valueSet"
-                                  label="parm.paramNameZh"
-                                  :value.sync="parm.value"></v-select>
+                                  label="name"
+                                          @input="changeValue(parm)"
+                                  :value.sync="parm.value2"></v-select>
                             </div>
                         </div>
 
@@ -126,6 +127,7 @@
 	</div>
 
 <script>
+Vue.component('v-select', VueSelect.VueSelect);
 $(function(){
     var hostGroupTreeList = {{ hostGroup_list|safe }};
     readHostGroupTreeNext(hostGroupTreeList,0);
@@ -325,6 +327,14 @@ var app_page = new Vue({
         tool_info:{{ tool_info|safe }}
     },
     methods:{
+          changeValue:function(obj){
+              obj.value = [];
+              if(obj.value2){
+                obj.value2.map(function(item){
+                  obj.value.push(item.name);
+                })
+              }
+          },
         selectHost:function(){
             $("#select_host_modal").modal({show:true});
         },

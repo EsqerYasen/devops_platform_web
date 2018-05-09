@@ -33,7 +33,14 @@ Vue.component('task-info', {
       $("#select_host_modal").modal({show:true});
 
       },
-
+      changeValue:function(obj){
+          obj.value = [];
+          if(obj.value2){
+            obj.value2.map(function(item){
+              obj.value.push(item.name);
+            })
+          }
+      },
     deleteTaskAll:function(index){
       store.commit('deleteDeskAll', index);
 
