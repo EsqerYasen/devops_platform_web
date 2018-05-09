@@ -328,7 +328,7 @@
                     Alertwin.alert({ message: '请输入描述信息'});
                     return;
                 }
-                 if(!formData.param2[0].valueSet.every(function(item){
+                 if(formData.param2.length && !formData.param2[0].valueSet.every(function(item){
                     return !!item.desc;
                 })){
                     Alertwin.alert({ message: '请输入tags描述信息'});
