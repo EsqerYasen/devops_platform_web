@@ -17,7 +17,7 @@
                 <div class="col-md-9">
 	                <span v-html="discribe"></span>
                 </div>
-	            <div class="col-md-2 text-right">
+	            <div class="col-md-2 text-right" v-if="$store.state.evns[typekey].selected">
 		            <i class="yum-font icon-plus-bold" style="cursor: pointer" @click="onAddData(typekey)"></i>
 	            </div>
             </div>
@@ -35,7 +35,7 @@
 	        <transition name="bounce">
 		          <div v-if="$store.state.evns[typekey].selected" class="contentb">
 			          <div class="datashow line_24">
-				          <div v-if="$store.state.evns[typekey].data.length==0">
+				          <div v-if="$store.state.evns[typekey].data.length==0" style="position: absolute">
 					          数据为空，请添加
 				          </div>
 				          <transition-group name="list" tag="div">
@@ -76,15 +76,14 @@
 								           <input type="checkbox" v-model="item.need_high_availability">
 							           </label>
 						           </div>
-
-
 						           <div class="devbox mb0">
 							           <span class="content">
 								           <input type="text" placeholder="特殊需求可调整" v-model="item.comment" class="smnu" style="text-align: left;width: 130px">
-
-
 							           </span>
+						           </div>
 
+						           <div class="devbox mb0">
+							            <span class="fix" style="cursor: pointer" @click="onDeleteData([typekey,index])">删除</span>
 						           </div>
 					          </div>
 				          </transition-group>
@@ -96,14 +95,6 @@
         </div>
     </div>
 </template>
-
-
-
-
-
-
-
-
 
 <template id="level">
 	<div class="row" style="clear: both;">

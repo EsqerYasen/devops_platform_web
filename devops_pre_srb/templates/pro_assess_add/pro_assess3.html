@@ -72,15 +72,22 @@
 					        'estimated_singleton_CPU_core':4,
 					        'estimated_singleton_disk_capacity':100,
 					        'need_high_availability':false,
-					        'comment':"描述",
+					        'comment':"",
 					        'env':envType
 		                 })
-		             }
+		             },
+				    deleteData:function(state,keys){
+		                 state[keys[0]].data.splice(keys[1],1)
+				    }
 			    },
 			    actions:{
 		             addData:function(context,key){
 		                 context.commit('addData',key)
-		             }
+		             },
+				    deleteData:function(context,keys){
+		                 context.commit('deleteData',keys)
+				    }
+
 			    }
 		    }
 		}
@@ -107,7 +114,10 @@
 		methods:{
 		    onAddData:function(key){
 			    this.$store.dispatch('addData',key);
-		    }
+		    },
+			onDeleteData:function(keys){
+		        this.$store.dispatch('deleteData',keys);
+			}
 		}
 	});
 	Vue.component('level',{
