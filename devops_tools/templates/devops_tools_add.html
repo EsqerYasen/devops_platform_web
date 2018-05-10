@@ -235,6 +235,10 @@
         </div>
     </div>
     <script>
+    if(document.referrer !== location.href){
+        localStorage.removeItem('tools_info');
+        localStorage.removeItem('codemirror_lang');
+    }
     var page = new Vue({
         el:'#tool_add',
         data: {
@@ -304,7 +308,7 @@
                     Alertwin.alert({ message: '请输入tags描述信息'});
                     return;
                 }
-                if(formData.param2.length && script_lang == 'yaml'){
+                if(formData.param2.length && formData.script_lang == 'yaml'){
                     formData.param2[0].paramNameZh = 'tags';
                     formData.param2.push(Object.assign({}, formData.param2[0]));
                     formData.param2[1].paramNameZh = 'skip-tags';
@@ -427,6 +431,7 @@
 
     $('#changeMode').change(function(){
         var v = $(this).val();
+        page.formData.script_lang = v;
         localStorage.setItem('codemirror_lang', v);
         page.formData.shell = editor.getValue();
         localStorage.setItem('tools_info', JSON.stringify( page.formData ));

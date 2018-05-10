@@ -247,7 +247,7 @@
                 filename:'{{ result_dict.filename }}',
                 infom:{{ result_dict.infom }},
 {#                command: '{{ result_dict.command }}',#}
-                script_lang: '{{ result_dict.script_lang }}',
+                script_lang: localStorage.getItem('codemirror_lang') ||  '{{ result_dict.script_lang }}',
                 param: [
                 {% for p in result_dict.param %}
                 {% if p.paramNameZh != 'tags' and p.paramNameZh != 'skip-tags'%}
@@ -335,7 +335,7 @@
                     return;
                 }
 
-                if(formData.param2.length && script_lang == 'yaml'){
+                if(formData.param2.length && formData.script_lang == 'yaml'){
                     formData.param2[0].paramNameZh = 'tags';
                     formData.param2.push(Object.assign({}, formData.param2[0]));
                     formData.param2[1].paramNameZh = 'skip-tags';
@@ -405,8 +405,26 @@
       });
     editor.setValue('#!/bin/sh');
     editor.setValue("{{ result_dict.command|safe }}");
+    if(page.formData.script_lang === 'yaml'){
+        if(!page.formData.param2.length){
+            page.formData.param2 = [
+                {
+                    paramNameEn: '',
+                    paramNameZh: 'tags/skip-tags',
+                    type: 'multiple',
+                    desc: '',
+                    no: 0,
+                    valueSet: [],
+                    default: ''
+                }
+            ]
+        }
+    }else{
+        page.formData.param2 = [];
+    }
     $('#changeMode').change(function(){
         var v = $(this).val();
+        page.formData.script_lang = v;
         localStorage.setItem('codemirror_lang', v);
         page.formData.shell = editor.getValue();
         localStorage.setItem('tools_info', JSON.stringify( page.formData ));
