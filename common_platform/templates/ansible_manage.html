@@ -230,6 +230,8 @@
                     this.log="服务器正在处理，请稍后...";
                     this.disabled=true;
 
+                    this.zoom=true
+
                     {#layer.load();#}
                     $.ajax({
                         type : 'POST',
@@ -255,6 +257,10 @@
                                         logStr +="\r\n\</span>";
                                     }
                                 }
+                                setTimeout(function(){
+                                    _this.zoom=false
+
+                                },5000);
                                 _this.log = logStr;
                             }else{
                                 Alertwin.alert({message:response.msg});
