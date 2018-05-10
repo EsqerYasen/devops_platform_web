@@ -7177,7 +7177,11 @@ fade-enter-active, .fade-leave-active {
     min-height: 500px;
 }
 
-
+.evnsbox select{
+    outline: none;
+    border: none;
+    width:100px;
+}
 .treebox h4{
     text-align: center;
     border-bottom: 1px solid #fefefe;
@@ -7257,7 +7261,13 @@ fade-enter-active, .fade-leave-active {
 .evnsbox{
     display: block;
     clear: both;
-    margin-bottom: 5px;
+    /*margin-bottom: 5px;*/
+    position: relative;
+    padding: 5px 5px 0px 5px;
+    border: 1px solid #eee;
+    margin-top: -1px;
+    background: #ffffff;
+
 }
 
 
@@ -7268,12 +7278,12 @@ fade-enter-active, .fade-leave-active {
   margin-right: 10px;
 }
 .list-enter-active, .list-leave-active {
-  transition: all 1s;
+  transition: all 300ms;
 }
 .list-enter, .list-leave-to
 /* .list-leave-active for below version 2.1.8 */ {
   opacity: 0;
-  transform: translateY(30px);
+  transform: translateX(300px);
 }
 
 
@@ -7311,7 +7321,9 @@ fade-enter-active, .fade-leave-active {
 .mb0{
     margin-bottom: 0px;
 }
-
+.mb5{
+    margin-bottom: 5px;
+}
 
 
 

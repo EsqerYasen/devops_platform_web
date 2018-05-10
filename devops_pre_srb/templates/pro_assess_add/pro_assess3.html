@@ -5,7 +5,7 @@
 			:show_checkbox="False"
 			:show_add="True"
 			discribe="描述"
-			title="生产描述">
+			title="生产">
 	</evn-component>
 	<evn-component
 			typekey="disaster_recovery"
@@ -67,22 +67,31 @@
 		                 state[key].data.push({
 			                'project_id':'',
 					        'app_category':"1",
-					        'app_category_item':"2",
+					        'app_category_item':"1",
 					        'other_category_name':"其他文本框值",
 					        'estimated_server_count':4,
 					        'estimated_singleton_memory_capacity':8,
 					        'estimated_singleton_CPU_core':4,
 					        'estimated_singleton_disk_capacity':100,
 					        'need_high_availability':false,
-					        'comment':"描述",
+					        'comment':"",
 					        'env':envType
 		                 })
-		             }
+		             },
+				    deleteData:function(state,keys){
+		                 state[keys[0]].data.splice(keys[1],1)
+				    }
+
+
 			    },
 			    actions:{
 		             addData:function(context,key){
 		                 context.commit('addData',key)
-		             }
+		             },
+				    deleteData:function(context,keys){
+		                 context.commit('deleteData',keys)
+				    }
+
 			    }
 		    }
 		}
@@ -109,8 +118,36 @@
 		methods:{
 		    onAddData:function(key){
 			    this.$store.dispatch('addData',key);
-		    }
+		    },
+			onDeleteData:function(keys){
+		        this.$store.dispatch('deleteData',keys);
+			},
+<<<<<<< HEAD
+			getTotal:function(key,key1){
+		        var total = 0;
+		        var lists = this.$store.state.evns[key].data;
+		        for(var i=0;i<lists.length;i++){
+		            total+=  lists[i].need_high_availability? (lists[i][key1]*2) :lists[i][key1];//.estimated_singleton_CPU_core
+		        }
+		        return parseInt(total);
+	        }
+=======
+			getCPUTotal:function(key){
+	            {#return str#}
+	        },
+            changeAppCategory:function(item){
+			    var pid = item.app_category;
+			    categoryItem_list.every(function(it){
+			        if(it.parent_category_id == pid){
+			            item.app_category_item = it.id;
+			            return false;
+                    }
+                    return true;
+                })
+            }
+>>>>>>> 2b75d01dac755cd296b4643b672cd5c6c6a214c6
 		}
+
 	});
 	Vue.component('level',{
 		template:"#level",
