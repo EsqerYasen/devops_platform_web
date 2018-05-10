@@ -1,0 +1,60 @@
+{% extends 'common/basic_rank_list.html' %}
+{% load widget_tweaks %}
+
+{% block list_title %}
+    ansible操作日志
+{% endblock %}
+
+{% block  list_search %}
+    <div class="col-sm-2">
+        <input type="text" id="name" name="name" class="form-control m-b" placeholder="名称" />
+    </div>
+{% endblock %}
+
+{% block list_filter %}
+    <div class="col-sm-6">
+        <div class="input-group">
+            <button type="submit" class="btn btn-sm btn-primary" style="margin-right: 10px"><i class="fa fa-search"></i> 搜索</button>
+        </div>
+    </div>
+{% endblock %}
+
+{% block list_content %}
+    <table id="tb" class="table table-striped table-bordered table-hover dataTables-example dataTable">
+        <thead>
+            <th style="width:3%;"><input id="checkall" type="checkbox" class="i-checks"></th>
+            <th style="width: 20%;">
+                模式
+            </th>
+            <th style="width: 20%;">
+                操作人
+            </th>
+            <th style="width: 20%;">
+                操作时间
+            </th>
+            <th style="width: 20%;">
+                操作
+            </th>
+        </thead>
+        <tbody>
+        {% for o in result_list %}
+            <tr>
+                <td>
+                    <input type="checkbox" class="i-checks icheck" id="{{ o.id }}" name="trCheckbox">
+                </td>
+                <td>{{ o.module }}</td>
+                <td>{{ o.executor }}</td>
+                <td>{{ o.record_time }}</td>
+                <td>
+                    <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='#vip_add_modal' style="margin-right: 10px"><i class="glyphicon glyphicon-edit"></i> 查看</button>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+<script>
+
+
+</script>
+{% endblock %}

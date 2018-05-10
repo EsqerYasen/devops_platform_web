@@ -42,3 +42,30 @@ class AnsibleMgeView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, Te
             result['msg'] = '执行异常'
             logger.error(e)
         return HttpResponse(json.dumps(result),content_type='application/json')
+
+
+class AnsibleMgeLogsListView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, TemplateView):
+    template_name = "ansible_manage_logs_list.html"
+
+    def get_context_data(self, **kwargs):
+        context = {}
+        try:
+            hu = HttpUtils(self.request)
+            reqData = hu.getRequestParam()
+            logsListResult = hu.get(serivceName="job", restName="/rest/job/list_ansible_history/", datas={})
+            context['result_list'] = logsListResult.get("data", [])
+        except Exception as e:
+            logger.error(e)
+        return context
+
+    def get_ajax(self, request, *args, **kwargs):
+        result = {'status': 0}
+        try:
+            hu = HttpUtils(self.request)
+            reqData = hu.getRequestParam()
+
+        except Exception as e:
+            result['status'] = 1
+            result['msg'] = '执行异常'
+            logger.error(e)
+        return HttpResponse(json.dumps(result),content_type='application/json')
