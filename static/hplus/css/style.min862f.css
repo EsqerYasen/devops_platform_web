@@ -7329,4 +7329,12 @@ fade-enter-active, .fade-leave-active {
 
 
 
+.nomalpre{
+    display: block; border: none;background: none; padding: 0px; margin: 0px;color: #ffffff
+}
+.logtable{
+    color: #ffffff;padding:10px;background: #000000; text-align: left
+}
+
+
 

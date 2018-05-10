@@ -20,6 +20,13 @@
 {% endblock %}
 
 {% block list_content %}
+
+
+
+
+
+	<script type="text/javascript" src="/static/hplus/js/works/vue.min.js"></script>
+
     <table id="tb" class="table table-striped table-bordered table-hover dataTables-example dataTable">
         <thead>
             <th style="width:3%;"><input id="checkall" type="checkbox" class="i-checks"></th>
@@ -63,10 +70,63 @@
                       <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div class="modal-body" style="max-height: 500px;overflow:auto">
+                <div class="modal-body" style="max-height: 500px;overflow:auto" id="logMain">
                     <div class="row">
-                        <div class="col-sm-3">aa</div>
-                        <div class="col-sm-9">11</div>
+                        <div class="col-sm-3">
+	                        <div class="col-sm-12">
+		                        <div class="col-sm-6">module</div>
+		                        <div class="col-sm-6" v-html="logData.module"></div>
+	                        </div>
+
+	                         <div class="col-sm-12">
+		                        <div class="col-sm-6">executor</div>
+		                        <div class="col-sm-6" v-html="logData.executor"></div>
+	                        </div>
+
+	                        <div class="col-sm-12">
+		                        <div class="col-sm-6">record_time</div>
+		                        <div class="col-sm-6" v-html="logData.record_time"></div>
+	                        </div>
+
+
+
+	                        <div class="col-sm-12">
+		                        <table>
+			                        <thead>
+			                        <tr>
+				                        <td>ip</td>
+			                        </tr>
+
+			                        </thead>
+			                        <tbody>
+
+			                            <tr v-for="val in logData.list">
+				                            <td v-html="val"></td>
+			                            </tr>
+
+
+			                        </tbody>
+		                        </table>
+	                        </div>
+
+
+
+
+
+                        </div>
+
+
+
+
+
+
+                        <div class="col-sm-9 logtable">
+
+
+	                        <pre class="nomalpre" v-html="logData.info">
+	                        </pre>
+
+                        </div>
                     </div>
                 </div>
             </div>
@@ -75,9 +135,34 @@
 {% endblock %}
 
 <script>
-    $("#logs_info_modal").on('show.bs.modal',function(event){
+
+
+
+    var logVm = new Vue({
+	    el:'#logMain',
+	    data:{
+	        logData:{
+	            module:"模式",
+		        executor:"操作人",
+		        record_time:'时间',
+		        list:[1,2,4,6,],
+		        info:" log 数据"
+
+	        }
+	    },
+	    methods:{
+	        changelog:function(){
+	            alert(this.logData.info);
+	        }
+	    }
+    })
+
+
+	$("#logs_info_modal").on('show.bs.modal',function(event){
         var datas = $(event.relatedTarget).data();
-        alert("111");
+
+        logVm.changelog();
+        {#alert("111");#}
     });
 
     $("#logs_info_modal").on('hide.bs.modal',function(event){
