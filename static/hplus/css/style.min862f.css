@@ -7259,8 +7259,10 @@ fade-enter-active, .fade-leave-active {
     clear: both;
     /*margin-bottom: 5px;*/
     position: relative;
-    padding: 5px;
+    padding: 5px 5px 0px 5px;
     border: 1px solid #eee;
+    margin-top: -1px;
+    background: #ffffff;
 
 }
 
@@ -7315,7 +7317,9 @@ fade-enter-active, .fade-leave-active {
 .mb0{
     margin-bottom: 0px;
 }
-
+.mb5{
+    margin-bottom: 5px;
+}
 
 
 

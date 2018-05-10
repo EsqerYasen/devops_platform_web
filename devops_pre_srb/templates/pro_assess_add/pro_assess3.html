@@ -5,7 +5,7 @@
 			:show_checkbox="False"
 			:show_add="True"
 			discribe="描述"
-			title="生产描述">
+			title="生产">
 	</evn-component>
 	<evn-component
 			typekey="disaster_recovery"
@@ -119,8 +119,12 @@
 		    },
 			onDeleteData:function(keys){
 		        this.$store.dispatch('deleteData',keys);
-			}
+			},
+			getCPU:function(){
+	            {#return str#}
+	        }
 		}
+
 	});
 	Vue.component('level',{
 		template:"#level",

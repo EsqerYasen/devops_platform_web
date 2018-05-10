@@ -40,35 +40,35 @@
 				          </div>
 				          <transition-group name="list" tag="div">
 					           <div class="evnsbox clear" v-for="(item,index) in $store.state.evns[typekey].data" :key="item">
-						            <div class="devbox mb0">
+						            <div class="devbox mb5">
 										<span class="fix prod">数量</span>
 										<span class="content">
 											<input type="number" v-model="item.estimated_server_count" class="smnu" min="0" max="99999">
 										</span>
 										<span class="fix">台</span>
 									</div>
-									<div class="devbox mb0">
+									<div class="devbox mb5">
 										<span class="fix">内存</span>
 										<span class="content">
 											<input type="number" v-model="item.estimated_singleton_memory_capacity"  class="smnu" min="0" max="99999">
 										</span>
 										<span class="fix">G</span>
 									</div>
-									<div class="devbox mb0">
+									<div class="devbox mb5">
 										<span class="fix">CPU</span>
 										<span class="content">
 											<input type="number"  v-model="item.estimated_singleton_CPU_core" class="smnu" min="0" max="99999">
 										</span>
 										<span class="fix">核</span>
 									</div>
-									<div class="devbox mb0">
+									<div class="devbox mb5">
 										 <span class="fix">磁盘</span>
 										 <span class="content">
 											 <input type="number"  v-model="item.estimated_singleton_disk_capacity" class="smnu" min="0" max="99999">
 										 </span>
 										 <span class="fix">G</span>
 									</div>
-						           <div class="devbox mb0">
+						           <div class="devbox mb5">
 							           <label style="padding-right:5px">
 								           <span class="fix">
 									           高可用
@@ -76,17 +76,34 @@
 								           <input type="checkbox" v-model="item.need_high_availability">
 							           </label>
 						           </div>
-						           <div class="devbox mb0">
+						           <div class="devbox mb5">
 							           <span class="content">
 								           <input type="text" placeholder="特殊需求可调整" v-model="item.comment" class="smnu" style="text-align: left;width: 130px">
 							           </span>
 						           </div>
 
-						           <div class="devbox mb0">
+						           <div class="devbox mb5">
 							            <span class="fix" style="cursor: pointer" @click="onDeleteData([typekey,index])">删除</span>
 						           </div>
 					          </div>
 				          </transition-group>
+
+
+
+
+				          <h2 style="margin-top: 20px; font-size: 18px" v-if="$store.state.evns[typekey].data.length!=0">
+					          <span v-html="title"></span>环境VM合计<span v-html="$store.state.evns[typekey].data.length||0"></span>台
+					          &nbsp;
+					          &nbsp;
+					          &nbsp;
+					          &nbsp;
+
+					          <span v-html="datas($store.state.evns[typekey].data.length)"></span>
+
+					          CPU:128C / MEM:700G / DISK:1800G（系统自动计算获得）
+				          </h2>
+
+
 			          </div>
 		          </div>
 	        </transition>
