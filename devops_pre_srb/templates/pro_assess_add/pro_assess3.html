@@ -1,6 +1,4 @@
 <div class="tab-pane" id="tab3">
-
-
 	<pre v-html="$store.state.evns"></pre>
 	<evn-component
 			typekey="production"
@@ -51,15 +49,31 @@
 			    },
 			    mutations:{
 		             addData:function(state,key){
+		                 var envType = '';
+
+		                 switch (key){
+			                 case 'production':
+			                     envType=1;
+			                     break;
+			                 case 'disaster_recovery':
+			                      envType=2;
+			                     break;
+			                 case 'preview':
+			                      envType=3;
+			                     break;
+		                 }
 		                 state[key].data.push({
-			                 projectName:'名称',
-			                 service:'ngx',
-			                 num:10,
-			                 memory:1204,
-			                 cpu:1,
-			                 disk:800,
-			                 isHeight:true,
-			                 special:'特殊需求'
+			                'project_id':'',
+					        'app_category':"1",
+					        'app_category_item':"2",
+					        'other_category_name':"其他文本框值",
+					        'estimated_server_count':"4",
+					        'estimated_singleton_memory_capacity':8,
+					        'estimated_singleton_CPU_core':4,
+					        'estimated_singleton_disk_capacity':100,
+					        'need_high_availability':"1",
+					        'comment':"描述",
+					        'env':envType
 		                 })
 		             }
 			    },

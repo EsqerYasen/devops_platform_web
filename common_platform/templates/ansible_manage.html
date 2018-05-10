@@ -145,10 +145,10 @@
 			    zoom:false,
 				moduleList:[
 				    'ping',
-					'raw',
+					'shell',
 					'yum',
-					'copy',
 					'service',
+					'copy',
 					'file',
 					'user',
 					'sync',
@@ -173,8 +173,8 @@
 			        switch (val){
 			            case 'ping':
 				            this.modulePlaceholder='';this.isCustom=false;break;
-				        case 'raw':
-				            this.modulePlaceholder='uptime' ;this.isCustom=false ;break;
+				        case 'shell':
+				            this.modulePlaceholder='uptime';this.isCustom=false;break;
 				        case 'yum':
 				            this.modulePlaceholder='name=httpd state=present';this.isCustom=false;break;
 				        case 'copy':
@@ -186,6 +186,7 @@
 				        case 'user':
 				            this.modulePlaceholder='name=welliam password=\'$6yshUMNL8dhY\'';this.isCustom=false;break;
 				        case 'sync':
+
 				            this.modulePlaceholder='src=/root/a dest=/tmp/ compress=yes rsync_opts="--exclude=.git --exclude=static/image"';this.isCustom=false;break;
 				        case 'cron':
 				            this.modulePlaceholder='name="sync time" minute=*/3 hour=* day=* month=* weekday=* job="/usr/sbin/ntpdate window.time.com"';this.isCustom=false;break;

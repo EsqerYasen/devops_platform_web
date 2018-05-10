@@ -34,10 +34,23 @@
 
 	        <transition name="bounce">
 		          <div v-if="$store.state.evns[typekey].selected" class="contentb">
-			          <div class="datashow">
-				          数据展示
-			          </div>
+			          <div class="datashow line_24">
+				          
+				          <div class="evnsbox" v-for="(item,index) in $store.state.evns[typekey].data">
+					          
+					          <div class="devbox">
+								<span class="fix prod">数量</span>
+								<span class="content">
+									<input type="number" v-model="item.estimated_server_count">
+								</span>
+								<span class="fix">台</span>
+							</div>
 
+
+					          
+				          </div>
+				          
+			          </div>
 		          </div>
 	        </transition>
 
@@ -45,6 +58,15 @@
         </div>
     </div>
 </template>
+
+
+
+
+
+
+
+
+
 <template id="level">
 	<div class="row" style="clear: both;">
 	     <div class="col-md-4">
