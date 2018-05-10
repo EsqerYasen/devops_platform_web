@@ -25,8 +25,6 @@
 
 .icon-guanbi:before { content: "\e634"; }
 
-.icon-guanbi:before { content: "\e634"; }
-
 .icon-sousuo:before { content: "\e60f"; }
 
 .icon-tanhao:before { content: "\e61d"; }
@@ -36,4 +34,6 @@
 .icon-shanchu:before { content: "\e60b"; }
 
 .icon-edit:before { content: "\e603"; }
+
+.icon-suoxiao:before { content: "\e606"; }
 
