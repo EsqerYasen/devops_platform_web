@@ -235,6 +235,10 @@
         </div>
     </div>
     <script>
+    if(document.referrer !== location.href){
+        localStorage.removeItem('tools_info');
+        localStorage.removeItem('codemirror_lang');
+    }
     var page = new Vue({
         el:'#tool_add',
         data: {
