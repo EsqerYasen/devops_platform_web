@@ -131,16 +131,16 @@
 		            total+=  lists[i].need_high_availability? (lists[i][key1]*2) :lists[i][key1];//.estimated_singleton_CPU_core
 		        }
 		        return parseInt(total);
-	        }
-            changeAppCategory:function(item){
-			    var pid = item.app_category;
-			    categoryItem_list.every(function(it){
-			        if(it.parent_category_id == pid){
-			            item.app_category_item = it.id;
-			            return false;
-                    }
-                    return true;
-                })
+	        },
+            resetData:function(typekey){debugger;
+			    if(!this.$store.state.evns[typekey].selected){
+			        var t = this;
+			        Alertwin.confirm({ message: "确认要删除选择的数据吗？" }).on(function (e) {
+                        t.$store.dispatch('delData',typekey);
+                    });
+                }else{
+			        this.$store.dispatch('copyData',typekey);
+                }
             }
 		}
 
