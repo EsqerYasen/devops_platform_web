@@ -82,7 +82,13 @@
 		             },
 				    deleteData:function(state,keys){
 		                 state[keys[0]].data.splice(keys[1],1)
-				    }
+				    },
+                    copyData: function(state, key){
+				        state[key].data = JSON.parse(JSON.stringify(state.production.data));
+                    },
+                    delData:function(state, key){
+                        state[key].data = [];
+                    }
 
 
 			    },
@@ -92,7 +98,13 @@
 		             },
 				    deleteData:function(context,keys){
 		                 context.commit('deleteData',keys)
-				    }
+				    },
+                    copyData:function(context, key){
+				        context.commit('copyData',key);
+                    },
+                    delData:function(context, key){
+                        context.commit('delData', key);
+                    }
 
 			    }
 		    }
@@ -135,8 +147,12 @@
             resetData:function(typekey){debugger;
 			    if(!this.$store.state.evns[typekey].selected){
 			        var t = this;
+			        this.$store.state.evns[typekey].selected = true;
 			        Alertwin.confirm({ message: "确认要删除选择的数据吗？" }).on(function (e) {
-                        t.$store.dispatch('delData',typekey);
+			            if(e){
+                            t.$store.state.evns[typekey].selected = false;
+                            t.$store.dispatch('delData',typekey);
+                        }
                     });
                 }else{
 			        this.$store.dispatch('copyData',typekey);
