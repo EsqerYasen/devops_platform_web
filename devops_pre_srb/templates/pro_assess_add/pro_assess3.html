@@ -1,5 +1,4 @@
 <div class="tab-pane" id="tab3">
-	<pre v-html="save()"></pre>
 	<evn-component
 			typekey="production"
 			:show_checkbox="False"
@@ -21,6 +20,9 @@
 			discribe="版本变更验证环境，确保每次变更稳定高效"
 			title="灰度">
 	</evn-component>
+
+	<pre v-html="save()"></pre>
+
 	<level level="S"> S级 : 主站节点全部高可用 有备份机房 </level>
 	<level level="A"> A级 : 主站存在单节点 有备份机房 /  主站节点全部高可用 无备份机房 </level>
 	<level level="B"> B级: 主站存在单节点 无备份机房 /  主站节点全部单节点 有备份机房 </level>
@@ -192,11 +194,6 @@
 		          }
 		      }
 		      return arr;
-
-
-
-
-
 		  }
 		},
 		mounted:function(){

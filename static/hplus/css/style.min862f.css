@@ -7324,6 +7324,10 @@ fade-enter-active, .fade-leave-active {
 .mb5{
     margin-bottom: 5px;
 }
+.selectself{
+    -webkit-appearance:none;
+    background: #fff;
+}
 
 
 
