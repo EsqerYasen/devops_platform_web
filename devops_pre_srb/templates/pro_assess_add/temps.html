@@ -8,7 +8,7 @@
                 <div class="col-md-1" style="position: relative">
 	                <span v-html="title"></span>
 	                 <label v-if="show_checkbox" class="is_tru" style="position: absolute;top: 3px; left: 60px">
-                        <input type="checkbox" value="1" v-model="$store.state.evns[typekey].selected">
+                        <input type="checkbox" value="1" v-model="$store.state.evns[typekey].selected" @change="resetData(typekey)">
                         <span class="swc" :class="{'active':$store.state.evns[typekey].selected}">
 						    <span class="swci"></span>
 					    </span>
