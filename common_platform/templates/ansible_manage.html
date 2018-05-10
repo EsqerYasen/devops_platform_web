@@ -75,6 +75,7 @@
 										     :options="moduleList"></v-select>
 							    </div>
 							  </div>
+
 				                 <transition name="scale">
 							          <div class="form-group" v-if="isCustom">
 									    <label for="inputPassword3" class="col-sm-3 control-label" style="text-align: left">自定义模块</label>
@@ -83,9 +84,17 @@
 									    </div>
 									  </div>
 						        </transition>
-							  <div class="form-group" style="border: 1px solid #eee;margin: 0px;padding: 5px 10px;margin-bottom: 15px;background: #fefefe;">
-							    <label class="col-sm-12 control-label" style="padding-top: 0px;text-align: left;margin-bottom: 10px;text-align: left;padding: 0px;">模块参数</label>
-							    <div class="col-sm-12" style="padding: 0px;">
+{#							  <div class="form-group" style="border: 1px solid #eee;margin: 0px;padding: 5px 10px;margin-bottom: 15px;background: #fefefe;">#}
+{#							    <label class="col-sm-12 control-label" style="padding-top: 0px;text-align: left;margin-bottom: 10px;text-align: left;padding: 0px;">模块参数</label>#}
+{#							    <div class="col-sm-12" style="padding: 0px;">#}
+{#								    <textarea class="form-control scriptarea" :placeholder="modulePlaceholder" v-model="post.moduleValue" id="textarea" contenteditable="true"></textarea>#}
+{#							    </div>#}
+{#							  </div>#}
+
+
+				                 <div class="form-group">
+							    <label class="col-sm-3 control-label" style="text-align: left">模块参数</label>
+							    <div class="col-sm-9">
 								    <textarea class="form-control scriptarea" :placeholder="modulePlaceholder" v-model="post.moduleValue" id="textarea" contenteditable="true"></textarea>
 							    </div>
 							  </div>
@@ -163,30 +172,30 @@
 			    changeSelectModule:function(val){
 			        switch (val){
 			            case 'ping':
-				            this.modulePlaceholder='';this.post.isCustom=false;break;
+				            this.modulePlaceholder='';this.isCustom=false;break;
 				        case 'raw':
-				            this.modulePlaceholder='uptime' ;this.post.isCustom=false ;break;
+				            this.modulePlaceholder='uptime' ;this.isCustom=false ;break;
 				        case 'yum':
-				            this.modulePlaceholder='name=httpd state=present';this.post.isCustom=false;break;
+				            this.modulePlaceholder='name=httpd state=present';this.isCustom=false;break;
 				        case 'copy':
-				            this.modulePlaceholder='src=/root/test.txt dest=/tmp/test.txt';this.post.isCustom=false;break;
+				            this.modulePlaceholder='src=/root/test.txt dest=/tmp/test.txt';this.isCustom=false;break;
 				        case 'service':
-				            this.modulePlaceholder='name=httpd state=restarted enabled=yes';this.post.isCustom=false;break;
+				            this.modulePlaceholder='name=httpd state=restarted enabled=yes';this.isCustom=false;break;
 				        case 'file':
-				            this.modulePlaceholder='src=/root/test.txt dest=/tmp/test.txt owner=root group=root mode=700 state=touch';this.post.isCustom=false;break;
+				            this.modulePlaceholder='src=/root/test.txt dest=/tmp/test.txt owner=root group=root mode=700 state=touch';this.isCustom=false;break;
 				        case 'user':
-				            this.modulePlaceholder='name=welliam password=\'$6yshUMNL8dhY\'';this.post.isCustom=false;break;
+				            this.modulePlaceholder='name=welliam password=\'$6yshUMNL8dhY\'';this.isCustom=false;break;
 				        case 'sync':
-				            this.modulePlaceholder='src=/root/a dest=/tmp/ compress=yes rsync_opts="--exclude=.git --exclude=static/image"';this.post.isCustom=false;break;
+				            this.modulePlaceholder='src=/root/a dest=/tmp/ compress=yes rsync_opts="--exclude=.git --exclude=static/image"';this.isCustom=false;break;
 				        case 'cron':
-				            this.modulePlaceholder='name="sync time" minute=*/3 hour=* day=* month=* weekday=* job="/usr/sbin/ntpdate window.time.com"';this.post.isCustom=false;break;
+				            this.modulePlaceholder='name="sync time" minute=*/3 hour=* day=* month=* weekday=* job="/usr/sbin/ntpdate window.time.com"';this.isCustom=false;break;
 				        case 'wget':
-				            this.modulePlaceholder='url=http://url/test.tar.gz dest=/tmp';this.post.isCustom=false;break;
+				            this.modulePlaceholder='url=http://url/test.tar.gz dest=/tmp';this.isCustom=false;break;
 				        case '自定义':
 				            this.modulePlaceholder='';
-					        this.post.isCustom=true;
+					        this.isCustom=true;
 					        break;
-				        default :this.post.isCustom=false;break;
+				        default :this.isCustom=false;break;
 
 			        }
 			    },
