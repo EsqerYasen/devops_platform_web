@@ -19,6 +19,12 @@
     -moz-osx-font-smoothing: grayscale;
 }
 
+
+
+.icon-suofang:before { content: "\e61f"; }
+
+.icon-guanbi:before { content: "\e634"; }
+
 .icon-guanbi:before { content: "\e634"; }
 
 .icon-sousuo:before { content: "\e60f"; }
