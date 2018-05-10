@@ -116,8 +116,8 @@
 							  </div>
 							</div>
 		                </div>
-		                <div class="logbox">
-			                <i class="ico yum-font icon-suofang"></i>
+		                <div class="logbox" :class="{'big':zoom}">
+			                <i class="ico yum-font icon-suofang" :class="{'icon-suoxiao':zoom}" @click="zoomFn"></i>
 			                <pre v-html="log" style="background: none;border: none;color:#ADFF2F; font-size: 12px"></pre>
 		                </div>
 		                <div style="clear: both; display: block; overflow: hidden"></div>
@@ -133,6 +133,7 @@
 		var ansibleVm = new Vue({
 			el:"#ansibleApp",
 			data:{
+			    zoom:false,
 				moduleList:[
 				    'ping',
 					'raw',
@@ -256,6 +257,9 @@
                             console.log(response);
                         }
                     });
+				},
+				zoomFn:function(){
+			        this.zoom=!this.zoom
 				}
 			}
 		})
