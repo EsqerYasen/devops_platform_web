@@ -234,11 +234,15 @@
                                 for(var k in data){
                                     var data2 = data[k];
                                     if(JSON.stringify(data2) != "{}"){
-                                        logStr +="-----------------------------------"+k+"-----------------------------------\r\n";
-                                        for(var k2 in data2){
-                                            logStr += data2[k2].replace(/\\r/g,'\r').replace(/\\n/g,'\n');
+                                        if(k == 'success'){
+                                            logStr +='<span style="background: none;border: none;color:green; font-size: 12px">';
+                                        }else{
+                                            logStr +='<span style="background: none;border: none;color:red; font-size: 12px">';
                                         }
-                                        logStr +="\r\n--------------------------------------------------------------------------------\r\n";
+                                        for(var k2 in data2){
+                                            logStr += data2[k2].replace(/\\r/g,'\r').replace(/\\n/g,'\n')+"\r\n";
+                                        }
+                                        logStr +="\r\n\</span>";
                                     }
                                 }
                                 _this.log = logStr;
