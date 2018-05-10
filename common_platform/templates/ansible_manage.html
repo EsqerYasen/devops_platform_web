@@ -5,10 +5,16 @@
 	<link href="/static/hplus/css/zTree/bootstrapStyle.css" rel="stylesheet">
 	<script type="text/javascript" src="/static/hplus/js/works/vue.min.js"></script>
 
+	<link href="/static/hplus/css/works/yum-font.css" rel="stylesheet">
+
+
 	<script type="text/javascript" src="/static/hplus/js/works/components/vue-select.js"></script>
 	<script type="text/javascript" src="/static/hplus/js/zTree/jquery.ztree.core.js"></script>
 	<script type="text/javascript" src="/static/hplus/js/zTree/jquery.ztree.excheck.js"></script>
 	<script type="text/javascript" src="/static/hplus/js/zTree/jquery.ztree.exedit.js"></script>
+
+
+
 	{% include 'autotextheight.html' %}
 	<style>
 	.ztree li ul{
@@ -105,13 +111,13 @@
 							  </div>
 							  <div class="form-group">
 							    <div class="col-sm-offset-3 col-sm-9">
-							      <button class="btn btn-primary" @click="postSend"> 执行 </button>
+							      <button class="btn btn-primary" @click="postSend" :disabled="disabled"> 执行 </button>
 							    </div>
 							  </div>
 							</div>
 		                </div>
 		                <div class="logbox">
-			                <pre v-html="log" style="background: none;color: #ffff; border: none;color:white"></pre>
+			                <pre v-html="log" style="background: none;border: none;color:#ADFF2F; font-size: 12px"></pre>
 		                </div>
 		                <div style="clear: both; display: block; overflow: hidden"></div>
 	                </div>
@@ -126,7 +132,6 @@
 		var ansibleVm = new Vue({
 			el:"#ansibleApp",
 			data:{
-			    
 				moduleList:[
 				    'ping',
 					'raw',
@@ -147,15 +152,16 @@
 					debug:false,
 					costomModuleName:''
 				},
-				log:'执行中',
+				log:'',
 				modulePlaceholder:'',
 				isCustom:false,
+				disabled:false,
 			},
 			methods:{
 			    changeSelectModule:function(val){
 			        switch (val){
 			            case 'ping':
-				            this.modulePlaceholder='ping yumchina.com';this.post.isCustom=false;break;
+				            this.modulePlaceholder='';this.post.isCustom=false;break;
 				        case 'raw':
 				            this.modulePlaceholder='uptime' ;this.post.isCustom=false ;break;
 				        case 'yum':
@@ -210,12 +216,16 @@
                     reqData['verbose'] = this.post.info;
                     reqData['debug'] = this.post.debug;
 
-                    layer.load();
+                    this.log="服务器正在处理，请稍后...";
+                    this.disabled=true;
+
+                    {#layer.load();#}
                     $.ajax({
                         type : 'POST',
                         url: '/platform/ansible/mge/',
                         data:{"runJson":JSON.stringify(reqData),"csrfmiddlewaretoken":'{{ csrf_token }}'},
                         success : function(response) {
+                            _this.disabled=false;
                             layer.closeAll('loading');
                             if(response.status == 0){
                                 var logStr = "";
@@ -236,6 +246,7 @@
                             }
                         },
                         error : function(response) {
+                            _this.disabled=false;
                             layer.closeAll('loading');
                             console.log(response);
                         }
