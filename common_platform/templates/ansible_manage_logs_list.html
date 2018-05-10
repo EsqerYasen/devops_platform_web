@@ -46,7 +46,7 @@
                 <td>{{ o.executor }}</td>
                 <td>{{ o.record_time }}</td>
                 <td>
-                    <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='#logs_info_modal' style="margin-right: 10px"><i class="glyphicon glyphicon-edit"></i> 查看</button>
+                    <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='#logs_info_modal' style="margin-right: 10px"><i class="glyphicon glyphicon-info-sign"></i> 查看</button>
                 </td>
             </tr>
         {% endfor %}
@@ -75,7 +75,14 @@
 {% endblock %}
 
 <script>
+    $("#logs_info_modal").on('show.bs.modal',function(event){
+        var datas = $(event.relatedTarget).data();
+        alert("111");
+    });
 
+    $("#logs_info_modal").on('hide.bs.modal',function(event){
+
+    });
 
 </script>
 {% endblock %}
