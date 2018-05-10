@@ -35,21 +35,59 @@
 	        <transition name="bounce">
 		          <div v-if="$store.state.evns[typekey].selected" class="contentb">
 			          <div class="datashow line_24">
-				          
-				          <div class="evnsbox" v-for="(item,index) in $store.state.evns[typekey].data">
-					          
-					          <div class="devbox">
-								<span class="fix prod">数量</span>
-								<span class="content">
-									<input type="number" v-model="item.estimated_server_count">
-								</span>
-								<span class="fix">台</span>
-							</div>
-
-
-					          
+				          <div v-if="$store.state.evns[typekey].data.length==0">
+					          数据为空，请添加
 				          </div>
-				          
+				          <transition-group name="list" tag="div">
+					           <div class="evnsbox clear" v-for="(item,index) in $store.state.evns[typekey].data" :key="item">
+						            <div class="devbox mb0">
+										<span class="fix prod">数量</span>
+										<span class="content">
+											<input type="number" v-model="item.estimated_server_count" class="smnu" min="0" max="99999">
+										</span>
+										<span class="fix">台</span>
+									</div>
+									<div class="devbox mb0">
+										<span class="fix">内存</span>
+										<span class="content">
+											<input type="number" v-model="item.estimated_singleton_memory_capacity"  class="smnu" min="0" max="99999">
+										</span>
+										<span class="fix">G</span>
+									</div>
+									<div class="devbox mb0">
+										<span class="fix">CPU</span>
+										<span class="content">
+											<input type="number"  v-model="item.estimated_singleton_CPU_core" class="smnu" min="0" max="99999">
+										</span>
+										<span class="fix">核</span>
+									</div>
+									<div class="devbox mb0">
+										 <span class="fix">磁盘</span>
+										 <span class="content">
+											 <input type="number"  v-model="item.estimated_singleton_disk_capacity" class="smnu" min="0" max="99999">
+										 </span>
+										 <span class="fix">G</span>
+									</div>
+						           <div class="devbox mb0">
+							           <label style="padding-right:5px">
+								           <span class="fix">
+									           高可用
+								           </span>
+								           <input type="checkbox" v-model="item.need_high_availability">
+							           </label>
+						           </div>
+
+
+						           <div class="devbox mb0">
+							           <span class="content">
+								           <input type="text" placeholder="特殊需求可调整" v-model="item.comment" class="smnu" style="text-align: left;width: 130px">
+
+
+							           </span>
+
+						           </div>
+					          </div>
+				          </transition-group>
 			          </div>
 		          </div>
 	        </transition>

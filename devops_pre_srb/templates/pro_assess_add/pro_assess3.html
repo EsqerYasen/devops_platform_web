@@ -1,5 +1,5 @@
 <div class="tab-pane" id="tab3">
-	<pre v-html="$store.state.evns"></pre>
+{#	<pre v-html="$store.state.evns"></pre>#}
 	<evn-component
 			typekey="production"
 			:show_checkbox="False"
@@ -67,11 +67,11 @@
 					        'app_category':"1",
 					        'app_category_item':"2",
 					        'other_category_name':"其他文本框值",
-					        'estimated_server_count':"4",
+					        'estimated_server_count':4,
 					        'estimated_singleton_memory_capacity':8,
 					        'estimated_singleton_CPU_core':4,
 					        'estimated_singleton_disk_capacity':100,
-					        'need_high_availability':"1",
+					        'need_high_availability':false,
 					        'comment':"描述",
 					        'env':envType
 		                 })

@@ -7046,32 +7046,32 @@ body.skin-3 {
 }
 
 
-.sc .fix{
+.sc .fix,.panel-info .fix{
     background: #23c6c8;
     color: #fff;
 }
 
-.zb .fix{
+.zb .fix,.panel-success .fix{
     background: #1c84c6;
     color: #fff;
 }
 
-.hd .fix{
+.hd .fix,.panel-primary .fix{
     background: #1ab394;
     color: #fff;
 }
 
 
 
-.sc .devbox{
+.sc .devbox,.panel-info .devbox{
     border-color: #23c6c8;
 }
 
-.zb .devbox{
+.zb .devbox,.panel-success .devbox{
     border-color: #1c84c6;
 }
 
-.hd .devbox{
+.hd .devbox,.panel-primary .devbox{
     border-color: #1ab394;
 }
 
@@ -7246,15 +7246,71 @@ fade-enter-active, .fade-leave-active {
 
 
 .scriptarea{
-    /*height: 90px;*/
-    /*min-height: 90px;*/
-    /*max-height: 120px;*/
+
     word-wrap: break-word;
     overflow-x: hidden;
     overflow-y: auto;
 
 }
 
+
+.evnsbox{
+    display: block;
+    clear: both;
+    margin-bottom: 5px;
+}
+
+
+
+
+.list-item {
+  display: inline-block;
+  margin-right: 10px;
+}
+.list-enter-active, .list-leave-active {
+  transition: all 1s;
+}
+.list-enter, .list-leave-to
+/* .list-leave-active for below version 2.1.8 */ {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+
+
+.smnu{
+    display: inline;
+    padding: 0px;
+    border: none;
+    height: 22px;
+    line-height: 22px;
+    border:none;
+    width: 50px;
+    text-align: center;
+    background: none;
+}
+
+.smnu.maxs{
+    width: 130px;
+    height: 18px;
+    line-height: 18px;
+    border:none;
+    background: none;
+
+}
+
+
+.smnu:focus{
+    outline: none;
+}
+
+.smnu.maxs:focus{
+    outline: none;
+}
+
+.mb0{
+    margin-bottom: 0px;
+}
 
 
 
