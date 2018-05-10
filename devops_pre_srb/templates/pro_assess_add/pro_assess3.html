@@ -140,7 +140,7 @@
 		        var total = 0;
 		        var lists = this.$store.state.evns[key].data;
 		        for(var i=0;i<lists.length;i++){
-		            total+=  lists[i].need_high_availability? (lists[i][key1]*2) :lists[i][key1];//.estimated_singleton_CPU_core
+		            total+=  lists[i].need_high_availability? parseInt(lists[i][key1]*2) :parseInt(lists[i][key1]);//.estimated_singleton_CPU_core
 		        }
 		        return parseInt(total);
 	        },
