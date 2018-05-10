@@ -67,7 +67,7 @@
 		                 state[key].data.push({
 			                'project_id':'',
 					        'app_category':"1",
-					        'app_category_item':"2",
+					        'app_category_item':"1",
 					        'other_category_name':"其他文本框值",
 					        'estimated_server_count':4,
 					        'estimated_singleton_memory_capacity':8,
@@ -122,6 +122,7 @@
 			onDeleteData:function(keys){
 		        this.$store.dispatch('deleteData',keys);
 			},
+<<<<<<< HEAD
 			getTotal:function(key,key1){
 		        var total = 0;
 		        var lists = this.$store.state.evns[key].data;
@@ -130,6 +131,21 @@
 		        }
 		        return parseInt(total);
 	        }
+=======
+			getCPUTotal:function(key){
+	            {#return str#}
+	        },
+            changeAppCategory:function(item){
+			    var pid = item.app_category;
+			    categoryItem_list.every(function(it){
+			        if(it.parent_category_id == pid){
+			            item.app_category_item = it.id;
+			            return false;
+                    }
+                    return true;
+                })
+            }
+>>>>>>> 2b75d01dac755cd296b4643b672cd5c6c6a214c6
 		}
 
 	});
