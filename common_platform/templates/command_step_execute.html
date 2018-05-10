@@ -348,6 +348,7 @@
             var exec_json = {};
             if(res.id){
                 exec_json['command_set_id'] = res.id;
+                exec_json['new_flow'] = 1;
                 var paras = {}
                 var steps1 = res.steps;
                 var hostMsgList = [];
