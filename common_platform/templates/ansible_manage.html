@@ -5,10 +5,16 @@
 	<link href="/static/hplus/css/zTree/bootstrapStyle.css" rel="stylesheet">
 	<script type="text/javascript" src="/static/hplus/js/works/vue.min.js"></script>
 
+	<link href="/static/hplus/css/works/yum-font.css" rel="stylesheet">
+
+
 	<script type="text/javascript" src="/static/hplus/js/works/components/vue-select.js"></script>
 	<script type="text/javascript" src="/static/hplus/js/zTree/jquery.ztree.core.js"></script>
 	<script type="text/javascript" src="/static/hplus/js/zTree/jquery.ztree.excheck.js"></script>
 	<script type="text/javascript" src="/static/hplus/js/zTree/jquery.ztree.exedit.js"></script>
+
+
+
 	{% include 'autotextheight.html' %}
 	<style>
 	.ztree li ul{
@@ -111,7 +117,6 @@
 							</div>
 		                </div>
 		                <div class="logbox">
-			                <i class="icon yum-font icon-suofang"></i>
 			                <pre v-html="log" style="background: none;border: none;color:#ADFF2F; font-size: 12px"></pre>
 		                </div>
 		                <div style="clear: both; display: block; overflow: hidden"></div>
@@ -220,7 +225,7 @@
                         url: '/platform/ansible/mge/',
                         data:{"runJson":JSON.stringify(reqData),"csrfmiddlewaretoken":'{{ csrf_token }}'},
                         success : function(response) {
-                            this.disabled=false;
+                            _this.disabled=false;
                             layer.closeAll('loading');
                             if(response.status == 0){
                                 var logStr = "";
@@ -241,7 +246,7 @@
                             }
                         },
                         error : function(response) {
-                            this.disabled=false;
+                            _this.disabled=false;
                             layer.closeAll('loading');
                             console.log(response);
                         }
