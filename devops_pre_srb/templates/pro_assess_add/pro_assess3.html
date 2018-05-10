@@ -81,6 +81,8 @@
 				    deleteData:function(state,keys){
 		                 state[keys[0]].data.splice(keys[1],1)
 				    }
+
+
 			    },
 			    actions:{
 		             addData:function(context,key){
@@ -120,8 +122,13 @@
 			onDeleteData:function(keys){
 		        this.$store.dispatch('deleteData',keys);
 			},
-			getCPUTotal:function(key){
-	            {#return str#}
+			getTotal:function(key,key1){
+		        var total = 0;
+		        var lists = this.$store.state.evns[key].data;
+		        for(var i=0;i<lists.length;i++){
+		            total+=  lists[i].need_high_availability? (lists[i][key1]*2) :lists[i][key1];//.estimated_singleton_CPU_core
+		        }
+		        return parseInt(total);
 	        }
 		}
 

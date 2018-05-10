@@ -92,21 +92,24 @@
 
 
 				          <h2 style="margin-top: 20px; font-size: 18px" v-if="$store.state.evns[typekey].data.length!=0">
-					          <span v-html="title"></span>环境VM合计<span v-html="$store.state.evns[typekey].data.length||0"></span>台
+					          <span v-html="title"></span>环境VM合计<span v-html="getTotal(typekey,'estimated_server_count')"></span>
+					          台
 					          &nbsp;
 					          &nbsp;
 					          &nbsp;
 					          &nbsp;
-
-					          <span v-html="getCPUTotal(typekey)"></span>
-
-					          CPU:128C / MEM:700G / DISK:1800G（系统自动计算获得）
+					          CPU:<span v-html="getTotal(typekey,'estimated_singleton_CPU_core')"></span>核
+					          /
+					          MEM:<span v-html="getTotal(typekey,'estimated_singleton_memory_capacity')"></span>G
+					          /
+					          DISK:<span v-html="getTotal(typekey,'estimated_singleton_disk_capacity')"></span>G（系统自动计算获得）
 				          </h2>
 
 
 			          </div>
 		          </div>
 	        </transition>
+
 
 
         </div>
