@@ -1,5 +1,5 @@
 <div class="tab-pane" id="tab3">
-{#	<pre v-html="$store.state.evns"></pre>#}
+	<pre v-html="save()"></pre>
 	<evn-component
 			typekey="production"
 			:show_checkbox="False"
@@ -70,7 +70,7 @@
 			                'project_id':'',
 					        'app_category':"1",
 					        'app_category_item':"1",
-					        'other_category_name':"其他文本框值",
+					        'other_category_name':"",
 					        'estimated_server_count':4,
 					        'estimated_singleton_memory_capacity':8,
 					        'estimated_singleton_CPU_core':4,
@@ -137,7 +137,7 @@
 		        var total = 0;
 		        var lists = this.$store.state.evns[key].data;
 		        for(var i=0;i<lists.length;i++){
-		            total+=  lists[i].need_high_availability? (lists[i][key1]*2) :lists[i][key1];//.estimated_singleton_CPU_core
+		            total+=  lists[i].need_high_availability? parseInt(lists[i][key1]*2) :parseInt(lists[i][key1]);//.estimated_singleton_CPU_core
 		        }
 		        return parseInt(total);
 	        },
@@ -183,16 +183,29 @@
 		},
 		methods:{
 		  save:function(){
-		      console.log(this.$store.state.evns['__ob__'])
+		      var f2edata = this.$store.state.evns;
+		      var arr = [];
+		      for(key in f2edata){
+		          var obj = f2edata[key]['data'];
+		          for(var i=0;i<obj.length;i++){
+		              arr.push(obj[i]);
+		          }
+		      }
+		      return arr;
+
+
+
+
+
 		  }
 		},
 		mounted:function(){
-		    console.log(this.$store.state.evns);
+
 		}
 	});
 	function initProAssess3(){
 	}
 	function tab3Save(){
-	    vm.save()
+	    var temparr = vm.save();
 	}
 </script>
