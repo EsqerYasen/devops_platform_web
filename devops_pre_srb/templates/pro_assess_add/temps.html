@@ -40,6 +40,16 @@
 				          </div>
 				          <transition-group name="list" tag="div">
 					           <div class="evnsbox clear" v-for="(item,index) in $store.state.evns[typekey].data" :key="item">
+                                    <div class="devbox mb5">
+										<select v-model="item.app_category" @change="changeAppCategory(item)">
+                                            <option :value="it.id" v-for="it in category_list" v-html="it.name"></option>
+                                        </select>
+									</div>
+                                   <div class="devbox mb5">
+										<select v-model="item.app_category_item">
+                                            <option :value="it.id" v-for="it in categoryItem_list" v-if="it.parent_category_id==item.app_category" v-html="it.name"></option>
+                                        </select>
+									</div>
 						            <div class="devbox mb5">
 										<span class="fix prod">数量</span>
 										<span class="content">

@@ -67,7 +67,7 @@
 		                 state[key].data.push({
 			                'project_id':'',
 					        'app_category':"1",
-					        'app_category_item':"2",
+					        'app_category_item':"1",
 					        'other_category_name':"其他文本框值",
 					        'estimated_server_count':4,
 					        'estimated_singleton_memory_capacity':8,
@@ -122,7 +122,17 @@
 			},
 			getCPUTotal:function(key){
 	            {#return str#}
-	        }
+	        },
+            changeAppCategory:function(item){
+			    var pid = item.app_category;
+			    categoryItem_list.every(function(it){
+			        if(it.parent_category_id == pid){
+			            item.app_category_item = it.id;
+			            return false;
+                    }
+                    return true;
+                })
+            }
 		}
 
 	});
