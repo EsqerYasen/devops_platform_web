@@ -40,8 +40,8 @@
 				          </div>
 				          <transition-group name="list" tag="div">
 					           <div class="evnsbox clear" v-for="(item,index) in $store.state.evns[typekey].data" :key="item">
-                                   <div class="devbox mb5">
-										<select v-model="item.app_category_item">
+                                   <div class="devbox mb5" style="padding: 0px 5px">
+										<select class="selectself" v-model="item.app_category_item">
                                             <option :value="it.id" v-for="it in categoryItem_list" v-html="it.name"></option>
                                         </select>
 									</div>
@@ -52,6 +52,13 @@
 										</span>
 										<span class="fix">台</span>
 									</div>
+						           <div class="devbox mb5">
+										<span class="fix">CPU</span>
+										<span class="content">
+											<input type="number"  v-model="item.estimated_singleton_CPU_core" class="smnu" min="0" max="99999">
+										</span>
+										<span class="fix">核</span>
+									</div>
 									<div class="devbox mb5">
 										<span class="fix">内存</span>
 										<span class="content">
@@ -59,13 +66,7 @@
 										</span>
 										<span class="fix">G</span>
 									</div>
-									<div class="devbox mb5">
-										<span class="fix">CPU</span>
-										<span class="content">
-											<input type="number"  v-model="item.estimated_singleton_CPU_core" class="smnu" min="0" max="99999">
-										</span>
-										<span class="fix">核</span>
-									</div>
+
 									<div class="devbox mb5">
 										 <span class="fix">磁盘</span>
 										 <span class="content">
@@ -83,7 +84,7 @@
 						           </div>
 						           <div class="devbox mb5" v-if="item.app_category==3">
 							           <span class="content">
-								           <input type="text" placeholder="特殊需求可调整" v-model="item.comment" class="smnu" style="text-align: left;width: 130px">
+								           <input type="text" placeholder="特殊需求可调整" v-model="item.other_category_name" class="smnu" style="text-align: left;width: 130px">
 							           </span>
 						           </div>
 

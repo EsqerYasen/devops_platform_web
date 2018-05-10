@@ -40,6 +40,7 @@ urlpatterns = [
     ])),
     url(r'^ansible/', include([
         url(r'^mge/', AnsibleMgeView.as_view(), name='mge'),
+        url(r'^mgelogs/', AnsibleMgeLogsListView.as_view(), name='mgelogs'),
     ])),
 ]
 

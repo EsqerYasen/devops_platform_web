@@ -11,14 +11,14 @@
 			typekey="disaster_recovery"
 			:show_checkbox="True"
 			:show_add="False"
-			discribe="单站点或网络接入故障时可以选择灾备站点，保证业务连续性"
+			discribe="灾备描述"
 			title="灾备">
 	</evn-component>
 	<evn-component
 			typekey="preview"
 			:show_checkbox="True"
 			:show_add="True"
-			discribe="版本变更验证环境，确保每次变更稳定高效"
+			discribe="灰度描述"
 			title="灰度">
 	</evn-component>
 	<level level="S"> S级 : 主站节点全部高可用 有备份机房 </level>
@@ -29,6 +29,8 @@
 <script>
     var category_list = {{ category_list|safe }}
     var categoryItem_list = {{ categoryItem_list|safe }}
+
+
 	var store = new Vuex.Store({
 		modules:{
 		    evns:{
@@ -80,13 +82,7 @@
 		             },
 				    deleteData:function(state,keys){
 		                 state[keys[0]].data.splice(keys[1],1)
-				    },
-                    copyData: function(state, key){
-				        state[key].data = JSON.parse(JSON.stringify(state.production.data));
-                    },
-                    delData:function(state, key){
-                        state[key].data = [];
-                    }
+				    }
 
 
 			    },
@@ -96,10 +92,7 @@
 		             },
 				    deleteData:function(context,keys){
 		                 context.commit('deleteData',keys)
-				    },
-                    copyData:function(context, key){
-				        context.commit('copyData',key)
-                    }
+				    }
 
 			    }
 		    }
