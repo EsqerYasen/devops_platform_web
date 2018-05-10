@@ -7177,7 +7177,11 @@ fade-enter-active, .fade-leave-active {
     min-height: 500px;
 }
 
-
+.evnsbox select{
+    outline: none;
+    border: none;
+    width:100px;
+}
 .treebox h4{
     text-align: center;
     border-bottom: 1px solid #fefefe;
