@@ -41,8 +41,12 @@ class PreSrbCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, 
         try:
             context["is_add"] = 1
             hu = HttpUtils(self.request)
-            auditor_list = hu.get(serivceName="presrb", restName="/rest/presrb/auditor_list/", datas={})
-            context['auditor_list'] = auditor_list
+            # auditor_list = hu.get(serivceName="presrb", restName="/rest/presrb/auditor_list/", datas={})
+            # context['auditor_list'] = auditor_list
+            category_list = hu.get(serivceName="presrb", restName="/rest/presrb/category_list/", datas={})
+            context['category_list'] = category_list
+            categoryItem_list = hu.get(serivceName="presrb", restName="/rest/presrb/categoryItem_list/", datas={})
+            context['categoryItem_list'] = categoryItem_list
         except Exception as e:
             logger.error(e)
         return context
