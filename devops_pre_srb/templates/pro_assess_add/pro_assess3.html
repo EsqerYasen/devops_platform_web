@@ -81,6 +81,8 @@
 				    deleteData:function(state,keys){
 		                 state[keys[0]].data.splice(keys[1],1)
 				    }
+
+
 			    },
 			    actions:{
 		             addData:function(context,key){
@@ -120,6 +122,16 @@
 			onDeleteData:function(keys){
 		        this.$store.dispatch('deleteData',keys);
 			},
+<<<<<<< HEAD
+			getTotal:function(key,key1){
+		        var total = 0;
+		        var lists = this.$store.state.evns[key].data;
+		        for(var i=0;i<lists.length;i++){
+		            total+=  lists[i].need_high_availability? (lists[i][key1]*2) :lists[i][key1];//.estimated_singleton_CPU_core
+		        }
+		        return parseInt(total);
+	        }
+=======
 			getCPUTotal:function(key){
 	            {#return str#}
 	        },
@@ -133,6 +145,7 @@
                     return true;
                 })
             }
+>>>>>>> 2b75d01dac755cd296b4643b672cd5c6c6a214c6
 		}
 
 	});
