@@ -86,7 +86,7 @@
 								           <input type="checkbox" v-model="item.need_high_availability">
 							           </label>
 						           </div>
-						           <div class="devbox mb5">
+						           <div class="devbox mb5" v-if="item.app_category==3">
 							           <span class="content">
 								           <input type="text" placeholder="特殊需求可调整" v-model="item.comment" class="smnu" style="text-align: left;width: 130px">
 							           </span>
