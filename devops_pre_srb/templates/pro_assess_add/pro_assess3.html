@@ -4,7 +4,7 @@
 			typekey="production"
 			:show_checkbox="False"
 			:show_add="True"
-			discribe="描述"
+			discribe="用于生产环境"
 			title="生产">
 	</evn-component>
 	<evn-component
@@ -29,6 +29,8 @@
 <script>
     var category_list = {{ category_list|safe }}
     var categoryItem_list = {{ categoryItem_list|safe }}
+
+
 	var store = new Vuex.Store({
 		modules:{
 		    evns:{
@@ -130,7 +132,6 @@
 		        }
 		        return parseInt(total);
 	        },
-
             changeAppCategory:function(item){
 			    var pid = item.app_category;
 			    categoryItem_list.every(function(it){
