@@ -27,6 +27,8 @@
 </div>
 {% include "pro_assess_add/temps.html" %}
 <script>
+    var category_list = {{ category_list|safe }}
+    var categoryItem_list = {{ categoryItem_list|safe }}
 	var store = new Vuex.Store({
 		modules:{
 		    evns:{
