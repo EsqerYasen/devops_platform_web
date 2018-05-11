@@ -53,7 +53,9 @@
                 <td>{{ o.executor }}</td>
                 <td>{{ o.record_time }}</td>
                 <td>
-                    <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='#logs_info_modal' style="margin-right: 10px"><i class="glyphicon glyphicon-info-sign"></i> 查看</button>
+                    <input type="hidden" id="target_hosts{{ o.id }}" value="{{ o.target_hosts }}" />
+                    <input type="hidden" id="args{{ o.id }}" value="{{ o.args }}" />
+                    <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='#logs_info_modal' data-logid="{{ o.id }}" data-modules="{{ o.module }}" data-executor="{{ o.executor }}" data-recordtime="{{ o.record_time }}" style="margin-right: 10px"><i class="glyphicon glyphicon-info-sign"></i> 查看</button>
                 </td>
             </tr>
         {% endfor %}
@@ -63,7 +65,7 @@
 {% block modal_div %}
     <div class="modal fade" id="logs_info_modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
-            <div class="modal-content" style="width: 1000px">
+            <div class="modal-content" style="width: 1100px">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLabel">日志详情</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -72,60 +74,41 @@
                 </div>
                 <div class="modal-body" style="max-height: 500px;overflow:auto" id="logMain">
                     <div class="row">
-                        <div class="col-sm-3">
-	                        <div class="col-sm-12">
-		                        <div class="col-sm-6">module</div>
-		                        <div class="col-sm-6" v-html="logData.module"></div>
+                        <div class="col-sm-4">
+	                        <div class="col-sm-12" style="margin-bottom: 10px">
+		                        <div class="col-sm-4">模式:</div>
+		                        <div class="col-sm-8" v-html="logData.module"></div>
 	                        </div>
-
-	                         <div class="col-sm-12">
-		                        <div class="col-sm-6">executor</div>
-		                        <div class="col-sm-6" v-html="logData.executor"></div>
+	                         <div class="col-sm-12" style="margin-bottom: 10px">
+		                        <div class="col-sm-4">操作人:</div>
+		                        <div class="col-sm-8" v-html="logData.executor"></div>
 	                        </div>
-
-	                        <div class="col-sm-12">
-		                        <div class="col-sm-6">record_time</div>
-		                        <div class="col-sm-6" v-html="logData.record_time"></div>
+	                        <div class="col-sm-12" style="margin-bottom: 10px">
+		                        <div class="col-sm-4">时间:</div>
+		                        <div class="col-sm-8" v-html="logData.record_time"></div>
 	                        </div>
-
-
-
-	                        <div class="col-sm-12">
-		                        <table>
+                            <div class="col-sm-12" style="margin-bottom: 10px">
+		                        <div class="col-sm-4">参数:</div>
+		                        <div class="col-sm-8" v-html="logData.args"></div>
+	                        </div>
+	                        <div class="col-sm-12" style="margin-bottom: 10px">
+		                        <table class="table table-striped table-bordered table-hover dataTables-example dataTable">
 			                        <thead>
-			                        <tr>
-				                        <td>ip</td>
-			                        </tr>
-
+                                        <tr>
+                                            <td>ip</td>
+                                        </tr>
 			                        </thead>
 			                        <tbody>
-
 			                            <tr v-for="val in logData.list">
 				                            <td v-html="val"></td>
 			                            </tr>
-
-
 			                        </tbody>
 		                        </table>
 	                        </div>
-
-
-
-
-
                         </div>
-
-
-
-
-
-
-                        <div class="col-sm-9 logtable">
-
-
+                        <div class="col-sm-8 logtable" style="max-height: 100%;overflow-y: auto;">
 	                        <pre class="nomalpre" v-html="logData.info">
 	                        </pre>
-
                         </div>
                     </div>
                 </div>
@@ -137,36 +120,94 @@
 <script>
 
 
-
     var logVm = new Vue({
 	    el:'#logMain',
 	    data:{
 	        logData:{
-	            module:"模式",
-		        executor:"操作人",
-		        record_time:'时间',
-		        list:[1,2,4,6,],
-		        info:" log 数据"
-
+	            module:"",
+		        executor:"",
+		        record_time:'',
+		        list:[],
+                args:"",
+		        info:""
 	        }
 	    },
 	    methods:{
-	        changelog:function(){
-	            alert(this.logData.info);
-	        }
+	        changelog:function(module,executor,record_time,list,args){
+	            var logData = this.logData;
+	            logData.module = module;
+	            logData.executor = executor;
+	            logData.record_time = record_time;
+	            logData.list = list;
+	            logData.args = args;
+	        },
+            setLogInfo:function(info){
+	            this.logData.info = info;
+            },
+            resetInfo:function(){
+                var logData = this.logData;
+	            logData.executor = "";
+	            logData.record_time = "";
+	            logData.list = "";
+	            logData.args = "";
+	            logData.info = "";
+            }
 	    }
     })
 
 
 	$("#logs_info_modal").on('show.bs.modal',function(event){
         var datas = $(event.relatedTarget).data();
+        var logid = datas['logid'];
+        var module = datas['modules'];
+        var executor = datas['executor'];
+        var record_time = datas['recordtime'];
+        var target_hosts = $("#target_hosts"+logid).val();
+        var args = $("#args"+logid).val();
+        var host_list = [];
+        if(target_hosts){
+            host_list = target_hosts.split(',');
+        }
 
-        logVm.changelog();
+        logVm.changelog(module,executor,record_time,host_list,args);
+
+        if(logid){
+            $.ajax({
+                type: "GET",
+                url: '/platform/ansible/mgelogs/',
+                data:{"id":logid},
+                error: function (request) {},
+                success: function (data) {
+                    if(data.status == 0){
+                        var logStr = "";
+                        var logs = data.logs;
+                        for(var k in logs){
+                            var data2 = logs[k];
+                            if(JSON.stringify(data2) != "{}"){
+                                if(k == 'success'){
+                                    logStr +='<span style="background: none;border: none;color:green; font-size: 12px">';
+                                }else{
+                                    logStr +='<span style="background: none;border: none;color:red; font-size: 12px">';
+                                }
+                                for(var k2 in data2){
+                                    logStr += data2[k2].replace(/\\r/g,'\r').replace(/\\n/g,'\n')+"\r\n";
+                                }
+                                logStr +="\r\n\</span>";
+                            }
+                        }
+                        logVm.setLogInfo(logStr);
+                    }
+
+                }
+            })
+        }
+
+        //
         {#alert("111");#}
     });
 
     $("#logs_info_modal").on('hide.bs.modal',function(event){
-
+         logVm.resetInfo();
     });
 
 </script>
