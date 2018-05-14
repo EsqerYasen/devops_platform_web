@@ -7337,4 +7337,92 @@ fade-enter-active, .fade-leave-active {
 }
 
 
+.jira_contentbox{
+    padding: 20px;
+}
 
+.jira_contentbox .button-group{
+    margin-bottom: 10px;
+    /*text-align: center;*/
+}
+
+
+.infobox{
+    border:1px solid #efefef;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.infobox .title{
+    border-bottom: 1px solid #efefef;
+    line-height: 30px;
+    padding: 0px 10px;
+    color: #1ab394;
+    background: #efefef;
+    border-radius: 3px;
+}
+
+
+.infobox .title .arrow{
+    font-size: 24px;
+    cursor: pointer;
+    transform: rotate(90deg);
+
+}
+
+
+.infobox.slder_show .title{
+    cursor: pointer;
+}
+
+.infobox.slder_show .title .arrow{
+    font-size: 24px;
+    cursor: pointer;
+    transform: rotate(90deg);
+
+}
+
+.infobox.slder_show.act .title .arrow{
+    font-size: 24px;
+    cursor: pointer;
+    transform: rotate(-90deg);
+
+}
+
+
+
+
+
+
+
+.row_jira{
+    line-height: 30px;
+}
+
+
+
+.row_jira:last-child{
+    border:none
+}
+
+.mt15{
+    margin-top: 15px;
+}
+
+
+.row_b{
+    padding-bottom: 10px;
+    border-bottom: 1px solid #efefef;
+    margin-bottom: 10px;
+}
+
+
+.infobox.slder_show .slider{
+    display: none;
+}
+
+
+.infobox.slder_show.act .slider{
+    display: block;
+}
