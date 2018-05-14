@@ -17,24 +17,18 @@
 		                             &nbsp;
 		                         {% endfor %}
 	                        </div>
-
                             <div class="infobox">
-
 	                            <p class="title">详情</p>
-
 	                            <div class="row row_jira">
-
 		                            <div class="col-md-6">
 			                            <div class="col-md-3">reporter: </div>
 			                            <div class="col-md-9">{{ result.reporter }}</div>
 		                            </div>
-
 		                            <div class="col-md-6">
 			                            <div class="col-md-3">type: </div>
 			                            <div class="col-md-9">{{ result.type }}</div>
 		                            </div>
 	                            </div>
-
 	                             <div class="row row_jira">
 		                            <div class="col-md-6">
 			                            <div class="col-md-3">status: </div>
@@ -45,8 +39,6 @@
 			                            <div class="col-md-9">{{ result.priority }}</div>
 		                            </div>
 	                            </div>
-
-
 	                            <div class="row row_jira">
 		                            <div class="col-md-6">
 			                            <div class="col-md-3">labels: </div>
@@ -57,71 +49,36 @@
 			                            <div class="col-md-9">{{ result.assignee }}</div>
 		                            </div>
 	                            </div>
-
-
 	                                <div class="row row_jira">
-
 	                            {% for field in result.fields %}
-
-
 		                            {% if field.row_proportion == 1 %}
-
 				                            <div class="col-md-12">
 					                            <div class="col-md-3">{{ field.name }}: </div>
 					                            <div class="col-md-9"><tag>{{ field.value }}</tag></div>
 				                            </div>
-
-
 		                            {% else %}
-
 			                              <div class="col-md-6">
 					                            <div class="col-md-3">{{ field.name }}: </div>
 					                            <div class="col-md-9"><tag>{{ field.value }}</tag></div>
 				                            </div>
-
-
 		                            {% endif %}
-
-
-
-
 	                            {% endfor %}
                                   </div>
-
-
-
 	                            <p class="title mt15">描述</p>
 	                            <div class="row row_jira">
-
 		                            <div class="col-md-12" style="padding: 0px 30px">
 			                            {{ result.description }}
 		                            </div>
-
 	                            </div>
-
-
-
-
-
-
-
-
                             </div>
-
-
                             <div class="infobox slder_show">
-
 	                            <p class="title actbtn">
 		                            Comments(点击此处展开详情)
 		                            <span class="fa arrow"></span>
 	                            </p>
-
                                 <div class="slider">
-
 	                                  {% for comment in result.comments %}
-
 			                            <div class="row">
-
 				                            <div class="col-md-12">
 					                            <div class="col-md-12">
 						                            <a style="padding-right: 10px">{{ comment.author }}</a>
@@ -129,41 +86,17 @@
 						                            <div class="row_b">  {{ comment.body }} </div>
 					                            </div>
 				                             </div>
-
-
 			                            </div>
-
 		                            {% endfor %}
-
                                 </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
                             </div>
-
-
                         </div>
-
-
                     </div>
                 </div>
             </div>
         </div>
     </div>
     <script>
-        var result = "{{ result|safe }}".replace(/'/g,'"').replace(/\r/g,'\\r').replace(/\n/g,'\\n');
-        console.log(result)
-
 
         $(".action_btn").on('click',function(){
            var id = $(this).data('action');
