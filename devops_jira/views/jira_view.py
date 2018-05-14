@@ -54,7 +54,11 @@ class IssuesDetailView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, 
                     jira_obj.login()
                     issue_info = jira_obj.get_issue_info(iid)
                     transitions = jira_obj.get_transitions_from_issue(issue_info)
-                    result['transitions'] = transitions
+                    result['issues_id'] = iid
+                    i_transitions = []
+                    for tran in transitions:
+                        i_transitions.append({'id':tran['id'],'name':tran['name']})
+                    result['transitions'] = i_transitions
                     raw = issue_info.raw
                     fields = raw['fields']
                     fields['comment']['comments'].reverse()
@@ -72,6 +76,7 @@ class IssuesDetailView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, 
                     for config in fields_config_obj:
                         config['value'] = fields.get(config['key'],"")
                         fields_list.append(config)
+
                     result['fields'] = fields_list
                     result['description'] = fields.get("description","")
                     result['type'] = fields['issuetype']['name']
