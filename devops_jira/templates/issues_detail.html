@@ -12,7 +12,9 @@
                         <div class="jira_contentbox" >
 	                        <div class="button-group">
 		                         {% for buttons in result.transitions%}
+			                         &nbsp;
 			                         <button class="btn btn-primary action_btn" data-action="{{ buttons.id }}"> {{ buttons.name }} </button>
+		                             &nbsp;
 		                         {% endfor %}
 	                        </div>
 
