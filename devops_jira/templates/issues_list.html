@@ -1,0 +1,57 @@
+{% extends 'common/basic_rank_list.html' %}
+{% load widget_tweaks %}
+
+{% block list_title %}
+     待完成任务
+{% endblock %}
+
+{% block  list_search %}
+     <div class="col-sm-1" style="width: 12%">
+        <input type="text" name="name" class="form-control" placeholder="名称">
+    </div>
+{% endblock %}
+
+{% block list_filter %}
+    <button type="submit" class="btn btn-sm btn-primary" style="margin-right: 10px"><i class="fa fa-search"></i> 搜索</button>
+{% endblock %}
+
+{% block list_content %}
+    <table class="table table-striped table-bordered table-hover dataTables-example dataTable accordion">
+        <thead>
+            <tr>
+                <th style="width:3%;"><input id="checkall" type="checkbox" class="i-checks"></th>
+                <th style="width: 10%;">项目</th>
+                <th style="width: 10%;">问题类型</th>
+                <th style="width: 10%;">主题</th>
+                <th style="width: 10%;">优先级</th>
+                <th style="width: 10%;">报告人</th>
+                <th style="width: 10%;">状态</th>
+                <th style="width: 10%;">创建时间</th>
+                <th style="width:10%;">操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for o in result_list %}
+            <tr>
+                <td>
+                    <input type="checkbox" class="i-checks icheck" id="{{ o.id }}" name="trCheckbox">
+                </td>
+                <td>{{ o.project_key}}</td>
+                <td>{{ o.issue_type_name }}</td>
+                <td>{{ o.issue_summary}}</td>
+                <td>{{ o.issue_priority}}</td>
+                <td>{{ o.issue_reporter }}</td>
+                <td>{{ o.issue_status }}</td>
+                <td>{{ o.issue_create_date}}</td>
+                <td>
+                    <a href="/jira/issues/detail?pid={{ o.project_Id }}&itid={{ o.issue_type_id }}&iid={{ o.issues_id }}" class="btn  btn-sm btn-info"><i class="fa fa-edit"></i>详情</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <script>
+
+    </script>
+{% endblock %}
