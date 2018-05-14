@@ -8,13 +8,13 @@
                         <h5>Issues详情</h5>
                     </div>
                     <div class="ibox-content" style="padding: 0 0 0 0">
-
                     </div>
                 </div>
             </div>
         </div>
     </div>
     <script>
-
+        var result = "{{ result|safe }}".replace(/'/g,'"').replace(/\r/g,'\\r').replace(/\n/g,'\\n');
+        console.log(result)
     </script>
 {% endblock %}

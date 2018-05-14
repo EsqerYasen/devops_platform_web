@@ -57,7 +57,17 @@ class IssuesDetailView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, 
                     result['transitions'] = transitions
                     raw = issue_info.raw
                     fields = raw['fields']
-                    result['comments'] = fields['comment']['comments'].reverse()
+                    fields['comment']['comments'].reverse()
+                    i_comments = fields['comment']['comments']
+                    comments = []
+                    for com in i_comments:
+                        if com.get("body",None):
+                            comments.append({'body':com.get("body",''),
+                                             'created':com.get("created",''),
+                                             'updated':com.get("updated",''),
+                                             'author':com.get("author",'').get("name",''),
+                                             'updateAuthor':com.get("author",'').get("name",'')})
+                    result['comments'] = comments
                     fields_list = []
                     for config in fields_config_obj:
                         config['value'] = fields.get(config['key'],"")
@@ -68,6 +78,8 @@ class IssuesDetailView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, 
                     result['status'] = fields['status']['name']
                     result['priority'] = fields['priority']['name']
                     result['labels'] = ','.join(fields['labels'])
+                    result['assignee'] = fields['assignee']['name']
+                    result['reporter'] = fields['reporter']['name']
             context["result"] = result
         except Exception as e:
             logger.error(e)
