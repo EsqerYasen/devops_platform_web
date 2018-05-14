@@ -67,8 +67,8 @@ class IssuesDetailView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, 
                     for com in i_comments:
                         if com.get("body",None):
                             comments.append({'body':com.get("body",''),
-                                             'created':com.get("created",'').replace("T"," ").replace("+0800",""),
-                                             'updated':com.get("updated",'').replace("T"," ").replace("+0800",""),
+                                             'created':com.get("created",'').replace("T"," ")[:-9],
+                                             'updated':com.get("updated",'').replace("T"," ")[:-9],
                                              'author':com.get("author",'').get("name",''),
                                              'updateAuthor':com.get("author",'').get("name",'')})
                     result['comments'] = comments
