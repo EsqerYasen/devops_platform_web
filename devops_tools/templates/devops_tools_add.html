@@ -298,7 +298,7 @@
                 var formData = JSON.parse(JSON.stringify(this.formData)) ;
 
                 if(!formData.param.every(function(item){
-                    return item.type=='text' && !!item.desc;
+                    return  !!item.desc;
                 })){
                     Alertwin.alert({ message: '请输入描述信息'});
                     return;
