@@ -27,9 +27,8 @@
 </div>
 {% include "pro_assess_add/temps.html" %}
 <script>
-    var category_list = {{ category_list|safe }}
+{#    var category_list = {{ category_list|safe }}#}
     var categoryItem_list = {{ categoryItem_list|safe }}
-
 
 	var store = new Vuex.Store({
 		modules:{
@@ -181,9 +180,82 @@
 			False:false
 		},
 		methods:{
-		  save:function(){
-		      console.log(this.$store.state.evns['__ob__'])
-		  }
+		    save:function(){
+                 var pid = $("#project_id").val();
+                 var bool = false;
+                 if(pid){
+                     var reqData = {"p_id":pid};
+                     var values = this.$store.state.evns['__ob__'].value;
+                     var v_online = values.production;
+                     var v_3in1 = values.disaster_recovery;
+                     var v_pilot = values.preview;
+                     var deploy_envs = 0;
+                     var items = [];
+                     if(v_online.selected){
+                         $(v_online.data).each(function(i,item){
+                             if(item.need_high_availability){
+                                 item.need_high_availability = 1
+                             }else{
+                                 item.need_high_availability = 0
+                             }
+                             items.push(item);
+                         })
+                         deploy_envs += 1;
+                     }else{
+                         Alertwin.alert({ message: "没有生产信息不能保存"});
+                         return;
+                     }
+                     if(v_3in1.selected){
+                         $(v_online.data).each(function(i,item){
+                             if(item.need_high_availability){
+                                 item.need_high_availability = 1
+                             }else{
+                                 item.need_high_availability = 0
+                             }
+                             items.push(item);
+                         })
+                         deploy_envs += 1;
+                     }else{
+                         items.push({"is_defect":"1","comment":v_3in1.isDefectResut,"env":"2"});
+                     }
+                     if(v_pilot.selected){
+                         $(v_online.data).each(function(i,item){
+                             if(item.need_high_availability){
+                                 item.need_high_availability = 1
+                             }else{
+                                 item.need_high_availability = 0
+                             }
+                             items.push(item);
+                         })
+                         deploy_envs += 2;
+                     }else{
+                         items.push({"is_defect":"1","comment":v_pilot.isDefectResut,"env":"3"});
+                     }
+                     reqData["deploy_envs"] = deploy_envs;
+                     reqData["items"] = items;
+                     $.ajax({
+                            type: "POST",
+                            async:false,
+                            url: '/presrb/project/projectItem_add/',
+                            data:{"saveJson":JSON.stringify(reqData),"csrfmiddlewaretoken":'{{ csrf_token }}'},
+                            error: function (request) {
+                                console.log(request)
+                            },
+                            success: function (data) {
+                                if(data.status == 0){
+                                    $("#is_save3").val(1);
+                                    bool = true;
+                                    Alertwin.alert({ message: "操作成功"});
+                                }else{
+                                    bool = false;
+                                    Alertwin.alert({ message: "操作失败"});
+                                }
+                            }
+                     })
+
+                  }
+                  return bool;
+		    }
 		},
 		mounted:function(){
 		    console.log(this.$store.state.evns);
@@ -192,6 +264,6 @@
 	function initProAssess3(){
 	}
 	function tab3Save(){
-	    vm.save()
+	    return vm.save();
 	}
 </script>

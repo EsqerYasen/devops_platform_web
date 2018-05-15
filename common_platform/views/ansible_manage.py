@@ -50,20 +50,30 @@ class AnsibleMgeLogsListView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseM
     def get_context_data(self, **kwargs):
         context = {}
         try:
-            hu = HttpUtils(self.request)
+            req = self.request
+            hu = HttpUtils(req)
             reqData = hu.getRequestParam()
-            logsListResult = hu.get(serivceName="job", restName="/rest/job/list_ansible_history/", datas={})
-            context['result_list'] = logsListResult.get("data", [])
+            logsListResult = hu.get(serivceName="job", restName="/rest/job/list_ansible_history/", datas=reqData)
+            list = logsListResult.get("results", [])
+            paginator = Paginator(list, req.limit)
+            count = logsListResult.get("count", 0)
+            paginator.count = count
+            context['result_list'] = list
+            context['is_paginated'] = count > 0
+            context['page_obj'] = paginator.page(req.offset)
+            context['paginator'] = paginator
         except Exception as e:
             logger.error(e)
         return context
 
     def get_ajax(self, request, *args, **kwargs):
-        result = {'status': 0}
+        result = {}
         try:
             hu = HttpUtils(self.request)
             reqData = hu.getRequestParam()
-
+            logsListResult = hu.get(serivceName="job", restName="/rest/job/get_ansible_log_by_id/", datas={"id":reqData.get("id",0)})
+            result['status'] = 0
+            result['logs'] = logsListResult.get("data", [])
         except Exception as e:
             result['status'] = 1
             result['msg'] = '执行异常'

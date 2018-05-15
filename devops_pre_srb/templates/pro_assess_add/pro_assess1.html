@@ -308,27 +308,27 @@
         }else{
             postUrl = "/presrb/project/pro_assess_add/";
         }
-        debugger;
+
         if(postUrl){
-{#            $.ajax({#}
-{#                type: "POST",#}
-{#                url: '/presrb/project/add/',#}
-{#                async:false,#}
-{#                data:{"saveJson":JSON.stringify(saveJson),"csrfmiddlewaretoken":'{{ csrf_token }}'},#}
-{#                error: function (request) {#}
-{#                     bool = false;#}
-{#                },#}
-{#                success: function (data) {#}
-{#                    if(data.status = "SUCCESS"){#}
-{#                        bool = true;#}
-{#                        $("#project_id").val(data.p_id);#}
-{#                        Alertwin.alert({ message: "操作成功"});#}
-{#                    }else{#}
-{#                         bool = false;#}
-{#                        Alertwin.alert({ message: "操作失败"});#}
-{#                    }#}
-{#                }#}
-{#            })#}
+            $.ajax({
+                type: "POST",
+                url: '/presrb/project/add/',
+                async:false,
+                data:{"saveJson":JSON.stringify(saveJson),"csrfmiddlewaretoken":'{{ csrf_token }}'},
+                error: function (request) {
+                     bool = false;
+                },
+                success: function (data) {
+                    if(data.status == 0){
+                        bool = true;
+                        $("#project_id").val(data.p_id);
+                        Alertwin.alert({ message: "操作成功"});
+                    }else{
+                         bool = false;
+                        Alertwin.alert({ message: "操作失败"});
+                    }
+                }
+            })
         }
         return bool;
     }

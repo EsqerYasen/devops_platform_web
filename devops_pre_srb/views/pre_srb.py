@@ -43,8 +43,8 @@ class PreSrbCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, 
             hu = HttpUtils(self.request)
             # auditor_list = hu.get(serivceName="presrb", restName="/rest/presrb/auditor_list/", datas={})
             # context['auditor_list'] = auditor_list
-            category_list = hu.get(serivceName="presrb", restName="/rest/presrb/category_list/", datas={})
-            context['category_list'] = category_list
+            # category_list = hu.get(serivceName="presrb", restName="/rest/presrb/category_list/", datas={})
+            # context['category_list'] = category_list
             categoryItem_list = hu.get(serivceName="presrb", restName="/rest/presrb/categoryItem_list/", datas={})
             context['categoryItem_list'] = categoryItem_list
         except Exception as e:
@@ -62,6 +62,7 @@ class PreSrbCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, 
                 resultJson = resultAdd.json()
                 if resultJson['status'] == 'SUCCESS':
                     result['status'] = 0
+                    result['p_id'] = resultJson.get("p_id","")
                     result['msg'] = '保存成功'
                 else:
                     result['status'] = 1
@@ -108,17 +109,41 @@ class PreSrbUpdateView(LoginRequiredMixin, TemplateView):
 
 class  ProjectItemCreateView(LoginRequiredMixin,JSONResponseMixin, AjaxResponseMixin, View):
     def post_ajax(self, request, *args, **kwargs):
-        saveJson = request.POST.get("saveJson", None)
+        resultJson = {}
+        try:
+            saveJson = request.POST.get("saveJson", None)
+            saveJson = eval(saveJson)
+            hu = HttpUtils(request)
+            updateResult = hu.post(serivceName="presrb", restName="/rest/presrb/project_update/", datas={"p_id":saveJson.get("p_id",0),"deploy_envs":saveJson.get("deploy_envs",0),"change":0})
+            updateJson = updateResult.json()
+            if updateJson.get("status") == "SUCCESS":
+                resultJson1 = hu.post(serivceName="presrb", restName="/rest/presrb/projectItem_add/", datas=saveJson)
+                resultJson2 = resultJson1.json()
+                if resultJson2.get("status") == "SUCCESS":
+                    resultJson["status"] = 0
+                else:
+                    resultJson["status"] = 1
+                    resultJson["msg"] = "保存应用配置失败"
+        except Exception as a:
+            resultJson["status"] = 1
+            resultJson["msg"] = "保存应用配置异常"
+            logger.error(e)
+        return HttpResponse(json.dumps(resultJson), content_type='application/json')
 
-        saveJson = eval(saveJson)
-        resultJson = {"status":"FAILURE"}
-        hu = HttpUtils()
-        updateResult = hu.post(serivceName="presrb", restName="/rest/presrb/project_update/", datas={"p_id":saveJson.get("p_id",0),"deploy_envs":saveJson.get("deploy_envs",0),"change":0})
-        updateJson = updateResult.json()
-        if updateJson.get("status") == "SUCCESS":
-            hu = HttpUtils()
-            resultJson1 = hu.post(serivceName="presrb", restName="/rest/presrb/projectItem_add/", datas=saveJson)
-            resultJson2 = resultJson1.json()
-            if resultJson2.get("status") == "SUCCESS":
-                resultJson = {"status": "SUCCESS"}
+
+class ProjectReportView(LoginRequiredMixin,JSONResponseMixin, AjaxResponseMixin, View):
+
+    def get_ajax(self, request, *args, **kwargs):
+        resultJson = {}
+        try:
+            req = self.request
+            id = int(req.GET.get('id', 0))
+            hu = HttpUtils(req)
+            resultJson = hu.get(serivceName="presrb", restName="/rest/presrb/project_list_item/", datas={"id":id})
+            resultJson["data"] = resultJson.get("data",[])
+            resultJson["status"] = 0
+        except Exception as a:
+            resultJson["status"] = 1
+            resultJson["msg"] = "保存应用配置异常"
+            logger.error(e)
         return HttpResponse(json.dumps(resultJson), content_type='application/json')

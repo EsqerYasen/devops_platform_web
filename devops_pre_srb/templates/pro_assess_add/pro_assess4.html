@@ -190,12 +190,6 @@
 		  </div>
 	</div>
 
-
-
-
-
-
-
 </div>
 
 <script>
@@ -203,13 +197,13 @@
 
      }
      function tab4ReportView(){
-         $("#tab4ReportDiv").empty();
+        //$("#tab4ReportDiv").empty();
         var p_id = $("#project_id").val();
         $.ajax({
             type: "GET",
             url: '/presrb/project/pro_report_views/',
             async:false,
-            data:{"id":p_id,'t':1},
+            data:{"id":p_id},
             error: function (request) {
                  bool = false;
             },
