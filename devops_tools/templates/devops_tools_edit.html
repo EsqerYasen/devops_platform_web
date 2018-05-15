@@ -121,7 +121,8 @@
 
 				                            <div class="fl pabx">
 											    <label ><span class="red">*</span> 描述</label>
-					                             <input type="text" style="width: 250px" class="form-control" v-model="p.desc">
+                                                <textarea v-if="p.type=='select'" type="text" class="form-control" style="width: 250px" v-model="p.desc"></textarea>
+                                                <input v-if="p.type=='text'" type="text" class="form-control" style="width: 250px" v-model="p.desc"/>
 				                            </div>
                                             <div style="margin-left:40px;" class="form-group col-sm-12" v-if="p.type === 'select'">
                                                 <div class="parmabox clear1 " v-for="(vs, i) in p.valueSet">
@@ -131,7 +132,7 @@
                                                         <input type="text" class="form-control" v-model="vs.name">
                                                     </div>
                                                     <div class="fl pabx">
-                                                        <label><span class="red">*</span> 描述</label>
+                                                        <label><span class="red"></span> 描述</label>
                                                         <input type="text" class="form-control" v-model="vs.desc">
                                                     </div>
                                                 </div>
@@ -323,7 +324,7 @@
                 var formData = JSON.parse(JSON.stringify(this.formData)) ;
 
                 if(!formData.param.every(function(item){
-                    return item.type==='text' && !!item.desc || item.type === 'select';
+                    return item.type==='text' && !!item.desc ;
                 })){
                     Alertwin.alert({ message: '请输入描述信息'});
                     return;
