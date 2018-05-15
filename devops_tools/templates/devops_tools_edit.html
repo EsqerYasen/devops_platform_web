@@ -384,7 +384,8 @@
              python:'#!/usr/bin/python',
              yaml: '---\n' +
              '- hosts: \'{% verbatim %}{{ hosts }}{% endverbatim %}\'\n' +
-             '  remote_user: root'
+             '  remote_user: root'+
+             '  gather_facts: False\n'
          };
          $.getScript('/static/hplus/codemirror/' + mode + '.js', function(){
             editor = CodeMirror.fromTextArea(document.getElementById("code"), {
