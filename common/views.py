@@ -2,6 +2,7 @@
 from django.contrib import auth
 from django.shortcuts import render, redirect
 from django.views.generic import TemplateView
+from django.contrib.auth import authenticate,login as auth_login,logout as auth_logout
 
 class LoginView(TemplateView):
     template_name = 'common/index.html'
@@ -19,6 +20,10 @@ def checkLogin(request):
     :param authentication_form:
     :return:
     """
+
+    # user = authenticate(username=request.POST['username'], password=request.POST['password'])
+    # print('authuser %s' % user)
+
     user = auth.authenticate(username=request.POST['username'], password=request.POST['password'])
     if user and user.is_active:
         auth.login(request, user)

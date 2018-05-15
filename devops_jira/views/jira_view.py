@@ -7,7 +7,7 @@ from django.core.paginator import Paginator
 from devops_jira.models.JIRA_FIELDS_CONFIG import *
 from devops_jira.models.JIRA_ISSUES import JIRA_ISSUES
 from devops_platform_web.settings import PER_PAGE
-import logging,xlrd,json
+import logging,xlrd,json,datetime
 
 from devops_jira.task.jira_task import *
 
@@ -27,7 +27,8 @@ class IssuesListView(LoginRequiredMixin, OrderableListMixin, ListView):
         return result_list
 
     def get_context_data(self, **kwargs):
-        issues_list_sync()
+        req = self.request
+        JiraIssueListSync().issues_list_sync(req.devopsuser)
         context = super(IssuesListView, self).get_context_data(**kwargs)
         return context
 
@@ -50,7 +51,7 @@ class IssuesDetailView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, 
                     user_mapping = user_mapping_list[0]
                     fields_config_obj = json.loads(fields_config[0].fields_config_json)
 
-                    jira_obj = jira_api(settings.JIRA_SERVER, user_mapping.external_system_username,user_mapping.external_system_password)
+                    jira_obj = jira_api(settings.JIRA_SERVER, settings.JIRA_USER,settings.JIRA_PWD)
                     jira_obj.login()
                     issue_info = jira_obj.get_issue_info(iid)
                     transitions = jira_obj.get_transitions_from_issue(issue_info)
@@ -74,7 +75,10 @@ class IssuesDetailView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, 
                     result['comments'] = comments
                     fields_list = []
                     for config in fields_config_obj:
-                        config['value'] = fields.get(config['key'],"")
+                        value = fields.get(config['key'],"")
+                        if value is None:
+                            value = ""
+                        config['value'] = value
                         fields_list.append(config)
 
                     result['fields'] = fields_list
@@ -108,3 +112,36 @@ class IssuesDetailView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, 
         except Exception as e:
             logger.error(e)
         return HttpResponse(json.dumps(result),content_type='application/json')
+
+class JiraIssueListSync():
+
+    def issues_list_sync(self,username):
+        try:
+            fields = "project,issuetype,summary,components,assignee,priority,reporter,creator,status,created,updated"
+            #jql = "assignee = %s and issuetype = 版本发布 and project IN (KPO,KD,KRD) and status != Closed ORDER BY updated DESC"
+            jql = "assignee = %s and issuetype = 版本发布 and project IN (KPO,KD) and status != Closed ORDER BY updated DESC"
+            user_mapping_list = External_system_user_mapping.objects.filter(external_system='jira',inner_user_name=username)
+            for user_mapping in user_mapping_list:
+                jira_obj = jira_api(settings.JIRA_SERVER, settings.JIRA_USER,settings.JIRA_PWD)
+                jira_obj.login()
+                jql = jql % (user_mapping.external_system_username)
+                issues_list = jira_obj.get_issue_list(jql_str=jql, page=0, limit=1000, fields=fields)
+                for issues in issues_list:
+                    files_t = issues.fields
+                    defaults = {"issues_id": issues.id,
+                                "issue_summary": files_t.summary,
+                                "issue_type_id": files_t.issuetype.id,
+                                "issue_type_name": files_t.issuetype.name,
+                                "issue_priority": files_t.priority.name,
+                                "issue_reporter": files_t.reporter.displayName,
+                                "issue_status": files_t.status.name,
+                                "issue_create_date": datetime.datetime.strptime(files_t.created.replace("T"," ")[:-9], "%Y-%m-%d %H:%M:%S"),
+                                "issue_assignee": files_t.assignee.key,
+                                "project_Id": files_t.project.id,
+                                "project_key": files_t.project.key,
+                                "inner_user_name": user_mapping.inner_user_name,
+                                "inner_user_group": user_mapping.inner_user_group
+                                }
+                    JIRA_ISSUES.objects.update_or_create(issues_id=issues.id, defaults=defaults)
+        except Exception as e:
+            logger.error(e)

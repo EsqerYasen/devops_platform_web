@@ -22,7 +22,7 @@ def issues_list_sync():
     if not is_run:
         try:
             fields = "project,issuetype,summary,components,assignee,priority,reporter,creator,status,created,updated"
-            jql = "assignee = currentUser() ORDER BY updated DESC"
+            jql = " project = KFC会员 and assignee = currentUser() ORDER BY updated DESC"
             user_mapping_list = External_system_user_mapping.objects.filter(external_system='jira')
             for user_mapping in user_mapping_list:
                 jira_obj = jira_api(settings.JIRA_SERVER, user_mapping.external_system_username, user_mapping.external_system_password)
