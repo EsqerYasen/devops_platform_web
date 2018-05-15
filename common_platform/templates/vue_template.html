@@ -108,11 +108,12 @@
                                                 <input type="text" class="form-control" v-model="ites.value" :placeholder="ites.desc">
                                               </div>
                                                 <div v-if="ites.type === 'select'">
+                                                    <input type="text" class="form-control" v-model="ites.value" style="position:absolute;width:310px;">
                                                     <select class="form-control" v-model="ites.value">
                                                         <option  v-for="v in ites.valueSet" :value="v.name" v-html="v.name"></option>
                                                     </select>
                                                 </div>
-                                                <div class="checkbox" style="margin:10px;" v-if="ites.type === 'multiple'">
+                                                <div class="checkbox" style="" v-if="ites.type === 'multiple'">
 
                                                     <label v-for="it in ites.valueSet" style="margin-right:15px;">
                                                         <span>{% verbatim %}{{ it.name }}--{{ it.desc }}{% endverbatim %}</span>
