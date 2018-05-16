@@ -256,7 +256,7 @@
                     paramNameEn: '{{ p.paramNameEn }}',
                     paramNameZh: '{{ p.paramNameZh }}',
                     type: '{{ p.type }}',
-                    desc: '{{ p.desc }}',
+                    desc: '{{ p.desc|replace_to_nr }}',
                     no: '{{ p.no }}',
                     valueSet: {{ p.valueSet|safe }},
                     default: '{{ p.default }}'
