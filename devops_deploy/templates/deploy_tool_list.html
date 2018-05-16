@@ -48,7 +48,7 @@
                 <td>{{ o.create_time }}</td>
                 <td>{{ o.update_time }}</td>
                 <td>
-                    <select class="form-control" style="width: 90%">
+                    <select id class="form-control" style="width: 90%">
                         <option value="" >请选择</option>
                         {% for obj in o.version_list %}
                             <option value="{{ obj.version }}" >{{ obj.version }}</option>
@@ -57,7 +57,7 @@
                 </td>
                 <td>
                     <a href="../{{ o.id }}/edit/" class="btn btn-sm btn-success"><i class="fa fa-edit"></i>&nbsp;编辑</a>
-                    <a href="../{{ o.id }}/deploy/?name={{ o.name }}&toolId={{ o.tool_set_id }}&commandId={{ o.command_set_id }}&commandLineId={{ o.command_line_id }}" class="btn btn-sm btn-success"><i class="fa fa-play"></i>发版</a>
+                    <a href="javascript:void(0)" class="btn btn-sm btn-success" onclick="deployToolOperation('{{ o.id }}','{{ o.name }}','{{ o.tool_set_id }}','{{ o.command_set_id }}','{{ o.command_line_id }}')"><i class="fa fa-play"></i>发版</a>
                     <a href="javascript:void(0)" onclick="deleteApp('{{ o.id }}')" class="btn  btn-sm btn-danger"><i class="fa fa-trash"></i>&nbsp;删除</a>
                 </td>
             </tr>
@@ -77,6 +77,9 @@
                     }
                 });
              });
+        }
+        function deployToolOperation(id,name,toolSetId,commandSetId,commandLineId){
+            window.location.href = "../"+id+"/operation/?name="+name+"&toolId="+toolSetId+"&commandId="+commandSetId+"&commandLineId="+commandLineId;
         }
     </script>
 {% endblock %}

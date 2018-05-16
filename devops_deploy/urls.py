@@ -20,5 +20,6 @@ urlpatterns = [
         url(r'^list/', DeployToolListView.as_view(), name='list'),
         url(r'^add/', DeployToolCreateView.as_view(), name='add'),
         url(r'^(?P<pk>\d+)/edit/', DeployToolUpdateView.as_view(), name='edit'),
+        url(r'^(?P<pk>\d+)/operation/', DeployToolOperationView.as_view(), name='operation'),
     ]))
 ]

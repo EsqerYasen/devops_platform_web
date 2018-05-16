@@ -19,7 +19,7 @@
         <div class="col-sm-12">
             <div class="ibox float-e-margins">
                 <div class="ibox-title">
-                    <h5>{{ name }} 流量调度</h5>
+                    <h5>{{ name }} 发版</h5>
                 </div>
                 <div class="ibox-content" id="app_deploy">
                     <form class="form-horizontal" @submit.prevent="submit">
@@ -378,12 +378,12 @@ var app_page = new Vue({
                 reqData['deploy_info'] = JSON.stringify(deploy_info);
             }else{
                 var command_info = {
-                    "name":name+" 流量调度",
+                    "name":name+" 发版",
                     "type":2,
-                    "comment":"用于 "+name+" 流量调度",
+                    "comment":"用于 "+name+" 发版",
                     "steps":[
                         {
-                            "name":name+"调度步骤1",
+                            "name":name+"发版步骤1",
                             "seq_no":1,
                             "type":0,
                             "target_group_ids":formData.target_group_ids,
