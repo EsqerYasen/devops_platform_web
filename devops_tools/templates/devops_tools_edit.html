@@ -271,7 +271,7 @@
                     paramNameEn: '{{ p.paramNameEn }}',
                     paramNameZh: '{{ p.paramNameZh }}',
                     type: '{{ p.type }}',
-                    desc: '{{ p.desc }}',
+                    desc: '{{ p.desc|safe }}',
                     no: '{{ p.no }}',
                     valueSet: {{ p.valueSet|safe }},
                     default: '{{ p.default }}'
@@ -296,7 +296,7 @@
                 this.formData.param.push({
                     paramNameEn: '',
                     paramNameZh: '',
-                    type: '',
+                    type: 'text',
                     desc: '',
                     no: 0,
                     valueSet: [],
