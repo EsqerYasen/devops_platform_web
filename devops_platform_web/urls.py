@@ -33,5 +33,6 @@ urlpatterns = [
     url(r'^jira/', include('devops_jira.urls', namespace='jira')),
     url(r'^working/',include('devops_tools.urls',namespace='working')),
     url(r'^presrb/',include('devops_pre_srb.urls',namespace='presrb')),
-    url(r'^application/',include('devops_application_manage.urls',namespace='application'))
+    url(r'^application/',include('devops_application_manage.urls',namespace='application')),
+    url(r'^flow/',include('devops_flow.urls',namespace='flow'))
 ]

@@ -1,6 +1,7 @@
 from django.conf.urls import include, url
 from devops_deploy.views.deploy import *
 from devops_deploy.views.operation_log import *
+from devops_deploy.views.deploy_tool_views import *
 
 urlpatterns = [
     url(r'^list/',DeployListView.as_view(), name='list'),
@@ -14,5 +15,10 @@ urlpatterns = [
     url(r'^operationLog/',OperationLogView.as_view(), name='operationLog'),
     url(r'^deleteApp/',DeleteAppView.as_view(), name='deleteApp'),
     url(r'^deployVersion/',DeployVersionView.as_view(), name='deployVersion'),
-    url(r'^deployPre/',DeployPreExecView.as_view(), name='deployPre')
+    url(r'^deployPre/',DeployPreExecView.as_view(), name='deployPre'),
+    url(r'^tool/', include([
+        url(r'^list/', DeployToolListView.as_view(), name='list'),
+        url(r'^add/', DeployToolCreateView.as_view(), name='add'),
+        url(r'^(?P<pk>\d+)/edit/', DeployToolUpdateView.as_view(), name='edit'),
+    ]))
 ]
