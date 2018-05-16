@@ -99,7 +99,7 @@
                                 <label class="col-sm-2 control-label">参数</label>
 	                            <div class="col-sm-10">
 		                            <div class="parmabox">
-			                            <div v-for="(p,i) in formData.param" class="boxbox clear1 form-inline">
+			                            <div v-for="(p,i) in formData.param" class="boxbox clear1 form-inline col-sm-9">
 				                            <i class="yum-font icon-guanbi del" style="font-size: 12px" @click="removeParam(i)"></i>
 				                            <div class="fl pabx">
 											    <label><span class="red">*</span> 名称</label>
@@ -142,7 +142,7 @@
                                             </div>
 			                            </div>
 
-                                        <div class="clear1 add_button" @click="addParam">
+                                        <div class="clear1 add_button col-sm-12" @click="addParam">
 	                                        +添加参数
                                         </div>
 		                            </div>
@@ -266,7 +266,9 @@
                 filename:'{{ result_dict.filename }}',
                 versions:[
                     {% for p in result_dict.param %}
-                        '{{ p }}',
+                        {% if p.type == 'version' %}
+                        '{{ p.value }}',
+                        {% endif %}
                     {% endfor %}
                 ],
                 infom:{{ result_dict.infom }},
@@ -274,7 +276,7 @@
                 script_lang: localStorage.getItem('codemirror_lang') ||  '{{ result_dict.script_lang }}',
                 param: [
                 {% for p in result_dict.param %}
-                {% if p.paramNameZh != 'tags' and p.paramNameZh != 'skip-tags'%}
+                {% if p.paramNameZh != 'tags' and p.paramNameZh != 'skip-tags' and p.type != 'version'%}
                 {
                     paramNameEn: '{{ p.paramNameEn }}',
                     paramNameZh: '{{ p.paramNameZh }}',
@@ -372,7 +374,20 @@
 
                     formData.param = formData.param.concat(formData.param2);
                 }
-
+                if(formData.versions.length){
+                    var ver = formData.versions[0];
+                    formData.param.push({
+                        paramNameEn: '',
+                        paramNameZh: 'version',
+                        type: 'version',
+                        desc: '',
+                        no: 0,
+                        value: ver,
+                        valueSet: [],
+                        default: ''
+                    })
+                }
+                delete formData.versions;
                 delete formData.ret;
                 var script_lang = formData.script_lang;
                 if(!script_lang){

@@ -98,7 +98,7 @@
                                 <label class="col-sm-2 control-label">参数</label>
 	                            <div class="col-sm-10">
 		                            <div class="parmabox">
-			                            <div v-for="(p,i) in formData.param" class="boxbox clear1 form-inline">
+			                            <div v-for="(p,i) in formData.param" class="boxbox clear1 form-inline col-sm-9">
 				                            <i class="yum-font icon-guanbi del" style="font-size: 12px" @click="removeParam(i)"></i>
 				                            <div class="fl pabx">
 											    <label><span class="red">*</span> 名称</label>
@@ -141,7 +141,7 @@
                                                 </div>
                                             </div>
 			                            </div>
-                                        <div class="clear1 add_button" @click="addParam">
+                                        <div class="clear1 add_button col-sm-12" @click="addParam">
 	                                        +添加参数
                                         </div>
 		                            </div>
@@ -173,60 +173,6 @@
 	                            </div>
 	                        </div>
 
-                             <div class="form-group">
-                                <label class="col-sm-2 control-label">参数</label>
-	                            <div class="col-sm-10">
-		                            <div class="parmabox">
-			                            <div v-for="(p,i) in formData.param" class="boxbox clear1 form-inline">
-				                            <i class="yum-font icon-guanbi del" style="font-size: 12px" @click="removeParam(i)"></i>
-				                            <div class="fl pabx">
-											    <label><span class="red">*</span> 名称</label>
-											    <input type="text" class="form-control" v-model="p.paramNameZh">
-				                            </div>
-				                            <div class="fl pabx">
-											    <label ><span class="red">*</span> 类型</label>
-					                            <select class="form-control" style="min-width: 150px" v-model="p.type">
-                                                  <option value="text">字符</option>
-                                                     <option value="select">枚举</option>
-                                                  <!--
-												  <option value="textshell">shell脚本</option>
-                                                  <option value="select">下拉框</option>
-                                                  <option value="file">文件上传</option>
-                                                  <option value="number">数字</option>
-                                                  -->
-												</select>
-				                            </div>
-
-				                            <div class="fl pabx">
-											    <label ><span class="red">*</span> 描述</label>
-                                                <textarea v-if="p.type=='select'" type="text" class="form-control" style="width: 250px" v-model="p.desc"></textarea>
-                                                <input v-if="p.type=='text'" type="text" class="form-control" style="width: 250px" v-model="p.desc"/>
-				                            </div>
-                                            <div style="margin-left:40px;" class="form-group col-sm-12" v-if="p.type === 'select'">
-                                                <div class="parmabox clear1 " v-for="(vs, i) in p.valueSet">
-                                                    <i class="yum-font icon-guanbi del" style="position:static;top:0;right:0;font-size: 12px" @click="removeValueSet(p, i)"></i>
-                                                    <div class="fl pabx">
-                                                        <label><span class="red">*</span> 枚举值</label>
-                                                        <input type="text" class="form-control" v-model="vs.name">
-                                                    </div>
-                                                    <div class="fl pabx">
-                                                        <label><span class="red"></span> 描述</label>
-                                                        <input type="text" class="form-control" v-model="vs.desc">
-                                                    </div>
-                                                </div>
-                                                <div class="clear1 add_button col-sm-12 parmabox" @click="addValueSet(p)">
-                                                    +添加枚举值
-                                                </div>
-                                            </div>
-			                            </div>
-
-                                        <div class="clear1 add_button" @click="addParam">
-	                                        +添加参数
-                                        </div>
-		                            </div>
-
-	                            </div>
-	                        </div>
                              <div class="form-group">
                                 <label class="col-sm-2 control-label">版本</label>
 	                            <div class="col-sm-10">
@@ -322,7 +268,7 @@
                 tool_set_prime_type: 1,
                 tool_set_type: 1,
                 command: '',
-               versions:[],
+                versions:[],
                 script_lang: localStorage.getItem('codemirror_lang') || 'shell',
                 param: [],
                param2:[],
@@ -401,6 +347,20 @@
                         formData.param.splice(i,1);
                     }
                 })
+                if(formData.versions.length){
+                    var ver = formData.versions[0];
+                    formData.param.push({
+                        paramNameEn: '',
+                        paramNameZh: 'version',
+                        type: 'version',
+                        desc: '',
+                        no: 0,
+                        value: ver,
+                        valueSet: [],
+                        default: ''
+                    })
+                }
+                delete formData.versions;
                 delete formData.param2;
                 delete formData.ret;
                 var script_lang = formData.script_lang;
