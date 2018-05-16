@@ -346,7 +346,7 @@ var app_page = new Vue({
             var command_set_id = {{ commandId }};
             var commandLineId = {{ commandLineId }};
             var name = '{{ name }}';
-            var reqData = {"command_set_id":command_set_id,'version':'{{ version }}','deploy_id':'{{ deploy_id }}'};
+            var reqData = {"command_set_id":command_set_id,'deploy_id':'{{ deploy_id }}','commandLineId':commandLineId};
             if(!formData.target_group_ids){
                 Alertwin.alert({message:"请选择机器"});
                 return;
@@ -361,6 +361,9 @@ var app_page = new Vue({
                 if(pitme.value){
                     parameter += pitme.paramNameZh+"="+pitme.value+";";
                 }
+                if(pitme.paramNameZh == "version"){
+                    reqData['version'] = pitme.value
+                }
             })
             parameter = parameter.substring(0,parameter.length-1);
             if(command_set_id > 0){
@@ -371,14 +374,14 @@ var app_page = new Vue({
                             "target_type":formData.target_type,
                             "target_group_ids":formData.target_group_ids,
                             "target_host_list":target_host_list,
-                            "go_live":formData.go_live,
-                            commandLineId:{
-                                "parameter":parameter,
-                                "is_skip":0
-                            }
+                            "go_live":formData.go_live
                         }
                     }
                 };
+                deploy_info['paras'][1][commandLineId] = {
+                                "parameter":parameter,
+                                "is_skip":0
+                            }
                 reqData['deploy_info'] = JSON.stringify(deploy_info);
             }else{
                 var command_info = {
