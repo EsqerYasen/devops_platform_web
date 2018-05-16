@@ -267,12 +267,13 @@
                                 <label class="col-sm-2 control-label">脚本
 
                                 </label>
-	                            <div class="col-sm-10">
-                                    <p class="col-sm-12" >
-                                        脚本语言: <select id="changeMode" v-model="formData.script_lang">
+	                            <div class="col-sm-10 shellbox">
+                                    <p class="col-sm-12 shellselect">
+                                        脚本语言:
+	                                    <select id="changeMode" v-model="formData.script_lang">
                                             <option value="shell">shell</option>
                                              <option value="python">python</option>
-                                         <option value="yaml">yaml</option>
+                                            <option value="yaml">yaml</option>
                                         </select>
                                     </p>
 		                                <textarea id="code" name="code"  style="display: none;"></textarea>
