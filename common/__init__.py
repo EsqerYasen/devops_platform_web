@@ -95,7 +95,7 @@ def replace_to_br(value, str):
 
 
 @register.filter()
-def replace_to_nr(value, str):
+def replace_to_nr(value):
     """
     将换行符转为html到换行符
     :param value:
