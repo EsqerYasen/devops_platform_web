@@ -69,11 +69,12 @@ class DevopsToolsCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMi
                             fileName = "%s%s.%s" % (toolScriptPath, int(round(t * 1000)),script_lang_dict[script_lang])
                             f = open(fileName, 'w')
                             f.write(command)
+                            f.close()
+                            os.chmod(fileName, stat.S_IRWXO | stat.S_IRWXG | stat.S_IRWXU)
                             reqData['command'] = fileName
                         except Exception as e:
-                            logger.error(e)
-                        finally:
                             f.close()
+                            logger.error(e)
 
                     addResult = hu.post(serivceName="job", restName="/rest/job/add_tool_set/", datas=reqData)
                     addResultJson = addResult.json()
