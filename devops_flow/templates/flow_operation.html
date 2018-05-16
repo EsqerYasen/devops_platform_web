@@ -370,14 +370,14 @@ var app_page = new Vue({
                             "target_type":formData.target_type,
                             "target_group_ids":formData.target_group_ids,
                             "target_host_list":target_host_list,
-                            "go_live":formData.go_live,
-                            commandLineId:{
-                                "parameter":parameter,
-                                "is_skip":0
-                            }
+                            "go_live":formData.go_live
                         }
                     }
                 };
+                deploy_info['paras'][1][commandLineId] = {
+                                "parameter":parameter,
+                                "is_skip":0
+                            }
                 reqData['deploy_info'] = JSON.stringify(deploy_info);
             }else{
                 var command_info = {

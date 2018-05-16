@@ -109,7 +109,7 @@
                                                   </div>
                                               </div>
                                           </div>
-                                          <div class="form-group" v-for="(ites, i$1) in curCmd.param">
+                                          <div class="form-group" v-for="(ites, i$1) in curCmd.param" v-show="ites.type != 'version'">
                                             <label class="col-sm-2 control-label">{% verbatim %}{{ites.paramNameZh}}{% endverbatim %}</label>
                                             <div class="col-sm-5">
                                               <div v-if="ites.type==='text'">
