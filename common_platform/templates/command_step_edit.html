@@ -31,6 +31,7 @@
                 </div>
                 <div class="ibox-content">
                     <div class="works_box clear" id="container">
+                         {% include 'step_show.html' %}
                         <div class="layout_left clear">
                             <div class="titlebar clear">
                                 <div class="l">
@@ -43,7 +44,7 @@
                                 </div>
                                 <div class="r">
                                     <div class="warp">
-                                      <button class="btn btn-default">预览</button>
+                                      <button class="btn btn-default" @click="showList">预览</button>
 
                                       <button class="btn btn-primary" @click="save">保存</button>
 
@@ -338,6 +339,12 @@
         store:store,
         data:{},
         methods:{
+          showList:function(){
+              $('#showList').modal('show')
+          },
+          closeList:function(){
+              $('#showList').modal('hide')
+          },
           save: function(){
             var res = transLocalToApiData(this.$store.state.basic, this.$store.state.steps);
             var exec_json = {};
