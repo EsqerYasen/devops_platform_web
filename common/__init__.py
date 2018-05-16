@@ -94,6 +94,19 @@ def replace_to_br(value, str):
         return ''
 
 
+@register.filter()
+def replace_to_nr(value, str):
+    """
+    将换行符转为html到换行符
+    :param value:
+    :return:
+    """
+    if value is not None:
+        return mark_safe(value.replace('\n', '\\n').replace('\r', '\\r'))
+    else:
+        return ''
+
+
 @register.filter
 def join_attr(seq, attr=None, sep=None):
     """
