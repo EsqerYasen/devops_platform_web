@@ -3,26 +3,33 @@
         <div class="left-task-warp">
             <ul>
                <draggable v-model="store.state.steps" :options="{animation:160}">
-                  <li v-for="(item,index) in store.state.steps"  class="clear tesklist_li" :class="{active:index==store.state.activeIndex}">
-                      <div class="clear" style="width: 70%;float: left" @click="changeActive(index)">
-                          <span class="num"> {% verbatim %}{{index+1}}{% endverbatim %} </span>
-                          <div class="cdis">
-                              <span>
-                                  <input type="text" class="edit-input" v-model="item.name">
-                              </span>
-                              <span>
-                                {% verbatim %}{{item.name}}{% endverbatim %}
-                              </span>
-                          </div>
-	                      <label class="is_tru" style="position: absolute;top: 0px; right: 10px">
-                            <input type="checkbox" value="1" v-model="item.is_skip">
-                            <span class="swc" :class="{'active':!item.is_skip}">
-							    <span class="swci"></span>
-						    </span>
-                          </label>
-                      </div>
-                    <i class="yum-font icon-guanbi del" style="font-size: 12px" @click="delTask(index)"></i>
-                  </li>
+
+	                <transition name="bounce">
+		                 <transition-group name="list" >
+		                  <li v-for="(item,index) in store.state.steps"  class="clear tesklist_li" :class="{active:index==store.state.activeIndex}" key="index">
+		                      <div class="clear" style="width: 70%;float: left" @click="changeActive(index)">
+		                          <span class="num"> {% verbatim %}{{index+1}}{% endverbatim %} </span>
+		                          <div class="cdis">
+		                              <span>
+		                                  <input type="text" class="edit-input" v-model="item.name">
+		                              </span>
+		                              <span>
+		                                {% verbatim %}{{item.name}}{% endverbatim %}
+		                              </span>
+		                          </div>
+			                      <label class="is_tru" style="position: absolute;top: 0px; right: 10px">
+		                            <input type="checkbox" value="1" v-model="item.is_skip">
+		                            <span class="swc" :class="{'active':!item.is_skip}">
+									    <span class="swci"></span>
+								    </span>
+		                          </label>
+		                      </div>
+		                    <i class="yum-font icon-guanbi del" style="font-size: 12px" @click="delTask(index)"></i>
+		                  </li>
+		                 </transition-group>
+	                </transition>
+
+
                </draggable>
             </ul>
             <div class="plus" @dblclick="addTask()">
@@ -47,7 +54,8 @@
                   </div>
                 <div class="tesklist clear">
                   <draggable :list="curCmds"  :options="{group:'task',animation:160,sort:true,scroll:true}" class="dragga clear" @add="updateLines">
-                    <div class="tesk"   v-for="(it, index) in curCmds" :class="{'active':$store.state.steps[$store.state.activeIndex]&&$store.state.steps[$store.state.activeIndex].activeIndex==index}" @click="selectTool(index)">
+
+	                  <div class="tesk"   v-for="(it, index) in curCmds" :class="{'active':$store.state.steps[$store.state.activeIndex]&&$store.state.steps[$store.state.activeIndex].activeIndex==index}" @click="selectTool(index)">
                       <div class="tabs" v-if="it.list&&it.list.length>1">
                         <span class="btns"
                               :class={'current':i==it['activeIndex']}
