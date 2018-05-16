@@ -134,6 +134,7 @@ class DeployToolOperationView(LoginRequiredMixin, JSONResponseMixin,AjaxResponse
             commandLineId = reqData.get('commandLineId',0)
             if not commandLineId or commandLineId == "None":
                 commandLineId = 0
+            version = reqData.get('version',0)
             getData = {'offset': 0, 'limit': 1000, 'is_enabled': 1}
             hostgroupResult = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_tree/", datas=getData)
             tool_list_result = hu.get(serivceName="job", restName="/rest/job/list_tool_set/",datas={'id':toolId})
@@ -144,13 +145,14 @@ class DeployToolOperationView(LoginRequiredMixin, JSONResponseMixin,AjaxResponse
                     tool['param'] = json.loads(tool['param'])
                     del tool['is_enabled']
                 tool = tool_list[0]
-
+            context["version"] = version
             context["result_dict"] = {}
             context['hostGroup_list'] = hostgroupResult.get("data", [])
             context['tool_info'] = tool
             context['commandId'] = commandId
             context['commandLineId'] = commandLineId
             context['name'] = name
+            context['deploy_id'] = id
         except Exception as e:
             logger.error(e)
         return context
@@ -163,6 +165,8 @@ class DeployToolOperationView(LoginRequiredMixin, JSONResponseMixin,AjaxResponse
             commandSetId = int(reqData.get("command_set_id", 0))
             command_info = reqData.get("command_info", None)
             deploy_info = reqData.get("deploy_info", None)
+            deploy_id = reqData.get("deploy_id", None)
+            version = reqData.get("version", None)
             if commandSetId == 0 and command_info:
                 jobAddResults = hu.post(serivceName="job", restName="/rest/job/add/", datas=command_info)
                 jobAddResults = jobAddResults.json()
@@ -204,6 +208,7 @@ class DeployToolOperationView(LoginRequiredMixin, JSONResponseMixin,AjaxResponse
                 runJson = runResults.json()
                 if int(runJson.get("job_id", 0)) > 0:
                     result["status"] = "0"
+                    jobAddResults = hu.post(serivceName="job", restName="/rest/deploytool/versionadd/", datas={'deploy_id':deploy_id,'version':version})
                 else:
                     result["status"] = "1"
                     result['msg'] = '发版失败'

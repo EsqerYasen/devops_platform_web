@@ -34,12 +34,16 @@
                              <div class="col-sm-10" v-if="parm.type === 'text'">
                                   <input type="text" class="form-control text_ar" v-model="parm.value" :placeholder="parm.desc">
                              </div>
-                             <div v-if="parm.type === 'select'">
+                            <div class="col-sm-10" v-if="parm.type === 'version'">
+                                  <input type="text" class="form-control text_ar" v-model="parm.value" :placeholder="parm.desc">
+                             </div>
+                             <div class="col-sm-10" v-if="parm.type === 'select'">
+                                  <input type="text" class="form-control text_ar " v-model="parm.value" style="position:absolute;width:330px;"/>
                                   <select class="form-control text_ar" v-model="parm.value">
                                       <option  v-for="v in parm.valueSet" :value="v.name" v-html="v.name"></option>
                                   </select>
                              </div>
-                             <div class="checkbox" style="margin:10px;" v-if="parm.type === 'multiple'">
+                             <div class="col-sm-10" class="checkbox" style="margin:10px;" v-if="parm.type === 'multiple'">
                                   <label v-for="it in parm.valueSet" style="margin-right:15px;">
                                       <span>{% verbatim %}{{ it.name }}--{{ it.desc }}{% endverbatim %}</span>
                                       <input style="margin-top:-15px;" @click.sync="changeValue2(parm, it)" type="checkbox" :value="it.name" v-model="it.checked"/>
@@ -342,7 +346,7 @@ var app_page = new Vue({
             var command_set_id = {{ commandId }};
             var commandLineId = {{ commandLineId }};
             var name = '{{ name }}';
-            var reqData = {"command_set_id":command_set_id};
+            var reqData = {"command_set_id":command_set_id,'version':'{{ version }}','deploy_id':'{{ deploy_id }}'};
             if(!formData.target_group_ids){
                 Alertwin.alert({message:"请选择机器"});
                 return;
@@ -426,5 +430,13 @@ var app_page = new Vue({
         }
     }
 })
+var sel_version = '{{ version }}';
+if(sel_version){
+    app_page.tool_info.param.map(function(item){
+        if(item.type === 'version'){
+            item.value = sel_version;
+        }
+    })
+}
 </script>
 {% endblock %}
