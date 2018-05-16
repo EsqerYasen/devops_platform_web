@@ -123,7 +123,9 @@
 
 				                            <div class="fl pabx">
 											    <label ><span class="red">*</span> 描述</label>
-                                                <textarea v-if="p.type=='select'" type="text" class="form-control" style="width: 250px" v-model="p.desc"></textarea>
+
+
+                                                <textarea v-if="p.type=='select'" class="form-control scriptarea" contenteditable="true" style="width: 250px" v-model="p.desc"></textarea>
                                                 <input v-if="p.type=='text'" type="text" class="form-control" style="width: 250px" v-model="p.desc"/>
 				                            </div>
 
