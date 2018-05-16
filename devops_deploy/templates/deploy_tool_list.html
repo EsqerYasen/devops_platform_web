@@ -48,7 +48,7 @@
                 <td>{{ o.create_time }}</td>
                 <td>{{ o.update_time }}</td>
                 <td>
-                    <select id class="form-control" style="width: 90%">
+                    <select id="version{{ o.id }}" class="form-control" style="width: 90%">
                         <option value="" >请选择</option>
                         {% for obj in o.version_list %}
                             <option value="{{ obj.version }}" >{{ obj.version }}</option>
@@ -79,7 +79,10 @@
              });
         }
         function deployToolOperation(id,name,toolSetId,commandSetId,commandLineId){
-            window.location.href = "../"+id+"/operation/?name="+name+"&toolId="+toolSetId+"&commandId="+commandSetId+"&commandLineId="+commandLineId;
+            if(toolSetId){
+                var version = $("#version"+id).val();
+                window.location.href = "../"+id+"/operation/?name="+name+"&toolId="+toolSetId+"&commandId="+commandSetId+"&commandLineId="+commandLineId+"&version="+version;
+            }
         }
     </script>
 {% endblock %}

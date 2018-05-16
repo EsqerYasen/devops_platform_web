@@ -7391,6 +7391,19 @@ fade-enter-active, .fade-leave-active {
 }
 
 
+.meiju{
+    border: 1px solid #efefef;
+}
+
+.mj_btn{
+    display: block;
+    clear: both;
+    padding-bottom: 10px;
+
+    /*text-align: center;*/
+}
+
+
 
 
 
@@ -7425,4 +7438,8 @@ fade-enter-active, .fade-leave-active {
 
 .infobox.slder_show.act .slider{
     display: block;
+}
+
+.varset .nput-group-addon{
+    background: #ddd;
 }

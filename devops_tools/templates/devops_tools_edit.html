@@ -99,7 +99,10 @@
                                 <label class="col-sm-2 control-label">参数</label>
 	                            <div class="col-sm-10">
 		                            <div class="parmabox">
-			                            <div v-for="(p,i) in formData.param" class="boxbox clear1 form-inline col-sm-9">
+
+			                            <transition name="bounce">
+		                                    <transition-group name="list" >
+			                                <div v-for="(p,i) in formData.param" :key="i" class="boxbox clear1 form-inline ">
 				                            <i class="yum-font icon-guanbi del" style="font-size: 12px" @click="removeParam(i)"></i>
 				                            <div class="fl pabx">
 											    <label><span class="red">*</span> 名称</label>
@@ -124,25 +127,40 @@
                                                 <textarea v-if="p.type=='select'" type="text" class="form-control" style="width: 250px" v-model="p.desc"></textarea>
                                                 <input v-if="p.type=='text'" type="text" class="form-control" style="width: 250px" v-model="p.desc"/>
 				                            </div>
-                                            <div style="margin-left:40px;" class="form-group col-sm-12" v-if="p.type === 'select'">
-                                                <div class="parmabox clear1 " v-for="(vs, i) in p.valueSet">
-                                                    <i class="yum-font icon-guanbi del" style="position:static;top:0;right:0;font-size: 12px" @click="removeValueSet(p, i)"></i>
-                                                    <div class="fl pabx">
-                                                        <label><span class="red">*</span> 枚举值</label>
-                                                        <input type="text" class="form-control" v-model="vs.name">
-                                                    </div>
-                                                    <div class="fl pabx">
-                                                        <label><span class="red"></span> 描述</label>
-                                                        <input type="text" class="form-control" v-model="vs.desc">
-                                                    </div>
-                                                </div>
-                                                <div class="clear1 add_button col-sm-12 parmabox" @click="addValueSet(p)">
-                                                    +添加枚举值
-                                                </div>
-                                            </div>
-			                            </div>
+				                             <div class="" style="display: block;width: 100%;clear: both;padding: 10px;" v-if="p.type === 'select'">
+			                                    <hr style="margin: 5px 10px;">
+		                                    </div>
 
-                                        <div class="clear1 add_button col-sm-12" @click="addParam">
+
+				                            <div class="form-group" v-if="p.type === 'select'" style="padding-left: 30px;padding-right: 30px">
+	                                             <transition name="bounce">
+				                                    <transition-group name="list" >
+		                                                <div class="parmabox clear1" style="position: relative;" v-for="(vs, i) in p.valueSet" :key="i">
+		                                                    <i class="yum-font icon-guanbi del" style="top:-10px;right:-10px;font-size: 12px; z-index: 10" @click="removeValueSet(p, i)"></i>
+
+			                                                <div class="input-group">
+														        <div class="input-group-addon" style="background: #efefef"><span class="red">*</span> 枚举值</div>
+														        <input type="text" class="form-control"  v-model="vs.name">
+				                                                <div class="input-group-addon " style="background: #efefef">描述</div>
+				                                                <input type="text" class="form-control" v-model="vs.desc">
+														    </div>
+
+		                                                </div>
+				                                    </transition-group>
+	                                             </transition>
+                                            </div>
+
+				                                <div class="clear1 add_button col-sm-12 parmabox mj_btn" v-if="p.type === 'select'">
+                                                <span @click="addValueSet(p)">+添加枚举值</span>
+                                            </div>
+
+
+
+			                            </div>
+		                                    </transition-group>
+			                            </transition>
+
+                                        <div class="clear1 add_button col-sm-12" @click="addParam" style="padding-left: 0px">
 	                                        +添加参数
                                         </div>
 		                            </div>
@@ -153,13 +171,17 @@
                                 <label class="col-sm-2 control-label">版本</label>
 	                            <div class="col-sm-10">
 		                            <div class="parmabox">
-			                            <div v-for="(p,i) in formData.versions" class="boxbox clear1 form-inline">
+			                             <transition name="bounce">
+		                                    <transition-group name="list" >
+			                            <div v-for="(p,i) in formData.versions" :key="i" class="boxbox clear1 form-inline">
 				                            <i class="yum-font icon-guanbi del" style="font-size: 12px" @click="removeVersions(i)"></i>
 				                            <div class="fl pabx">
 											    <label><span class="red">*</span></label>
 											    <input type="text" class="form-control" v-model="formData.versions[i]">
 				                            </div>
 			                            </div>
+		                                    </transition-group>
+			                             </transition>
                                         <div class="clear1 add_button" @click="addVersions" v-if="!formData.versions.length">
 	                                        +添加版本
                                         </div>
@@ -172,7 +194,10 @@
 	                            <div class="col-sm-10">
 		                             <div class=" form-group col-sm-12 parmabox form-inline" >
                                          <div class="boxbox col-sm-12" v-if="p.valueSet.length">
-                                            <div class="parmabox  clear1 " v-for="(vs, i) in p.valueSet">
+
+	                                          <transition name="bounce">
+		                                        <transition-group name="list" >
+                                                    <div class="parmabox  clear1 " v-for="(vs, i) in p.valueSet" :key="i">
                                                 <i class="yum-font icon-guanbi del" style="position:static;top:0;right:25px;font-size: 12px" @click="removeValueSet(p, i)"></i>
                                                 <div class="fl pabx">
                                                     <label><span class="red">*</span> 可选tag值</label>
@@ -183,6 +208,8 @@
                                                     <input type="text" class="form-control" v-model="vs.desc">
                                                 </div>
                                             </div>
+		                                        </transition-group>
+	                                          </transition>
                                          </div>
                                         <div class="clear1 add_button col-sm-12 parmabox" @click="addValueSet(p)">
                                             +添加可选tag值
@@ -196,7 +223,9 @@
                                 <label class="col-sm-2 control-label">返回值</label>
 	                            <div class="col-sm-10">
 		                            <div class="parmabox">
-			                            <div v-for="(r, i) in formData.ret" class="boxbox clear1 form-inline">
+			                             <transition name="bounce">
+		                                    <transition-group name="list" >
+			                                    <div v-for="(r, i) in formData.ret" :key="i" class="boxbox clear1 form-inline">
 				                            <i class="yum-font icon-guanbi del" style="font-size: 12px" @click="removeRet(i)"></i>
 				                            <div class="fl pabx">
 											    <label>名称</label>
@@ -218,6 +247,8 @@
 					                             <input type="text" class="form-control">
 				                            </div>
 			                            </div>
+		                                    </transition-group>
+			                             </transition>
 
 			                            <div class="clear1 add_button" @click="addReturn">
 				                            +添加返回值

@@ -3,7 +3,7 @@ from django.views.generic import *
 from common.utils.HttpUtils import *
 from django.http import HttpResponse
 from django.core.paginator import Paginator
-import logging,time,os
+import logging,time,os,types
 
 logger = logging.getLogger('devops_platform_log')
 
@@ -134,6 +134,7 @@ class DeployToolOperationView(LoginRequiredMixin, JSONResponseMixin,AjaxResponse
             commandLineId = reqData.get('commandLineId',0)
             if not commandLineId or commandLineId == "None":
                 commandLineId = 0
+            version = reqData.get('version',"")
             getData = {'offset': 0, 'limit': 1000, 'is_enabled': 1}
             hostgroupResult = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_tree/", datas=getData)
             tool_list_result = hu.get(serivceName="job", restName="/rest/job/list_tool_set/",datas={'id':toolId})
@@ -144,13 +145,14 @@ class DeployToolOperationView(LoginRequiredMixin, JSONResponseMixin,AjaxResponse
                     tool['param'] = json.loads(tool['param'])
                     del tool['is_enabled']
                 tool = tool_list[0]
-
+            context["version"] = version
             context["result_dict"] = {}
             context['hostGroup_list'] = hostgroupResult.get("data", [])
             context['tool_info'] = tool
             context['commandId'] = commandId
             context['commandLineId'] = commandLineId
             context['name'] = name
+            context['deploy_id'] = id
         except Exception as e:
             logger.error(e)
         return context
@@ -163,6 +165,9 @@ class DeployToolOperationView(LoginRequiredMixin, JSONResponseMixin,AjaxResponse
             commandSetId = int(reqData.get("command_set_id", 0))
             command_info = reqData.get("command_info", None)
             deploy_info = reqData.get("deploy_info", None)
+            deploy_id = reqData.get("deploy_id", None)
+            version = reqData.get("version", None)
+            commandLineId = reqData.get("commandLineId", None)
             if commandSetId == 0 and command_info:
                 jobAddResults = hu.post(serivceName="job", restName="/rest/job/add/", datas=command_info)
                 jobAddResults = jobAddResults.json()
@@ -188,6 +193,7 @@ class DeployToolOperationView(LoginRequiredMixin, JSONResponseMixin,AjaxResponse
                         step = step_ids[0]
                         for k2 in step:
                             line_id = step[k2][0]
+                            commandLineId = line_id
                             deploy_info['paras'][1][line_id] = {
                                 "parameter": line['default_script_parameter'],
                                 "is_skip": 0
@@ -200,10 +206,18 @@ class DeployToolOperationView(LoginRequiredMixin, JSONResponseMixin,AjaxResponse
                             if addAppResults['status'] == 'FAILURE':
                                 deploy_info = None
             if deploy_info:
+                if isinstance(deploy_info,str):
+                    deploy_info = json.loads(deploy_info)
+                version_url = "/opt/deploy/%s/versions/%s" %(commandSetId,version)
+                if not os.path.exists(version_url):
+                    os.makedirs(version_url)
+                new_parameter = deploy_info['paras']['1'][commandLineId]['parameter']+";version_url="+version_url
+                deploy_info['paras']['1'][commandLineId]['parameter'] = new_parameter
                 runResults = hu.post(serivceName="job", restName="/rest/job/run/", datas=deploy_info)
                 runJson = runResults.json()
                 if int(runJson.get("job_id", 0)) > 0:
                     result["status"] = "0"
+                    hu.post(serivceName="job", restName="/rest/deploytool/versionadd/", datas={'deploy_id':deploy_id,'version':version})
                 else:
                     result["status"] = "1"
                     result['msg'] = '发版失败'
