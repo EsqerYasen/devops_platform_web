@@ -1,10 +1,430 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'common/basic_layout.html' %}
 
-</body>
-</html>
+{% block content %}
+<link href="/static/hplus/css/zTree/bootstrapStyle.css" rel="stylesheet">
+<link href="/static/hplus/css/devops_tools_add.css" rel="stylesheet">
+<link href="/static/hplus/css/works/works.css" rel="stylesheet">
+<link href="/static/hplus/css/works/yum-font.css" rel="stylesheet">
+
+<script type="text/javascript" src="/static/hplus/js/zTree/jquery.ztree.core.js"></script>
+<script type="text/javascript" src="/static/hplus/js/zTree/jquery.ztree.excheck.js"></script>
+<script type="text/javascript" src="/static/hplus/js/zTree/jquery.ztree.exedit.js"></script>
+
+
+<script src="/static/hplus/js/works/vue.min.js"></script>
+<script type="text/javascript" src="/static/hplus/js/works/components/vue-select.js"></script>
+
+<div class="wrapper wrapper-content fadeInRight" style="z-index: inherit">
+    <div class="row addtoos">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>{{ name }} 流量调度</h5>
+                </div>
+                <div class="ibox-content" id="app_deploy">
+                    <form class="form-horizontal" @submit.prevent="submit">
+                         <div class="form-group">
+                            <label class="col-sm-2 control-label"><span class="red">*</span> 选择机器</label>
+                            <div class="col-sm-10">
+                                <a href="javascript:;" class="btn btn-primary" @click="selectHost">选择机器</a>
+                            </div>
+                        </div>
+                        <div class="form-group" v-for="parm in tool_info.param">
+                             <label class="col-sm-2 control-label"><span class="red"></span> {% verbatim %}{{ parm.paramNameZh }}{% endverbatim %}</label>
+                             <div class="col-sm-10" v-if="parm.type === 'text'">
+                                  <input type="text" class="form-control text_ar" v-model="parm.value" :placeholder="parm.desc">
+                             </div>
+                             <div v-if="parm.type === 'select'">
+                                  <select class="form-control text_ar" v-model="parm.value">
+                                      <option  v-for="v in parm.valueSet" :value="v.name" v-html="v.name"></option>
+                                  </select>
+                             </div>
+                             <div class="checkbox" style="margin:10px;" v-if="parm.type === 'multiple'">
+                                  <label v-for="it in parm.valueSet" style="margin-right:15px;">
+                                      <span>{% verbatim %}{{ it.name }}--{{ it.desc }}{% endverbatim %}</span>
+                                      <input style="margin-top:-15px;" @click.sync="changeValue2(parm, it)" type="checkbox" :value="it.name" v-model="it.checked"/>
+                                  </label>
+                             </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-10">
+                                <button type="submit" class="btn btn-primary">提交</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    <div class="modal fade" id="select_host_modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+	    <div class="modal-dialog modal-lg" role="document">
+	          <div class="modal-content" style="width: 600px;margin-left: -100px">
+	              <div class="modal-header">
+	                  <h5 class="modal-title" id="exampleModalLabel" style="float:left;">选择机器</h5>
+	                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	                      <span aria-hidden="true">&times;</span>
+	                   </button>
+	              </div>
+	              <div class="modal-body">
+	                  <div class="row">
+	                      <div class="col-sm-6" style="max-height: 400px;overflow:auto">
+	                          <ul id="host_group_tree" name="host_group_tree" class="ztree"></ul>
+	                      </div>
+	                      <div class="col-sm-6" style="max-height: 400px;overflow:auto">
+	                          <div style="max-height: 400px;overflow: auto">
+	                              <table id="hostIpTb" class="table table-striped table-bordered table-hover dataTables-example dataTable">
+	                                  <thead>
+	                                    <tr>
+	                                        <th style="width:5%;"><input id="checkall" type="checkbox" class="i-checks"></th>
+	                                        <th>IP<span id="hostIpBadge" class="badge" style="margin-left: 20px;background-color: green;color: white">总：0台</span></th>
+	                                    </tr>
+	                                  </thead>
+	                                  <tbody></tbody>
+	                              </table>
+	                          </div>
+	                      </div>
+	                  </div>
+	              </div>
+	              <div class="modal-footer">
+	                  <div class="row">
+	                      <div class="col-sm-5" style="margin-left: 15px">
+	                          <div class="input-group">
+	                              <select id="host_go_live" class="form-control">
+	                                  <option value="2" selected>待上线主机</option>
+	                                  <option value="3">已上线主机</option>
+	                              </select>
+	                              <span class="input-group-btn">
+	                                  <button type="button" class="btn btn-primary" onclick="queryHostIp()">查询</button>
+	                              </span>
+	                          </div>
+	                      </div>
+	                      <div class="col-sm-6">
+	                          <button type="button" class="btn btn-primary" title="确定" onclick="determineSelectHost()">确定</button>
+	                          <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+	                      </div>
+	                  </div>
+	              </div>
+	          </div>
+	    </div>
+	</div>
+
+<script>
+Vue.component('v-select', VueSelect.VueSelect);
+$(function(){
+    var hostGroupTreeList = {{ hostGroup_list|safe }};
+    readHostGroupTreeNext(hostGroupTreeList,0);
+    zHostGroupTreeInit();
+    initSelectHostModal();
+});
+    function initSelectHostModal(){
+        $("#select_host_modal").on('show.bs.modal',function(event){
+            var datas = $(event.relatedTarget).data();
+            var gid = datas&&datas['gid'];
+            $(this).data('gid',gid);
+            var selectHostValue = $("#selectHostValue"+gid);
+            var hostValue = selectHostValue.val();
+            var target_group_ids = app_page.formData.target_group_ids;
+            var obj = app_page.formData;
+            if(obj && target_group_ids){
+                //hostValue = hostValue.replace(/\'/g,"\"");
+                //var obj = JSON.parse(hostValue);
+
+                var tree = $.fn.zTree.getZTreeObj('host_group_tree');
+                if(target_group_ids){
+                    $(target_group_ids.split(',')).each(function(i,item){
+                        tree.checkNode(tree.getNodeByParam('id',item), true, true);
+                    });
+                    createSelectHostIpTable(target_group_ids);
+                }
+            }
+            var golive = selectHostValue.attr('golive');
+            if(golive){
+                $("#host_go_live").val(golive);
+            }
+        });
+
+        $("#select_host_modal").on('hide.bs.modal',function(event){
+            var datas = $(this).data();
+            var gid = datas['gid'];
+            $.fn.zTree.getZTreeObj("host_group_tree").checkAllNodes(false);
+            $("#host_go_live").val(2);
+        });
+    }
+
+     var zHostGroupNodes = [];
+
+    function readHostGroupTreeNext(list,pid){
+        $(list).each(function(i,item){
+            var ids = item.id;
+            var nodeData = {id:ids,pId:pid,name:item.name,nodeId:ids,open:true,hasIp:item.has_ip};
+            zHostGroupNodes.push(nodeData);
+            if(item.childs){
+                readHostGroupTreeNext(item.childs,ids);
+            }
+        });
+    }
+
+    function zHostGroupTreeInit(){
+        var setting = {
+            view: {
+                selectedMulti: false,
+            },
+            check: {
+                enable: true,
+                chkboxType:  { "Y": "", "N": "" }
+            },
+            data: {
+                simpleData: {
+                    enable: true
+                }
+            },
+            edit: {
+                enable: false
+            }
+        };
+        $.fn.zTree.init($("#host_group_tree"), setting, zHostGroupNodes);
+    }
+
+    function determineSelectHost(){
+        var select_host_modal = $('#select_host_modal');
+        var gid = select_host_modal.data('gid');
+        //var selectHostValue = $("#selectHostValue"+gid);
+        var ips = getCheckedHostIP();
+        //selectHostValue.val('');
+
+        var values = getSelectHostFromModal();
+
+        if(!$.isEmptyObject(values)){
+            //var obj = {};
+            //obj = {'target_group_ids':values['id']}
+            var target_type = 1;
+            if(ips.length > 0){
+                values['target_host_list']= ips;
+                target_type = 3;
+            }else{
+                values['target_host_list']= "";
+            }
+            //values['target_type'] = target_type;
+            select_host_modal.modal('hide');
+            app_page.formData.target_group_ids = values['group_id'];
+            app_page.formData.target_host_list = values['target_host_list'];
+            app_page.formData.go_live = values['go_live'];
+            app_page.formData.target_type = target_type;
+        }else{
+            Alertwin.alert({message:"请选择主机组或勾选机器"});
+        }
+    }
+
+    function queryHostIp(){
+        var values = getSelectHostFromModal();
+        if(!$.isEmptyObject(values)){
+            values['csrfmiddlewaretoken'] = '{{ csrf_token }}';
+            values['limit'] = 100;
+            $.ajax({
+                type: "POST",
+                url: '/platform/command_set/listByQueryCriteria/',
+                data:values,
+                error: function (request) {
+                    layer.closeAll('loading');
+                },
+                success: function (data) {
+                    createSelectHostIpTable(data.host_list.data);
+                    layer.closeAll('loading');
+                }
+            });
+        }else{
+            Alertwin.alert({message:"选择机器功能异常"});
+        }
+    }
+
+     function getSelectHostFromModal(){
+        var result = {};
+        var tabIds = $("#select_host_tab li[class='active'] a").attr('href');
+        var host_group_tree=$.fn.zTree.getZTreeObj("host_group_tree");
+        var nodes = host_group_tree.getCheckedNodes(true);
+        var groupIds = "";
+        $(nodes).each(function(i,item){
+            groupIds += item.nodeId+",";
+        });
+        if(groupIds){
+            groupIds = groupIds.substring(0,groupIds.length-1);
+        }
+        result['group_id'] = groupIds;
+
+        if(!$.isEmptyObject(result)){
+            result['go_live'] = $("#host_go_live").val();
+        }
+        return result;
+    }
+
+
+    function createSelectHostIpTable(data){
+        var hostIpTb = $("#hostIpTb tbody");
+        hostIpTb.empty();
+        $("#hostIpBadge").text('总：0台');
+        $("#checkall").unbind();
+
+        if(data){
+            $(data).each(function(i,item){
+
+                var htmlStr =  htmlStr = "<tr>" +
+                    "   <td>" +
+                    "       <input type='checkbox' class='i-checks icheck' hostip='"+item+"' name='trCheckbox'>" +
+                    "   </td>" +
+                    "   <td>" + item +"</td>"+
+                    "</tr>";
+                hostIpTb.append(htmlStr);
+            });
+            $("#hostIpBadge").text('总：'+data.length+'台');
+            $(".i-checks").iCheck({checkboxClass: "icheckbox_square-green", radioClass: "iradio_square-green",});
+            $('#checkall').on('ifChecked', function (event) {
+                $('.icheck').iCheck('check');
+            });
+            $('#checkall').on('ifUnchecked', function (event) {
+                $('.icheck').iCheck('uncheck');
+            });
+        }
+    }
+
+
+    function getCheckedHostIP() {
+        var str = document.getElementsByName("trCheckbox");
+        var objarray = str.length;
+        var idList = [];
+        for (i = 0; i < objarray; i++) {
+            if (str[i].checked == true) {
+                idList.push($(str[i]).attr('hostip'));
+            }
+        }
+        return idList;
+    }
+
+
+var app_page = new Vue({
+    el:'#app_deploy',
+    data:{
+        formData:{
+
+        },
+        tool_info:{{ tool_info|safe }}
+    },
+    methods:{
+          changeValue:function(obj){
+              obj.value = [];
+              if(obj.value2){
+                obj.value2.map(function(item){
+                  obj.value.push(item.name);
+                })
+              }
+          },
+          changeValue2:function(obj, it){
+            obj.value = [];
+            it.checked = !it.checked;
+            obj.valueSet.map(function(item){
+              item.checked? obj.value.push(item.name):'';
+            })
+          },
+        selectHost:function(){
+            $("#select_host_modal").modal({show:true});
+        },
+        checkForm: function(){
+           var formData = this.formData;
+           var params = this.tool_info.param;
+           return true;
+        },
+        submit:function(){
+            if(!this.checkForm())return;
+            var formData = this.formData;
+            var tool_info = this.tool_info;
+            var params = tool_info.param;
+            var command_set_id = {{ commandId }};
+            var commandLineId = {{ commandLineId }};
+            var name = '{{ name }}';
+            var reqData = {"command_set_id":command_set_id};
+            if(!formData.target_group_ids){
+                Alertwin.alert({message:"请选择机器"});
+                return;
+            }
+            var target_host_list = "";
+            if(formData.target_host_list){
+                target_host_list = formData.target_host_list.join(',');
+            }
+            //var parameter = formData.version+",";
+            var parameter = "";
+            $(params).each(function(pi,pitme){
+                if(pitme.value){
+                    parameter += pitme.paramNameZh+"="+pitme.value+";";
+                }
+            })
+            parameter = parameter.substring(0,parameter.length-1);
+            if(command_set_id > 0){
+                var deploy_info = {
+                    "command_set_id":command_set_id,
+                    "paras":{
+                        1:{
+                            "target_type":formData.target_type,
+                            "target_group_ids":formData.target_group_ids,
+                            "target_host_list":target_host_list,
+                            "go_live":formData.go_live,
+                            commandLineId:{
+                                "parameter":parameter,
+                                "is_skip":0
+                            }
+                        }
+                    }
+                };
+                reqData['deploy_info'] = JSON.stringify(deploy_info);
+            }else{
+                var command_info = {
+                    "name":name+" 流量调度",
+                    "type":2,
+                    "comment":"用于 "+name+" 流量调度",
+                    "steps":[
+                        {
+                            "name":name+"安装步骤1",
+                            "seq_no":1,
+                            "type":0,
+                            "target_group_ids":formData.target_group_ids,
+                            "target_host_list":target_host_list,
+                            "target_type":formData.target_type,
+                            "go_live":formData.go_live,
+                            "lines":[
+                                {
+                                    "sub_seq_no":1,
+                                    "type":2,
+                                    "source_file_name":tool_info.command,
+                                    "default_script_parameter":parameter,
+                                    "tool_set_type":6
+                                }
+                            ]
+                        }
+                    ]
+                };
+                reqData['command_info'] = JSON.stringify(command_info);
+            }
+            reqData['csrfmiddlewaretoken'] = '{{ csrf_token }}';
+            layer.load();
+            $.ajax({
+                type: "POST",
+                url: '../operation/',
+                data:reqData,
+                error: function (request) {
+                    layer.closeAll('loading');
+                },
+                success: function (data) {
+                    layer.closeAll('loading');
+                    if(data.status==0){
+                        window.location.href = "/platform/command_set/"+data.set_id+"/execLog?setId="+data.set_id+"&jobId="+data.job_id;
+                    }else{
+                        Alertwin.alert({message:data.msg});
+                    }
+                }
+            });
+
+        }
+    }
+})
+</script>
+{% endblock %}

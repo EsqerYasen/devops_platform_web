@@ -46,7 +46,7 @@
                 <td>{{ o.update_time }}</td>
                 <td>
                     <a href="../{{ o.id }}/edit/" class="btn btn-sm btn-success"><i class="fa fa-edit"></i>&nbsp;编辑</a>
-                    <a href="../{{ o.id }}/deploy/?name={{ o.name }}&toolId={{ o.tool_set_id }}&commandId={{ o.command_set_id }}&commandLineId={{ o.command_line_id }}" class="btn btn-sm btn-success"><i class="fa fa-edit"></i>调度</a>
+                    <a href="../{{ o.id }}/operation/?name={{ o.name }}&toolId={{ o.tool_set_id }}&commandId={{ o.command_set_id }}&commandLineId={{ o.command_line_id }}" class="btn btn-sm btn-success"><i class="fa fa-edit"></i>调度</a>
                     <a href="javascript:void(0)" onclick="deleteApp('{{ o.id }}')" class="btn  btn-sm btn-danger"><i class="fa fa-trash"></i>&nbsp;删除</a>
                 </td>
             </tr>

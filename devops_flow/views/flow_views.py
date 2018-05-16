@@ -66,7 +66,7 @@ class DevopsFlowCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMix
         return HttpResponse(json.dumps(result),content_type='application/json')
 
 
-class DevopsAppMgeUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, TemplateView):
+class DevopsFlowUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, TemplateView):
     template_name = "flow_form.html"
 
     def get_context_data(self, **kwargs):
@@ -113,6 +113,109 @@ class DevopsAppMgeUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseM
         return HttpResponse(json.dumps(result), content_type='application/json')
 
 
+class DevopsFlowOperationView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, TemplateView):
+    template_name = "flow_operation.html"
+
+    def get_context_data(self, **kwargs):
+        context = {}
+        try:
+            req = self.request
+            hu = HttpUtils(req)
+            id = kwargs.get('pk',0)
+            reqData = hu.getRequestParam()
+            name = reqData.get('name',"")
+            toolId = reqData.get('toolId')
+            commandId = reqData.get('commandId',0)
+            if not commandId or commandId == "None":
+                commandId = 0
+            commandLineId = reqData.get('commandLineId',0)
+            if not commandLineId or commandLineId == "None":
+                commandLineId = 0
+            getData = {'offset': 0, 'limit': 1000, 'is_enabled': 1}
+            hostgroupResult = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_tree/", datas=getData)
+            tool_list_result = hu.get(serivceName="job", restName="/rest/job/list_tool_set/",datas={'id':toolId})
+            tool_list = tool_list_result.get("results", [])
+            tool = {}
+            if len(tool_list) > 0:
+                for tool in tool_list:
+                    tool['param'] = json.loads(tool['param'])
+                    del tool['is_enabled']
+                tool = tool_list[0]
+
+            context["result_dict"] = {}
+            context['hostGroup_list'] = hostgroupResult.get("data", [])
+            context['tool_info'] = tool
+            context['commandId'] = commandId
+            context['commandLineId'] = commandLineId
+            context['name'] = name
+        except Exception as e:
+            logger.error(e)
+        return context
+
+    def post_ajax(self, request, *args, **kwargs):
+        result = {'status': 0}
+        try:
+            hu = HttpUtils(self.request)
+            reqData = hu.getRequestParam()
+            commandSetId = int(reqData.get("command_set_id", 0))
+            command_info = reqData.get("command_info", None)
+            deploy_info = reqData.get("deploy_info", None)
+            if commandSetId == 0 and command_info:
+                jobAddResults = hu.post(serivceName="job", restName="/rest/job/add/", datas=command_info)
+                jobAddResults = jobAddResults.json()
+                if (jobAddResults["status"] == "FAILURE"):
+                    logger.error("创建安装job失败")
+                else:
+                    data = jobAddResults["data"]
+                    deploy_info = {}
+                    step = json.loads(command_info)['steps'][0]
+                    line = step['lines'][0]
+                    for k in data:
+                        commandSetId = k
+                        deploy_info['command_set_id'] = k
+                        deploy_info['paras'] = {
+                            1: {
+                                "target_type": step['target_type'],
+                                "target_group_ids": step['target_group_ids'],
+                                "target_host_list": step['target_host_list'],
+                                "go_live": step['go_live']
+                            }
+                        }
+                        step_ids = data[k]
+                        step = step_ids[0]
+                        for k2 in step:
+                            line_id = step[k2][0]
+                            deploy_info['paras'][1][line_id] = {
+                                "parameter": line['default_script_parameter'],
+                                "is_skip": 0
+                            }
+                            id = kwargs.get('pk', 0)
+                            addAppResults = hu.post(serivceName="job", restName="/rest/flowcontrol/update/",
+                                                    datas={'id': id, "command_set_id": commandSetId,
+                                                           'command_line_id': line_id})
+                            addAppResults = addAppResults.json()
+                            if addAppResults['status'] == 'FAILURE':
+                                deploy_info = None
+            if deploy_info:
+                runResults = hu.post(serivceName="job", restName="/rest/job/run/", datas=deploy_info)
+                runJson = runResults.json()
+                if int(runJson.get("job_id", 0)) > 0:
+                    result["status"] = "0"
+                else:
+                    result["status"] = "1"
+                    result['msg'] = '安装失败'
+                result['job_id'] = runJson.get("job_id", 0)
+                result['set_id'] = commandSetId
+            else:
+                result['status'] = 1
+                result['msg'] = '没有安装信息，安装失败'
+        except Exception as e:
+            result['status'] = 1
+            result['msg'] = '调度异常'
+            logger.error(e)
+        return HttpResponse(json.dumps(result),content_type='application/json')
+
+
 class DevopsFlowReportView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, TemplateView):
     template_name = "flow_form.html"
 
@@ -125,5 +228,8 @@ class DevopsFlowReportView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMix
         except Exception as e:
             logger.error(e)
         return context
+
+
+
 
 
