@@ -149,6 +149,24 @@
 
 	                            </div>
 	                        </div>
+                             <div class="form-group">
+                                <label class="col-sm-2 control-label">版本</label>
+	                            <div class="col-sm-10">
+		                            <div class="parmabox">
+			                            <div v-for="(p,i) in formData.versions" class="boxbox clear1 form-inline">
+				                            <i class="yum-font icon-guanbi del" style="font-size: 12px" @click="removeVersions(i)"></i>
+				                            <div class="fl pabx">
+											    <label><span class="red">*</span></label>
+											    <input type="text" class="form-control" v-model="formData.versions[i]">
+				                            </div>
+			                            </div>
+                                        <div class="clear1 add_button" @click="addVersions" v-if="!formData.versions.length">
+	                                        +添加版本
+                                        </div>
+		                            </div>
+	                            </div>
+	                        </div>
+
                            <div class="form-group" v-if="formData.script_lang === 'yaml'" v-for="p in formData.param2">
                                 <label class="col-sm-2 control-label" v-html="p.paramNameZh"></label>
 	                            <div class="col-sm-10">
@@ -246,6 +264,11 @@
                 tool_set_prime_type: {{ result_dict.tool_set_prime_type }},
                 tool_set_type: {{ result_dict.tool_set_type }},
                 filename:'{{ result_dict.filename }}',
+                versions:[
+                    {% for p in result_dict.param %}
+                        '{{ p }}',
+                    {% endfor %}
+                ],
                 infom:{{ result_dict.infom }},
 {#                command: '{{ result_dict.command }}',#}
                 script_lang: localStorage.getItem('codemirror_lang') ||  '{{ result_dict.script_lang }}',
@@ -302,6 +325,12 @@
                     valueSet: [],
                     default: ''
                 });
+            },
+            addVersions:function(){
+                this.formData.versions.push('');
+            },
+            removeVersions: function(index){
+                this.formData.versions.splice(index, 1);
             },
             removeParam: function(index){
                 this.formData.param.splice(index, 1);
