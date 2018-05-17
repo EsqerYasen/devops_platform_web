@@ -7,5 +7,7 @@ urlpatterns = [
         url(r'^add/', DevopsFlowCreateView.as_view(), name='add'),
         url(r'^(?P<pk>\d+)/edit/', DevopsFlowUpdateView.as_view(), name='edit'),
         url(r'^(?P<pk>\d+)/operation/', DevopsFlowOperationView.as_view(), name='operation'),
+        url(r'^report/', DevopsFlowReportView2, name='report'),
+        url(r'^report2/', DevopsFlowReportView2, name='report2'),
     ]))
 ]

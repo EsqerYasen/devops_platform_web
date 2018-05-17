@@ -2,7 +2,9 @@ from braces.views import *
 from django.views.generic import *
 from common.utils.HttpUtils import *
 from django.http import HttpResponse
+from django.shortcuts import render
 from django.core.paginator import Paginator
+from django.conf import settings
 import logging,time,os
 
 logger = logging.getLogger('devops_platform_log')
@@ -217,18 +219,39 @@ class DevopsFlowOperationView(LoginRequiredMixin, JSONResponseMixin,AjaxResponse
 
 
 class DevopsFlowReportView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, TemplateView):
-    template_name = "flow_form.html"
+    template_name = "flow_report.html"
 
     def get_context_data(self, **kwargs):
         context = {}
         try:
-            context['version_list'] = []
-            context['app_info'] = {}
-            context['is_add'] = 1
+            hu = HttpUtils(self.request)
+            #dashboard = hu.get_url("http://172.29.164.91:3000/d/qJbknE7mk/dashboard?orgId=1",datas={},auth=("admin","admin"))
+            # datas = json.dumps({"user":"admin","password":"admin"})
+            # html = requests.post("http://172.29.164.91:3000/login", data=datas.encode('UTF-8'),headers={"Content-Type": "application/json", "Accept-Language": "zh-CN,zh;q=0.8",}, timeout=10000)
+            # result_cookies = requests.utils.dict_from_cookiejar(html.cookies)
+            # response = self.response_class
+            # response.set_cookie("grafana_remember",
+            #                     result_cookies['grafana_remember'])
         except Exception as e:
             logger.error(e)
         return context
 
+
+def DevopsFlowReportView2(request):
+    try:
+        datas = json.dumps({"user": "admin", "password": "admin"})
+        html = requests.post("http://172.29.164.91:3000/login", data=datas.encode('UTF-8'),
+                             headers={"Content-Type": "application/json", "Accept-Language": "zh-CN,zh;q=0.8", },
+                             timeout=10000)
+        result_cookies = requests.utils.dict_from_cookiejar(html.cookies)
+        response = render(request, "flow_report.html", {})
+        response['Access-Control-Allow-Origin'] = "*"
+        response.set_cookie("grafana_remember",result_cookies['grafana_remember'])
+        response.set_cookie("grafana_sess", result_cookies['grafana_sess'])
+        response.set_cookie("grafana_user", result_cookies['grafana_user'])
+    except Exception as e:
+        logger.error(e)
+    return response
 
 
 

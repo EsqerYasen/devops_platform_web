@@ -11,6 +11,9 @@ class HttpUtils(object):
         result = requests.get(URLStr,datas,auth=auth,headers = {"Content-Type": "application/json","devopsgroup":self.webRequest.devopsgroup,'devopsuser':self.webRequest.devopsuser},timeout=10000)
         return result.json()
 
+    def get_url(self,URLStr,datas=None,auth=()):
+        return requests.get(URLStr,datas,auth=auth,headers = {"Content-Type": "text/html"},timeout=10000)
+
     def post(self,serivceName,restName,datas=None,auth=()):
         URLStr = self.getUrl(serivceName, restName)
         if datas is not None:

@@ -44,7 +44,7 @@
                                             </td>
                                             <td>
                                                 {% if history.status == 1 %}
-                                                    <a href="javascript:void(0)" onclick="stop({{ history.job_id }},{{ set_id }})" >停止执行</a>
+                                                    <a id="stopBtn" href="javascript:void(0)" onclick="stop({{ history.job_id }},{{ set_id }})" >停止执行</a>
                                                 {% endif %}
                                             </td>
                                         </tr>
@@ -87,7 +87,7 @@
         if(job_id){
             $.ajax({
                   type: "GET",
-                  url: '../getExecLog',
+                  url: '../getExecLog/',
                   data:{"jobId":job_id},
                   error: function (request) {
                       clearInterval(sh);
@@ -116,8 +116,9 @@
                      }
                      var status = jsonObj["status"];
                      if(status != 1){
-                         var classStr = "";
-                         var span = $("#"+jsonObj['job_id']).removeClass();
+                        var classStr = "";
+                        var span = $("#1"+jsonObj['job_id']).removeClass();
+                        $("#stopBtn").css({"display":"none"});
                         if(status == 2){
                             span.addClass("glyphicon glyphicon-ok");
                             span.css({'color':'green'});
@@ -145,7 +146,7 @@
          sh = null;
         $.ajax({
             type: "GET",
-            url: '../getExecLog',
+            url: '../getExecLog/',
             data:{"jobId":jobId},
             error: function (request) {},
             success: function (data) {
