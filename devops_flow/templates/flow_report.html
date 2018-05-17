@@ -1,27 +1,7 @@
-<script src="/static/hplus/js/jquery.min.js?v=2.1.4"></script>
+{{ html|safe }}
 
 <script>
-{#    function setCookie(name,value) {#}
-{#            var Days = 365;#}
-{#            var exp = new Date;#}
-{#            exp.setTime(exp.getTime() + Days * 24 * 60 * 60 * 1000);#}
-{#            document.cookie = name + ("=" + (value) + ";expires=" + exp.toGMTString() + ";path=/;");#}
-{#            debugger#}
-{#    }#}
-{#    setCookie("grafana_user","admin");#}
-{#    setCookie("grafana_remember","afb3f7874edcaeaf2b616f46e141772dc1079a7550424ab7358595689d7b2d6064");#}
-{#    setCookie("grafana_sess","e196de83f008269f");#}
 
-    $.ajax({
-        type: "post",
-        url: 'http://172.29.164.91:3000/login',
-        data:{"user":"admin","password":"admin"},
-        error: function (request) {
-        },
-        success: function (data) {
-            window.location.href = "http://172.29.164.91:3000/d/qJbknE7mk/dashboard?orgId=1";
-        }
-    });
 
 
 </script>
