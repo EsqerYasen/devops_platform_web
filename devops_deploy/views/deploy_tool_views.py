@@ -181,6 +181,7 @@ class DeployToolOperationView(LoginRequiredMixin, JSONResponseMixin,AjaxResponse
                     for k in data:
                         commandSetId = k
                         deploy_info['command_set_id'] = k
+                        deploy_info['is_new'] = 1
                         deploy_info['paras'] = {
                             1: {
                                 "target_type": step['target_type'],
