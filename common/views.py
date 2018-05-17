@@ -21,8 +21,8 @@ def checkLogin(request):
     :return:
     """
 
-    # user = authenticate(username=request.POST['username'], password=request.POST['password'])
-    # print('authuser %s' % user)
+    user = authenticate(username=request.POST['username'], password=request.POST['password'])
+    print('authuser %s' % user)
 
     user = auth.authenticate(username=request.POST['username'], password=request.POST['password'])
     if user and user.is_active:

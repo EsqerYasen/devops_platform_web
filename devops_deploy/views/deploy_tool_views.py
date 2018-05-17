@@ -217,8 +217,8 @@ class DeployToolOperationView(LoginRequiredMixin, JSONResponseMixin,AjaxResponse
                 runJson = runResults.json()
                 if int(runJson.get("job_id", 0)) > 0:
                     result["status"] = "0"
-                    hu.post(serivceName="job", restName="/rest/deploytool/versionadd/", datas={'deploy_id':deploy_id,'version':version})
-                    hu.post(serivceName="job", restName="/rest/deploytool/update/",datas={'id': id, "current_version": version})
+                    versionaddResult = hu.post(serivceName="job", restName="/rest/deploytool/versionadd/", datas={'deploy_id':deploy_id,'version':version})
+                    updateResult = hu.post(serivceName="job", restName="/rest/deploytool/update/",datas={'id': deploy_id, "current_version": version})
                 else:
                     result["status"] = "1"
                     result['msg'] = '发版失败'
