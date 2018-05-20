@@ -83,7 +83,12 @@
 		                 state[keys[0]].data.splice(keys[1],1)
 				    },
                     copyData: function(state, key){
-				        state[key].data = JSON.parse(JSON.stringify(state.production.data));
+				        var map = {production:1, disaster_recovery:2, preview:3 };
+				        var cpdata = JSON.parse(JSON.stringify(state.production.data));
+				        cpdata.map(function(it){
+				            it.env = map[key];
+                        });
+				        state[key].data = cpdata;
                     },
                     delData:function(state, key){
                         state[key].data = [];
