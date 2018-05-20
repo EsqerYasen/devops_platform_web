@@ -2,7 +2,11 @@
 from django.contrib import auth
 from django.shortcuts import render, redirect
 from django.views.generic import TemplateView
-from django.contrib.auth import authenticate,login as auth_login,logout as auth_logout
+from common.utils.ldap3_api import *
+from django.conf import settings
+
+
+logger = logging.getLogger('devops_platform_log')
 
 class LoginView(TemplateView):
     template_name = 'common/index.html'
@@ -20,16 +24,23 @@ def checkLogin(request):
     :param authentication_form:
     :return:
     """
-
-    user = authenticate(username=request.POST['username'], password=request.POST['password'])
-    print('authuser %s' % user)
-
-    user = auth.authenticate(username=request.POST['username'], password=request.POST['password'])
-    if user and user.is_active:
-        auth.login(request, user)
-        return redirect('/mainform/')
-    else:
-        return redirect('/?type=1')
+    redirect_url = "/?type=1"
+    try:
+        username = request.POST.get('username',None)
+        password = request.POST.get('password',None)
+        if username and password:
+            bool = AdAuthenticate.authenricate(username,password)
+            if bool:
+                user = auth.authenticate(username=username, password=settings.USER_DEFAULT_PWD)
+                if user and user.is_active:
+                    auth.login(request, user)
+                    redirect_url = '/mainform/'
+                logger.info("user '" + username + "' authentication through")
+            else:
+                logger.info("user '" + username + "' authentication failure")
+    except Exception as e:
+        logging.error(e)
+    return redirect(redirect_url)
 
 def logout(request):
     auth.logout(request)
