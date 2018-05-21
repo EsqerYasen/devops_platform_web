@@ -24,6 +24,7 @@ class Filter(MiddlewareMixin):
         request.limit = limit
         user = request.user
         if user.is_active:
+            request.clienttype = 'PC'
             if devopsgroup:
                 request.devopsgroup = devopsgroup
                 request.devopsuser = user.username

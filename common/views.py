@@ -4,7 +4,7 @@ from django.shortcuts import render, redirect
 from django.views.generic import TemplateView
 from common.utils.ldap3_api import *
 from django.conf import settings
-
+import logging
 
 logger = logging.getLogger('devops_platform_log')
 
@@ -26,6 +26,7 @@ def checkLogin(request):
     """
     redirect_url = "/?type=1"
     try:
+        print(request)
         username = request.POST.get('username',None)
         password = request.POST.get('password',None)
         if username and password:
@@ -35,7 +36,7 @@ def checkLogin(request):
                 if user and user.is_active:
                     auth.login(request, user)
                     redirect_url = '/mainform/'
-                logger.info("user '" + username + "' authentication through")
+                    logger.info("user '" + username + "' authentication through")
             else:
                 logger.info("user '" + username + "' authentication failure")
     except Exception as e:

@@ -1,4 +1,4 @@
-from ldap3 import Server, Connection, ALL, SUBTREE, ServerPool
+from ldap3 import Connection, SUBTREE, ServerPool
 import logging
 
 logger = logging.getLogger('devops_platform_log')
