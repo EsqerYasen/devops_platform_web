@@ -26,7 +26,8 @@ def checkLogin(request):
     """
     redirect_url = "/?type=1"
     try:
-        print("checkLogin request:"+str(request.body))
+        print("checkLogin request session:"+str(request.session._session))
+        print("checkLogin request body:" + str(request.body))
         username = request.POST.get('username',None)
         password = request.POST.get('password',None)
         if username and password:
