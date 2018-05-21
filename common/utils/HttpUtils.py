@@ -8,7 +8,7 @@ class HttpUtils(object):
 
     def get(self,serivceName,restName,datas=None,auth=()):
         URLStr = self.getUrl(serivceName, restName)
-        result = requests.get(URLStr,datas,auth=auth,headers = {"Content-Type": "application/json","devopsgroup":self.webRequest.devopsgroup,'devopsuser':self.webRequest.devopsuser},timeout=10000)
+        result = requests.get(URLStr,datas,auth=auth,headers = {"Content-Type": "application/json","devopsgroup":self.webRequest.devopsgroup,'devopsuser':self.webRequest.devopsuser,'clienttype':self.webRequest.clienttype},timeout=10000)
         return result.json()
 
     def get_url(self,URLStr,datas=None,auth=()):
@@ -19,7 +19,7 @@ class HttpUtils(object):
         if datas is not None:
             if type(datas) == dict or type(datas) == list:
                 datas = json.dumps(datas)
-        return requests.post(URLStr,data=datas.encode('UTF-8'),auth=auth,headers = {"Content-Type": "application/json","Accept-Language":"zh-CN,zh;q=0.8","devopsgroup":self.webRequest.devopsgroup,'devopsuser':self.webRequest.devopsuser},timeout=10000)
+        return requests.post(URLStr,data=datas.encode('UTF-8'),auth=auth,headers = {"Content-Type": "application/json","Accept-Language":"zh-CN,zh;q=0.8","devopsgroup":self.webRequest.devopsgroup,'devopsuser':self.webRequest.devopsuser,'clienttype':self.webRequest.clienttype},timeout=10000)
 
     def getUrl(self,serviceName,restName):
         url = "http://%s%s" % (REST_API_CONFIG[serviceName]['ip_prot'],restName)
