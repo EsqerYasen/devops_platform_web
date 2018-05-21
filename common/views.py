@@ -32,17 +32,18 @@ def checkLogin(request):
         username = ""
         if method == "GET":
             code = request.GET.get('code',None)
-            tokendata = settings.TOKEN_DATA
-            tokendata['code'] = code
-            tokendata['oauth_timestamp'] = time.time()
-            hu = HttpUtils(request)
-            result = hu.get_url(settings.OAUTH_TOKEN, tokendata)
-            if result.status_code == 200:
-                access_token = result.json()['access_token']
-                userinfo_result = hu.get_url("http://ssotest.hwwt2.com/openapi/oauth/userinfo", {"access_token": access_token})
-                userinfo = userinfo_result.json()
-                username = userinfo['yumADAccount'].lower()
-                bool = True
+            if code:
+                tokendata = settings.TOKEN_DATA
+                tokendata['code'] = code
+                tokendata['oauth_timestamp'] = time.time()
+                hu = HttpUtils(request)
+                result = hu.get_url(settings.OAUTH_TOKEN, tokendata)
+                if result.status_code == 200:
+                    access_token = result.json()['access_token']
+                    userinfo_result = hu.get_url("http://ssotest.hwwt2.com/openapi/oauth/userinfo", {"access_token": access_token})
+                    userinfo = userinfo_result.json()
+                    username = userinfo['yumADAccount'].lower()
+                    bool = True
         elif method == "POST":
             username = request.POST.get('username',None)
             password = request.POST.get('password',None)
