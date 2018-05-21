@@ -40,7 +40,7 @@ def checkLogin(request):
                 result = hu.get_url(settings.OAUTH_TOKEN, tokendata)
                 if result.status_code == 200:
                     access_token = result.json()['access_token']
-                    userinfo_result = hu.get_url("http://ssotest.hwwt2.com/openapi/oauth/userinfo", {"access_token": access_token})
+                    userinfo_result = hu.get_url(settings.OAUTH_USERINFO, {"access_token": access_token})
                     userinfo = userinfo_result.json()
                     username = userinfo['yumADAccount'].lower()
                     bool = True
