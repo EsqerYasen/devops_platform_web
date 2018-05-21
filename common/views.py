@@ -28,6 +28,7 @@ def checkLogin(request):
     try:
         print("checkLogin request session:"+str(request.session._session))
         print("checkLogin request body:" + str(request.body))
+        print("checkLogin request user:" + request.user.username)
         username = request.POST.get('username',None)
         password = request.POST.get('password',None)
         if username and password:
