@@ -220,6 +220,7 @@ class DeployToolOperationView(LoginRequiredMixin, JSONResponseMixin,AjaxResponse
                     result["status"] = "0"
                     versionaddResult = hu.post(serivceName="job", restName="/rest/deploytool/versionadd/", datas={'deploy_id':deploy_id,'version':version})
                     updateResult = hu.post(serivceName="job", restName="/rest/deploytool/update/",datas={'id': deploy_id, "current_version": version})
+                    appAddHistoryResult = hu.post(serivceName="job", restName="/rest/deploy/app_add_history/",datas={'app_id': deploy_id, "job_id":runJson['job_id'],"version": version,"type":3})
                 else:
                     result["status"] = "1"
                     result['msg'] = '发版失败'
