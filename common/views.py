@@ -4,7 +4,7 @@ from django.shortcuts import render, redirect
 from django.views.generic import TemplateView
 from common.utils.ldap3_api import *
 from django.conf import settings
-import logging
+import logging,json
 
 logger = logging.getLogger('devops_platform_log')
 
@@ -26,7 +26,7 @@ def checkLogin(request):
     """
     redirect_url = "/?type=1"
     try:
-        print("checkLogin request:"+request)
+        print("checkLogin request:"+str(request.body))
         username = request.POST.get('username',None)
         password = request.POST.get('password',None)
         if username and password:
