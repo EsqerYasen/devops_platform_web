@@ -32,20 +32,17 @@ def checkLogin(request):
         username = ""
         if method == "GET":
             code = request.GET.get('code',None)
-            print("-----------------code:"+code)
             if code:
                 tokendata = settings.TOKEN_DATA
                 tokendata['code'] = code
                 tokendata['oauth_timestamp'] = time.time()
                 hu = HttpUtils(request)
                 result = hu.get_url(settings.OAUTH_TOKEN, tokendata)
-                print("---------------------status_code:"+str(result.status_code))
                 if result.status_code == 200:
                     access_token = result.json()['access_token']
                     userinfo_result = hu.get_url(settings.OAUTH_USERINFO, {"access_token": access_token})
                     userinfo = userinfo_result.json()
                     username = userinfo['yumADAccount'].lower()
-                    print("---------------------username:" + username)
                     bool = True
         elif method == "POST":
             username = request.POST.get('username',None)
@@ -54,7 +51,6 @@ def checkLogin(request):
                 bool = AdAuthenticate.authenricate(username,password)
         if bool:
             user = auth.authenticate(username=username, password=settings.USER_DEFAULT_PWD)
-            print("---------------------user.is_active:" + str(user.is_active))
             if user and user.is_active:
                 auth.login(request, user)
                 redirect_url = '/mainform/'
