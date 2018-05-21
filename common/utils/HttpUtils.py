@@ -1,5 +1,5 @@
 from devops_platform_web.settings import REST_API_CONFIG
-import requests, json
+import requests, json,time
 
 class HttpUtils(object):
 
@@ -68,3 +68,25 @@ class HttpUtils(object):
             return True
         else:
             return False
+
+
+
+
+datas1 = {
+    "code":"9ccd525d-eea7-4edd-9d15-ba777083ed6a",
+    "client_id":"1112",
+    "client_secret":"5c27b773b82241ccaf379317112c940d",
+    "redirect_uri":"http://172.29.164.92:8002/checkLogin/",
+    "grant_type":"authorization_code",
+    "oauth_timestamp":time.time()
+}
+
+hu = HttpUtils(None)
+result = hu.get_url("http://ssotest.hwwt2.com/openapi/oauth/token",datas1)
+print(result.json())
+if result.status_code == 200:
+    access_token = result.json()['access_token']
+
+    datas2 = {"access_token":access_token}
+    result2 = hu.get_url("http://ssotest.hwwt2.com/openapi/oauth/userinfo",datas2)
+    print(result2.json())

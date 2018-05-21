@@ -3,6 +3,7 @@ from devops_platform_web.settings import PER_PAGE
 from django.views import debug
 from django.http import Http404
 from django.contrib.auth.models import Group
+from django.shortcuts import render, redirect
 
 class Filter(MiddlewareMixin):
     def process_request(self, request):
@@ -23,7 +24,7 @@ class Filter(MiddlewareMixin):
         request.offset = offset
         request.limit = limit
         user = request.user
-        if user.is_active:
+        if user.is_active:  #user.is_authenticated
             request.clienttype = 'PC'
             if devopsgroup:
                 request.devopsgroup = devopsgroup
