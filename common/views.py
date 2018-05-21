@@ -54,6 +54,7 @@ def checkLogin(request):
                 bool = AdAuthenticate.authenricate(username,password)
         if bool:
             user = auth.authenticate(username=username, password=settings.USER_DEFAULT_PWD)
+            print("---------------------user.is_active:" + str(user.is_active))
             if user and user.is_active:
                 auth.login(request, user)
                 redirect_url = '/mainform/'
