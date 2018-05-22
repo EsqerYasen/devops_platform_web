@@ -166,7 +166,7 @@ class DevopsFlowOperationView(LoginRequiredMixin, JSONResponseMixin,AjaxResponse
                 jobAddResults = hu.post(serivceName="job", restName="/rest/job/add/", datas=command_info)
                 jobAddResults = jobAddResults.json()
                 if (jobAddResults["status"] == "FAILURE"):
-                    logger.error("创建安装job失败")
+                    logger.error("创建调度job失败")
                 else:
                     data = jobAddResults["data"]
                     deploy_info = {}
@@ -206,12 +206,12 @@ class DevopsFlowOperationView(LoginRequiredMixin, JSONResponseMixin,AjaxResponse
                     result["status"] = "0"
                 else:
                     result["status"] = "1"
-                    result['msg'] = '安装失败'
+                    result['msg'] = '调度执行失败'
                 result['job_id'] = runJson.get("job_id", 0)
                 result['set_id'] = commandSetId
             else:
                 result['status'] = 1
-                result['msg'] = '没有安装信息，安装失败'
+                result['msg'] = '没有调度执行信息，调度失败'
         except Exception as e:
             result['status'] = 1
             result['msg'] = '调度异常'
