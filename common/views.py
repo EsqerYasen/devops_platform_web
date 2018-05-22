@@ -30,32 +30,26 @@ def checkLogin(request):
         method = request.method
         bool = False
         username = ""
-        logging.error('---------------method:' + method)
         if method == "GET":
             code = request.GET.get('code',None)
-            logging.error('---------------code:' + code)
             if code:
                 tokendata = settings.TOKEN_DATA
                 tokendata['code'] = code
                 tokendata['oauth_timestamp'] = time.time()
                 hu = HttpUtils(request)
                 result = hu.get_url(settings.OAUTH_TOKEN, tokendata)
-                logging.error('---------------result.status_code:' + str(result.status_code))
                 if result.status_code == 200:
                     access_token = result.json()['access_token']
                     userinfo_result = hu.get_url(settings.OAUTH_USERINFO, {"access_token": access_token})
                     userinfo = userinfo_result.json()
                     username = userinfo['yumADAccount'].lower()
-                    logging.error('---------------username:' + username)
                     bool = True
         elif method == "POST":
             username = request.POST.get('username',None)
             password = request.POST.get('password',None)
             if username and password:
                 bool = AdAuthenticate.authenricate(username,password)
-
         if bool:
-            logging.error('---------------username2:' + username)
             user = auth.authenticate(username=username, password=settings.USER_DEFAULT_PWD)
             if user and user.is_active:
                 auth.login(request, user)
