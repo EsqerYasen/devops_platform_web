@@ -71,7 +71,10 @@ def mainform(request):
     :param request:
     :return:
     """
-    return render(request, 'common/mainform.html', {})
+    if request.user.is_authenticated:
+        return render(request, 'common/mainform.html', {})
+    else:
+        return redirect('/?type=1')
 
 def dashboard(request):
 
