@@ -30,6 +30,7 @@ def checkLogin(request):
         method = request.method
         bool = False
         username = ""
+        print('---------------method:' + method)
         if method == "GET":
             code = request.GET.get('code',None)
             print('---------------code:' + code)
