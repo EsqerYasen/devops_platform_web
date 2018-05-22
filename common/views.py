@@ -37,19 +37,23 @@ def checkLogin(request):
                 tokendata['code'] = code
                 tokendata['oauth_timestamp'] = time.time()
                 hu = HttpUtils(request)
+                print('---------------tokendata:'+tokendata)
                 result = hu.get_url(settings.OAUTH_TOKEN, tokendata)
                 if result.status_code == 200:
                     access_token = result.json()['access_token']
                     userinfo_result = hu.get_url(settings.OAUTH_USERINFO, {"access_token": access_token})
                     userinfo = userinfo_result.json()
                     username = userinfo['yumADAccount'].lower()
+                    print('---------------username:' + username)
                     bool = True
         elif method == "POST":
             username = request.POST.get('username',None)
             password = request.POST.get('password',None)
             if username and password:
                 bool = AdAuthenticate.authenricate(username,password)
+
         if bool:
+            print('---------------username2:' + username)
             user = auth.authenticate(username=username, password=settings.USER_DEFAULT_PWD)
             if user and user.is_active:
                 auth.login(request, user)
