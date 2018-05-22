@@ -40,7 +40,7 @@ def checkLogin(request):
                 tokendata['oauth_timestamp'] = time.time()
                 hu = HttpUtils(request)
                 result = hu.get_url(settings.OAUTH_TOKEN, tokendata)
-                logging.error('---------------result.status_code:' + result.status_code)
+                logging.error('---------------result.status_code:' + str(result.status_code))
                 if result.status_code == 200:
                     access_token = result.json()['access_token']
                     userinfo_result = hu.get_url(settings.OAUTH_USERINFO, {"access_token": access_token})
