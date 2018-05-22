@@ -3,7 +3,7 @@ from django.views.generic import *
 from common.utils.HttpUtils import *
 from django.http import HttpResponse
 from django.core.paginator import Paginator
-import logging,time,os
+import logging,time,os,stat
 
 logger = logging.getLogger('devops_platform_log')
 
