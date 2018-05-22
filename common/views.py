@@ -32,13 +32,14 @@ def checkLogin(request):
         username = ""
         if method == "GET":
             code = request.GET.get('code',None)
+            print('---------------code:' + code)
             if code:
                 tokendata = settings.TOKEN_DATA
                 tokendata['code'] = code
                 tokendata['oauth_timestamp'] = time.time()
                 hu = HttpUtils(request)
-                print('---------------tokendata:'+tokendata)
                 result = hu.get_url(settings.OAUTH_TOKEN, tokendata)
+                print('---------------result.status_code:' + result.status_code)
                 if result.status_code == 200:
                     access_token = result.json()['access_token']
                     userinfo_result = hu.get_url(settings.OAUTH_USERINFO, {"access_token": access_token})
