@@ -223,7 +223,9 @@ class DevopsFlowReportView(LoginRequiredMixin, JSONResponseMixin, AjaxResponseMi
     def get_context_data(self, **kwargs):
         context = super(DevopsFlowReportView, self).get_context_data(**kwargs)
         try:
-            pass
+            hu = HttpUtils(self.request)
+            ec_grafana_graph_result = hu.get(serivceName="job", restName="/rest/deploy/ec_grafana_graph/", datas={})
+            context['result'] = ec_grafana_graph_result.get('data',[])
         except Exception as e:
             logging.error(e)
         return context

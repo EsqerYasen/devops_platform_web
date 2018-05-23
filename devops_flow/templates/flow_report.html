@@ -26,6 +26,8 @@
 </div>
 <script>
 Vue.component('chart', IEcharts)
-
+var bingbing = "{{ result|safe }}";
+bingbing = bingbing.replace(/'/g,'"');
+console.log(bingbing);
 </script>
 {% endblock %}
