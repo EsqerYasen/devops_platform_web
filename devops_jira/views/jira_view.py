@@ -46,9 +46,10 @@ class IssuesDetailView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, 
             iid = req.GET.get("iid",None)
             if pid and itid and iid:
                 fields_config = JIRA_FIELDS_CONFIG.objects.filter(project_id=pid,issue_type_id=itid)
-                user_mapping_list = External_system_user_mapping.objects.filter(external_system='jira',inner_user_name=req.devopsuser)
-                if user_mapping_list and fields_config:
-                    user_mapping = user_mapping_list[0]
+                #user_mapping_list = External_system_user_mapping.objects.filter(external_system='jira',inner_user_name=req.devopsuser)
+                #if user_mapping_list and fields_config:
+                if fields_config:
+                    #user_mapping = user_mapping_list[0]
                     fields_config_obj = json.loads(fields_config[0].fields_config_json)
 
                     jira_obj = jira_api(settings.JIRA_SERVER, settings.JIRA_USER,settings.JIRA_PWD)
