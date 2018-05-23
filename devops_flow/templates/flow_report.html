@@ -1,1 +1,31 @@
-这里画 6 个饼
+
+{% extends 'common/basic_layout.html' %}
+
+{% block content %}
+<link href="/static/hplus/css/zTree/bootstrapStyle.css" rel="stylesheet">
+<link href="/static/hplus/css/devops_tools_add.css" rel="stylesheet">
+<link href="/static/hplus/css/works/works.css" rel="stylesheet">
+<link href="/static/hplus/css/works/yum-font.css" rel="stylesheet">
+<script type="text/javascript" src="/static/hplus/js/zTree/jquery.ztree.core.js"></script>
+<script type="text/javascript" src="/static/hplus/js/zTree/jquery.ztree.excheck.js"></script>
+<script type="text/javascript" src="/static/hplus/js/zTree/jquery.ztree.exedit.js"></script>
+
+<script src="/static/hplus/js/works/vue.min.js"></script>
+<script src="/static/hplus/js/plugins/vue-echart/vue-echarts.js"></script>
+
+<div class="wrapper wrapper-content fadeInRight" style="z-index: inherit">
+    <div class="row addtoos">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-content" id="app_deploy">
+	                开发就开始放假开始的空间发呆时
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+Vue.component('chart', IEcharts)
+
+</script>
+{% endblock %}
