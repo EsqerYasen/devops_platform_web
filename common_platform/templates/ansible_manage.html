@@ -170,6 +170,7 @@
 			},
 			methods:{
 			    changeSelectModule:function(val){
+			        this.post.moduleValue = '';
 			        switch (val){
 			            case 'ping':
 				            this.modulePlaceholder='';this.isCustom=false;break;
