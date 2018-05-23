@@ -218,6 +218,15 @@ class DevopsFlowOperationView(LoginRequiredMixin, JSONResponseMixin,AjaxResponse
             logger.error(e)
         return HttpResponse(json.dumps(result),content_type='application/json')
 
+class DevopsFlowReportView(LoginRequiredMixin, JSONResponseMixin, AjaxResponseMixin, TemplateView):
+    template_name = "flow_report.html"
+    def get_context_data(self, **kwargs):
+        context = super(DevopsFlowReportView, self).get_context_data(**kwargs)
+        try:
+            pass
+        except Exception as e:
+            logging.error(e)
+        return context
 
 # class DevopsFlowReportView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, TemplateView):
 #     template_name = "flow_report.html"
