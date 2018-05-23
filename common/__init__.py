@@ -186,8 +186,8 @@ def devopsToolsTypeTrans(value):
     else:
         return ""
 
-@register.filter(name='getListFirst')
-def percent(value, total):
+@register.filter(name='getPercent')
+def getPercent(value, total):
     if value and total:
         return '%.1f%s' % (value / total * 100,'%')
     else:
