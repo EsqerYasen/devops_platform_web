@@ -137,6 +137,29 @@
 	</div>
 
 	<script>
+        function toggleFullScreen(full) {
+            var doc = window.top && window.top.document || document;
+            if (full && !doc.fullscreenElement && // alternative standard method
+                !doc.mozFullScreenElement && !doc.webkitFullscreenElement) {// current working methods
+                if (doc.documentElement.requestFullscreen) {
+                    doc.documentElement.requestFullscreen();
+                } else if (doc.documentElement.mozRequestFullScreen) {
+                    doc.documentElement.mozRequestFullScreen();
+                } else if (doc.documentElement.webkitRequestFullscreen) {
+                    doc.documentElement.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+                }
+            } else {
+                if (doc.cancelFullScreen) {
+                    doc.cancelFullScreen();
+                } else if (doc.mozCancelFullScreen) {
+                    doc.mozCancelFullScreen();
+                } else if (doc.webkitCancelFullScreen) {
+                    doc.webkitCancelFullScreen();
+                }
+            }
+        }
+        var contentMainHeight = window.top.$('#content-main').height();
+        var pageWrapperMleft = window.top.$('#page-wrapper').css('margin-left');
 		Vue.component('v-select', VueSelect.default);
 		//console.log(VueSelect);
 		var ansibleVm = new Vue({
@@ -276,9 +299,36 @@
                     });
 				},
 				zoomFn:function(){
-			        this.zoom=!this.zoom
+			        this.zoom=!this.zoom;
+			        if(this.zoom){
+			            contentMainHeight = window.top.$('#content-main').height();
+                        pageWrapperMleft = window.top.$('#page-wrapper').css('margin-left');
+                        window.top.$('.navbar-default,.border-bottom,.content-tabs,.footer').hide();
+                        window.top.$('#content-main').height('100%');
+                        window.top.$('#page-wrapper').css('margin-left', 0);
+			            toggleFullScreen(true);
+			            setTimeout(function(){
+			                $('.logbox').height($(document.body).height());
+                        }, 100);
+                    }else{
+			             window.top.$('.navbar-default,.border-bottom,.content-tabs,.footer').show();
+                        window.top.$('#content-main').height(contentMainHeight);
+                        window.top.$('#page-wrapper').css('margin-left', pageWrapperMleft);
+			            toggleFullScreen(false);
+			            $('.logbox').height(500);
+                    }
 				}
-			}
+			},
+            mounted:function(){
+			    var t = this;
+			    $(document).keyup(function(e){
+			        if(e.keyCode == 27){
+			            if(t.zoom){
+			                t.zoomFn();
+                        }
+                    }
+                })
+            }
 		})
 	</script>
 
