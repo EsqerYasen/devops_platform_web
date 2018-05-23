@@ -185,3 +185,12 @@ def devopsToolsTypeTrans(value):
         return tools_type_dict[value]
     else:
         return ""
+
+@register.filter(name='getListFirst')
+def percent(value, total):
+    if value and total:
+        return '%.1f%s' % (value / total * 100,'%')
+    else:
+        return '0'
+
+
