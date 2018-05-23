@@ -335,11 +335,13 @@ class CommandSetExecuteView(LoginRequiredMixin, TemplateView):
             stepDict['target_type'] = step['target_type']
             lines = []
             for line in step['lines']:
-                lineDict = json.loads(line['file_display_name'])
-                lineDict['id'] = line['id']
-                if lineDict.get("is_enabled",None):
-                    del lineDict['is_enabled']
-                lines.append(lineDict)
+                file_display_name = line['file_display_name']
+                if file_display_name:
+                    lineDict = json.loads(file_display_name)
+                    lineDict['id'] = line['id']
+                    if lineDict.get("is_enabled",None):
+                        del lineDict['is_enabled']
+                    lines.append(lineDict)
             stepDict['lines'] = lines
             steps.append(stepDict)
 
