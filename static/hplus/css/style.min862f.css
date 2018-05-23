@@ -7467,3 +7467,51 @@ fade-enter-active, .fade-leave-active {
     border-radius: 30px 5px 0px 0px;
     border: 1px solid #eee;
 }
+
+.charbox_a{
+    border:1px solid #efefef;
+}
+
+.charbox_a .sb_title{
+    text-align: center;
+    border-bottom: 1px solid #fefefe;
+    line-height: 40px;
+    color: #efefef;
+    background: #787878;
+
+}
+.qipa_style{
+
+
+    position: relative;
+    z-index: 0;
+
+}
+
+
+.qipa_style .othermsg{
+    width: 30%;
+      position: absolute;
+      right: 10px;
+      top:0px;
+      z-index: 999;
+      line-height: 24px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #000000;
+      height: 100%;
+      display: -webkit-box;
+      -webkit-box-align: center;
+
+}
+
+
+.qipa_style .othermsg .warps{
+    width: 100%;
+    margin-top: -2rem;
+}
+
+
+.qipa_style .titlec{
+      color: #38f;
+    }

@@ -6,28 +6,90 @@
 <link href="/static/hplus/css/devops_tools_add.css" rel="stylesheet">
 <link href="/static/hplus/css/works/works.css" rel="stylesheet">
 <link href="/static/hplus/css/works/yum-font.css" rel="stylesheet">
-<script type="text/javascript" src="/static/hplus/js/zTree/jquery.ztree.core.js"></script>
-<script type="text/javascript" src="/static/hplus/js/zTree/jquery.ztree.excheck.js"></script>
-<script type="text/javascript" src="/static/hplus/js/zTree/jquery.ztree.exedit.js"></script>
-
 <script src="/static/hplus/js/works/vue.min.js"></script>
-<script src="/static/hplus/js/plugins/vue-echart/vue-echarts.js"></script>
+<script type="text/javascript" src="/static/hplus/js/chart/echarts.min.js"></script>
 
+<script src="/static/hplus/js/chart/createPieBasic.js"></script>
 <div class="wrapper wrapper-content fadeInRight" style="z-index: inherit">
     <div class="row addtoos">
         <div class="col-sm-12">
             <div class="ibox float-e-margins">
                 <div class="ibox-content" id="app_deploy">
-	                开发就开始放假开始的空间发呆时
+	                <div>
+		                {% for bing in result %}
+			                <div class="row charbox_a">
+			                    <div class="col-sm-12 sb_title">{{ bing.brand }}</div>
+		                        <div class="col-sm-6 qipa_style" style="border-right: 1px solid #efefef">
+
+
+			                         <div class="othermsg">
+						              <div class="warps">
+						                <div class="row">
+							                <div class="col-sm-6">值</div>
+							                <div class="col-sm-6">占比</div>
+						                </div>
+
+							              {% for e_nv in bing.env %}
+
+								              <div class="row">
+								                <div class="col-sm-6">{{ e_nv.value }}</div>
+								                <div class="col-sm-6">
+									                {{ e_nv.value|getPercent:bing.env_total}}
+								                </div>
+							                  </div>
+
+							              {% endfor %}
+
+
+
+
+						              </div>
+						            </div>
+
+		                            <div id="{{ bing.brand }}_env" class="chartin fl" style="width: 100%; height: 300px"></div>
+		                        </div>
+		                        <div class="col-sm-6 qipa_style">
+
+			                        <div class="othermsg">
+						              <div class="warps">
+						                <div class="row">
+							                <div class="col-sm-6">值</div>
+							                <div class="col-sm-6">占比</div>
+						                </div>
+
+
+
+							              {% for channel in bing.channel %}
+
+								              <div class="row">
+								                <div class="col-sm-6">{{ channel.value }}</div>
+								                <div class="col-sm-6">{{ channel.value|getPercent:bing.channel_total}}</div>
+							                  </div>
+
+							              {% endfor %}
+
+
+
+
+						              </div>
+						            </div>
+		                            <div id="{{ bing.brand }}_channel" class="chartin fl" style="width: 100%;height: 300px"></div>
+		                        </div>
+		                    </div>
+		                {% endfor %}
+	                </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 <script>
-Vue.component('chart', IEcharts)
-var bingbing = "{{ result|safe }}";
-bingbing = bingbing.replace(/'/g,'"');
-console.log(bingbing);
+var bingbing = "{{ result|safe }}";bingbing = bingbing.replace(/'/g,'"');bingbing = JSON.parse(bingbing);
+for(var i=0;i<bingbing.length;i++){
+    createPieBasic(bingbing[i].env,{elementId:bingbing[i].brand+"_env",title:"Env"});
+    createPieBasic(bingbing[i].channel,{elementId:bingbing[i].brand+"_channel",title:"Channel"});
+}
+
+console.log(bingbing)
 </script>
 {% endblock %}
