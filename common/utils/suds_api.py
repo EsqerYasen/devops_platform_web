@@ -11,14 +11,19 @@ def sudsClient(permission_list,client_id,client_secret):
 
 
 permission = [
-    {"psid":"102459484","access":True},
-    {"psid":"100540249","access":True},
-    {"psid":"100316323","access":True},
-    {"psid":"102417503","access":True},
-    {"psid":"101053466","access":True},
-    {"psid":"100051806","access":True},
-    {"psid":"100051588","access":True},
-    {"psid":"100051588","access":True},
+    # {"psid":"102459484","access":True},
+    # {"psid":"102452252","access":True},
+    # {"psid":"100540249","access":True},
+    # {"psid":"100316323","access":True},
+    # {"psid":"102417503","access":True},
+    # {"psid":"101053466","access":True},
+    # {"psid":"100051806","access":True},
+    # {"psid":"100051588","access":True},
+    # {"psid":"100051588","access":True},
+    # {"psid":"100051482","access":True},
+    # {"psid":"100426040","access":True},
+    # {"psid":"100051450","access":True},
+    # {"psid":"100889731","access":True},
 ]
 
 print('----------------------------PC开始-------------------------------')
