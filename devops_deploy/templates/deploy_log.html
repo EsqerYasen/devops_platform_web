@@ -1,92 +1,140 @@
    {% extends 'common/basic_layout.html' %}
 {% block content %}
-    <div class="wrapper wrapper-content animated fadeInRight">
-    <div class="row">
-        <div class="col-sm-12">
+   <script type="text/javascript" src="/static/hplus/js/works/vue.min.js"></script>
+    <link href="/static/hplus/css/works/yum-font.css" rel="stylesheet">
+
+    <div class="wrapper wrapper-content animated ">
+    <div class="row" id="deploy_log">
+        <div class="col-sm-12" style="height:100%;">
             <div class="ibox float-e-margins">
                 <div class="ibox-title">
                     <h5>日志</h5>
                 </div>
-                <div id="ibox-content" class="ibox-content">
-
+                <div style="width:100%;" class="logbox ibox-content" :class="{'big2':zoom}">
+                    <i class="ico yum-font icon-suofang" :class="{'icon-suoxiao':zoom}" @click="zoomFn"></i>
+                    <div v-html="log" style="height:100%;background: none;border: none;color:#ADFF2F; font-size: 12px"></div>
                 </div>
             </div>
         </div>
     </div>
     <script>
-        var sh = null;
-        $(document).ready(function () {
-            initInterval();
+        function toggleFullScreen(full) {
+            var doc = window.top && window.top.document || document;
+            if (full && !doc.fullscreenElement && // alternative standard method
+                !doc.mozFullScreenElement && !doc.webkitFullscreenElement) {// current working methods
+                if (doc.documentElement.requestFullscreen) {
+                    doc.documentElement.requestFullscreen();
+                } else if (doc.documentElement.mozRequestFullScreen) {
+                    doc.documentElement.mozRequestFullScreen();
+                } else if (doc.documentElement.webkitRequestFullscreen) {
+                    doc.documentElement.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+                }
+            } else {
+                if (doc.cancelFullScreen) {
+                    doc.cancelFullScreen();
+                } else if (doc.mozCancelFullScreen) {
+                    doc.mozCancelFullScreen();
+                } else if (doc.webkitCancelFullScreen) {
+                    doc.webkitCancelFullScreen();
+                }
+            }
+        }
+        new Vue({
+            el: "#deploy_log",
+            data: {
+                zoom: false,
+                sh:null,
+                log:''
+            },
+            mounted:function(){
+                  this.initInterval();
+            },
+            methods:{
+                zoomFn:function(){
+			        this.zoom=!this.zoom;
+			        if(this.zoom){
+			            toggleFullScreen(true);
+			            setTimeout(function(){
+			                $('.logbox').height($(document.body).height());
+                        }, 100);
+                    }else{
+			            toggleFullScreen();
+			            $('.logbox').height(500);
+                    }
+				},
+                get_job_output: function (){
+                    var t = this;
+                     $.ajax({
+                         type: "POST",
+                         url: '/deploy/executeLog/',
+                         data:{"app_ids":'{{appids}}',"job_id":'{{ job_id }}',"csrfmiddlewaretoken":'{{ csrf_token }}'},
+                         error: function (request) {
+                              clearInterval(t.sh);
+                              t.sh = null;
+                         },
+                         success: function (data) {
+                             var bool = false;
+                             t.log = '';
+                             $(data.logInfoList).each(function(i,item){
+                                var jsonObj = item;
+                                var htmlStr = '<div class="row" style="height: 100%;width:100%">\n' +
+                                    '   <div class="col-sm-12" style="height: 5%;font-size: large">\n' +
+                                    '   ' + item.current_step+' / '+item.total_steps ;
+                                     if(item.status == 2){
+                                        htmlStr += '<span class="glyphicon glyphicon-ok" aria-hidden="true" style="color:green;margin-left:10px"></span>';
+                                     }else if(item.status == 3){
+                                         htmlStr += '<span class="glyphicon glyphicon-remove" aria-hidden="true" style="color:red;margin-left:10px"></span>';
+                                     }
+                                     else{
+                                         htmlStr += '<span class="glyphicon glyphicon-refresh" aria-hidden="true" style="color:#FF9800;margin-left:10px"></span>';
+                                     }
+                                    htmlStr += '<span class="label label-primary" style="margin-left:30px">'+item.deploy_name+'</span>   </div>\n' +
+                                    '   <div class="col-sm-12" style="height: 95%;">\n' +
+                                    '     <pre style="width: 100%;height: 95%;background:none;color:#ADFF2F; font-size: 12px" readonly value="">' ;
+
+                                if(jsonObj){
+                                    var steps = jsonObj["command_steps"];
+                                    var textArea = ''
+                                    $(steps).each(function(i,item){
+                                         textArea += ("----------------------------------------------------------------"+item.name+"-----------------------------------------------------------------\n");
+                                         var lines = item["command_lines"];
+                                         var success_count = 0;
+                                         var fail_count = 0;
+                                         $(lines).each(function(i2,item2){
+                                            success_count = item2['success_count'];
+                                            fail_count = item2['fail_count'];
+                                            textArea += (item2["result_message"]);
+                                            textArea += ("\n***********************\n")
+                                         })
+                                         textArea += ("成功："+success_count+"台    失败："+fail_count+"台\n");
+                                         textArea += ("----------------------------------------------------------------------------------------------------------------------------------------------\n");
+                                    })
+                                    htmlStr += textArea;
+                                }
+
+                                htmlStr +=  '</pre>\n' +
+                                    '    </div>\n' +
+                                    '   </div>';
+                                 t.log += (htmlStr);
+                                var status = jsonObj["status"];
+                                if(status != 1){
+                                    bool = true;
+                                }
+                             });
+                             if(bool){
+                                clearInterval(t.sh);
+                                t.sh = null;
+                             }
+                         }
+                     });
+                },
+                initInterval: function (){
+                    this.get_job_output();
+                    clearInterval(this.sh);
+                    this.sh = null;
+                    this.sh = setInterval(this.get_job_output,3000);
+                }
+            }
         });
-        function initInterval(){
-            get_job_output();
-            clearInterval(sh);
-            sh = null;
-            sh = setInterval(get_job_output,3000);
-        }
-
-        function get_job_output(){
-             $.ajax({
-                 type: "POST",
-                 url: '/deploy/executeLog/',
-                 data:{"app_ids":'{{appids}}',"job_id":'{{ job_id }}',"csrfmiddlewaretoken":'{{ csrf_token }}'},
-                 error: function (request) {
-                      clearInterval(sh);
-                      sh = null;
-                 },
-                 success: function (data) {
-                     var bool = false;
-                     $("#ibox-content").empty();
-                     $(data.logInfoList).each(function(i,item){
-                        var jsonObj = item;
-                        var htmlStr = '<div class="row" style="height: 500px;width:100%">\n' +
-                            '   <div class="col-sm-12" style="height: 5%;font-size: large">\n' +
-                            '   ' + item.current_step+' / '+item.total_steps ;
-                             if(item.status == 2){
-                                htmlStr += '<span class="glyphicon glyphicon-ok" aria-hidden="true" style="color:green;margin-left:10px"></span>';
-                             }else if(item.status == 3){
-                                 htmlStr += '<span class="glyphicon glyphicon-remove" aria-hidden="true" style="color:red;margin-left:10px"></span>';
-                             }
-                             else{
-                                 htmlStr += '<span class="glyphicon glyphicon-refresh" aria-hidden="true" style="color:#FF9800;margin-left:10px"></span>';
-                             }
-                            htmlStr += '<span class="label label-primary" style="margin-left:30px">'+item.deploy_name+'</span>   </div>\n' +
-                            '   <div class="col-sm-12" style="height: 95%;">\n' +
-                            '     <textarea style="width: 100%;height: 95%;resize: none;background: black;font: caption;color: white;" id="textarea_log'+i+'" readonly value=""></textarea>\n' +
-                            '    </div>\n' +
-                            '   </div>';
-                        $("#ibox-content").append(htmlStr);
-                        var textArea = $("#textarea_log"+i);
-
-                        textArea.text("");
-                        if(jsonObj){
-                            var steps = jsonObj["command_steps"]
-                            $(steps).each(function(i,item){
-                                 textArea.append("----------------------------------------------------------------"+item.name+"-----------------------------------------------------------------\n");
-                                 var lines = item["command_lines"];
-                                 var success_count = 0;
-                                 var fail_count = 0;
-                                 $(lines).each(function(i2,item2){
-                                    success_count = item2['success_count'];
-                                    fail_count = item2['fail_count'];
-                                    textArea.append(item2["result_message"]);
-                                    textArea.append("\n***********************\n")
-                                 })
-                                 textArea.append("成功："+success_count+"台    失败："+fail_count+"台\n");
-                                 textArea.append("----------------------------------------------------------------------------------------------------------------------------------------------\n");
-                            })
-                        }
-                        var status = jsonObj["status"];
-                        if(status != 1){
-                            bool = true;
-                        }
-                     })
-                     if(bool){
-                        clearInterval(sh);
-                        sh = null;
-                     }
-                 }
-             });
-        }
     </script>
 {% endblock %}

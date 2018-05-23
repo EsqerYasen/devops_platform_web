@@ -1,7 +1,8 @@
 {% extends 'common/basic_layout.html' %}
 
 {% block content %}
-<div class="wrapper wrapper-content animated fadeInRight" style="height: 100%;">
+     <link href="/static/hplus/css/works/yum-font.css" rel="stylesheet">
+<div class="wrapper wrapper-content animated " style="height: 100%;">
     <div class="row" style="height: 100%;">
         <div class="col-sm-12" style="height: 100%;">
             <div class="ibox float-e-margins" style="height: 100%;">
@@ -58,10 +59,15 @@
                                <input id="command_set_id" type="hidden" value="{{ set_id }}"/>
                                <input id="command_job_id" type="hidden" value="{{ job_id }}"/>
                            </div>
-                           <div class="row" style="height: 95%;">
-                               <textarea style="width: 100%;height: 95%;resize: none;background: black;font: caption;color: white;" id="textarea_log" readonly value=""></textarea>
-                               <img id="log_modal_img" src="/static/hplus/img/5-121204194103.gif">
-                           </div>
+                            <div class="row logbox ibox-content" style="width:100%;">
+                                <div class="row" style="height:20px;">
+                                    <i class="ico yum-font icon-suofang" id="iconZoom"></i>
+                                </div>
+                                <div style="width:100%;">
+                                   <pre style="width: 100%;height: 95%;resize: none;background:none;color:#ADFF2F; font-size: 12px" id="textarea_log" readonly value=""></pre>
+                                   <img id="log_modal_img" src="/static/hplus/img/5-121204194103.gif">
+                               </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -72,9 +78,48 @@
 
 <script>
     var sh = null;
+    function toggleFullScreen(full) {
+        var doc = window.top && window.top.document || document;
+        if (full && !doc.fullscreenElement && // alternative standard method
+            !doc.mozFullScreenElement && !doc.webkitFullscreenElement) {// current working methods
+            if (doc.documentElement.requestFullscreen) {
+                doc.documentElement.requestFullscreen();
+            } else if (doc.documentElement.mozRequestFullScreen) {
+                doc.documentElement.mozRequestFullScreen();
+            } else if (doc.documentElement.webkitRequestFullscreen) {
+                doc.documentElement.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+            }
+        } else {
+            if (doc.cancelFullScreen) {
+                doc.cancelFullScreen();
+            } else if (doc.mozCancelFullScreen) {
+                doc.mozCancelFullScreen();
+            } else if (doc.webkitCancelFullScreen) {
+                doc.webkitCancelFullScreen();
+            }
+        }
+    }
     $(document).ready(function () {
         initInterval();
-    })
+        var zoom = false;
+        $('#iconZoom').click(function(){
+            zoom = !zoom;
+            if(zoom){debugger;
+                toggleFullScreen(true);
+                $('.logbox').addClass('big2');
+                setTimeout(function(){
+                    console.log($(document.body).height());
+                    $('.logbox').height($(document.body).height());
+                }, 100);
+                $(this).addClass('icon-suoxiao');
+            }else{
+                toggleFullScreen(false);
+                $('.logbox').removeClass('big2');
+                $(this).removeClass('icon-suoxiao');
+                $('.logbox').height(500)
+            }
+        })
+    });
     function initInterval(){
         get_job_output();
         clearInterval(sh);
