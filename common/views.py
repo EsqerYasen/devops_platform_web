@@ -48,8 +48,7 @@ def checkLogin(request):
             username = request.POST.get('username',None)
             password = request.POST.get('password',None)
             if username and password:
-                #bool = AdAuthenticate.authenricate(username,password)
-                bool = True
+                bool = AdAuthenticate.authenricate(username,password)
         if bool:
             user = auth.authenticate(username=username, password=settings.USER_DEFAULT_PWD)
             if user and user.is_active:
