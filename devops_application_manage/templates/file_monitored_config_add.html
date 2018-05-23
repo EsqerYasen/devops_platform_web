@@ -1,0 +1,57 @@
+{% extends 'common/basic_layout.html' %}
+{% block content %}
+<script type="text/javascript" src="/static/hplus/js/zTree/jquery.ztree.core.js"></script>
+<script type="text/javascript" src="/static/hplus/js/zTree/jquery.ztree.excheck.js"></script>
+<script type="text/javascript" src="/static/hplus/js/zTree/jquery.ztree.exedit.js"></script>
+<link href="/static/hplus/css/zTree/bootstrapStyle.css" rel="stylesheet">
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>新增文件监控配置</h5>
+                </div>
+                <div class="ibox-content">
+                    <div class="treebox clear1">
+				                <h4 class="clear">动态主机</h4>
+				                <div class="row" >
+					                 <div class="col-md-6" style="max-height: 400px;overflow:auto; border-right:1px solid #fefefe">
+						                 <ul id="host_group_tree" name="host_group_tree" class="ztree" style="padding:0px"></ul>
+					                 </div>
+					                <div class="col-md-6">
+						                <div  style="max-height: 360px;overflow:auto;padding-top:10px">
+
+							                <table id="hostIpTb" class="table table-striped table-bordered table-hover dataTables-example dataTable">
+						                      <thead>
+						                        <tr>
+						                            <th style="width:5%;"><input id="checkall" type="checkbox" class="i-checks"></th>
+						                            <th>IP<span id="hostIpBadge" class="badge" style="margin-left: 20px;background-color: green;color: white">总：0台</span></th>
+						                        </tr>
+						                      </thead>
+						                      <tbody></tbody>
+						                  </table>
+						                </div>
+						                <div class="input-group" style="margin-top: 5px">
+					                          <select id="host_go_live" class="form-control">
+					                              <option value="2" selected>待上线主机</option>
+					                              <option value="3">已上线主机</option>
+					                          </select>
+					                          <span class="input-group-btn">
+					                              <button type="button" class="btn btn-primary" onclick="queryHostIp()">查询</button>
+					                          </span>
+					                      </div>
+					                </div>
+				                </div>
+			                </div>
+		                <div class="formbox_asb">
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+</script>
+{% include 'app_treejs.html' %}
+{% endblock %}

@@ -2,7 +2,7 @@
 {% load widget_tweaks %}
 
 {% block list_title %}
-    文件监控
+    文件配置监控
 {% endblock %}
 
 {% block  list_search %}
@@ -16,6 +16,7 @@
 
 {% block list_filter %}
     <button type="submit" class="btn btn-sm btn-primary" style="margin-right: 10px"><i class="fa fa-search"></i> 搜索</button>
+    <a href="../filemonitoredconfigadd/" class="btn btn-sm btn-success"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> 新增</a>
 {% endblock %}
 
 {% block list_content %}
@@ -26,14 +27,8 @@
                 <th style="width: 10%;">
                     IP
                 </th>
-                <th style="width: 10%;">
-                    触发事件
-                </th>
-                <th style="width: 40%;">
+                <th style="width: 50%;">
                     监控文件路径
-                </th>
-                <th style="width: 10%;">
-                    触发时间
                 </th>
             </tr>
         </thead>
@@ -47,13 +42,7 @@
                     {{ o.host_ip }}
                 </td>
                 <td>
-                    {{ o.event }}
-                </td>
-                <td>
-                    {{ o.file_name }}
-                </td>
-                <td>
-                    {{ o.record_time }}
+                    {{ o.path }}
                 </td>
             </tr>
         {% endfor %}
