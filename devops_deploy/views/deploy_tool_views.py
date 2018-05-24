@@ -197,7 +197,7 @@ class DeployToolOperationView(LoginRequiredMixin, JSONResponseMixin,AjaxResponse
                             commandLineId = line_id
                             deploy_info['paras'][1][line_id] = {
                                 "parameter": line['default_script_parameter'],
-                                "is_skip": 0
+                                "is_skip": '0'
                             }
                             id = kwargs.get('pk', 0)
                             addAppResults = hu.post(serivceName="job", restName="/rest/deploytool/update/",
