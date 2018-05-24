@@ -205,6 +205,7 @@ class DeployToolOperationView(LoginRequiredMixin, JSONResponseMixin,AjaxResponse
                                                            'command_line_id': line_id})
                             addAppResults = addAppResults.json()
                             if addAppResults['status'] == 'FAILURE':
+                                logger.error(addAppResults)
                                 deploy_info = None
             if deploy_info:
                 if isinstance(deploy_info,str):
