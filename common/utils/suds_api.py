@@ -11,6 +11,7 @@ def sudsClient(permission_list,client_id,client_secret):
 
 
 ec_permission = [
+    {"psid":"102452252","access":True},    #
     {"psid":"100540249","access":True},    #朱骏GCZ6626
     {"psid":"100316323","access":True},    #张利LXZ1064
     {"psid":"102459484","access":True},    #何立LCH7395
@@ -29,6 +30,7 @@ print('----------------------------ec H5结束-------------------------------')
 
 
 store_permission = [
+    {"psid":"102452252","access":True},    #
     {"psid":"100042878","access":True},    #姚兴中XCY7144
     {"psid":"100025652","access":True},    #吴子麟ZXW5127
     {"psid":"102459484","access":True},    #何立LCH7395
@@ -46,6 +48,7 @@ print('----------------------------store H5结束-------------------------------
 
 
 brand_permission = [
+    {"psid":"102452252","access":True},    #
     {"psid":"100426045","access":True},    #王韦WXW5675
     {"psid":"102452669","access":True},    #唐麒俊GCT2371
     {"psid":"102459484","access":True},    #何立LCH7395
