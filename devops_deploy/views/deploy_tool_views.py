@@ -232,5 +232,5 @@ class DeployToolOperationView(LoginRequiredMixin, JSONResponseMixin,AjaxResponse
         except Exception as e:
             result['status'] = 1
             result['msg'] = '发版异常'
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return HttpResponse(json.dumps(result),content_type='application/json')
