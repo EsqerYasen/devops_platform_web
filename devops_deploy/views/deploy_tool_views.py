@@ -183,7 +183,7 @@ class DeployToolOperationView(LoginRequiredMixin, JSONResponseMixin,AjaxResponse
                         deploy_info['command_set_id'] = k
                         deploy_info['new_flow'] = 1
                         deploy_info['paras'] = {
-                            1: {
+                            '1': {
                                 "target_type": step['target_type'],
                                 "target_group_ids": step['target_group_ids'],
                                 "target_host_list": step['target_host_list'],
