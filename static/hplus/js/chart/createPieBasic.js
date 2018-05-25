@@ -49,7 +49,7 @@ function createPieBasic(data,initConfig) {
         type:'pie',
         radius : '70%',
         center: ['30%', '50%'],
-        data:data.sort(function (a, b) { return a.value - b.value; }),
+        data:data,
         label:false,
         labelLine: false,
         itemStyle: {

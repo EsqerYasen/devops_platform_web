@@ -7511,7 +7511,8 @@ fade-enter-active, .fade-leave-active {
     margin-top: -2rem;
 }
 
+.qipa_style .othermsg .warps .row:first-child{
+     color: #38f;
+}
 
-.qipa_style .titlec{
-      color: #38f;
-    }
+

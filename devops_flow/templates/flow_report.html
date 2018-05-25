@@ -86,8 +86,8 @@
 <script>
 var bingbing = "{{ result|safe }}";bingbing = bingbing.replace(/'/g,'"');bingbing = JSON.parse(bingbing);
 for(var i=0;i<bingbing.length;i++){
-    createPieBasic(bingbing[i].env,{elementId:bingbing[i].brand+"_env",title:"Env"});
-    createPieBasic(bingbing[i].channel,{elementId:bingbing[i].brand+"_channel",title:"Channel"});
+    createPieBasic(bingbing[i].env,{elementId:bingbing[i].brand+"_env",title:"环境"});
+    createPieBasic(bingbing[i].channel,{elementId:bingbing[i].brand+"_channel",title:"订单渠道"});
 }
 
 console.log(bingbing)

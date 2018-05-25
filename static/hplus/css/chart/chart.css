@@ -11,6 +11,7 @@ body,html{
 .chartin{
     width: 50%;
     height:300px;
+    position: relative;
 }
 
 .chartin3{
@@ -20,6 +21,8 @@ body,html{
 
 .chartin,.chartin3{
     box-sizing: border-box;
-    background: #eee;
-    border: 1px solid #dedede;
+    /*background: #eee;*/
+    border: 1px solid #eee;
+    margin-top: -1px;
+    margin-left: -1px;
 }

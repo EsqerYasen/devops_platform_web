@@ -8,47 +8,30 @@
     <div class="row">
         <div class="col-sm-12">
             <div class="ibox float-e-margins">
-                <div class="ibox-title">
-                    <h5>资源运营</h5>
-                </div>
+{#                <div class="ibox-title">#}
+{#                    <h5>资源运营</h5>#}
+{#                </div>#}
                 <div class="ibox-content">
-                    <div class="row" style="margin-bottom: 20px">
-                        <div class="col-sm-6">
-                            <div id="physicalIdcChar" class="chartin fl"  style="width: 100%"></div>
-                        </div>
-                        <div class="col-sm-6">
-                            <div class="chartin fl"  style="width: 100%">
-                                <div style="width: 70%; margin: 0px auto; height: 300px" id="logicalIdcChar"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row" style="margin-bottom: 20px">
-                        <div class="col-sm-6">
-                            <div id="nhBizGroupChar" class="chartin fl" style="width: 100%"></div>
-                        </div>
-                        <div class="col-sm-6">
-                            <div id="zrBizGroupChar" class="chartin fl" style="width: 100%"></div>
-                        </div>
-                    </div>
-                    <div class="row" style="margin-bottom: 20px">
-                        <div class="col-sm-4">
-                            <div id="kfcPreorderChar" class="chartin3 fl" style="width: 100%"></div>
-                        </div>
-                        <div class="col-sm-4">
-                            <div id="kfcDeliveryChar" class="chartin3 fl" style="width: 100%"></div>
-                        </div>
-                        <div class="col-sm-4">
-                            <div id="phDeliveryChar" class="chartin3 fl" style="width: 100%"></div>
-                        </div>
-                    </div>
                     <div class="row">
-                        <div id="publicCouponDiv" class="col-sm-4" style="display: none">
-                            <div id="publicCouponChar" class="chartin3 fl" style="width: 100%"></div>
-                        </div>
-                        <div id="publicEGiftcardDiv" class="col-sm-4" style="display: none">
-                            <div id="publicEGiftcardChar" class="chartin3 fl" style="width: 100%"></div>
-                        </div>
+                        <div class="col-sm-6 chartin qipa_style" id="physicalIdcChar"></div>
+                        <div class="col-sm-6 chartin qipa_style" id="dmz"></div>
+	                    <div class="col-sm-6 chartin qipa_style" id="idc"></div>
+
+
+	                    <div class="col-sm-6 chartin qipa_style" id="nhBizGroupChar"></div>
+                        <div class="col-sm-6 chartin qipa_style" id="zrBizGroupChar"></div>
+
+	                    <div class="col-sm-6 chartin qipa_style" id="kfcPreorderChar"></div>
+                        <div class="col-sm-6 chartin qipa_style" id="kfcDeliveryChar"></div>
+	                    <div class="col-sm-6 chartin qipa_style" id="phDeliveryChar"></div>
+
+	                    <div class="col-sm-6 chartin qipa_style" id="publicCouponDiv" style="display: none"></div>
+	                    <div class="col-sm-6 chartin qipa_style" id="publicEGiftcardDiv" style="display: none"></div>
+
                     </div>
+
+
+
                 </div>
             </div>
         </div>
@@ -68,6 +51,59 @@
             initPublicEGiftcardChar();
         });
 
+
+        function transbfb(data,cur){
+            var total = 0;
+            for(var i = 0;i<data.length;i++){
+                total+=data[i].value
+            }
+            if(data[cur].value==0&&total==0){
+                return '0.00'
+            }else{
+	            return ((data[cur].value/total)*100).toFixed(2);
+            }
+        }
+
+        function createHtmlMsg (data,id){
+            var val = data.value;
+            var total=0;
+            var html = '';
+            var list = '';
+            $("#"+id).append('');
+            for(var i in data){
+
+                list += "<div class=\"row\">\n"+
+                        "<div class=\"col-sm-6\">"+data[i].value+"</div>\n"+
+                        "<div class=\"col-sm-6\">"+transbfb(data,i)+"%</div>\n" +
+                "</div>\n"
+            }
+             html = "<div class=\"othermsg\" style='left:50%'>\n" +
+                        "<div class=\"warps\">\n" +
+                            "<div class=\"row\">\n" +
+                                "<div class=\"col-sm-6\">值</div>\n" +
+                                "<div class=\"col-sm-6\">占比</div>\n" +
+                            "</div>\n" +list+
+                        "</div>\n" +
+                    "</div>";
+            $("#"+id).append(html);
+        }
+
+
+
+
+
+        function transformArray(obj,key,value){
+		    let Arr = [];
+		    for(let k in obj){
+		      Arr.push({
+		        [key]:k,
+		        [value]:obj[k]
+		      })
+		    }
+		    return Arr;
+		 };
+
+
         function initNhzrChar(){
             $.ajax({
                 type: "POST",
@@ -75,6 +111,8 @@
                 data:{'flag':0,'csrfmiddlewaretoken':'{{ csrf_token }}'},
                 error: function (request) {},
                 success: function (data) {
+
+
                     createPie(
                         data,
                         {
@@ -83,6 +121,8 @@
                             title:"机房"
                         }
                     );
+                   createHtmlMsg(data,'physicalIdcChar')
+
                 }
             });
         }
@@ -94,14 +134,43 @@
                 data:{'flag':1,'csrfmiddlewaretoken':'{{ csrf_token }}'},
                 error: function (request) {},
                 success: function (data) {
-                    createBar(
-                      data,
-                      {
-                        colors:['#169ef4', '#ffc20a', '#169ef4'],
-                        elementId:"logicalIdcChar",
-                        title:"区域"
-                      }
+
+
+                    var DMZ = transformArray(data.DMZ,'name','value');
+                    var IDC = transformArray(data.IDC,'name','value');
+
+                    console.log(DMZ,IDC);
+
+
+                    createPie(
+                        DMZ,
+                        {
+                            colors:["#169ef4","#ffc20a"],
+                            elementId:"dmz",
+                            title:"区域(DMZ)"
+                        }
                     );
+
+	                createHtmlMsg(DMZ,'dmz')
+
+
+                    createPie(
+                        IDC,
+                        {
+                            colors:["#169ef4","#ffc20a"],
+                            elementId:"idc",
+                            title:"区域(IDC)"
+                        }
+                    );
+
+	                createHtmlMsg(IDC,'idc')
+
+
+
+
+
+
+
                 }
             });
         }
@@ -121,6 +190,8 @@
                         title:"南汇"
                       }
                     );
+                    createHtmlMsg(data,'nhBizGroupChar')
+
                 }
             });
         }
@@ -140,6 +211,8 @@
                         title:"真如"
                       }
                     );
+                      createHtmlMsg(data,'zrBizGroupChar')
+
                 }
             });
         }
@@ -159,6 +232,7 @@
                         title:data.title
                       }
                     );
+                     createHtmlMsg(data.data,'kfcPreorderChar')
                 }
             });
         }
@@ -178,6 +252,7 @@
                         title:data.title
                       }
                     );
+                      createHtmlMsg(data.data,'kfcDeliveryChar')
                 }
             });
         }
@@ -197,6 +272,7 @@
                         title:data.title
                       }
                     );
+                      createHtmlMsg(data.data,'phDeliveryChar')
                 }
             });
         }
@@ -214,10 +290,12 @@
                             data.data,
                             {
                                 colors: ["#169ef4", "#ffc20a"],
-                                elementId: "publicCouponChar",
+                                elementId: "publicCouponDiv",
                                 title: data.title
                             }
                         );
+                        createHtmlMsg(data.data,'publicCouponDiv')
+
 
                     }
                 }
@@ -237,10 +315,11 @@
                           data.data,
                           {
                             colors:["#169ef4","#ffc20a"],
-                            elementId:"publicEGiftcardChar",
+                            elementId:"publicEGiftcardDiv",
                             title:data.title
                           }
                         );
+                        createHtmlMsg(data.data,'publicEGiftcardDiv')
                     }
                 }
             });
