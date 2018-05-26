@@ -67,7 +67,7 @@ function createPie(data,initConfig) {
     legend: {
       data:names,
       orient: 'vertical',
-      x: '28%',
+      x: '30%',
       y:"center",
       selectedMode:false,
       textStyle:{
@@ -79,7 +79,7 @@ function createPie(data,initConfig) {
       {
         name:'',
         type:'pie',
-        radius: [55, 75],
+        radius: [50, 70],
         center: ['15%', '50%'],
         label:false,
         labelLine: false,
