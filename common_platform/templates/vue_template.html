@@ -124,14 +124,41 @@
                                                 <div class="checkbox" style="" v-if="ites.type === 'multiple'">
 
                                                     <label v-for="it in ites.valueSet" style="margin-right:15px;">
-                                                        <span>{% verbatim %}{{ it.name }}--{{ it.desc }}{% endverbatim %}</span>
+                                                        <span>{% verbatim %}{{ it.name }}{% endverbatim %}</span>
+
+	                                                    <div class="showinfowenhao">
+								                          <i class="yum-font icon-wenhao"
+								                             style="font-size: 17px;cursor: pointer;margin-left: 10px;margin-right: 10px">
+								                          </i>
+								                          <div class="popcovera">
+									                          <div class="jiao"></div>
+									                          <div class="cont" v-html="$options.filters.transfromTextareaHtml(it.desc)"></div>
+								                          </div>
+
+							                          </div>
+
                                                         <input style="margin-top:-15px;" @click.sync="changeValue2(ites, it)" type="checkbox" :value="it.name" v-model="it.checked"/>
                                                     </label>
 
                                                 </div>
                                             </div>
 					                          <div class="col-sm-5" style="line-height: 35px">
-						                          * {% verbatim %}{{ites.desc}}{% endverbatim %}
+
+						                          <div class="showinfowenhao" v-if="ites.desc.length>0">
+							                          <i class="yum-font icon-wenhao"
+							                             style="font-size: 17px;cursor: pointer;margin-left: 10px;margin-right: 10px">
+							                          </i>
+							                          <div class="popcovera">
+								                          <div class="jiao"></div>
+								                          <div class="cont" v-html="$options.filters.transfromTextareaHtml(ites.desc)"></div>
+							                          </div>
+
+						                          </div>
+
+
+
+
+
 					                          </div>
                                           </div>
                                       </form>

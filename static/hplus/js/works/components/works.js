@@ -1,4 +1,14 @@
 var byId = function (id) { return document.getElementById(id); };
+
+
+
+Vue.filter('transfromTextareaHtml', function (value) {
+  if (!value) return ''
+  value = value.toString()
+  return value.replace(/\n/g,'<br/>');
+})
+
+
 Vue.component('task-list', {
   template: '#task-list',
   methods:{

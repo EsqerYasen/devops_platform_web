@@ -7516,3 +7516,63 @@ fade-enter-active, .fade-leave-active {
 }
 
 
+.showinfowenhao{
+    display: inline-block;
+    position: relative;
+}
+
+
+.showinfowenhao.active .popcovera{
+    display: block;
+
+}
+
+
+.popcovera{
+    position: absolute;
+
+    border: 1px solid #efefef;
+    border-radius: 3px;
+    top: 6px;
+    left: 40px;
+    display: none;
+    z-index: 99;
+
+    width: 250px;
+    /*min-width: 150px;*/
+}
+
+
+
+
+.popcovera .cont{
+    padding: 5px 10px;
+    color: #38f;
+    line-height: 20px;
+    background: #f9f9f9;
+    min-height: 30px;
+}
+
+
+.showinfowenhao .jiao{
+    position: absolute;
+    left: -9px;
+    top: 3px;
+    height: 0px;
+    width: 0px;
+    border-top: 8px solid transparent;
+    border-right: 8px solid #efefef;
+    border-bottom: 8px solid transparent;
+}
+.showinfowenhao .jiao:after{
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: 1px;
+    border-top: 8px solid transparent;
+    border-right: 8px solid #f9f9f9;
+    border-bottom: 8px solid transparent;
+}
+
+
+

@@ -425,14 +425,14 @@ i.teskico:hover{
 
 }
 .rt-right li{
-    height:60px;
     background:#f1f1f1;
     list-style:none;
     text-align: center;
-    padding-top:20px;
     border-radius: 5px 5px;
     cursor: move;
     margin:10px;
+    word-wrap: break-word;
+    padding: 10px;
 }
 
 .tesklist li {
