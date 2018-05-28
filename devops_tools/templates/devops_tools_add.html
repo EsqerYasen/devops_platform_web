@@ -488,7 +488,7 @@
      var initEditor = function(mode){
          mode = mode || 'shell';
          var modes = {
-             shell: '#!/bin/sh\nset -eux\n',
+             shell: '#!/bin/sh\nset -eux\nsource /etc/profile\n',
              python:'#!/usr/bin/python',
              yaml: '---\n' +
              '- hosts: \'{% verbatim %}{{ hosts }}{% endverbatim %}\'\n' +
