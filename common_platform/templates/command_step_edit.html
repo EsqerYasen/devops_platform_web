@@ -121,6 +121,16 @@
 <script>
     $(function(){
 
+
+         $('.works_box').on('mouseover','.showinfowenhao',function(){
+             $(this).addClass('active')
+        });
+
+
+	     $('.works_box').on('mouseout','.showinfowenhao',function(){
+             $(this).removeClass('active')
+        });
+
         $(".works_box").on('dblclick','.tesklist_li',function () {
           var $sdis = $(this).find('.cdis');
           if(!$sdis.hasClass('edit')){
