@@ -4,7 +4,7 @@ function createPie(data,initConfig) {
   var  total = 0;
   var  titleo = {
     textStyle: {
-      fontSize: 14,
+      fontSize: 15,
       color:"#666"
     }
   };
@@ -29,7 +29,7 @@ function createPie(data,initConfig) {
     graphic:{
       type: 'group',
       id: 'textGroup1',
-      left: '15%',
+      left: '20%',
       top: 'center',
       bounding: 'raw',
       children: [
@@ -38,7 +38,7 @@ function createPie(data,initConfig) {
           left: 'center',
           top: 'center',
           shape: {
-            width: 75,
+            width: 100,
             height: 55
           },
           style: {
@@ -54,7 +54,7 @@ function createPie(data,initConfig) {
             text: [
               'Total:'+total
             ].join('\n'),
-            font: '14px "STHeiti", sans-serif'
+            font: '16px "STHeiti", sans-serif'
           }
         }
       ]
@@ -67,20 +67,20 @@ function createPie(data,initConfig) {
     legend: {
       data:names,
       orient: 'vertical',
-      x: '30%',
+      x: '40%',
       y:"center",
       selectedMode:false,
       textStyle:{
         color:'rgba(0,0,0,1)',
-        fontFamily:'Microsoft Yahei'
+        fontSize:13
       }
     },
     series: [
       {
         name:'',
         type:'pie',
-        radius: [50, 70],
-        center: ['15%', '50%'],
+        radius: [60, 100],
+        center: ['20%', '50%'],
         label:false,
         labelLine: false,
         data:data

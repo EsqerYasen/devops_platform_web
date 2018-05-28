@@ -7490,19 +7490,19 @@ fade-enter-active, .fade-leave-active {
 
 
 .qipa_style .othermsg{
-    width: 30%;
-      position: absolute;
-      right: 10px;
-      top:0px;
-      z-index: 999;
-      line-height: 24px;
-      font-size: 12px;
-      font-weight: 500;
-      color: #000000;
-      height: 100%;
-      display: -webkit-box;
-      -webkit-box-align: center;
-
+    width: 17%;
+    position: absolute;
+    right: 10px;
+    top:0px;
+    z-index: 999;
+    line-height: 24px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #000000;
+    height: 100%;
+    display: -webkit-box;
+    -webkit-box-align: center;
+    font-size: 13px;
 }
 
 
