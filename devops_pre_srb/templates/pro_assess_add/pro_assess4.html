@@ -1,111 +1,45 @@
 <div class="tab-pane" id="tab4">
 	<div id="tab4ReportDiv" class="row" style="margin-top: 20px"></div>
-	<div class="processbox row">
-		<div class="row col-md-6 line_24 mb10">
-			<div class="col-md-12 sc">
-				<h4 class="fl_title">生产环境:</h4>
-				<div class="devbox">
-					<span class="fix prod">数量</span>
-					<span class="content">10</span>
-					<span class="fix">台</span>
-				</div>
-				<div class="devbox">
-					<span class="fix">内存</span>
-					<span class="content">10</span>
-					<span class="fix">G</span>
-				</div>
-				<div class="devbox">
-					<span class="fix">CPU</span>
-					<span class="content">10</span>
-					<span class="fix">核</span>
-				</div>
-				<div class="devbox">
-					<span class="fix">磁盘</span>
-					<span class="content">10</span>
-					<span class="fix">G</span>
-				</div>
-				<div class="clear"></div>
-			</div>
-		</div>
-		<div class="row col-md-6 line_24 mb10">
-			<div class="col-md-12 zb">
-				<h4 class="fl_title">灾备环境:</h4>
+	<div class="processbox row" id="vm4">
+
+		<div class="row col-md-6 line_24 mb10" v-for="item in items">
+			<div class="col-md-12 sc" :class="{'sc':item.env==1,'zb':item.env==2,'hd':item.env==3}">
+				<h4 class="fl_title" v-if="item.env==1">生产环境:</h4>
+				<h4 class="fl_title" v-if="item.env==2">灾备环境:</h4>
+				<h4 class="fl_title" v-if="item.env==3">灰度环境:</h4>
+				<h4 class="fl_title" v-if="item.env==4">运维管理:</h4>
+
 				<div class="devbox">
 					<span class="fix">数量</span>
-					<span class="content">10</span>
+					<span class="content" v-html="item.estimated_server_count"></span>
 					<span class="fix">台</span>
 				</div>
 				<div class="devbox">
 					<span class="fix">内存</span>
-					<span class="content">10</span>
+					<span class="content" v-html="item.estimated_singleton_memory_capacity"></span>
 					<span class="fix">G</span>
 				</div>
 				<div class="devbox">
 					<span class="fix">CPU</span>
-					<span class="content">10</span>
+					<span class="content" v-html="item.estimated_singleton_CPU_core"></span>
 					<span class="fix">核</span>
 				</div>
 				<div class="devbox">
 					<span class="fix">磁盘</span>
-					<span class="content">10</span>
+					<span class="content" v-html="item.estimated_singleton_disk_capacity"></span>
 					<span class="fix">G</span>
 				</div>
 				<div class="clear"></div>
 			</div>
 		</div>
-		<div class="row col-md-6 line_24 mb10">
-			<div class="col-md-12 hd">
-				<h4 class="fl_title">灰度环境:</h4>
-				<div class="devbox">
-					<span class="fix">数量</span>
-					<span class="content">10</span>
-					<span class="fix">台</span>
-				</div>
-				<div class="devbox">
-					<span class="fix">内存</span>
-					<span class="content">10</span>
-					<span class="fix">G</span>
-				</div>
-				<div class="devbox">
-					<span class="fix">CPU</span>
-					<span class="content">10</span>
-					<span class="fix">核</span>
-				</div>
-				<div class="devbox">
-					<span class="fix">磁盘</span>
-					<span class="content">10</span>
-					<span class="fix">G</span>
-				</div>
-				<div class="clear"></div>
-			</div>
-		</div>
-		<div class="row col-md-6 line_24 mb10">
-			<div class="col-md-12">
-				<h4 class="fl_title">运维管理:</h4>
-				<div class="devbox">
-					<span class="fix">数量</span>
-					<span class="content">10</span>
-					<span class="fix">台</span>
-				</div>
-				<div class="devbox">
-					<span class="fix">内存</span>
-					<span class="content">10</span>
-					<span class="fix">G</span>
-				</div>
-				<div class="devbox">
-					<span class="fix">CPU</span>
-					<span class="content">10</span>
-					<span class="fix">核</span>
-				</div>
-				<div class="devbox">
-					<span class="fix">磁盘</span>
-					<span class="content">10</span>
-					<span class="fix">G</span>
-				</div>
-				<div class="clear"></div>
-			</div>
-		</div>
-		<h2 class="totaldis">项目合计需求资源：  500C/900G/20TB（系统自动计算）</h2>
+		<h2 class="totaldis">
+			项目合计需求资源：
+			服务器台数:<span v-html="server_sum"></span>台 /
+			内存:<span v-html="memory_sum"></span>C /
+			CPU:<span v-html="cpu_sum"></span>G /
+			硬盘:<span v-html="disk_sum"></span>G
+			（系统自动计算）
+		</h2>
 	</div>
 	<div class="row">
 		<div class="col-md-6" style="padding: 20px">
@@ -196,20 +130,59 @@
      function initProAssess4(){
 
      }
-     function tab4ReportView(){
-        //$("#tab4ReportDiv").empty();
-        var p_id = $("#project_id").val();
-        $.ajax({
-            type: "GET",
-            url: '/presrb/project/pro_report_views/',
-            async:false,
-            data:{"id":p_id},
-            error: function (request) {
-                 bool = false;
-            },
-            success: function (data) {
-                $("#tab4ReportDiv").append(data);
-            }
-        })
-     }
+
+
+
+
+     var vm4 = new Vue({
+	    el:"#vm4",
+	    data:{
+		    cpu_sum:4,
+		    disk_sum:0,
+		    server_sum:0,
+		    memory_sum:0,
+		    items:[]
+	    },
+
+
+	    created:function(){
+		    var p_id = '15';//$("#project_id").val();
+		    var _this = this;
+		    $.ajax({
+	            type: "GET",
+	            url: '/presrb/project/pro_report_views/',
+	            async:false,
+	            data:{"id":p_id},
+	            error: function (request) {
+	                 bool = false;
+	            },
+	            success: function (res) {
+		            var ajaxdata = res.data;
+		            _this.memory_sum=ajaxdata.memory_sum;
+		            _this.cpu_sum=ajaxdata.cpu_sum;
+		            _this.disk_sum=ajaxdata.disk_sum;
+		            _this.server_sum=ajaxdata.server_sum;
+		            _this.items=ajaxdata.items;
+	            }
+	        })
+
+	    }
+     });
+
+     {#function tab4ReportView(){#}
+     {#   //$("#tab4ReportDiv").empty();#}
+     {#   var p_id = $("#project_id").val();#}
+     {#   $.ajax({#}
+     {#       type: "GET",#}
+     {#       url: '/presrb/project/pro_report_views/',#}
+     {#       async:false,#}
+     {#       data:{"id":p_id},#}
+     {#       error: function (request) {#}
+     {#            bool = false;#}
+     {#       },#}
+     {#       success: function (data) {#}
+     {#           $("#tab4ReportDiv").append(data);#}
+     {#       }#}
+     {#   })#}
+     {#}#}
 </script>
