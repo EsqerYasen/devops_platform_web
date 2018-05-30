@@ -282,7 +282,7 @@
 	                            </div>
 	                        </div>
 	                        <div class="form-group">
-							    <div class="col-sm-offset-2 col-sm-10">
+							    <div class="col-sm-offset-2 col-sm-10 btnbox_g">
 							      <button type="submit" class="btn btn-primary">提交</button>
 							    </div>
 							  </div>
@@ -297,6 +297,17 @@
         localStorage.removeItem('tools_info');
         localStorage.removeItem('codemirror_lang');
     }
+    $(window).scroll(function(){
+        var height = $(this).scrollTop();
+        if(height>370){
+            $('.btnbox_g').addClass('fixedbtn')
+        }else{
+            $('.btnbox_g').removeClass('fixedbtn')
+        }
+
+
+    })
+
     var page = new Vue({
         el:'#tool_add',
         data: {

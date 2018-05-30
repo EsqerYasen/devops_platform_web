@@ -7575,4 +7575,14 @@ fade-enter-active, .fade-leave-active {
 }
 
 
+.fixedbtn{
+    position: fixed;
+    bottom: 30px;
+    z-index: 99;
+    left: 16px;
+}
+
+.fixedbtn .btn{}
+
+
 
