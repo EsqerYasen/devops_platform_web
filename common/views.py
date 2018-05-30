@@ -2,7 +2,7 @@
 from django.contrib import auth
 from django.shortcuts import render, redirect
 from django.views.generic import TemplateView
-from common.utils.ldap3_api import *
+#from common.utils.ldap3_api import *
 from common.utils.HttpUtils import *
 from django.conf import settings
 import logging,time
@@ -28,27 +28,27 @@ def checkLogin(request):
     redirect_url = "/?type=1"
     try:
         method = request.method
-        bool = False
-        username = ""
-        if method == "GET":
-            code = request.GET.get('code',None)
-            if code:
-                tokendata = settings.TOKEN_DATA
-                tokendata['code'] = code
-                tokendata['oauth_timestamp'] = time.time()
-                hu = HttpUtils(request)
-                result = hu.get_url(settings.OAUTH_TOKEN, tokendata)
-                if result.status_code == 200:
-                    access_token = result.json()['access_token']
-                    userinfo_result = hu.get_url(settings.OAUTH_USERINFO, {"access_token": access_token})
-                    userinfo = userinfo_result.json()
-                    username = userinfo['yumADAccount'].lower()
-                    bool = True
-        elif method == "POST":
-            username = request.POST.get('username',None)
-            password = request.POST.get('password',None)
-            if username and password:
-                bool = AdAuthenticate.authenricate(username,password)
+        bool = True
+        username = "lch7395"
+        # if method == "GET":
+        #     code = request.GET.get('code',None)
+        #     if code:
+        #         tokendata = settings.TOKEN_DATA
+        #         tokendata['code'] = code
+        #         tokendata['oauth_timestamp'] = time.time()
+        #         hu = HttpUtils(request)
+        #         result = hu.get_url(settings.OAUTH_TOKEN, tokendata)
+        #         if result.status_code == 200:
+        #             access_token = result.json()['access_token']
+        #             userinfo_result = hu.get_url(settings.OAUTH_USERINFO, {"access_token": access_token})
+        #             userinfo = userinfo_result.json()
+        #             username = userinfo['yumADAccount'].lower()
+        #             bool = True
+        # elif method == "POST":
+        #     username = request.POST.get('username',None)
+        #     password = request.POST.get('password',None)
+        #     if username and password:
+        #         bool = AdAuthenticate.authenricate(username,password)
         if bool:
             user = auth.authenticate(username=username, password=settings.USER_DEFAULT_PWD)
             if user and user.is_active:
