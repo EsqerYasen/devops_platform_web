@@ -31,26 +31,26 @@ def checkLogin(request):
     try:
         method = request.method
         bool = True
-        username = "lch7395"
-        # if method == "GET":
-        #     code = request.GET.get('code',None)
-        #     if code:
-        #         tokendata = settings.TOKEN_DATA
-        #         tokendata['code'] = code
-        #         tokendata['oauth_timestamp'] = time.time()
-        #         hu = HttpUtils(request)
-        #         result = hu.get_url(settings.OAUTH_TOKEN, tokendata)
-        #         if result.status_code == 200:
-        #             access_token = result.json()['access_token']
-        #             userinfo_result = hu.get_url(settings.OAUTH_USERINFO, {"access_token": access_token})
-        #             userinfo = userinfo_result.json()
-        #             username = userinfo['yumADAccount'].lower()
-        #             bool = True
-        # elif method == "POST":
-        #     username = request.POST.get('username',None)
-        #     password = request.POST.get('password',None)
-        #     if username and password:
-        #         bool = AdAuthenticate.authenricate(username,password)
+        username = ""
+        if method == "GET":
+            code = request.GET.get('code',None)
+            if code:
+                tokendata = settings.TOKEN_DATA
+                tokendata['code'] = code
+                tokendata['oauth_timestamp'] = time.time()
+                hu = HttpUtils(request)
+                result = hu.get_url(settings.OAUTH_TOKEN, tokendata)
+                if result.status_code == 200:
+                    access_token = result.json()['access_token']
+                    userinfo_result = hu.get_url(settings.OAUTH_USERINFO, {"access_token": access_token})
+                    userinfo = userinfo_result.json()
+                    username = userinfo['yumADAccount'].lower()
+                    bool = True
+        elif method == "POST":
+            username = request.POST.get('username',None)
+            password = request.POST.get('password',None)
+            if username and password:
+                bool = AdAuthenticate.authenricate(username,password)
         if bool:
             user = auth.authenticate(username=username, password=settings.USER_DEFAULT_PWD)
             if user and user.is_active:
