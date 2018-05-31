@@ -2,7 +2,9 @@
 from django.contrib import auth
 from django.shortcuts import render, redirect
 from django.views.generic import TemplateView
-#from common.utils.ldap3_api import *
+
+# from common.utils.ldap3_api import *
+
 from common.utils.HttpUtils import *
 from django.conf import settings
 import logging,time
