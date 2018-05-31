@@ -12,6 +12,7 @@
     overflow-y: hidden;
     overflow-x: auto;
   min-height:300px;
+  max-height:1200px;
 }
 /* PADDING */
 
