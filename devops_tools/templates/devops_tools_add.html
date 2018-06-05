@@ -209,11 +209,11 @@
 
 			                             <transition name="bounce">
 			                                    <transition-group name="list" >
-						                            <div v-for="(p,i) in formData.versions" :key="i" class="boxbox clear1 form-inline">
+						                            <div v-for="(p,i) in formData.version_yumc" :key="i" class="boxbox clear1 form-inline">
 							                            <i class="yum-font icon-guanbi del" style="font-size: 12px" @click="removeVersions(i)"></i>
 							                            <div class="fl pabx">
 														    <label><span class="red">*</span></label>
-														    <input type="text" class="form-control" v-model="formData.versions[i]">
+														    <input type="text" class="form-control" v-model="formData.version_yumc[i]">
 							                            </div>
                                                         <div class="fl" style="line-height:35px;padding-right:15px;">
                                                             $version_url:控制机路径, &nbsp;&nbsp;$version:svn版本号
@@ -221,8 +221,34 @@
 						                            </div>
 			                                    </transition-group>
 			                             </transition>
-                                        <div class="clear1 add_button" @click="addVersions" v-if="!formData.versions.length">
+                                        <div class="clear1 add_button" @click="addVersions" v-if="!formData.version_yumc.length">
 	                                        +添加版本
+                                        </div>
+		                            </div>
+	                            </div>
+	                        </div>
+
+                             <div class="form-group">
+                                <label class="col-sm-2 control-label">JIRA</label>
+	                            <div class="col-sm-10">
+		                            <div class="parmabox">
+
+			                             <transition name="bounce">
+			                                    <transition-group name="list" >
+						                            <div v-for="(p,i) in formData.jira_yumc" :key="i" class="boxbox clear1 form-inline">
+							                            <i class="yum-font icon-guanbi del" style="font-size: 12px" @click="removeJiras(i)"></i>
+							                            <div class="fl pabx">
+														    <label><span class="red">*</span></label>
+														    <input type="text" class="form-control" v-model="formData.jira_yumc[i]">
+							                            </div>
+{#                                                        <div class="fl" style="line-height:35px;padding-right:15px;">#}
+{#                                                            $version_url:控制机路径, &nbsp;&nbsp;$version:svn版本号#}
+{#                                                        </div>#}
+						                            </div>
+			                                    </transition-group>
+			                             </transition>
+                                        <div class="clear1 add_button" @click="addJiras" v-if="!formData.jira_yumc.length">
+	                                        +添加JIRA
                                         </div>
 		                            </div>
 	                            </div>
@@ -323,7 +349,8 @@
                 tool_set_prime_type: 1,
                 tool_set_type: 1,
                 command: '',
-                versions:[],
+                version_yumc:[],
+                jira_yumc:[],
                 script_lang: localStorage.getItem('codemirror_lang') || 'shell',
                 param: [],
                param2:[],
@@ -349,10 +376,16 @@
                 });
             },
            addVersions:function(){
-            this.formData.versions.push('');
+            this.formData.version_yumc.push('');
             },
             removeVersions: function(index){
-                this.formData.versions.splice(index, 1);
+                this.formData.version_yumc.splice(index, 1);
+            },
+            addJiras:function(){
+            this.formData.jira_yumc.push('');
+            },
+            removeJiras: function(index){
+                this.formData.jira_yumc.splice(index, 1);
             },
             removeValueSet:function(obj, i){
                 obj.valueSet.splice(i, 1);
@@ -402,11 +435,11 @@
                         formData.param.splice(i,1);
                     }
                 })
-                if(formData.versions.length){
-                    var ver = formData.versions[0];
+                if(formData.version_yumc.length){
+                    var ver = formData.version_yumc[0];
                     formData.param.push({
                         paramNameEn: '',
-                        paramNameZh: 'version',
+                        paramNameZh: 'version_yumc',
                         type: 'version',
                         desc: '',
                         no: 0,
@@ -415,7 +448,21 @@
                         default: ''
                     })
                 }
-                delete formData.versions;
+                if(formData.jira_yumc.length){
+                    var ver = formData.jira_yumc[0];
+                    formData.param.push({
+                        paramNameEn: '',
+                        paramNameZh: 'jira_yumc',
+                        type: 'text',
+                        desc: '',
+                        no: 0,
+                        value: ver,
+                        valueSet: [],
+                        default: ''
+                    })
+                }
+                delete formData.version_yumc;
+                delete formData.jira_yumc;
                 delete formData.param2;
                 delete formData.ret;
                 var script_lang = formData.script_lang;
@@ -504,12 +551,11 @@
      var initEditor = function(mode){
          mode = mode || 'shell';
          var modes = {
-             shell: '#!/bin/sh\nset -eux\nsource /etc/profile\n',
+             shell: '#!/bin/sh\n',
              python:'#!/usr/bin/python',
              yaml: '---\n' +
              '- hosts: \'{% verbatim %}{{ hosts }}{% endverbatim %}\'\n' +
-             '  remote_user: root\n' +
-             '  gather_facts: False\n'
+             '  remote_user: root\n'
          };
          $.getScript('/static/hplus/codemirror/' + mode + '.js', function(){
             editor = CodeMirror.fromTextArea(document.getElementById("code"), {
