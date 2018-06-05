@@ -70,12 +70,12 @@ def mkdir(path):
 def cp(src,dst):
     """
     拷贝文件夹或文件
-    :param src: 源
-    :param dst: 目标
+    :param src: 源 /opt/test/a.sh
+    :param dst: 目标 /opt/test111/b.sh
     :return:
     """
     if is_file(src):
-        shutil.copy(src, dst)
+        shutil.copyfile(src, dst)
     elif is_dir(src):
         shutil.copytree(src,dst)
 
@@ -132,3 +132,19 @@ def md5(s):
     if s:
         return hashlib.md5(s.encode('utf-8')).hexdigest()
     return ""
+
+
+
+def getClassAttrToDict(object,d):
+    """
+    从字典中获取class有的属性值
+    :param object:
+    :param d:
+    :return:
+    """
+    result = {}
+    for k in d:
+        v = d.get(k,None)
+        if hasattr(object, k) and v:
+            result[k] = v
+    return result

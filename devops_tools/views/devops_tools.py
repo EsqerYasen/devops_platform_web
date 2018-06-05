@@ -3,6 +3,7 @@ from django.views.generic import *
 from common.utils.HttpUtils import *
 from django.http import HttpResponse
 from django.core.paginator import Paginator
+from django.conf import settings
 from common.utils.common_utils import *
 import logging,time,os,stat
 
@@ -62,7 +63,7 @@ class DevopsToolsCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMi
                     fileName = ""
                     #if tool_type == '5':
                     t = time.time()
-                    toolScriptPath = '/opt/devops/tool_script/'
+                    toolScriptPath = settings.TOOL_SCRIPT_PATH #'/opt/devops/tool_script/'
                     command = reqData.get("command",None)
                     script_lang = reqData.get("script_lang","shell")
                     try:
@@ -146,24 +147,39 @@ class DevopsToolsUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMi
                     #if tool_set_prime_type == '1' and tool_set_type == '5':
                     script_md5 = reqData['script_md5']
                     command = reqData.get("command",None)
-                    if md5(command) != script_md5:
-                        try:
-                            fileName = reqData.get("filename",None)
-                            f = open(fileName, 'w')
-                            f.write(command)
-                            reqData['command'] = fileName
-                        except Exception as e:
-                            logger.error(e)
-                        finally:
-                            f.close()
+                    history_filename = ""
+                    fileName = reqData.get("filename", None)
+                    try:
+                        #无论是否修改脚本 先做备份
+                        history_path = "%s/history/" % (settings.TOOL_SCRIPT_PATH)
+                        script_lang_dict = {'shell': 'sh', 'python': 'py', 'yaml': 'yaml'}
+                        script_lang = reqData.get("script_lang", "shell")
+                        t = time.time()
+                        history_filename = "%s%s%s.%s" % (history_path, int(round(t * 1000)), randomCharStr(), script_lang_dict[script_lang])
+                        mkdir(history_path)
+                        cp(fileName,history_filename)
+
+                        f = open(fileName, 'w')
+                        f.write(command)
+                        reqData['command'] = fileName
+                    except Exception as e:
+                        logger.error(e)
+                    finally:
+                        f.close()
+                    new_script_md5 = file_md5(fileName)
+                    if new_script_md5 != script_md5:
+                        reqData['script_md5'] = new_script_md5
+                        reqData['old_script_md5'] = script_md5
                         # 告诉后端接口脚本文件发生变化
                         reqData['script_is_chanage'] = 1
                     else:
+                        reqData['old_script_md5'] = script_md5
                         # 告诉后端接口脚本文件没有发生变化
                         reqData['script_is_chanage'] = 0
+                    reqData['history_filename'] = history_filename
                     addResult = hu.post(serivceName="p_job", restName="/rest/tool/updateById/", datas=reqData) #/rest/job/update_tool_set/
                     addResultJson = addResult.json()
-                    if addResultJson['status'] == 'SUCCESS':
+                    if addResultJson['status'] == 200:
                         result['status'] = 0
                         result['msg'] = '更新成功'
                     else:
@@ -187,10 +203,11 @@ class DevopsToolsDeleteView(LoginRequiredMixin,JSONResponseMixin, View):
         result = {'status': 0}
         try:
             req = self.request
-            id = req.GET.get("id",0)
+            tool_id = req.GET.get("tool_id",0)
             hu = HttpUtils(req)
-            resultJson = hu.get(serivceName="job", restName="/rest/job/delete_tool_set/",datas={"id": id})
-            if resultJson['status'] == 'SUCCESS':
+            del_result = hu.post(serivceName="p_job", restName="/rest/tool/deleteByToolId/",datas={"tool_id": tool_id}) #/rest/job/delete_tool_set/
+            resultJson = del_result.json()
+            if resultJson['status'] == 200:
                 result['status'] = 0
                 result['msg'] = '删除成功'
             else:
@@ -236,4 +253,31 @@ class DevopsToolsYamlCheckView(LoginRequiredMixin,JSONResponseMixin, View):
             result['status'] = 1
             result['msg'] = '检查脚本异常'
             logger.error(e)
+        return self.render_json_response(result)
+
+
+class DevopsToolVersionByName(LoginRequiredMixin,JSONResponseMixin, View):
+    def get(self, request, *args, **kwargs):
+        result = {'status': 200}
+        try:
+            req = self.request
+            hu = HttpUtils(req)
+            reqData = hu.getRequestParam()
+            tool_list_result = hu.get(serivceName="p_job", restName="/rest/tool/list/",datas={'name':reqData['name']})  # /rest/job/list_tool_set/
+            tool_list = tool_list_result.get("results", [])
+            datas = []
+
+            if len(tool_list) == 1:
+                tool = tool_list[0]
+                tool_id = tool['tool_id']
+                datas.append({'id':tool['id'],'tool_id':tool['tool_id'],'name':tool['name'],'tool_version':tool['tool_version']})
+                tool_list_result2 = hu.get(serivceName="p_job", restName="/rest/tool/list/",datas={'tool_id': tool_id,'is_history':1})
+                tool_list2 = tool_list_result2.get("results", [])
+                for tool2 in tool_list2:
+                    datas.append({'id': tool2['id'], 'tool_id': tool2['tool_id'], 'name': tool2['name'],'tool_version': tool2['tool_version']})
+            result['data'] = datas
+        except Exception as e:
+            result['status'] = 500
+            result['msg'] = '查询异常'
+            logger.error(e,exc_info=1)
         return self.render_json_response(result)

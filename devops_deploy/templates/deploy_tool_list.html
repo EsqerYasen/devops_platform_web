@@ -27,8 +27,9 @@
             <th style="width: 10%;">发版名称</th>
             <th style="width: 10%;">当前版本</th>
             <th style="width: 10%;">工具名称</th>
-            <th style="width: 10%;">创建人</th>
-            <th style="width: 10%;">最后修改人</th>
+            <th style="width: 8%;">工具版本</th>
+            <th style="width: 8%;">创建人</th>
+            <th style="width: 8%;">最后修改人</th>
             <th style="width: 10%;">创建时间</th>
             <th style="width: 10%;">最后修改时间</th>
             <th style="width: 10%;">可选版本</th>
@@ -42,7 +43,8 @@
                 </td>
                 <td>{{ o.name }}</td>
                 <td>{{ o.current_version }}</td>
-                <td>{{ o.tool_set_name }}</td>
+                <td>{{ o.tool_name }}</td>
+                <td>{{ o.tool_version }}</td>
                 <td>{{ o.created_by }}</td>
                 <td>{{ o.updated_by }}</td>
                 <td>{{ o.create_time }}</td>
@@ -57,7 +59,7 @@
                 </td>
                 <td>
                     <a href="../{{ o.id }}/edit/" class="btn btn-sm btn-success"><i class="fa fa-edit"></i>&nbsp;编辑</a>
-                    <a href="javascript:void(0)" class="btn btn-sm btn-success" onclick="deployToolOperation('{{ o.id }}','{{ o.name }}','{{ o.tool_set_id }}','{{ o.command_set_id }}','{{ o.command_line_id }}')"><i class="fa fa-play"></i>发版</a>
+                    <a href="javascript:void(0)" class="btn btn-sm btn-success" onclick="deployToolOperation('{{ o.id }}','{{ o.name }}','{{ o.tool_id }}','{{ o.tool_version }}','{{ o.command_set_id }}'),'{{ o.bind_type }}'"><i class="fa fa-play"></i>发版</a>
                     <a href="javascript:void(0)" onclick="deleteApp('{{ o.id }}')" class="btn  btn-sm btn-danger"><i class="fa fa-trash"></i>&nbsp;删除</a>
                 </td>
             </tr>
@@ -78,10 +80,10 @@
                 });
              });
         }
-        function deployToolOperation(id,name,toolSetId,commandSetId,commandLineId){
-            if(toolSetId){
+        function deployToolOperation(id,name,tool_id,tool_version,command_set_id,bind_type){
+            if(tool_id){
                 var version = $("#version"+id).val();
-                window.location.href = "../"+id+"/operation/?name="+name+"&toolId="+toolSetId+"&commandId="+commandSetId+"&commandLineId="+commandLineId+"&version="+version;
+                window.location.href = "../"+id+"/operation/?name="+name+"&tool_id="+tool_id+"&tool_version="+tool_version+"&command_set_id="+command_set_id+"&version="+version+"&bind_type="+bind_type;
             }
         }
     </script>

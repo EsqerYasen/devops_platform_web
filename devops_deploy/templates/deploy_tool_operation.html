@@ -117,10 +117,12 @@
 <script>
 Vue.component('v-select', VueSelect.VueSelect);
 $(function(){
+    {% if tool_info.infom == 2 %}
     var hostGroupTreeList = {{ hostGroup_list|safe }};
     readHostGroupTreeNext(hostGroupTreeList,0);
     zHostGroupTreeInit();
     initSelectHostModal();
+    {% endif %}
 });
     function initSelectHostModal(){
         $("#select_host_modal").on('show.bs.modal',function(event){
@@ -312,7 +314,7 @@ var app_page = new Vue({
         formData:{
 
         },
-        tool_info:{{ tool_info|safe }}
+        tool_info:  {}// tool_info|safe }}
     },
     methods:{
           changeValue:function(obj){
@@ -343,75 +345,16 @@ var app_page = new Vue({
             var formData = this.formData;
             var tool_info = this.tool_info;
             var params = tool_info.param;
+            var tool_id = 15;
+            var tool_version = '1.0'
             var command_set_id = {{ commandId }};
-            var commandLineId = {{ commandLineId }};
+            var bind_type = {{ bind_type }}
+            //var commandLineId =  commandLineId }};
             var name = '{{ name }}';
-            var reqData = {"command_set_id":command_set_id,'deploy_id':'{{ deploy_id }}','commandLineId':commandLineId};
-            if(!formData.target_group_ids){
-                Alertwin.alert({message:"请选择机器"});
-                return;
-            }
-            var target_host_list = "";
-            if(formData.target_host_list){
-                target_host_list = formData.target_host_list.join(',');
-            }
-            //var parameter = formData.version+",";
-            var parameter = "";
-            $(params).each(function(pi,pitme){
-                if(pitme.value){
-                    parameter += pitme.paramNameZh+"="+pitme.value+";";
-                }
-                if(pitme.paramNameZh == "version"){
-                    reqData['version'] = pitme.value
-                }
-            })
-            parameter = parameter.substring(0,parameter.length-1);
-            if(command_set_id > 0){
-                var deploy_info = {
-                    "command_set_id":command_set_id,
-                    "new_flow":1,
-                    "paras":{
-                        1:{
-                            "target_type":formData.target_type,
-                            "target_group_ids":formData.target_group_ids,
-                            "target_host_list":target_host_list,
-                            "go_live":formData.go_live
-                        }
-                    }
-                };
-                deploy_info['paras'][1][commandLineId] = {
-                                "parameter":parameter,
-                                "is_skip":0
-                            }
-                reqData['deploy_info'] = JSON.stringify(deploy_info);
-            }else{
-                var command_info = {
-                    "name":name+" 发版",
-                    "type":2,
-                    "comment":"用于 "+name+" 发版",
-                    "steps":[
-                        {
-                            "name":name+"发版步骤1",
-                            "seq_no":1,
-                            "type":0,
-                            "target_group_ids":formData.target_group_ids,
-                            "target_host_list":target_host_list,
-                            "target_type":formData.target_type,
-                            "go_live":formData.go_live,
-                            "lines":[
-                                {
-                                    "sub_seq_no":1,
-                                    "type":1,
-                                    "source_file_name":tool_info.command,
-                                    "default_script_parameter":parameter,
-                                    "tool_set_type":5
-                                }
-                            ]
-                        }
-                    ]
-                };
-                reqData['command_info'] = JSON.stringify(command_info);
-            }
+            var reqData = {"command_set_id":command_set_id,'deploy_id':'{{ deploy_id }}','bind_type':bind_type,'tool_id':tool_id,'tool_version':tool_version};
+            //reqData['param'] = params;
+            reqData['bind_type'] = 1
+            reqData['param'] = JSON.stringify({'version_yumc':'/opt/git/version','jira_yumc':'/opt/jira/version'});
             reqData['csrfmiddlewaretoken'] = '{{ csrf_token }}';
             layer.load();
             $.ajax({
