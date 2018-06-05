@@ -216,7 +216,7 @@
 														    <input type="text" class="form-control" v-model="formData.version_yumc[i]">
 							                            </div>
                                                         <div class="fl" style="line-height:35px;padding-right:15px;">
-                                                            $version_url:控制机路径, &nbsp;&nbsp;$version:svn版本号
+                                                            $version_url:控制机路径, &nbsp;&nbsp;$version_yumc:svn版本号
                                                         </div>
 						                            </div>
 			                                    </transition-group>
@@ -241,14 +241,14 @@
 														    <label><span class="red">*</span></label>
 														    <input type="text" class="form-control" v-model="formData.jira_yumc[i]">
 							                            </div>
-{#                                                        <div class="fl" style="line-height:35px;padding-right:15px;">#}
-{#                                                            $version_url:控制机路径, &nbsp;&nbsp;$version:svn版本号#}
-{#                                                        </div>#}
+                                                        <div class="fl" style="line-height:35px;padding-right:15px;">
+                                                             $jira_yumc:JiraID
+                                                        </div>
 						                            </div>
 			                                    </transition-group>
 			                             </transition>
                                         <div class="clear1 add_button" @click="addJiras" v-if="!formData.jira_yumc.length">
-	                                        +添加JIRA
+	                                        +添加JiraID
                                         </div>
 		                            </div>
 	                            </div>
