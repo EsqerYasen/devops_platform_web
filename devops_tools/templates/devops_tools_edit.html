@@ -315,9 +315,10 @@
            formData:{
                 id: {{ result_dict.id }},
                 name: '{{ result_dict.name }}',
-                tool_set_prime_type: {{ result_dict.tool_set_prime_type }},
-                tool_set_type: {{ result_dict.tool_set_type }},
+                //tool_set_prime_type:  result_dict.tool_set_prime_type }},
+                tool_set_type: {{ result_dict.tool_type }},
                 filename:'{{ result_dict.filename }}',
+                script_md5:'{{ result_dict.script_md5 }}',
                 versions:[
                     {% for p in result_dict.param %}
                         {% if p.type == 'version' %}
@@ -451,7 +452,8 @@
                     type: "POST",
                     url: '../edit/',
                     data:{"csrfmiddlewaretoken":'{{ csrf_token }}','id':{{ result_dict.id }},'name':formData.name,'tool_set_prime_type':formData.tool_set_prime_type,
-                        'tool_set_type':formData.tool_set_type,'script_lang':script_lang,'command':editor.getValue(),'param':JSON.stringify(formData.param),'filename':formData.filename},
+                        'tool_set_type':formData.tool_set_type,'script_lang':script_lang,'command':editor.getValue(),'param':JSON.stringify(formData.param),
+                        'filename':formData.filename,'script_md5':formData.script_md5},
                     error: function (request) {},
                     success: function (data) {
                         if(data.status==0){

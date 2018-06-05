@@ -18,7 +18,7 @@ class AnsibleMgeView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, Te
             hostgroupResult = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_tree/", datas=getData)
             context['hostGroup_list'] = hostgroupResult.get("data", [])
         except Exception as e:
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return context
 
     def post_ajax(self, request, *args, **kwargs):
@@ -40,7 +40,7 @@ class AnsibleMgeView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, Te
         except Exception as e:
             result['status'] = 1
             result['msg'] = '执行异常'
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return HttpResponse(json.dumps(result),content_type='application/json')
 
 
@@ -63,7 +63,7 @@ class AnsibleMgeLogsListView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseM
             context['page_obj'] = paginator.page(req.offset)
             context['paginator'] = paginator
         except Exception as e:
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return context
 
     def get_ajax(self, request, *args, **kwargs):
@@ -77,5 +77,5 @@ class AnsibleMgeLogsListView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseM
         except Exception as e:
             result['status'] = 1
             result['msg'] = '执行异常'
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return HttpResponse(json.dumps(result),content_type='application/json')

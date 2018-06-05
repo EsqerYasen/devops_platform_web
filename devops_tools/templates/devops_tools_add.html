@@ -33,7 +33,7 @@
 		                             <div class="switch">
                                         <input type="checkbox" id="switch_checkbox" data-on-color="success" data-off-color="danger" checked data-on-text="是" data-off-text="否"/>
                                     </div>
-                                    <input type="hidden" id="is_enabled" name="is_enabled" value="True"/>
+                                    <input type="hidden" id="is_enabled" name="is_enabled" value="1"/>
 	                            </div>
                             </div>
 	                        <div class="form-group">
@@ -435,7 +435,7 @@
                                     type: "POST",
                                     url: '../add/',
                                     data:{"csrfmiddlewaretoken":'{{ csrf_token }}','name':formData.name,'infom':formData.infom,'tool_set_prime_type':formData.tool_set_prime_type,
-                                        'tool_set_type':formData.tool_set_type,'script_lang':script_lang,'command':editor.getValue(),'param':JSON.stringify(formData.param)},
+                                        'tool_set_type':formData.tool_set_type,'script_lang':script_lang,'command':editor.getValue(),'param':JSON.stringify(formData.param),'is_public':$('#is_enabled').val()},
                                     error: function (request) {},
                                     success: function (data) {
                                         if(data.status==0){
@@ -455,7 +455,7 @@
                         type: "POST",
                         url: '../add/',
                         data:{"csrfmiddlewaretoken":'{{ csrf_token }}','name':formData.name,'infom':formData.infom,'tool_set_prime_type':formData.tool_set_prime_type,
-                            'tool_set_type':formData.tool_set_type,'script_lang':script_lang,'command':editor.getValue(),'param':JSON.stringify(formData.param)},
+                            'tool_type':formData.tool_set_type,'script_lang':script_lang,'command':editor.getValue(),'param':JSON.stringify(formData.param),'is_public':$('#is_enabled').val()},
                         error: function (request) {},
                         success: function (data) {
                             if(data.status==0){
@@ -492,11 +492,11 @@
     }
 
      $("#switch_checkbox").bootstrapSwitch("onSwitchChange",function(event,state) {
-            var val = '';
+           var val = '';
            if(state){
-               val = 'True';
+               val = '1';
            }else{
-               val = 'False';
+               val = '0';
            }
             $('#is_enabled').val(val);
         });

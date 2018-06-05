@@ -3,6 +3,7 @@ from django.views.generic import *
 from common.utils.HttpUtils import *
 from django.http import HttpResponse
 from django.core.paginator import Paginator
+from common.utils.common_utils import *
 import logging,time,os,stat
 
 logger = logging.getLogger('devops_platform_log')
@@ -20,7 +21,7 @@ class DevopsToolsListView(LoginRequiredMixin, OrderableListMixin, ListView):
             hu = HttpUtils(req)
             reqData = hu.getRequestParam()
             reqData['flag'] = 1
-            tool_list_result = hu.get(serivceName="job", restName="/rest/job/list_tool_set/",datas=reqData)
+            tool_list_result = hu.get(serivceName="p_job", restName="/rest/tool/list/",datas=reqData) #/rest/job/list_tool_set/
             tool_list = tool_list_result.get("results", {})
             count = tool_list_result.get("count", 0)
             for tool in tool_list:
@@ -55,35 +56,38 @@ class DevopsToolsCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMi
             reqData = hu.getRequestParam()
             script_lang_dict = {'shell':'sh','python':'py','yaml':'yaml'}
             if reqData:
-                tool_set_prime_type = reqData.get("tool_set_prime_type",None)
-                tool_set_type = reqData.get("tool_set_type",None)
-                if tool_set_prime_type and tool_set_type:
-                    if tool_set_prime_type == '1' and tool_set_type == '5':
-                        t = time.time()
-                        toolScriptPath = '/opt/devops/tool_script/'
-                        command = reqData.get("command",None)
-                        script_lang = reqData.get("script_lang","shell")
-                        try:
-                            if not os.path.exists(toolScriptPath):
-                                os.makedirs(toolScriptPath)
-                            fileName = "%s%s.%s" % (toolScriptPath, int(round(t * 1000)),script_lang_dict[script_lang])
-                            f = open(fileName, 'w')
-                            f.write(command)
-                            f.close()
-                            os.chmod(fileName, stat.S_IRWXO | stat.S_IRWXG | stat.S_IRWXU)
-                            reqData['command'] = fileName
-                        except Exception as e:
-                            f.close()
-                            logger.error(e)
+                #tool_set_prime_type = reqData.get("tool_set_prime_type",None)
+                tool_type = reqData.get("tool_type",None)
+                if tool_type:
+                    fileName = ""
+                    #if tool_type == '5':
+                    t = time.time()
+                    toolScriptPath = '/opt/devops/tool_script/'
+                    command = reqData.get("command",None)
+                    script_lang = reqData.get("script_lang","shell")
+                    try:
+                        if not os.path.exists(toolScriptPath):
+                            os.makedirs(toolScriptPath)
+                        fileName = "%s%s%s.%s" % (toolScriptPath, int(round(t * 1000)),randomCharStr(),script_lang_dict[script_lang])
+                        f = open(fileName, 'w')
+                        f.write(command)
+                        f.close()
+                        os.chmod(fileName, stat.S_IRWXO | stat.S_IRWXG | stat.S_IRWXU)
+                        reqData['command'] = fileName
+                        reqData['script_md5'] = md5(command)
+                    except Exception as e:
+                        f.close()
+                        logger.error(e)
 
-                    addResult = hu.post(serivceName="job", restName="/rest/job/add_tool_set/", datas=reqData)
+                    addResult = hu.post(serivceName="p_job", restName="/rest/tool/add/", datas=reqData) #/rest/job/add_tool_set/
                     addResultJson = addResult.json()
-                    if addResultJson['status'] == 'SUCCESS':
+                    if addResultJson['status'] == 200:
                         result['status'] = 0
                         result['msg'] = '保存成功'
                     else:
+                        remove_file(fileName)
                         result['status'] = 1
-                        result['msg'] = '保存失败'
+                        result['msg'] = addResultJson['msg']
                 else:
                     result['status'] = 1
                     result['msg'] = '未检测到类别和类型信息，保存失败'
@@ -105,13 +109,13 @@ class DevopsToolsUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMi
         context = {}
         try:
             hu = HttpUtils(self.request)
-            tool_list_result = hu.get(serivceName="job", restName="/rest/job/list_tool_set/", datas={"id":kwargs.get('pk',0),"offset":0,"limit":"1"})
+            tool_list_result = hu.get(serivceName="p_job", restName="/rest/tool/list/", datas={"id":kwargs.get('pk',0),"offset":0,"limit":"1"}) #/rest/job/list_tool_set/
             tool_list = tool_list_result.get("results", [])
             for tool in tool_list:
                 tool['param'] = json.loads(tool['param'])
-                tool_set_prime_type = tool["tool_set_prime_type"]
-                tool_set_type = tool["tool_set_type"]
-                if tool_set_prime_type == 1 and tool_set_type == 5:
+                #tool_set_prime_type = tool["tool_set_prime_type"]
+                tool_set_type = tool["tool_type"]
+                if tool_set_type == 5:
                     command = tool["command"]
                     file_object = open(command, 'rU')
                     tool['filename'] = command
@@ -136,11 +140,13 @@ class DevopsToolsUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMi
             hu = HttpUtils(self.request)
             reqData = hu.getRequestParam()
             if reqData:
-                tool_set_prime_type = reqData.get("tool_set_prime_type", None)
+                #tool_set_prime_type = reqData.get("tool_set_prime_type", None)
                 tool_set_type = reqData.get("tool_set_type", None)
-                if tool_set_prime_type and tool_set_type:
-                    if tool_set_prime_type == '1' and tool_set_type == '5':
-                        command = reqData.get("command",None)
+                if tool_set_type:
+                    #if tool_set_prime_type == '1' and tool_set_type == '5':
+                    script_md5 = reqData['script_md5']
+                    command = reqData.get("command",None)
+                    if md5(command) != script_md5:
                         try:
                             fileName = reqData.get("filename",None)
                             f = open(fileName, 'w')
@@ -150,7 +156,12 @@ class DevopsToolsUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMi
                             logger.error(e)
                         finally:
                             f.close()
-                    addResult = hu.post(serivceName="job", restName="/rest/job/update_tool_set/", datas=reqData)
+                        # 告诉后端接口脚本文件发生变化
+                        reqData['script_is_chanage'] = 1
+                    else:
+                        # 告诉后端接口脚本文件没有发生变化
+                        reqData['script_is_chanage'] = 0
+                    addResult = hu.post(serivceName="p_job", restName="/rest/tool/updateById/", datas=reqData) #/rest/job/update_tool_set/
                     addResultJson = addResult.json()
                     if addResultJson['status'] == 'SUCCESS':
                         result['status'] = 0

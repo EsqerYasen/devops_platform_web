@@ -21,6 +21,12 @@ class HttpUtils(object):
                 datas = json.dumps(datas)
         return requests.post(URLStr,data=datas.encode('UTF-8'),auth=auth,headers = {"Content-Type": "application/json","Accept-Language":"zh-CN,zh;q=0.8","devopsgroup":self.webRequest.devopsgroup,'devopsuser':self.webRequest.devopsuser,'clienttype':self.webRequest.clienttype},timeout=10000)
 
+    def post2(self,url,datas=None,headers={"Content-Type": "application/json","Accept-Language":"zh-CN,zh;q=0.8"}):
+        if datas is not None:
+            if type(datas) == dict or type(datas) == list:
+                datas = json.dumps(datas)
+        return requests.post(url,data=datas.encode('UTF-8'),headers = headers,timeout=10000)
+
     def getUrl(self,serviceName,restName):
         url = "http://%s%s" % (REST_API_CONFIG[serviceName]['ip_prot'],restName)
         return url

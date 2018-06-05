@@ -41,8 +41,8 @@ class PreSrbCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, 
         try:
             context["is_add"] = 1
             hu = HttpUtils(self.request)
-            # auditor_list = hu.get(serivceName="presrb", restName="/rest/presrb/auditor_list/", datas={})
-            # context['auditor_list'] = auditor_list
+            auditor_list = hu.get(serivceName="presrb", restName="/rest/presrb/auditor_list/", datas={})
+            context['auditor_list'] = auditor_list
             # category_list = hu.get(serivceName="presrb", restName="/rest/presrb/category_list/", datas={})
             # context['category_list'] = category_list
             categoryItem_list = hu.get(serivceName="presrb", restName="/rest/presrb/categoryItem_list/", datas={})
@@ -78,34 +78,55 @@ class PreSrbCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, 
         return HttpResponse(json.dumps(result),content_type='application/json')
 
 
+
 class PreSrbUpdateView(LoginRequiredMixin, TemplateView):
     template_name = "pro_assess_add/pro_assess.html"
 
     def get_context_data(self, **kwargs):
         context = super(PreSrbUpdateView, self).get_context_data(**kwargs)
         context["is_add"] = 1
-        id = self.argsp[0]
+        id = kwargs.get('pk', 0)
         if id:
-            hu = HttpUtils()
+            hu = HttpUtils(self.request)
             auditor_list = hu.get(serivceName="presrb", restName="/rest/presrb/auditor_list/",datas={})
             context['auditor_list'] = auditor_list
 
-            category_list = hu.get(serivceName="presrb", restName="/rest/presrb/category_list/", datas={})
-            context['category_list'] = category_list
+            categoryItem_list = hu.get(serivceName="presrb", restName="/rest/presrb/categoryItem_list/", datas={})
+            context['categoryItem_list'] = categoryItem_list
 
-            resultJson = hu.get(serivceName="presrb", restName="/rest/presrb/project_list_item/", datas={"id": id})
-            data = resultJson.get("data", [])
+            resultJson = hu.get(serivceName="presrb", restName="/rest/presrb/project_list/", datas={"id": id})
+            results = resultJson.get("results", [])
+            data = {}
+            if results and len(results)>0:
+                data = results[0]
             context['result'] = data
 
         return context
 
     def post(self, request, *args, **kwargs):
-        saveJson = request.POST.get("saveJson",None);
-
-        hu = HttpUtils()
-        resultJson = hu.post(serivceName="presrb", restName="/rest/presrb/project_add/", datas=saveJson)
-
-        return HttpResponse(json.dumps(resultJson.json()),content_type='application/json')
+        result = {}
+        try:
+            id = kwargs.get('pk', 0)
+            if id:
+                saveJson = request.POST.get("saveJson", None);
+                hu = HttpUtils()
+                update_result = hu.post(serivceName="presrb", restName="/rest/presrb/project_update/", datas=saveJson)
+                result_json = update_result.json()
+                result['p_id'] = id
+                if result_json['status'] == 'SUCCESS':
+                    result['status'] = 0
+                    result['msg'] = '保存成功'
+                else:
+                    result['status'] = 1
+                    result['msg'] = "更新失败"
+            else:
+                result['status'] = 1
+                result['msg'] = "更新主键为空"
+        except Exception as e:
+            result['status'] = 1
+            result['msg'] = "更新异常"
+            logger.error(e,exc_info=1)
+        return HttpResponse(json.dumps(result),content_type='application/json')
 
 class  ProjectItemCreateView(LoginRequiredMixin,JSONResponseMixin, AjaxResponseMixin, View):
     def post_ajax(self, request, *args, **kwargs):

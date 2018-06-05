@@ -108,7 +108,10 @@
 	            <div class="col-sm-7">
 	                <div class="input-group">
 	                    <select id="projectNameSel"  class="form-control" onchange="">
-	                        <option value="">--------请选择--------</option>
+                        	<option value="">--------请选择--------</option>
+                            {% for auditor in auditor_list %}
+                            <option value="{{ auditor.id }}">{{ auditor.name }}</option>
+                            {% endfor %}
 	                    </select>
 	                </div>
 	            </div>
