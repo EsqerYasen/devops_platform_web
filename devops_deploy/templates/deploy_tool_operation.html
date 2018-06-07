@@ -369,7 +369,7 @@ var app_page = new Vue({
                 success: function (data) {
                     layer.closeAll('loading');
                     if(data.status == 200){
-                        window.location.href = "/platform/command_set/"+tool_id+"/execLog?tool_id="+tool_id+"&bind_type="+bind_type+"&name"+name;
+                        window.location.href = "/platform/command_set/"+tool_id+"/execLog?tool_id="+tool_id+"&bind_type="+bind_type+"&name="+name;
                     }else{
                         Alertwin.alert({message:data.msg});
                     }
