@@ -354,9 +354,9 @@ var app_page = new Vue({
             //var commandLineId =  commandLineId }};
             var name = '{{ name }}';
             var reqData = {"command_set_id":command_set_id,'deploy_id':'{{ deploy_id }}','bind_type':bind_type,'tool_id':tool_id,'tool_version':tool_version};
-            //reqData['param'] = params;
+            reqData['param'] = params;
             reqData['bind_type'] = 1
-            reqData['param'] = JSON.stringify({'version_yumc':'/opt/git/version','jira_yumc':'/opt/jira/version'});
+            //reqData['param'] = JSON.stringify({'version_yumc':'/opt/git/version','jira_yumc':'/opt/jira/version'});
             reqData['csrfmiddlewaretoken'] = '{{ csrf_token }}';
             layer.load();
             $.ajax({
