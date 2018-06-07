@@ -29,7 +29,7 @@ class PreSrbListView(LoginRequiredMixin, OrderableListMixin, ListView):
             context['page_obj'] = paginator.page(req.offset)
             context['paginator'] = paginator
         except Exception as e:
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return context
 
 
@@ -48,7 +48,7 @@ class PreSrbCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, 
             categoryItem_list = hu.get(serivceName="presrb", restName="/rest/presrb/categoryItem_list/", datas={})
             context['categoryItem_list'] = categoryItem_list
         except Exception as e:
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return context
 
     def post_ajax(self, request, *args, **kwargs):
@@ -74,7 +74,7 @@ class PreSrbCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, 
         except Exception as e:
             result['status'] = 1
             result['msg'] = '保存异常'
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return HttpResponse(json.dumps(result),content_type='application/json')
 
 
@@ -148,7 +148,7 @@ class  ProjectItemCreateView(LoginRequiredMixin,JSONResponseMixin, AjaxResponseM
         except Exception as a:
             resultJson["status"] = 1
             resultJson["msg"] = "保存应用配置异常"
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return HttpResponse(json.dumps(resultJson), content_type='application/json')
 
 
@@ -166,5 +166,5 @@ class ProjectReportView(LoginRequiredMixin,JSONResponseMixin, AjaxResponseMixin,
         except Exception as a:
             resultJson["status"] = 1
             resultJson["msg"] = "保存应用配置异常"
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return HttpResponse(json.dumps(resultJson), content_type='application/json')

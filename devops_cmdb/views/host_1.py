@@ -70,7 +70,7 @@ class List1View(LoginRequiredMixin, OrderableListMixin, ListView):
             context['page_obj'] = paginator.page(req.offset)
             context['paginator'] = paginator
         except Exception as e:
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return context
 
 
@@ -113,7 +113,7 @@ class Host1Import(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, View)
                 result_json = {"status": 1, "msg":"您有后台任务正在执行导入操作，请稍后操作导入"}
         except Exception as e:
             result_json = {"status": 1,"msg":"导入执行异常"}
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return self.render_json_response(result_json)
 
 
@@ -246,7 +246,7 @@ def importFunction(req,wb):
                     failList.append(d)
 
     except Exception as e:
-        logger.error(e)
+        logger.error(e,exc_info=1)
     finally:
         s = HOST1_IMPORT_STATIC[username]
         s['isImportRun'] = 0
@@ -312,7 +312,7 @@ class Host1BindingGroup(LoginRequiredMixin,JSONResponseMixin, View):
                     result_json['failCount'] = result['fail_count']
                     result_json['successCount'] = result['success_count']
         except Exception as e:
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return self.render_json_response(result_json)
 
 
@@ -333,7 +333,7 @@ class Host1UnbundlingGroup(LoginRequiredMixin,JSONResponseMixin, View):
                     result_json['failCount'] = result['fail_count']
                     result_json['successCount'] = result['success_count']
         except Exception as e:
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return self.render_json_response(result_json)
 
 
@@ -351,7 +351,7 @@ class Host1DeleteView(LoginRequiredMixin,JSONResponseMixin, View):
             if len(result) > 0:
                 result_json = {"status": 0}
         except Exception as e:
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return self.render_json_response(result_json)
 
 class Host1ScanView(LoginRequiredMixin,JSONResponseMixin, View):
@@ -368,7 +368,7 @@ class Host1ScanView(LoginRequiredMixin,JSONResponseMixin, View):
             if len(result) > 0:
                 result_json = {"status": 0}
         except Exception as e:
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return self.render_json_response(result_json)
 
 class Host1ToNotOnlineView(LoginRequiredMixin,JSONResponseMixin, AjaxResponseMixin, View):
@@ -391,5 +391,5 @@ class Host1ToNotOnlineView(LoginRequiredMixin,JSONResponseMixin, AjaxResponseMix
                 result_json['success'] = success
                 result_json['fail'] = fail
         except Exception as e:
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return self.render_json_response(result_json)

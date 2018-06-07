@@ -32,7 +32,7 @@ class DeployToolListView(LoginRequiredMixin, OrderableListMixin, ListView):
             context['page_obj'] = paginator.page(req.offset)
             context['paginator'] = paginator
         except Exception as e:
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return context
 
 
@@ -46,7 +46,7 @@ class DeployToolCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMix
             context['app_info'] = {}
             context['is_add'] = 1
         except Exception as e:
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return context
 
     def post_ajax(self, request, *args, **kwargs):

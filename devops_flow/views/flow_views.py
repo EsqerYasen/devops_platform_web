@@ -84,7 +84,7 @@ class DevopsFlowUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMix
             context['app_info'] = app
             context['is_add'] = 0
         except Exception as e:
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return context
 
     def post_ajax(self, request, *args, **kwargs):
@@ -111,7 +111,7 @@ class DevopsFlowUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMix
         except Exception as e:
             result['status'] = 1
             result['msg'] = '更新异常'
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return HttpResponse(json.dumps(result), content_type='application/json')
 
 
@@ -151,7 +151,7 @@ class DevopsFlowOperationView(LoginRequiredMixin, JSONResponseMixin,AjaxResponse
             context['commandLineId'] = commandLineId
             context['name'] = name
         except Exception as e:
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return context
 
     def post_ajax(self, request, *args, **kwargs):
@@ -215,7 +215,7 @@ class DevopsFlowOperationView(LoginRequiredMixin, JSONResponseMixin,AjaxResponse
         except Exception as e:
             result['status'] = 1
             result['msg'] = '调度异常'
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return HttpResponse(json.dumps(result),content_type='application/json')
 
 class DevopsFlowReportView(LoginRequiredMixin, JSONResponseMixin, AjaxResponseMixin, TemplateView):
