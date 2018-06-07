@@ -16,7 +16,9 @@
                                 <label class="control-label"> 执行历史</label>
                             </div>
                             <div class="row" style="height: 95%;">
-                                <table style="width: 100%;max-height: 100%;text-align:center;overflow-y: auto; ">
+                                <table id="executeRecordListTb" style="width: 100%;max-height: 100%;text-align:center;overflow-y: auto; ">
+                                    <tbody></tbody>
+
                                     {% if job_id %}
 {#                                        <tr>#}
 {#                                            <td style="height:20px">#}
@@ -142,6 +144,32 @@
         clearInterval(sh);
         sh = null;
         sh = setInterval(get_job_output,2000);
+        execute_record_list();
+    }
+
+
+    function execute_record_list(){
+        var deploy_id = $("#deploy_id").val();
+        var bind_type = $("#bind_type").val();
+        if(deploy_id && bind_type) {
+            $.ajax({
+                type: "GET",
+                url: '../executeRecordList/',
+                data: {"deploy_id": deploy_id, "bind_type": bind_type},
+                error: function (error) {
+                    console.log(error);
+                },
+                success: function (data) {
+                    var trhtml = "";
+                    var tb = $("#executeRecordListTb");
+                    tb.empty();
+                    $(data.data).each(function (i, item) {
+                        trhtml += "<tr><td style='height:20px'><a href='javascript:void(0)' onclick=''>" + item.create_time + "</a></tr>"
+                    })
+                    tb.append(trhtml);
+                }
+            })
+        }
     }
 
     function get_job_output(){

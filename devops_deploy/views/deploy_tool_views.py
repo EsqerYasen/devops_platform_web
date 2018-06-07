@@ -133,30 +133,31 @@ class DeployToolOperationView(LoginRequiredMixin, JSONResponseMixin,AjaxResponse
             bind_type = reqData.get('bind_type',0)
             version = reqData.get('version',"")
             getData = {'offset': 0, 'limit': 1000, 'is_enabled': 1}
-            hostgroupResult = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_tree/", datas=getData)
+            hostGroup_list = []
             tool_list_result = hu.get(serivceName="p_job", restName="/rest/tool/list/",datas={'tool_id':tool_id,'tool_version':tool_version,'is_history':-1}) #/rest/job/list_tool_set/
             tool_list = tool_list_result.get("results", [])
             tool = {}
             if len(tool_list) > 0:
-                for tool in tool_list:
-                    if tool['is_public']:
-                        tool['is_public'] = 1
-                    else:
-                        tool['is_public'] = 0
-                    if tool['is_history']:
-                        tool['is_history'] = 1
-                    else:
-                        tool['is_history'] = 0
-                    tool['param'] = json.loads(tool['param'])
-                    # 检查工具中是否有version_yumc 和 jira_yumc 如果存在获取value值
-                    self.get_version(tool['param'])
-
-
-                    del tool['is_enabled']
                 tool = tool_list[0]
+                if int(tool['infom']) == 2:
+                    hostgroupResult = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_tree/", datas=getData)
+                    hostGroup_list = hostgroupResult.get("data", [])
+                if tool['is_public']:
+                    tool['is_public'] = 1
+                else:
+                    tool['is_public'] = 0
+                if tool['is_history']:
+                    tool['is_history'] = 1
+                else:
+                    tool['is_history'] = 0
+                tool['param'] = json.loads(tool['param'])
+                # 检查工具中是否有version_yumc 和 jira_yumc 如果存在获取value值
+                self.get_version(tool['param'])
+                del tool['is_enabled']
+
             context["version"] = version
             context["result_dict"] = {}
-            context['hostGroup_list'] = hostgroupResult.get("data", [])
+            context['hostGroup_list'] = hostGroup_list
             context['tool_info'] = tool
             context['commandId'] = commandId
             context['name'] = name

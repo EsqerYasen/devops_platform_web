@@ -431,6 +431,22 @@ class GetCommandExecuteLogView(LoginRequiredMixin,JSONResponseMixin, AjaxRespons
             logger.error(e,exc_info=1)
         return self.render_json_response(result_json)
 
+class GetCommandExecuteRecord(LoginRequiredMixin,JSONResponseMixin, AjaxResponseMixin, View):
+    def get_ajax(self, request, *args, **kwargs):
+        result_json = {"status": 200}
+        try:
+            req = self.request
+            hu = HttpUtils(req)
+            exec_id = req.GET.get("exec_id", None)
+            type = req.GET.get("type", None)
+            execRecordResult = hu.get(serivceName="job", restName="/rest/tool/execRecordList/",datas={'exec_id': exec_id, 'type': type})
+            list = execRecordResult.get("results", [])
+            result_json['data'] = list
+        except Exception as e:
+            result_json['status'] = 500
+            logger.error(e,exc_info=1)
+        return self.render_json_response(result_json)
+
 
 class GetCommandExecuteJobIdView(LoginRequiredMixin,JSONResponseMixin, AjaxResponseMixin, View):
     def get_ajax(self, request, *args, **kwargs):
