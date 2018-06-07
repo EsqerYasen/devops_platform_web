@@ -157,27 +157,32 @@
                       sh = null;
                   },
                   success: function (data) {
-                     var jsonObj = data.log_info;
-                     var textArea = $("#textarea_log");
-                     textArea.text("");
-                     textArea.append("");
-                     var status = jsonObj["status"];
-                     if(status != 1){
-                        var classStr = "";
-                        var span = $("#1"+jsonObj['job_id']).removeClass();
-                        $("#stopBtn").css({"display":"none"});
-                        if(status == 2){
-                            span.addClass("glyphicon glyphicon-ok");
-                            span.css({'color':'green'});
-                        }else{
-                            span.addClass("glyphicon glyphicon-remove");
-                            span.css({'color':'red'});
-                        }
-                        $("#"+jsonObj['job_id']).addClass(classStr);
-                        clearInterval(sh);
-                        $("#log_modal_img").hide();
-                        sh = null;
-                     }
+                      if(data.status == 200){
+                          var textArea = $("#textarea_log");
+                          textArea.text("");
+                          textArea.append(data.log_str);
+                      }else{
+                          clearInterval(sh);
+                          sh = null;
+                      }
+
+{#                      var status = jsonObj["status"];#}
+{#                      if(status != 1){#}
+{#                          var classStr = "";#}
+{#                          var span = $("#1"+jsonObj['job_id']).removeClass();#}
+{#                          $("#stopBtn").css({"display":"none"});#}
+{#                          if(status == 2){#}
+{#                              span.addClass("glyphicon glyphicon-ok");#}
+{#                              span.css({'color':'green'});#}
+{#                          }else{#}
+{#                              span.addClass("glyphicon glyphicon-remove");#}
+{#                              span.css({'color':'red'});#}
+{#                          }#}
+{#                          $("#"+jsonObj['job_id']).addClass(classStr);#}
+{#                          clearInterval(sh);#}
+{#                          $("#log_modal_img").hide();#}
+{#                          sh = null;#}
+{#                      }#}
                   }
             });
         }else{
