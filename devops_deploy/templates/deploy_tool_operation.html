@@ -346,14 +346,18 @@ var app_page = new Vue({
             if(!this.checkForm())return;
             var formData = this.formData;
             var tool_info = this.tool_info;
-            //var params = tool_info.param;
             var tool_id = tool_info.tool_id;
             var tool_version = tool_info.tool_version;
             var command_set_id = {{ commandId }};
             var bind_type = {{ bind_type }}
-            //var commandLineId =  commandLineId }};
             var name = '{{ name }}';
             var reqData = {"command_set_id":command_set_id,'deploy_id':'{{ deploy_id }}','bind_type':bind_type,'tool_id':tool_id,'tool_version':tool_version};
+            $(tool_info.param).each(function(i,item){
+                if(!item.value){
+                     Alertwin.alert({message:item.paramNameZh+" 未填写"});
+                     return false;
+                }
+            })
             reqData['param'] = JSON.stringify(tool_info.param);
             reqData['bind_type'] = 1
             //reqData['param'] = JSON.stringify({'version_yumc':'/opt/git/version','jira_yumc':'/opt/jira/version'});
