@@ -408,11 +408,12 @@ class GetCommandExecuteLogView(LoginRequiredMixin,JSONResponseMixin, AjaxRespons
             bind_type = req.GET.get("bind_type", None)
             log_str = ""
             if deploy_id and bind_type:
-                if RedisBase.get("%s_%s" % (deploy_id, bind_type), 1) is None:
+                log_k = "%s_%s_log" % (deploy_id, bind_type)
+                if RedisBase.get("%s_%s" % (deploy_id, bind_type), 1) is not None or RedisBase.exists(log_k,1):
                     log_l = RedisBase.llen('list_test', 1)
                     if log_l:
                         for i in range(log_l):
-                            log_str += RedisBase.rpop("%s_%s_log" % (deploy_id, bind_type), 1)
+                            log_str += RedisBase.rpop(log_k, 1)
                     result_json['log_str'] = log_str
                     result_json['status'] = 200
                 else:

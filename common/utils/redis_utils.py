@@ -113,6 +113,17 @@ class RedisBase(object):
         finally:
             redisConn = None
 
+    @staticmethod
+    def exists(redisKey,db):
+        redisConn = None
+        try:
+            redisConn = RedisBase.getConnection(db)
+            return redisConn.exists(redisKey)
+        except Exception as e:
+            logger.error(msg="Rpop redis key failed: {ex}".format(ex=str(ex)))
+            return False
+        finally:
+            redisConn = None
 
     @staticmethod
     def delete(redisKey,db=0):
