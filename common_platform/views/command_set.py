@@ -396,7 +396,7 @@ class CommandExecuteLogView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMi
         try:
             pass
         except Exception as e:
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return HttpResponse(json.dumps(resultJson), content_type='application/json')
 
 class GetCommandExecuteLogView(LoginRequiredMixin,JSONResponseMixin, AjaxResponseMixin, View):
@@ -409,8 +409,11 @@ class GetCommandExecuteLogView(LoginRequiredMixin,JSONResponseMixin, AjaxRespons
             log_str = ""
             if deploy_id and bind_type:
                 log_k = "%s_%s_log" % (deploy_id, bind_type)
-                r_v1 = str(RedisBase.get("%s_%s" % (deploy_id, bind_type), 1),encoding="utf-8")
+                r_v1 = RedisBase.get("%s_%s" % (deploy_id, bind_type),1)
+                if r_v1:
+                    r_v1 = str(r_v1,encoding="utf-8")
                 r_v2 = RedisBase.exists(log_k,1)
+
                 if r_v1 is not None or r_v2:
                     log_l = RedisBase.llen(log_k, 1)
                     if log_l:
@@ -425,7 +428,7 @@ class GetCommandExecuteLogView(LoginRequiredMixin,JSONResponseMixin, AjaxRespons
                 result_json['status'] = 500
         except Exception as e:
             result_json['status'] = 500
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return self.render_json_response(result_json)
 
 
@@ -439,7 +442,7 @@ class GetCommandExecuteJobIdView(LoginRequiredMixin,JSONResponseMixin, AjaxRespo
             log_info = hu.get(serivceName="job", restName="/rest/job/list_history/", datas={'set_id':setId,'status':1})
             result_json['log_info'] = log_info
         except Exception as e:
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return self.render_json_response(result_json)
 
 
@@ -453,7 +456,7 @@ class CommandExecuteStop(LoginRequiredMixin,JSONResponseMixin, AjaxResponseMixin
             log_info = hu.get(serivceName="job", restName="/rest/job/stop/", datas={'job_id': jobId})
             result_json['log_info'] = log_info
         except Exception as e:
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return self.render_json_response(result_json)
 
 
@@ -469,5 +472,5 @@ class ToolSetListView(LoginRequiredMixin,JSONResponseMixin, AjaxResponseMixin, V
                 tool['param'] = json.loads(tool['param'])
             result_json['data'] = tool_list
         except Exception as e:
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return self.render_json_response(result_json)
