@@ -416,7 +416,7 @@ class GetCommandExecuteLogView(LoginRequiredMixin,JSONResponseMixin, AjaxRespons
                     log_l = RedisBase.llen(log_k, 1)
                     if log_l:
                         for i in range(log_l):
-                            log_str += RedisBase.rpop(log_k, 1)
+                            log_str += str(RedisBase.rpop(log_k, 1),encoding="utf-8")
                     result_json['log_str'] = log_str
                     result_json['status'] = 200
                 else:
