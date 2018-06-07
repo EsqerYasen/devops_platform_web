@@ -55,6 +55,7 @@ class DevopsToolsCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMi
             reqData = hu.getRequestParam()
             script_lang_dict = {'shell':'sh','python':'py','yaml':'yaml'}
             if reqData:
+                logger.info("DevopsToolsCreateView.post_ajax reqData:%s" % (reqData))
                 tool_set_prime_type = reqData.get("tool_set_prime_type",None)
                 tool_set_type = reqData.get("tool_set_type",None)
                 if tool_set_prime_type and tool_set_type:
@@ -136,6 +137,7 @@ class DevopsToolsUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMi
             hu = HttpUtils(self.request)
             reqData = hu.getRequestParam()
             if reqData:
+                logger.info("DevopsToolsUpdateView.post_ajax reqData:%s" % (reqData))
                 tool_set_prime_type = reqData.get("tool_set_prime_type", None)
                 tool_set_type = reqData.get("tool_set_type", None)
                 if tool_set_prime_type and tool_set_type:
@@ -147,7 +149,7 @@ class DevopsToolsUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMi
                             f.write(command)
                             reqData['command'] = fileName
                         except Exception as e:
-                            logger.error(e)
+                            logger.error(e,exc_info=1)
                         finally:
                             f.close()
                     addResult = hu.post(serivceName="job", restName="/rest/job/update_tool_set/", datas=reqData)
@@ -168,7 +170,7 @@ class DevopsToolsUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMi
         except Exception as e:
             result['status'] = 1
             result['msg'] = '更新异常'
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return HttpResponse(json.dumps(result),content_type='application/json')
 
 class DevopsToolsDeleteView(LoginRequiredMixin,JSONResponseMixin, View):
