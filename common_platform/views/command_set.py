@@ -411,7 +411,7 @@ class GetCommandExecuteLogView(LoginRequiredMixin,JSONResponseMixin, AjaxRespons
                 log_k = "%s_%s_log" % (deploy_id, bind_type)
                 r_v1 = RedisBase.get("%s_%s" % (deploy_id, bind_type), 1)
                 r_v2 = RedisBase.exists(log_k,1)
-                logger.info("r_v1:%s  r_v2:%s")
+                logger.info("r_v1:%s  r_v2:%s" %(r_v1,r_v2))
                 if r_v1 is not None or r_v2:
                     log_l = RedisBase.llen(log_k, 1)
                     if log_l:
