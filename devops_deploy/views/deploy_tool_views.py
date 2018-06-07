@@ -139,10 +139,17 @@ class DeployToolOperationView(LoginRequiredMixin, JSONResponseMixin,AjaxResponse
             tool = {}
             if len(tool_list) > 0:
                 for tool in tool_list:
+                    if tool['is_public']:
+                        tool['is_public'] = 1
+                    else:
+                        tool['is_public'] = 0
+                    if tool['is_history']:
+                        tool['is_history'] = 1
+                    else:
+                        tool['is_history'] = 0
                     tool['param'] = json.loads(tool['param'])
                     # 检查工具中是否有version_yumc 和 jira_yumc 如果存在获取value值
-
-
+                    self.get_version(tool['param'])
 
 
                     del tool['is_enabled']
@@ -156,8 +163,31 @@ class DeployToolOperationView(LoginRequiredMixin, JSONResponseMixin,AjaxResponse
             context['deploy_id'] = id
             context['bind_type'] = bind_type
         except Exception as e:
-            logger.error(e)
+            logger.error(e, exc_info=1)
         return context
+
+    def get_version(self,p_list):
+        if p_list:
+            for p in p_list:
+                if p.get("paramNameZh",None) == 'version_yumc' or p.get("paramNameZh",None) == 'jira_yumc':
+                    v = p['value']
+                    if v:
+                        if v.startswith('http'):
+                            pass
+                        else:
+                            try:
+                                v_f = open(v, 'r')
+                                p['value'] = v_f.readline()
+                            except Exception as e:
+                                p['value'] = ''
+                                logger.error(e,exc_info=1)
+                            finally:
+                                if v_f:
+                                    v_f.close()
+
+
+
+
 
     def post_ajax(self, request, *args, **kwargs):
         result = {'status': 0}

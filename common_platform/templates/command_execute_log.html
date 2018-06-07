@@ -56,8 +56,8 @@
                         <div class="col-sm-10" style="border-style: groove;height: 100%;">
                            <div class="row" style="height: 5%;">
                                 <label class="col-sm-2 control-label"> 执行日志</label>
-                               <input id="command_set_id" type="hidden" value="{{ set_id }}"/>
-                               <input id="command_job_id" type="hidden" value="{{ job_id }}"/>
+                               <input id="deploy_id" type="hidden" value="{{ deploy_id }}"/>
+                               <input id="bind_type" type="hidden" value="{{ bind_type }}"/>
                            </div>
                             <div class="row logbox ibox-content" style="width:100%;">
                                 <div class="row" style="height:20px;">
@@ -145,12 +145,13 @@
     }
 
     function get_job_output(){
-        var job_id = $("#command_job_id").val()
-        if(job_id){
+        var deploy_id = $("#deploy_id").val();
+        var bind_type = $("#bind_type").val();
+        if(deploy_id && bind_type){
             $.ajax({
                   type: "GET",
                   url: '../getExecLog/',
-                  data:{"jobId":job_id},
+                  data:{"deploy_id":deploy_id,"bind_type":bind_type},
                   error: function (request) {
                       clearInterval(sh);
                       sh = null;
@@ -159,23 +160,7 @@
                      var jsonObj = data.log_info;
                      var textArea = $("#textarea_log");
                      textArea.text("");
-                     if(jsonObj){
-                        var steps = jsonObj["command_steps"]
-                         $(steps).each(function(i,item){
-                             textArea.append("----------------------------------------------------------------"+item.name+"-----------------------------------------------------------------\n");
-                             var lines = item["command_lines"];
-                             var success_count = 0;
-                             var fail_count = 0;
-                             $(lines).each(function(i2,item2){
-                                success_count = item2['success_count'];
-                                fail_count = item2['fail_count'];
-                                textArea.append(item2["result_message"]);
-                                textArea.append("\n***********************\n")
-                             })
-                             textArea.append("成功："+success_count+"台    失败："+fail_count+"台\n");
-                             textArea.append("----------------------------------------------------------------------------------------------------------------------------------------------\n");
-                         })
-                     }
+                     textArea.append("");
                      var status = jsonObj["status"];
                      if(status != 1){
                         var classStr = "";
@@ -202,14 +187,14 @@
         }
     }
 
-    function showLogInfo(jobId){
+    function showLogInfo(deploy_id,bind_type){
          clearInterval(sh);
          $("#log_modal_img").hide();
          sh = null;
         $.ajax({
             type: "GET",
             url: '../getExecLog/',
-            data:{"jobId":jobId},
+            data:{"deploy_id":deploy_id,"bind_type":bind_type},
             error: function (request) {},
             success: function (data) {
                 var jsonObj = data.log_info;

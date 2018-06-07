@@ -380,21 +380,12 @@ class CommandExecuteLogView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMi
         context = super(CommandExecuteLogView, self).get_context_data(**kwargs)
         try:
             req = self.request
-            setId = req.GET.get("setId","")
-            jobId = req.GET.get("jobId","")
+            deploy_id = req.GET.get("deploy_id","")
+            bind_type = req.GET.get("bind_type","")
             name = req.GET.get("name",'')
-            hu = HttpUtils(req)
-            historyResults = []
-            log_info = {}
-            if setId:
-                historyResults = hu.get(serivceName="job", restName="/rest/job/list_history/", datas={'set_id':setId,'count':50})
-            # if jobId:
-            #     log_info = hu.get(serivceName="job", restName="/rest/job/list_history/", datas={'job_id': jobId})
-            context['list_history'] = historyResults
-            #context['log_info'] = log_info
             context['name'] = name
-            context['set_id'] = setId
-            context['job_id'] = jobId
+            context['deploy_id'] = deploy_id
+            context['bind_type'] = bind_type
         except Exception as e:
             logger.error(e)
         return context
@@ -413,8 +404,9 @@ class GetCommandExecuteLogView(LoginRequiredMixin,JSONResponseMixin, AjaxRespons
         try:
             req = self.request
             hu = HttpUtils(req)
-            jobId = req.GET.get("jobId", None)
-            log_info = hu.get(serivceName="job", restName="/rest/job/list_history/", datas={'job_id': jobId})
+            deploy_id = req.GET.get("deploy_id", None)
+            bind_type = req.GET.get("bind_type", None)
+            log_info = hu.get(serivceName="job", restName="/rest/job/list_history/", datas={'deploy_id': deploy_id})
             result_json['log_info'] = log_info
         except Exception as e:
             logger.error(e)
