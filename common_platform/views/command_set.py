@@ -439,7 +439,7 @@ class GetCommandExecuteRecord(LoginRequiredMixin,JSONResponseMixin, AjaxResponse
             hu = HttpUtils(req)
             exec_id = req.GET.get("exec_id", None)
             type = req.GET.get("type", None)
-            execRecordResult = hu.get(serivceName="job", restName="/rest/tool/execRecordList/",datas={'exec_id': exec_id, 'type': type})
+            execRecordResult = hu.get(serivceName="p_job", restName="/rest/tool/execRecordList/",datas={'exec_id': exec_id, 'type': type})
             list = execRecordResult.get("results", [])
             result_json['data'] = list
         except Exception as e:
