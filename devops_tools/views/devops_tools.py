@@ -68,6 +68,7 @@ class DevopsToolsCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMi
                             if not os.path.exists(toolScriptPath):
                                 os.makedirs(toolScriptPath)
                             fileName = "%s%s.%s" % (toolScriptPath, int(round(t * 1000)),script_lang_dict[script_lang])
+                            logger.info("DevopsToolsCreateView.post_ajax fileName:%s" % (fileName))
                             f = open(fileName, 'w')
                             f.write(command)
                             f.close()
@@ -75,10 +76,11 @@ class DevopsToolsCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMi
                             reqData['command'] = fileName
                         except Exception as e:
                             f.close()
-                            logger.error(e)
+                            logger.error(e,exc_info=1)
 
                     addResult = hu.post(serivceName="job", restName="/rest/job/add_tool_set/", datas=reqData)
                     addResultJson = addResult.json()
+                    logger.info("DevopsToolsCreateView.post_ajax add_tool_set:%s" % (addResultJson))
                     if addResultJson['status'] == 'SUCCESS':
                         result['status'] = 0
                         result['msg'] = '保存成功'
@@ -95,7 +97,7 @@ class DevopsToolsCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMi
         except Exception as e:
             result['status'] = 1
             result['msg'] = '保存异常'
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return HttpResponse(json.dumps(result),content_type='application/json')
 
 
