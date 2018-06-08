@@ -32,7 +32,7 @@
                         </div>
                         {% endif %}
                         <div class="form-group" v-for="parm in tool_info.param">
-                             <label class="col-sm-2 control-label"><span class="red"></span> {% verbatim %}{{ parm.paramNameZh }}{% endverbatim %}</label>
+                             <label class="col-sm-2 control-label"><span class="red"></span> {% verbatim %}{{ parm.paramNameZh|filterVersion }}{% endverbatim %}</label>
                              <div class="col-sm-10" v-if="parm.type === 'text'">
                                   <input type="text" class="form-control text_ar" v-model="parm.value" :placeholder="parm.desc">
                              </div>
@@ -317,6 +317,17 @@ var app_page = new Vue({
 
         },
         tool_info: {{tool_info|safe }}
+    },
+    filters:{
+        filterVersion:function(str){
+            if(str === 'version_yumc'){
+                return 'version';
+            }
+            if(str === 'jira_yumc'){
+                return 'jira';
+            }
+           return str;
+        }
     },
     methods:{
           changeValue:function(obj){
