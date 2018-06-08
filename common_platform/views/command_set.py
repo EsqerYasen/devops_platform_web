@@ -436,7 +436,7 @@ class GetCommandExecuteLogView(LoginRequiredMixin,JSONResponseMixin, AjaxRespons
                     r_v2 = RedisBase.exists(log_k,1)
                     logger.info("-----------r_v1:%s" % (r_v1))
                     if r_v1 is not None or r_v2:
-                        r_v1_json= json.loads(r_v1.replace("'",'"'))
+                        r_v1_json= json.loads(r_v1.replace("'",'"').replace("False",'0').replace("True",'1'))
                         log_list = RedisBase.lrange(redisKey=log_k,start=log_index,db=1)
                         if log_list:
                             logger.info("log_list:%s" % (log_list))
