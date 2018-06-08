@@ -178,7 +178,7 @@ class DeployToolOperationView(LoginRequiredMixin, JSONResponseMixin,AjaxResponse
                         else:
                             try:
                                 v_f = open(v, 'r')
-                                p['value'] = v_f.readline().replace("\r",'"').replace("False",'\n')
+                                p['value'] = v_f.readline().replace("\r",'').replace("\n",'')
                             except Exception as e:
                                 p['value'] = ''
                                 logger.error(e,exc_info=1)
