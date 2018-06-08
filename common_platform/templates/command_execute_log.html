@@ -165,7 +165,7 @@
                     var tb = $("#executeRecordListTb");
                     tb.empty();
                     $(data.data).each(function (i, item) {
-                        trhtml += "<tr><td style='height:20px'><a href='javascript:void(0)' onclick='showLogInfo("+deploy_id+","+bind_type+","+item.id+")'>" + item.create_time + "</a></tr>"
+                        trhtml += "<tr><td style='height:20px'><a href='javascript:void(0)' onclick='showLogInfo("+deploy_id+","+bind_type+","+item.id+")'>" + item.exec_num+"_"+item.create_time + "</a></tr>"
                     })
                     tb.append(trhtml);
                 }
