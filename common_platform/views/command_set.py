@@ -418,7 +418,7 @@ class GetCommandExecuteLogView(LoginRequiredMixin,JSONResponseMixin, AjaxRespons
                         execRecord = list[0]
                         path = execRecord['path']
                         tool_list = execRecord['parameter']
-                        result_json['tool_list'] = son.loads(tool_list)
+                        result_json['tool_list'] = json.loads(tool_list)
                         log_f = open(path+"exec.log","r")
                         for line in log_f.readlines():
                             log_str += line
