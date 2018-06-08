@@ -404,26 +404,51 @@ class GetCommandExecuteLogView(LoginRequiredMixin,JSONResponseMixin, AjaxRespons
         result_json = {"status": 200}
         try:
             req = self.request
+            id = req.GET.get("id", None)
             deploy_id = req.GET.get("deploy_id", None)
             bind_type = req.GET.get("bind_type", None)
+            log_index = int(req.GET.get("log_index", 0))
             log_str = ""
             if deploy_id and bind_type:
-                log_k = "%s_%s_log" % (deploy_id, bind_type)
-                r_v1 = RedisBase.get("%s_%s" % (deploy_id, bind_type),1)
-                if r_v1:
-                    r_v1 = str(r_v1,encoding="utf-8")
-                r_v2 = RedisBase.exists(log_k,1)
-
-                if r_v1 is not None or r_v2:
-                    log_l = RedisBase.llen(log_k, 1)
-                    if log_l:
-                        logger.info("log_l:%s" % (log_l))
-                        for i in range(log_l):
-                            log_str += str(RedisBase.rpop(log_k, 1),encoding="utf-8")+"\n"
-                    result_json['log_str'] = log_str
-                    result_json['status'] = 200
+                if id:
+                    execRecordResult = hu.get(serivceName="p_job", restName="/rest/tool/execRecordList/",
+                                              datas={'id': id, 'type': type})
+                    list = execRecordResult.get("results", [])
+                    if len(list):
+                        execRecord = list[0]
+                        path = execRecord['path']
+                        tool_list = execRecord['parameter']
+                        result_json['tool_list'] = son.loads(tool_list)
+                        log_f = open(path+"exec.log","r")
+                        for line in log_f.readlines():
+                            log_str += line
+                        result_json['log_str'] = log_str
+                        result_json['tool_list'] = r_v1_json['tool_list']
+                        result_json['status'] = 500
+                    else:
+                        result_json['log_str'] = "未查询到相关记录"
+                        result_json['status'] = 500
                 else:
-                    result_json['status'] = 500
+                    log_k = "%s_%s_log" % (deploy_id, bind_type)
+                    r_v1 = RedisBase.get("%s_%s" % (deploy_id, bind_type),1)
+                    if r_v1:
+                        r_v1 = str(r_v1,encoding="utf-8")
+                    r_v2 = RedisBase.exists(log_k,1)
+
+                    if r_v1 is not None or r_v2:
+                        r_v1_json= json.loads(r_v1)
+                        log_list = RedisBase.lrange(redisKey=log_k,start=log_index,db=1)
+                        if log_list:
+                            logger.info("log_list:%s" % (log_list))
+                            for log in log_list:
+                                log_index += 1
+                                log_str += str(log,encoding="utf-8")+"\n"
+                        result_json['log_str'] = log_str
+                        result_json['tool_list']=r_v1_json['tool_list']
+                        result_json['log_index'] = log_index
+                        result_json['status'] = 200
+                    else:
+                        result_json['status'] = 500
             else:
                 result_json['status'] = 500
         except Exception as e:

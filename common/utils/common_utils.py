@@ -1,5 +1,5 @@
 from django.forms.models import model_to_dict
-import os,shutil,random,hashlib
+import os,shutil,random,hashlib,glob
 
 def version_calc(calc_version, carry_bit=20):
     """
@@ -148,3 +148,7 @@ def getClassAttrToDict(object,d):
         if hasattr(object, k) and v:
             result[k] = v
     return result
+
+
+def search_all_files_return_by_time_reversed(path, suffix='',reverse=True):
+    return sorted(glob.glob(os.path.join(path, '*.sh')), key=lambda x: time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(os.path.getctime(x))), reverse=reverse)

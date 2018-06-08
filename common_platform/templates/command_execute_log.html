@@ -60,6 +60,7 @@
                                 <label class="col-sm-2 control-label"> 执行日志</label>
                                <input id="deploy_id" type="hidden" value="{{ deploy_id }}"/>
                                <input id="bind_type" type="hidden" value="{{ bind_type }}"/>
+                               <input id="log_index" type="hidden" value="0"/>
                            </div>
                             <div class="row logbox ibox-content" style="width:100%;">
                                 <div class="row" style="height:20px;">
@@ -164,7 +165,7 @@
                     var tb = $("#executeRecordListTb");
                     tb.empty();
                     $(data.data).each(function (i, item) {
-                        trhtml += "<tr><td style='height:20px'><a href='javascript:void(0)' onclick=''>" + item.create_time + "</a></tr>"
+                        trhtml += "<tr><td style='height:20px'><a href='javascript:void(0)' onclick='showLogInfo("+deploy_id+","+bind_type+","+item.id+")'>" + item.create_time + "</a></tr>"
                     })
                     tb.append(trhtml);
                 }
@@ -175,11 +176,12 @@
     function get_job_output(){
         var deploy_id = $("#deploy_id").val();
         var bind_type = $("#bind_type").val();
+        var log_index = $("#log_index").val();
         if(deploy_id && bind_type){
             $.ajax({
                   type: "GET",
                   url: '../getExecLog/',
-                  data:{"deploy_id":deploy_id,"bind_type":bind_type},
+                  data:{"deploy_id":deploy_id,"bind_type":bind_type,"log_index":log_index},
                   error: function (request) {
                       clearInterval(sh);
                       sh = null;
@@ -187,6 +189,7 @@
                   success: function (data) {
                       if(data.status == 200){
                           var log_str = data.log_str;
+                          $("#log_index").val(data.log_index);
                           if(log_str && log_str != ""){
                               var textArea = $("#textarea_log");
                               textArea.append(data.log_str);
@@ -222,36 +225,27 @@
         }
     }
 
-    function showLogInfo(deploy_id,bind_type){
+    function showLogInfo(deploy_id,bind_type,id){
          clearInterval(sh);
          $("#log_modal_img").hide();
          sh = null;
         $.ajax({
             type: "GET",
             url: '../getExecLog/',
-            data:{"deploy_id":deploy_id,"bind_type":bind_type},
+            data:{"deploy_id":deploy_id,"bind_type":bind_type,"id":id},
             error: function (request) {},
             success: function (data) {
-                var jsonObj = data.log_info;
-                var textArea = $("#textarea_log");
-                textArea.text("");
-                if(jsonObj){
-                    var steps = jsonObj["command_steps"]
-                     $(steps).each(function(i,item){
-                         textArea.append("----------------------------------------------------------------"+item.name+"-----------------------------------------------------------------\n");
-                         var lines = item["command_lines"]
-                         var success_count = 0;
-                         var fail_count = 0;
-                         $(lines).each(function(i2,item2){
-                            success_count = item2['success_count'];
-                            fail_count = item2['fail_count'];
-                            textArea.append(item2["result_message"]);
-                            textArea.append("\n***********************\n")
-                         })
-                         textArea.append("成功："+success_count+"台    失败："+fail_count+"台\n");
-                         textArea.append("----------------------------------------------------------------------------------------------------------------------------------------------\n");
-                     })
-                }
+                 if(data.status == 200){
+                      var log_str = data.log_str;
+                      if(log_str && log_str != ""){
+                          var textArea = $("#textarea_log");
+                          textArea.append(data.log_str);
+                      }
+                 }else{
+                      $("#log_modal_img").hide();
+                      clearInterval(sh);
+                      sh = null;
+                 }
             }
         });
     }
