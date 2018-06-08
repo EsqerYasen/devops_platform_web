@@ -112,7 +112,9 @@
 											    <label ><span class="red">*</span> 类型</label>
 					                            <select class="form-control" style="min-width: 150px" v-model="p.type">
                                                   <option value="text">字符</option>
-                                                     <option value="select">枚举</option>
+                                                     <option value="select">单选</option>
+                                                    <option value="multiple">多选</option>
+                                                    <option value="path">PATH</option>
                                                   <!--
 												  <option value="textshell">shell脚本</option>
                                                   <option value="select">下拉框</option>
@@ -122,17 +124,26 @@
 												</select>
 				                            </div>
 
+                                                <div class="fl pabx" v-if="p.type =='text'">
+                                                        <label> 默认值</label>
+                                                        <input class="form-control" style="width: 150px" v-model="p.value"/>
+                                                    </div>
+                                                <div class="fl pabx" v-if="p.type =='path'">
+                                                        <label><span class="red">*</span> URL</label>
+                                                        <input class="form-control" style="width: 150px" v-model="p.value"/>
+                                                    </div>
 				                            <div class="fl pabx">
 											    <label ><span class="red">*</span> 描述</label>
-                                                <textarea v-if="p.type=='select'" type="text" class="form-control" style="width: 250px" v-model="p.desc"></textarea>
-                                                <input v-if="p.type=='text'" type="text" class="form-control" style="width: 250px" v-model="p.desc"/>
+                                                <textarea v-if="p.type=='select'||p.type=='multiple'" type="text" class="form-control" style="width: 250px" v-model="p.desc"></textarea>
+                                                <input v-if="p.type=='text'||p.type=='path'" type="text" class="form-control" style="width: 250px" v-model="p.desc"/>
 				                            </div>
-				                             <div class="" style="display: block;width: 100%;clear: both;padding: 10px;" v-if="p.type === 'select'">
+
+				                             <div class="" style="display: block;width: 100%;clear: both;padding: 10px;" v-if="p.type === 'select'|| p.type === 'multiple'">
 			                                    <hr style="margin: 5px 10px;">
 		                                    </div>
 
 
-				                            <div class="form-group" v-if="p.type === 'select'" style="padding-left: 30px;padding-right: 30px">
+				                            <div class="form-group" v-if="p.type === 'select' || p.type === 'multiple'" style="padding-left: 30px;padding-right: 30px">
 	                                             <transition name="bounce">
 				                                    <transition-group name="list" >
 		                                                <div class="parmabox clear1" style="position: relative;" v-for="(vs, i) in p.valueSet" :key="i">
@@ -150,8 +161,8 @@
 	                                             </transition>
                                             </div>
 
-				                                <div class="clear1 add_button col-sm-12 parmabox mj_btn" v-if="p.type === 'select'">
-                                                <span @click="addValueSet(p)">+添加枚举值</span>
+				                                <div class="clear1 add_button col-sm-12 parmabox mj_btn" v-if="p.type === 'select'|| p.type === 'multiple'">
+                                                <span @click="addValueSet(p)">+添加可选值</span>
                                             </div>
 
 

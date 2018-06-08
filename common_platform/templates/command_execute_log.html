@@ -194,6 +194,10 @@
                               var textArea = $("#textarea_log");
                               textArea.append(data.log_str);
                           }
+                          $('pre,div').each(function(){
+                              $(this)[0].scrollTop = $(this)[0].scrollHeight
+                          });
+                          $(document).scrollTop($(document).height()-$(window).height());
                       }else{
                           $("#log_modal_img").hide();
                           clearInterval(sh);
