@@ -418,12 +418,11 @@ class GetCommandExecuteLogView(LoginRequiredMixin,JSONResponseMixin, AjaxRespons
                         execRecord = list[0]
                         path = execRecord['path']
                         tool_list = execRecord['parameter']
-                        result_json['tool_list'] = json.loads(tool_list)
+                        #result_json['tool_list'] = json.loads(tool_list)
                         log_f = open(path+"exec.log","r")
                         for line in log_f.readlines():
                             log_str += line
                         result_json['log_str'] = log_str
-                        result_json['tool_list'] = r_v1_json['tool_list']
                         result_json['status'] = 500
                     else:
                         result_json['log_str'] = "未查询到相关记录"
@@ -444,7 +443,7 @@ class GetCommandExecuteLogView(LoginRequiredMixin,JSONResponseMixin, AjaxRespons
                                 log_index += 1
                                 log_str += str(log,encoding="utf-8")+"\n"
                         result_json['log_str'] = log_str
-                        result_json['tool_list']=r_v1_json['tool_list']
+                        #result_json['tool_list']=r_v1_json['tool_list']
                         result_json['log_index'] = log_index
                         result_json['status'] = 200
                     else:
