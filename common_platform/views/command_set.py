@@ -411,6 +411,7 @@ class GetCommandExecuteLogView(LoginRequiredMixin,JSONResponseMixin, AjaxRespons
             log_str = ""
             if deploy_id and bind_type:
                 if id:
+                    hu = HttpUtils(request)
                     execRecordResult = hu.get(serivceName="p_job", restName="/rest/tool/execRecordList/",
                                               datas={'id': id, 'type': type})
                     list = execRecordResult.get("results", [])
