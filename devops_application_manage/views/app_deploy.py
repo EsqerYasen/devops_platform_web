@@ -235,6 +235,7 @@ class DevopsAppMgeDeployView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseM
             reqData = hu.getRequestParam()
             bind_type = int(reqData['bind_type'])
             infom = int(reqData['infom'])
+            script_lang = reqData['script_lang']
             param = reqData.get('param', None)
             remarks = reqData.get('remarks')
             if param:
@@ -244,7 +245,7 @@ class DevopsAppMgeDeployView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseM
                     tool_version = reqData.get('tool_version')
                     if tool_id and tool_version:
                         bool = True
-                        if infom == 2:
+                        if infom == 2 or script_lang == 'yaml':
                             param = json.loads(param)
                             target_type = int(reqData['target_type'])
                             if target_type == 1:
