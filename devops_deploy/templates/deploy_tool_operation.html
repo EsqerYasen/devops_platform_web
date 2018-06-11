@@ -45,11 +45,18 @@
                                       <option  v-for="v in parm.valueSet" :value="v.name" v-html="v.name"></option>
                                   </select>
                              </div>
-                             <div class="col-sm-10" class="checkbox" style="margin:10px;" v-if="parm.type === 'multiple'">
-                                  <label v-for="it in parm.valueSet" style="margin-right:15px;">
-                                      <span>{% verbatim %}{{ it.name }}--{{ it.desc }}{% endverbatim %}</span>
+                             <div class="col-sm-10" class="checkbox" style="margin-top:10px;" v-if="parm.type === 'multiple'">
+                                  <label v-for="(it, i) in parm.valueSet" style="margin-right:15px;">
                                       <input style="margin-top:-15px;" @click.sync="changeValue2(parm, it)" type="checkbox" :value="it.name" v-model="it.checked"/>
-                                  </label>
+                                        <span>{% verbatim %}{{ it.name }}{% endverbatim %}</span>
+                                      <div class="showinfowenhao" :class="{active:i===parm.activeIndex}">
+                                          <i @mouseover="changeActiveIndex(parm, i)" @mouseout="removeActiveIndex(parm)"  class="yum-font icon-wenhao" style="font-size: 17px; cursor: pointer; margin-left: 10px; margin-right: 10px;"></i>
+                                          <div class="popcovera" >
+                                              <div class="jiao"></div>
+                                              <div class="cont" v-html="it.desc"></div>
+                                          </div>
+                                      </div>
+                                           </label>
                              </div>
                         </div>
                         <div class="form-group">
@@ -343,6 +350,13 @@ var app_page = new Vue({
                 })
               }
           },
+            changeActiveIndex: function(parm, i){
+                //parm.activeIndex = i;
+                Vue.set(parm, 'activeIndex', i);
+            },
+         removeActiveIndex: function(parm){
+                parm.activeIndex = -1;
+            },
           changeValue2:function(obj, it){
             obj.value = [];
             it.checked = !it.checked;
