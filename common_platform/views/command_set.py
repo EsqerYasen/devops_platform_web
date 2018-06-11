@@ -405,7 +405,7 @@ class GetCommandExecuteLogView(LoginRequiredMixin,JSONResponseMixin, AjaxRespons
         try:
             req = self.request
             id = req.GET.get("id", None)
-            deploy_id = req.GET.get("deploy_id", None)
+            deploy_id = req.GET.get("exec_id", None)
             bind_type = req.GET.get("bind_type", None)
             log_index = int(req.GET.get("log_index", 0))
             log_str = ""
