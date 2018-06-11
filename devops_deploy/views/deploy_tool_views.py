@@ -192,9 +192,6 @@ class DeployToolOperationView(LoginRequiredMixin, JSONResponseMixin,AjaxResponse
                                     v_f.close()
 
 
-
-
-
     def post_ajax(self, request, *args, **kwargs):
         result = {'status': 0}
         try:
@@ -232,81 +229,4 @@ class DeployToolOperationView(LoginRequiredMixin, JSONResponseMixin,AjaxResponse
             logger.error(e, exc_info=1)
         return HttpResponse(json.dumps(result), content_type='application/json')
 
-    # def post_ajax(self, request, *args, **kwargs):
-    #     result = {'status': 0}
-    #     try:
-    #         hu = HttpUtils(self.request)
-    #         reqData = hu.getRequestParam()
-    #         commandSetId = int(reqData.get("command_set_id", 0))
-    #         command_info = reqData.get("command_info", None)
-    #         deploy_info = reqData.get("deploy_info", None)
-    #         deploy_id = reqData.get("deploy_id", None)
-    #         version = reqData.get("version", None)
-    #         commandLineId = reqData.get("commandLineId", None)
-    #         if commandSetId == 0 and command_info:
-    #             jobAddResults = hu.post(serivceName="job", restName="/rest/job/add/", datas=command_info)
-    #             jobAddResults = jobAddResults.json()
-    #             if (jobAddResults["status"] == "FAILURE"):
-    #                 logger.error("创建安装job失败")
-    #             else:
-    #                 data = jobAddResults["data"]
-    #                 deploy_info = {}
-    #                 step = json.loads(command_info)['steps'][0]
-    #                 line = step['lines'][0]
-    #                 for k in data:
-    #                     commandSetId = k
-    #                     deploy_info['command_set_id'] = k
-    #                     deploy_info['new_flow'] = 1
-    #                     deploy_info['paras'] = {
-    #                         '1': {
-    #                             "target_type": step['target_type'],
-    #                             "target_group_ids": step['target_group_ids'],
-    #                             "target_host_list": step['target_host_list'],
-    #                             "go_live": step['go_live']
-    #                         }
-    #                     }
-    #                     step_ids = data[k]
-    #                     step = step_ids[0]
-    #                     for k2 in step:
-    #                         line_id = step[k2][0]
-    #                         commandLineId = line_id
-    #                         deploy_info['paras']['1'][line_id] = {
-    #                             "parameter": line['default_script_parameter'],
-    #                             "is_skip": 0
-    #                         }
-    #                         id = kwargs.get('pk', 0)
-    #                         addAppResults = hu.post(serivceName="job", restName="/rest/deploytool/update/",
-    #                                                 datas={'id': id, "command_set_id": commandSetId,
-    #                                                        'command_line_id': line_id})
-    #                         addAppResults = addAppResults.json()
-    #                         if addAppResults['status'] == 'FAILURE':
-    #                             logger.error(addAppResults)
-    #                             deploy_info = None
-    #         if deploy_info:
-    #             if isinstance(deploy_info,str):
-    #                 deploy_info = json.loads(deploy_info)
-    #             version_url = "/opt/deploy/%s/versions/%s" %(commandSetId,version)
-    #             if not os.path.exists(version_url):
-    #                 os.makedirs(version_url)
-    #             new_parameter = deploy_info['paras']['1'][commandLineId]['parameter']+";version_url="+version_url
-    #             deploy_info['paras']['1'][commandLineId]['parameter'] = new_parameter
-    #             runResults = hu.post(serivceName="job", restName="/rest/job/run/", datas=deploy_info)
-    #             runJson = runResults.json()
-    #             if int(runJson.get("job_id", 0)) > 0:
-    #                 result["status"] = "0"
-    #                 versionaddResult = hu.post(serivceName="job", restName="/rest/deploytool/versionadd/", datas={'deploy_id':deploy_id,'version':version})
-    #                 updateResult = hu.post(serivceName="job", restName="/rest/deploytool/update/",datas={'id': deploy_id, "current_version": version})
-    #                 appAddHistoryResult = hu.post(serivceName="job", restName="/rest/deploy/app_add_history/",datas={'app_id': deploy_id, "job_id":runJson['job_id'],"version": version,"type":3})
-    #             else:
-    #                 result["status"] = "1"
-    #                 result['msg'] = '发版失败'
-    #             result['job_id'] = runJson.get("job_id", 0)
-    #             result['set_id'] = commandSetId
-    #         else:
-    #             result['status'] = 1
-    #             result['msg'] = '没有发版信息，发版失败'
-    #     except Exception as e:
-    #         result['status'] = 1
-    #         result['msg'] = '发版异常'
-    #         logger.error(e,exc_info=1)
-    #     return HttpResponse(json.dumps(result),content_type='application/json')
+
