@@ -212,6 +212,37 @@
 	                            </div>
 	                        </div>
 
+                              <div class="form-group" v-if="formData.script_lang === 'yaml'" v-for="p in formData.param3">
+                                <label class="col-sm-2 control-label" v-html="p.paramNameZh"></label>
+	                            <div class="col-sm-10">
+		                             <div class=" form-group col-sm-12 parmabox form-inline" >
+
+
+                                         <div class="boxbox col-sm-12"  v-if="p.valueSet.length">
+	                                          <transition name="bounce">
+			                                    <transition-group name="list" >
+		                                            <div class="parmabox  clear1 " v-for="(vs, i) in p.valueSet" :key="i">
+		                                                <i class="yum-font icon-guanbi del" style="position:static;top:0;right:25px;font-size: 12px" @click="removeValueSet(p, i)"></i>
+		                                                <div class="fl pabx">
+		                                                    <label><span class="red">*</span> 可选值</label>
+		                                                    <input type="text" class="form-control" v-model="vs.name">
+		                                                </div>
+		                                                <div class="fl pabx">
+		                                                    <label><span class="red">*</span> 描述</label>
+		                                                    <input type="text" class="form-control" v-model="vs.desc">
+		                                                </div>
+		                                            </div>
+			                                     </transition-group>
+			                                    </transition>
+                                         </div>
+
+                                        <div class="clear1 add_button col-sm-12 parmabox" @click="addValueSet(p)">
+                                            +添加可选值
+                                        </div>
+                                    </div>
+	                            </div>
+	                        </div>
+
                              <div class="form-group">
                                 <label class="col-sm-2 control-label">版本</label>
 	                            <div class="col-sm-10">
@@ -357,13 +388,14 @@
                 name: '',
                 infom:1,
                 tool_set_prime_type: 1,
-                tool_set_type: 1,
+                tool_set_type: 5,
                 command: '',
                 version_yumc:[],
                 jira_yumc:[],
                 script_lang: localStorage.getItem('codemirror_lang') || 'shell',
                 param: [],
                param2:[],
+               param3:[],
                ret:[]
             }
         },
@@ -439,6 +471,9 @@
                     formData.param2[1].paramNameZh = 'skip-tags';
                     formData.param = formData.param.concat(formData.param2);
                 }
+                if(formData.param3.length && formData.script_lang == 'yaml'){
+                    formData.param = formData.param.concat(formData.param3);
+                }
 
 
                 $(formData.param).each(function(i,item){
@@ -475,6 +510,7 @@
                 delete formData.version_yumc;
                 delete formData.jira_yumc;
                 delete formData.param2;
+                delete formData.param3;
                 delete formData.ret;
                 var script_lang = formData.script_lang;
                 if(!script_lang){
@@ -547,6 +583,23 @@
         }
     }else{
         page.formData.param2 = [];
+    }
+     if(page.formData.script_lang === 'yaml'){
+        if(!page.formData.param3.length){
+            page.formData.param3 = [
+                {
+                    paramNameEn: '',
+                    paramNameZh: 'limit',
+                    type: 'multiple',
+                    desc: '',
+                    no: 0,
+                    valueSet: [],
+                    default: ''
+                }
+            ]
+        }
+    }else{
+        page.formData.param3 = [];
     }
 
      $("#switch_checkbox").bootstrapSwitch("onSwitchChange",function(event,state) {
