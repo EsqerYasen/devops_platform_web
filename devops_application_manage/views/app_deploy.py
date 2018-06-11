@@ -164,7 +164,7 @@ class DevopsAppMgeDeployView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseM
             tool = {}
             if len(tool_list) > 0:
                 tool = tool_list[0]
-                if int(tool['infom']) == 2:
+                if int(tool['infom']) == 2 or tool['script_lang'] == 'yaml':
                     hostgroupResult = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_tree/", datas=getData)
                     hostGroup_list = hostgroupResult.get("data", [])
                 if tool['is_public']:
