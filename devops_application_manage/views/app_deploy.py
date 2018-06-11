@@ -264,10 +264,11 @@ class DevopsAppMgeDeployView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseM
                                     result['status'] = 500
                                     result['msg'] = '未查到机器列表'
                             else:
+                                target_host_list = ','.join(json.loads(reqData['target_host_list']))
                                 param.append(
                                     {
                                         'paramNameZh': 'hosts',
-                                        'value': reqData['target_host_list']
+                                        'value': target_host_list
                                     }
                                 )
 
