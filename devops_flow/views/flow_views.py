@@ -184,6 +184,8 @@ class DevopsFlowOperationView(LoginRequiredMixin, JSONResponseMixin,AjaxResponse
                                 if p.get("type", None) == "path":
                                     p['type'] = 'input'
                             except Exception as e:
+                                if p.get("type", None) == "path":
+                                    p['type'] = 'input'
                                 p['value'] = ''
                                 logger.error(e,exc_info=1)
                             finally:
