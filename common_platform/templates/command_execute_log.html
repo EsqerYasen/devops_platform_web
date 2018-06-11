@@ -156,7 +156,7 @@
             $.ajax({
                 type: "GET",
                 url: '../executeRecordList/',
-                data: {"deploy_id": deploy_id, "bind_type": bind_type},
+                data: {"exec_id": deploy_id, "bind_type": bind_type},
                 error: function (error) {
                     console.log(error);
                 },
@@ -181,7 +181,7 @@
             $.ajax({
                   type: "GET",
                   url: '../getExecLog/',
-                  data:{"deploy_id":deploy_id,"bind_type":bind_type,"log_index":log_index},
+                  data:{"exec_id":deploy_id,"bind_type":bind_type,"log_index":log_index},
                   error: function (request) {
                       clearInterval(sh);
                       sh = null;
@@ -236,7 +236,7 @@
         $.ajax({
             type: "GET",
             url: '../getExecLog/',
-            data:{"deploy_id":deploy_id,"bind_type":bind_type,"id":id},
+            data:{"exec_id":deploy_id,"bind_type":bind_type,"id":id},
             error: function (request) {},
             success: function (data) {
                  var log_str = data.log_str;
