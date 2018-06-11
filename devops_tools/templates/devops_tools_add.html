@@ -253,11 +253,11 @@
 						                            <div v-for="(p,i) in formData.version_yumc" :key="i" class="boxbox clear1 form-inline">
 							                            <i class="yum-font icon-guanbi del" style="font-size: 12px" @click="removeVersions(i)"></i>
 							                            <div class="fl pabx">
-														    <label><span class="red">*</span></label>
+														    <label><span class="red"></span></label>
 														    <input type="text" class="form-control" v-model="formData.version_yumc[i]">
 							                            </div>
                                                         <div class="fl" style="line-height:35px;padding-right:15px;">
-                                                            $version_url:控制机路径, &nbsp;&nbsp;$version_yumc:svn版本号
+                                                            $version_url: 控制机路径, &nbsp;&nbsp;$version_yumc : svn版本号
                                                         </div>
 						                            </div>
 			                                    </transition-group>
@@ -279,11 +279,11 @@
 						                            <div v-for="(p,i) in formData.jira_yumc" :key="i" class="boxbox clear1 form-inline">
 							                            <i class="yum-font icon-guanbi del" style="font-size: 12px" @click="removeJiras(i)"></i>
 							                            <div class="fl pabx">
-														    <label><span class="red">*</span></label>
+														    <label><span class="red"></span></label>
 														    <input type="text" class="form-control" v-model="formData.jira_yumc[i]">
 							                            </div>
                                                         <div class="fl" style="line-height:35px;padding-right:15px;">
-                                                             $jira_yumc:JiraID
+                                                             $jira_yumc : JiraID
                                                         </div>
 						                            </div>
 			                                    </transition-group>
