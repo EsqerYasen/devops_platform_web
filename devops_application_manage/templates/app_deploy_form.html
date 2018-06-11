@@ -24,6 +24,22 @@
                             </div>
                         </div>
                         <div class="form-group">
+                            <label class="col-sm-2 control-label">应用版本</label>
+                            <div class="col-sm-10">
+                                <div class="parmabox">
+                                    <div v-for="(v, i) in formData.version_list" class="verrow">
+                                        <i class="yum-font icon-guanbi del" style="right:0;font-size: 12px;position:relative;" @click="removeVersion(i)"></i>
+                                        <div class="fl ">
+                                            <input type="text" class="form-control" v-model="formData.version_list[i]" placeholder="请输入版本号">
+                                        </div>
+                                    </div>
+                                    <div class="clear1 add_button col-sm-12 row" @click="addVersion">
+                                        +添加版本
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
                             <label class="col-sm-2 control-label"><span class="red">*</span> </label>
                             <div class="col-sm-10">
                                 <div class="fl" style=" margin-right: 18px;">
@@ -63,6 +79,7 @@
                 tool_name:'{{ app_info.tool_name }}',
                 tool_id:'{{ app_info.tool_id }}',
                 tool_version:'{{ app_info.tool_version }}',
+                version_list:{{ version_list|safe }}
             }
         },
         methods:{
@@ -82,6 +99,12 @@
                     Alertwin.alert({ message: '请绑定任务'});
                     return false;
                 }
+                if(!formData.version_list.length || !formData.version_list.every(function(item){
+                        return !!item;
+                    })){
+                     Alertwin.alert({ message: '请输入版本'});
+                    return false;
+                }
                 return true;
             },
             submit: function(){
@@ -94,6 +117,7 @@
                     'tool_id':formData.tool_id,
                     'tool_name':formData.tool_name,
                     'tool_version':formData.tool_version,
+                    'version_list':JSON.stringify(formData.version_list),
                     'bind_type':1,
                     'csrfmiddlewaretoken':'{{csrf_token}}'
                 };
@@ -104,6 +128,7 @@
                     req_url = "../edit/";
                     redirect_url = "../../list"
                 }
+
                 layer.load();
                 $.ajax({
                     type: "POST",

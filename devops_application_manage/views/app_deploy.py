@@ -73,12 +73,19 @@ class DevopsAppMgeUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseM
         try:
             id = kwargs.get('pk', 0)
             hu = HttpUtils(self.request)
-            deploy_tool_list_result = hu.get(serivceName="p_job", restName="/rest/appmanage/list/",datas={'id': id})
-            deploy_tool_list = deploy_tool_list_result.get("results", [])
-            deploy_tool = {}
-            if len(deploy_tool_list) > 0:
-                deploy_tool = deploy_tool_list[0]
-            context['app_info'] = deploy_tool
+            app_manage_list_result = hu.get(serivceName="p_job", restName="/rest/appmanage/list/",datas={'id': id})
+            app_manage_list = app_manage_list_result.get("results", [])
+            app_manage = {}
+            version_list = []
+            if len(app_manage_list) > 0:
+                app_manage = app_manage_list[0]
+
+                app_manage_version_list_result = hu.get(serivceName="p_job", restName="/rest/appmanage/appversionlist/",datas={'app_manage_id': app_manage['id']})
+                app_manage_version_list = app_manage_version_list_result.get("results", [])
+                for app_manage_version in app_manage_version_list:
+                    version_list.append(app_manage_version['version'])
+            context['version_list'] = version_list
+            context['app_info'] = app_manage
             context['is_add'] = 0
         except Exception as e:
             logger.error(e,exc_info=1)
