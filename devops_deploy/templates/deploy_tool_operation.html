@@ -34,10 +34,24 @@
                         <div class="form-group" v-for="parm in tool_info.param">
                              <label class="col-sm-2 control-label"><span class="red"></span> {% verbatim %}{{ parm.paramNameZh|filterVersion }}{% endverbatim %}</label>
                              <div class="col-sm-10" v-if="parm.type === 'text'">
-                                  <input type="text" class="form-control text_ar" v-model="parm.value" :placeholder="parm.desc">
+                                  <input type="text" class="form-control text_ar" v-model="parm.value" style="display:inline-block">
+                                 <div class="showinfowenhao" :class="{active:parm.activeIndex>0}">
+                                      <i @mouseover="changeActiveIndex(parm, 1)" @mouseout="removeActiveIndex(parm)"  class="yum-font icon-wenhao" style="font-size: 17px; cursor: pointer; margin-left: 10px; margin-right: 10px;"></i>
+                                      <div class="popcovera" >
+                                          <div class="jiao"></div>
+                                          <div class="cont" v-html="parm.desc"></div>
+                                      </div>
+                                  </div>
                              </div>
                              <div class="col-sm-10" v-if="parm.type === 'version'">
-                                  <input type="text" class="form-control text_ar" v-model="parm.value" :placeholder="parm.desc">
+                                  <input type="text" class="form-control text_ar" v-model="parm.value" style="display:inline-block">
+                                 <div class="showinfowenhao" :class="{active:parm.activeIndex>0}">
+                                      <i @mouseover="changeActiveIndex(parm, 1)" @mouseout="removeActiveIndex(parm)"  class="yum-font icon-wenhao" style="font-size: 17px; cursor: pointer; margin-left: 10px; margin-right: 10px;"></i>
+                                      <div class="popcovera" >
+                                          <div class="jiao"></div>
+                                          <div class="cont" v-html="parm.desc"></div>
+                                      </div>
+                                  </div>
                              </div>
                              <div class="col-sm-10" v-if="parm.type === 'select'">
                                   <input type="text" class="form-control text_ar " v-model="parm.value" style="position:absolute;width:330px;"/>
