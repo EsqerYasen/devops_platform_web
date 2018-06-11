@@ -26,6 +26,7 @@
             <th style="width:3%;"><input id="checkall" type="checkbox" class="i-checks"></th>
             <th style="width: 15%;">应用名称</th>
             <th style="width: 15%;">工具名称</th>
+            <th style="width: 8%;">工具版本</th>
             <th style="width: 10%;">创建人</th>
             <th style="width: 10%;">最后修改人</th>
             <th style="width: 15%;">创建时间</th>
@@ -39,14 +40,15 @@
                     <input type="checkbox" class="i-checks icheck" id="{{ o.id }}" name="trCheckbox">
                 </td>
                 <td>{{ o.name }}</td>
-                <td>{{ o.tool_set_name }}</td>
+                <td>{{ o.tool_name }}</td>
+                <td>{{ o.tool_version }}</td>
                 <td>{{ o.created_by }}</td>
                 <td>{{ o.updated_by }}</td>
                 <td>{{ o.create_time }}</td>
                 <td>{{ o.update_time }}</td>
                 <td>
                     <a href="../{{ o.id }}/edit/" class="btn btn-sm btn-success"><i class="fa fa-edit"></i>&nbsp;编辑</a>
-                    <a href="../{{ o.id }}/operation/?name={{ o.name }}&toolId={{ o.tool_set_id }}&commandId={{ o.command_set_id }}&commandLineId={{ o.command_line_id }}" class="btn btn-sm btn-success"><i class="fa fa-edit"></i>调度</a>
+                    <a href="javascript:void(0)" class="btn btn-sm btn-success" onclick="flowOperation('{{ o.id }}','{{ o.name }}','{{ o.tool_id }}','{{ o.tool_version }}','{{ o.command_set_id }}','{{ o.bind_type }}')"><i class="fa fa-play"></i>调度</a>
                     <a href="javascript:void(0)" onclick="deleteApp('{{ o.id }}')" class="btn  btn-sm btn-danger"><i class="fa fa-trash"></i>&nbsp;删除</a>
                 </td>
             </tr>
@@ -66,6 +68,13 @@
                     }
                 });
              });
+        }
+
+        function flowOperation(id,name,tool_id,tool_version,command_set_id,bind_type){
+            if(tool_id){
+                var version = $("#version"+id).val();
+                window.location.href = "../"+id+"/operation/?name="+name+"&tool_id="+tool_id+"&tool_version="+tool_version+"&command_set_id="+command_set_id+"&version="+version+"&bind_type="+bind_type;
+            }
         }
     </script>
 {% endblock %}

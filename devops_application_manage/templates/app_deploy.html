@@ -23,57 +23,44 @@
                 </div>
                 <div class="ibox-content" id="app_deploy">
                     <form class="form-horizontal" @submit.prevent="submit">
+                         {% if tool_info.infom|str_to_int == 2 %}
                          <div class="form-group">
                             <label class="col-sm-2 control-label"><span class="red">*</span> 选择机器</label>
                             <div class="col-sm-10">
                                 <a href="javascript:;" class="btn btn-primary" @click="selectHost">选择机器</a>
                             </div>
                         </div>
-                         <div class="form-group">
-                            <label class="col-sm-2 control-label"><span class="red">*</span> 版 本 号</label>
+                        {% endif %}
+                        <div class="form-group" v-for="parm in tool_info.param">
+                             <label class="col-sm-2 control-label"><span class="red"></span> {% verbatim %}{{ parm.paramNameZh|filterVersion }}{% endverbatim %}</label>
+                             <div class="col-sm-10" v-if="parm.type === 'text'">
+                                  <input type="text" class="form-control text_ar" v-model="parm.value" :placeholder="parm.desc">
+                             </div>
+                             <div class="col-sm-10" v-if="parm.type === 'version'">
+                                  <input type="text" class="form-control text_ar" v-model="parm.value" :placeholder="parm.desc">
+                             </div>
+                             <div class="col-sm-10" v-if="parm.type === 'select'">
+                                  <input type="text" class="form-control text_ar " v-model="parm.value" style="position:absolute;width:330px;"/>
+                                  <select class="form-control text_ar" v-model="parm.value">
+                                      <option  v-for="v in parm.valueSet" :value="v.name" v-html="v.name"></option>
+                                  </select>
+                             </div>
+                             <div class="col-sm-10" class="checkbox" style="margin:10px;" v-if="parm.type === 'multiple'">
+                                  <label v-for="it in parm.valueSet" style="margin-right:15px;">
+                                      <span>{% verbatim %}{{ it.name }}--{{ it.desc }}{% endverbatim %}</span>
+                                      <input style="margin-top:-15px;" @click.sync="changeValue2(parm, it)" type="checkbox" :value="it.name" v-model="it.checked"/>
+                                  </label>
+                             </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label"> 备注</label>
                             <div class="col-sm-10">
-                                <select class="form-control text_ar" v-model="formData.version">
-                                    {% for obj in version_list %}
-                                        {% if obj.first %}
-                                            <option value="" >-----请选择---</option>
-                                        {% endif %}
-                                        <option value="{{ obj.id }}" >{{ obj.version }}</option>
-                                    {% endfor %}
-                                </select>
+                                <textarea id="remarks" class="form-control text_ar" style="height: 120px;resize: none" maxlength="100"></textarea>
                             </div>
                         </div>
-
-                      <div class="form-group" v-for="parm in tool_info.param">
-                            <label class="col-sm-2 control-label"><span class="red"></span> {% verbatim %}{{ parm.paramNameZh }}{% endverbatim %}</label>
-                            <div class="col-sm-10" v-if="parm.type === 'text'">
-                                <input type="text" class="form-control text_ar" v-model="parm.value" :placeholder="parm.desc">
-                            </div>
-                           <div v-if="parm.type === 'select'">
-                                <select class="form-control text_ar" v-model="parm.value">
-                                    <option  v-for="v in parm.valueSet" :value="v.name" v-html="v.name"></option>
-                                </select>
-                            </div>
-{#                            <div v-if="parm.type === 'multiple'">#}
-{#                                <v-select :placeholder="parm.desc"#}
-{#                                  multiple#}
-{#                                  :options="parm.valueSet"#}
-{#                                  label="name_desc"#}
-{#                                   @input="changeValue(parm)"#}
-{#                                  :value.sync="parm.value2"></v-select>#}
-{#                            </div>#}
-                          <div class="checkbox" style="margin:10px;" v-if="parm.type === 'multiple'">
-
-                                <label v-for="it in parm.valueSet" style="margin-right:15px;">
-                                    <span>{% verbatim %}{{ it.name }}--{{ it.desc }}{% endverbatim %}</span>
-                                    <input style="margin-top:-15px;" @click.sync="changeValue2(parm, it)" type="checkbox" :value="it.name" v-model="it.checked"/>
-                                </label>
-
-                            </div>
-                        </div>
-
                         <div class="form-group">
                             <div class="col-sm-offset-2 col-sm-10">
-                                <button type="submit" class="btn btn-primary">提交</button>
+                                <button type="submit" class="btn btn-primary">执行安装</button>
                             </div>
                         </div>
                     </form>
@@ -116,7 +103,8 @@
 	                      <div class="col-sm-5" style="margin-left: 15px">
 	                          <div class="input-group">
 	                              <select id="host_go_live" class="form-control">
-	                                  <option value="2" selected>待上线主机</option>
+                                      <option value="" selected></option>
+	                                  <option value="2">待上线主机</option>
 	                                  <option value="3">已上线主机</option>
 	                              </select>
 	                              <span class="input-group-btn">
@@ -135,45 +123,32 @@
 	</div>
 
 <script>
-Vue.component('v-select', VueSelect.VueSelect);
-$(function(){
-    var hostGroupTreeList = {{ hostGroup_list|safe }};
-    readHostGroupTreeNext(hostGroupTreeList,0);
-    zHostGroupTreeInit();
-    initSelectHostModal();
-});
+    Vue.component('v-select', VueSelect.VueSelect);
+    $(function(){
+        var hostGroupTreeList = {{ hostGroup_list|safe }};
+        readHostGroupTreeNext(hostGroupTreeList,0);
+        zHostGroupTreeInit();
+        initSelectHostModal();
+    });
     function initSelectHostModal(){
         $("#select_host_modal").on('show.bs.modal',function(event){
-            var datas = $(event.relatedTarget).data();
-            var gid = datas&&datas['gid'];
-            $(this).data('gid',gid);
-            var selectHostValue = $("#selectHostValue"+gid);
-            var hostValue = selectHostValue.val();
             var target_group_ids = app_page.formData.target_group_ids;
             var obj = app_page.formData;
             if(obj && target_group_ids){
-                //hostValue = hostValue.replace(/\'/g,"\"");
-                //var obj = JSON.parse(hostValue);
-
                 var tree = $.fn.zTree.getZTreeObj('host_group_tree');
                 if(target_group_ids){
                     $(target_group_ids.split(',')).each(function(i,item){
                         tree.checkNode(tree.getNodeByParam('id',item), true, true);
                     });
-                    createSelectHostIpTable(target_group_ids);
+                    createSelectHostIpTable(app_page.formData.previous_host_ip,app_page.formData.target_host_list);
                 }
             }
-            var golive = selectHostValue.attr('golive');
-            if(golive){
-                $("#host_go_live").val(golive);
-            }
+            $("#host_go_live").val(app_page.formData.go_live);
         });
 
         $("#select_host_modal").on('hide.bs.modal',function(event){
-            var datas = $(this).data();
-            var gid = datas['gid'];
             $.fn.zTree.getZTreeObj("host_group_tree").checkAllNodes(false);
-            $("#host_go_live").val(2);
+            $("#host_go_live").val('');
         });
     }
 
@@ -213,24 +188,18 @@ $(function(){
 
     function determineSelectHost(){
         var select_host_modal = $('#select_host_modal');
-        var gid = select_host_modal.data('gid');
-        //var selectHostValue = $("#selectHostValue"+gid);
-        var ips = getCheckedHostIP();
-        //selectHostValue.val('');
-
+        var hostIpAll = getHostIP();
+        var checked = hostIpAll['checked'];
         var values = getSelectHostFromModal();
-
         if(!$.isEmptyObject(values)){
-            //var obj = {};
-            //obj = {'target_group_ids':values['id']}
             var target_type = 1;
-            if(ips.length > 0){
-                values['target_host_list']= ips;
+            if(checked.length > 0){
+                values['target_host_list']= checked;
+                app_page.formData.previous_host_ip = checked.concat(hostIpAll['unchecked']);
                 target_type = 3;
             }else{
                 values['target_host_list']= "";
             }
-            //values['target_type'] = target_type;
             select_host_modal.modal('hide');
             app_page.formData.target_group_ids = values['group_id'];
             app_page.formData.target_host_list = values['target_host_list'];
@@ -243,6 +212,15 @@ $(function(){
 
     function queryHostIp(){
         var values = getSelectHostFromModal();
+        if(!values['go_live']){
+            Alertwin.alert({message:"请选择机器所在环境"});
+            return;
+        }
+        if(!values['group_id']){
+            Alertwin.alert({message:"请选择机器组"});
+            return;
+        }
+
         if(!$.isEmptyObject(values)){
             values['csrfmiddlewaretoken'] = '{{ csrf_token }}';
             values['limit'] = 100;
@@ -265,7 +243,6 @@ $(function(){
 
      function getSelectHostFromModal(){
         var result = {};
-        var tabIds = $("#select_host_tab li[class='active'] a").attr('href');
         var host_group_tree=$.fn.zTree.getZTreeObj("host_group_tree");
         var nodes = host_group_tree.getCheckedNodes(true);
         var groupIds = "";
@@ -276,23 +253,19 @@ $(function(){
             groupIds = groupIds.substring(0,groupIds.length-1);
         }
         result['group_id'] = groupIds;
-
-        if(!$.isEmptyObject(result)){
-            result['go_live'] = $("#host_go_live").val();
-        }
+        result['go_live'] = $("#host_go_live").val();
         return result;
     }
 
 
-    function createSelectHostIpTable(data){
+    function createSelectHostIpTable(hostIpAll,checkedHostIp){
         var hostIpTb = $("#hostIpTb tbody");
         hostIpTb.empty();
         $("#hostIpBadge").text('总：0台');
         $("#checkall").unbind();
 
-        if(data){
-            $(data).each(function(i,item){
-
+        if(hostIpAll){
+            $(hostIpAll).each(function(i,item){
                 var htmlStr =  htmlStr = "<tr>" +
                     "   <td>" +
                     "       <input type='checkbox' class='i-checks icheck' hostip='"+item+"' name='trCheckbox'>" +
@@ -301,7 +274,7 @@ $(function(){
                     "</tr>";
                 hostIpTb.append(htmlStr);
             });
-            $("#hostIpBadge").text('总：'+data.length+'台');
+            $("#hostIpBadge").text('总：'+hostIpAll.length+'台');
             $(".i-checks").iCheck({checkboxClass: "icheckbox_square-green", radioClass: "iradio_square-green",});
             $('#checkall').on('ifChecked', function (event) {
                 $('.icheck').iCheck('check');
@@ -309,20 +282,29 @@ $(function(){
             $('#checkall').on('ifUnchecked', function (event) {
                 $('.icheck').iCheck('uncheck');
             });
+            $(checkedHostIp).each(function(i,item){
+                 $(".icheck[hostip='"+item+"']").iCheck('check');
+            })
         }
     }
 
 
-    function getCheckedHostIP() {
+    function getHostIP() {
         var str = document.getElementsByName("trCheckbox");
         var objarray = str.length;
-        var idList = [];
+        var hostIpAll = {};
+        var checked = [];
+        var unchecked = [];
         for (i = 0; i < objarray; i++) {
             if (str[i].checked == true) {
-                idList.push($(str[i]).attr('hostip'));
+                checked.push($(str[i]).attr('hostip'));
+            }else{
+                unchecked.push($(str[i]).attr('hostip'));
             }
         }
-        return idList;
+        hostIpAll['checked'] = checked;
+        hostIpAll['unchecked'] = unchecked;
+        return hostIpAll;
     }
 
 
@@ -362,77 +344,29 @@ var app_page = new Vue({
             if(!this.checkForm())return;
             var formData = this.formData;
             var tool_info = this.tool_info;
-            var params = tool_info.param;
+            var tool_id = tool_info.tool_id;
+            var tool_version = tool_info.tool_version;
             var command_set_id = {{ commandId }};
-            var commandLineId = {{ commandLineId }};
-            var name = '{{ name }}';
-            var reqData = {"command_set_id":command_set_id};
-            if(!formData.target_group_ids){
-                Alertwin.alert({message:"请选择机器"});
-                return;
-            }
-            if(!formData.version){
-                Alertwin.alert({message:"请选择版本号"});
-                return;
-            }
-            var target_host_list = "";
-            if(formData.target_host_list){
-                target_host_list = formData.target_host_list.join(',');
-            }
-            //var parameter = formData.version+",";
-            var parameter = "";
-            $(params).each(function(pi,pitme){
-                if(pitme.value){
-                    parameter += pitme.paramNameZh+"="+pitme.value+";";
+            var bind_type = {{ bind_type }};
+            var remarks = $('#remarks').val();
+            var reqData = {"command_set_id":command_set_id,'deploy_id':'{{ deploy_id }}','bind_type':bind_type,'tool_id':tool_id,'tool_version':tool_version,"remarks":remarks};
+            var param = {};
+            $(tool_info.param).each(function(i,item){
+                if(!item.value){
+                     Alertwin.alert({message:item.paramNameZh+" 未填写"});
+                     return false;
+                }else{
+                    param[item.paramNameZh] = item.value;
                 }
             })
-            parameter = parameter.substring(0,parameter.length-1);
-            if(command_set_id > 0){
-                var deploy_info = {
-                    "command_set_id":command_set_id,
-                    "new_flow":1,
-                    "paras":{
-                        1:{
-                            "target_type":formData.target_type,
-                            "target_group_ids":formData.target_group_ids,
-                            "target_host_list":target_host_list,
-                            "go_live":formData.go_live
-                        }
-                    }
-                };
-                deploy_info['paras'][1][commandLineId] = {
-                                "parameter":parameter,
-                                "is_skip":0
-                            }
-                reqData['deploy_info'] = JSON.stringify(deploy_info);
-            }else{
-                var command_info = {
-                    "name":name+"安装",
-                    "type":2,
-                    "comment":"用于 "+name+" 应用安装",
-                    "steps":[
-                        {
-                            "name":name+"安装步骤1",
-                            "seq_no":1,
-                            "type":0,
-                            "target_group_ids":formData.target_group_ids,
-                            "target_host_list":target_host_list,
-                            "target_type":formData.target_type,
-                            "go_live":formData.go_live,
-                            "lines":[
-                                {
-                                    "sub_seq_no":1,
-                                    "type":2,
-                                    "source_file_name":tool_info.command,
-                                    "default_script_parameter":parameter,
-                                    "tool_set_type":6
-                                }
-                            ]
-                        }
-                    ]
-                };
-                reqData['command_info'] = JSON.stringify(command_info);
-            }
+            reqData['target_group_ids'] = formData.target_group_ids;
+            reqData['target_host_list'] = JSON.stringify(formData.target_host_list);
+            reqData['go_live'] = formData.go_live;
+            reqData['target_type'] = formData.target_type;
+            reqData['infom'] = tool_info.infom;
+
+            reqData['param'] = JSON.stringify(param);
+            reqData['bind_type'] = 1
             reqData['csrfmiddlewaretoken'] = '{{ csrf_token }}';
             layer.load();
             $.ajax({
@@ -445,7 +379,7 @@ var app_page = new Vue({
                 success: function (data) {
                     layer.closeAll('loading');
                     if(data.status==0){
-                        window.location.href = "/platform/command_set/"+data.set_id+"/execLog?setId="+data.set_id+"&jobId="+data.job_id
+                        window.location.href = "/platform/command_set/"+tool_id+"/execLog?deploy_id={{ deploy_id }}&bind_type={{ bind_type }}&name={{ name }}";
                     }else{
                         Alertwin.alert({message:data.msg});
                     }

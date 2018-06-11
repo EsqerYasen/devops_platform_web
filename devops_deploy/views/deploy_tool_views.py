@@ -202,8 +202,9 @@ class DeployToolOperationView(LoginRequiredMixin, JSONResponseMixin,AjaxResponse
                     deploy_id = int(reqData.get("deploy_id", 0))
                     tool_id = reqData.get('tool_id')
                     tool_version = reqData.get('tool_version')
+                    remarks = reqData.get('remarks')
                     if tool_id and tool_version:
-                        operation_result = hu.post(serivceName="p_job",restName="/rest/deploytool/operation/",datas={'deploy_id':deploy_id,'bind_type':bind_type,'tool_id':tool_id,'tool_version':tool_version,'param':param})
+                        operation_result = hu.post(serivceName="p_job",restName="/rest/deploytool/operation/",datas={'deploy_id':deploy_id,'bind_type':bind_type,'tool_id':tool_id,'tool_version':tool_version,'param':param,'remarks':remarks})
                         operation_json = operation_result.json()
                         if operation_json['status'] == 200:
                             result['status'] = 200

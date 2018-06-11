@@ -49,7 +49,12 @@
                             <div v-html="parm.desc" class="col-sm-5">
                             </div>
                         </div>
-
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label"> 备注</label>
+                            <div class="col-sm-10">
+                                <textarea id="remarks" class="form-control text_ar" style="height: 120px;resize: none" maxlength="100"></textarea>
+                            </div>
+                        </div>
                         <div class="form-group">
                             <div class="col-sm-offset-2 col-sm-10">
                                 <button type="submit" class="btn btn-primary">提交</button>
@@ -114,13 +119,13 @@
 	</div>
 
 <script>
-Vue.component('v-select', VueSelect.VueSelect);
-$(function(){
-    var hostGroupTreeList = {{ hostGroup_list|safe }};
-    readHostGroupTreeNext(hostGroupTreeList,0);
-    zHostGroupTreeInit();
-    initSelectHostModal();
-});
+    Vue.component('v-select', VueSelect.VueSelect);
+    $(function(){
+        var hostGroupTreeList = {{ hostGroup_list|safe }};
+        readHostGroupTreeNext(hostGroupTreeList,0);
+        zHostGroupTreeInit();
+        initSelectHostModal();
+    });
     function initSelectHostModal(){
         $("#select_host_modal").on('show.bs.modal',function(event){
             var datas = $(event.relatedTarget).data();
@@ -339,75 +344,32 @@ var app_page = new Vue({
         },
         submit:function(){
             if(!this.checkForm())return;
+            if(!this.checkForm())return;
             var formData = this.formData;
             var tool_info = this.tool_info;
-            var params = tool_info.param;
+            var tool_id = tool_info.tool_id;
+            var tool_version = tool_info.tool_version;
             var command_set_id = {{ commandId }};
-            var commandLineId = {{ commandLineId }};
-            var name = '{{ name }}';
-            var reqData = {"command_set_id":command_set_id};
-            if(!formData.target_group_ids){
-                Alertwin.alert({message:"请选择机器"});
-                return;
-            }
-            var target_host_list = "";
-            if(formData.target_host_list){
-                target_host_list = formData.target_host_list.join(',');
-            }
-            //var parameter = formData.version+",";
-            var parameter = "";
-            $(params).each(function(pi,pitme){
-                if(pitme.value){
-                    parameter += pitme.paramNameZh+"="+pitme.value+";";
+            var bind_type = {{ bind_type }};
+            var remarks = $('#remarks').val();
+            var reqData = {"command_set_id":command_set_id,'deploy_id':'{{ deploy_id }}','bind_type':bind_type,'tool_id':tool_id,'tool_version':tool_version,"remarks":remarks};
+            var param = {};
+            $(tool_info.param).each(function(i,item){
+                if(!item.value){
+                     Alertwin.alert({message:item.paramNameZh+" 未填写"});
+                     return false;
+                }else{
+                    param[item.paramNameZh] = item.value;
                 }
             })
-            parameter = parameter.substring(0,parameter.length-1);
-            if(command_set_id > 0){
-                var deploy_info = {
-                    "command_set_id":command_set_id,
-                    "new_flow":1,
-                    "paras":{
-                        1:{
-                            "target_type":formData.target_type,
-                            "target_group_ids":formData.target_group_ids,
-                            "target_host_list":target_host_list,
-                            "go_live":formData.go_live
-                        }
-                    }
-                };
-                deploy_info['paras'][1][commandLineId] = {
-                                "parameter":parameter,
-                                "is_skip":0
-                            }
-                reqData['deploy_info'] = JSON.stringify(deploy_info);
-            }else{
-                var command_info = {
-                    "name":name+" 流量调度",
-                    "type":2,
-                    "comment":"用于 "+name+" 流量调度",
-                    "steps":[
-                        {
-                            "name":name+"调度步骤1",
-                            "seq_no":1,
-                            "type":0,
-                            "target_group_ids":formData.target_group_ids,
-                            "target_host_list":target_host_list,
-                            "target_type":formData.target_type,
-                            "go_live":formData.go_live,
-                            "lines":[
-                                {
-                                    "sub_seq_no":1,
-                                    "type":1,
-                                    "source_file_name":tool_info.command,
-                                    "default_script_parameter":parameter,
-                                    "tool_set_type":5
-                                }
-                            ]
-                        }
-                    ]
-                };
-                reqData['command_info'] = JSON.stringify(command_info);
-            }
+            reqData['target_group_ids'] = formData.target_group_ids;
+            reqData['target_host_list'] = JSON.stringify(formData.target_host_list);
+            reqData['go_live'] = formData.go_live;
+            reqData['target_type'] = formData.target_type;
+            reqData['infom'] = tool_info.infom;
+
+            reqData['param'] = JSON.stringify(param);
+            reqData['bind_type'] = 1
             reqData['csrfmiddlewaretoken'] = '{{ csrf_token }}';
             layer.load();
             $.ajax({
@@ -420,7 +382,7 @@ var app_page = new Vue({
                 success: function (data) {
                     layer.closeAll('loading');
                     if(data.status==0){
-                        window.location.href = "/platform/command_set/"+data.set_id+"/execLog?setId="+data.set_id+"&jobId="+data.job_id;
+                        window.location.href = "/platform/command_set/"+tool_id+"/execLog?deploy_id={{ deploy_id }}&bind_type={{ bind_type }}&name={{ name }}";
                     }else{
                         Alertwin.alert({message:data.msg});
                     }
