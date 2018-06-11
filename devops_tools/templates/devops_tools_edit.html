@@ -526,7 +526,10 @@
                     formData.param = formData.param.concat(formData.param2);
                 }
                 if(formData.param3.length && formData.script_lang == 'yaml'){
-                    formData.param = formData.param.concat(formData.param3);
+                    if(formData.param3[0].valueSet.length>0)
+                    {
+                        formData.param = formData.param.concat(formData.param3);
+                    }
                 }
                 if(formData.version_yumc.length){
                     var ver = formData.version_yumc[0];
