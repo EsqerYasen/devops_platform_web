@@ -23,7 +23,7 @@
                 </div>
                 <div class="ibox-content" id="app_deploy">
                     <form class="form-horizontal" @submit.prevent="submit">
-                         {% if tool_info.infom|str_to_int == 2 %}
+                         {% if tool_info.infom|str_to_int == 2 or tool_info.script_lang == 'yaml' %}
                          <div class="form-group">
                             <label class="col-sm-2 control-label"><span class="red">*</span> 选择机器</label>
                             <div class="col-sm-10">
