@@ -350,23 +350,22 @@ var app_page = new Vue({
             var bind_type = {{ bind_type }};
             var remarks = $('#remarks').val();
             var reqData = {"command_set_id":command_set_id,'deploy_id':'{{ deploy_id }}','bind_type':bind_type,'tool_id':tool_id,'tool_version':tool_version,"remarks":remarks};
-            var param = {};
-            $(tool_info.param).each(function(i,item){
-                if(!item.value){
-                     Alertwin.alert({message:item.paramNameZh+" 未填写"});
-                     return false;
-                }else{
-                    param[item.paramNameZh] = item.value;
-                }
-            })
+{#            var param = {};#}
+{#            $(tool_info.param).each(function(i,item){#}
+{#                if(!item.value){#}
+{#                     Alertwin.alert({message:item.paramNameZh+" 未填写"});#}
+{#                     return false;#}
+{#                }else{#}
+{#                    param[item.paramNameZh] = item.value;#}
+{#                }#}
+{#            })#}
             reqData['target_group_ids'] = formData.target_group_ids;
             reqData['target_host_list'] = JSON.stringify(formData.target_host_list);
             reqData['go_live'] = formData.go_live;
             reqData['target_type'] = formData.target_type;
             reqData['infom'] = tool_info.infom;
 
-            reqData['param'] = JSON.stringify(param);
-            reqData['bind_type'] = 1
+            reqData['param'] = JSON.stringify(tool_info.param);
             reqData['csrfmiddlewaretoken'] = '{{ csrf_token }}';
             layer.load();
             $.ajax({
