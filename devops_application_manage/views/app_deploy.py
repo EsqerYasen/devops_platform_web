@@ -253,13 +253,23 @@ class DevopsAppMgeDeployView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseM
                                 resultNhPilotList = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/",datas={"id": target_group_ids})
                                 host_list = resultNhPilotList.get("data", [])
                                 if len(host_list) > 0:
-                                    param['hosts'] = ','.join(host_list)
+                                    param.append(
+                                        {
+                                            'paramNameZh':'hosts',
+                                            'value':','.join(host_list)
+                                        }
+                                    )
                                 else:
                                     bool = False
                                     result['status'] = 500
                                     result['msg'] = '未查到机器列表'
                             else:
-                                param['hosts'] = reqData['target_host_list']
+                                param.append(
+                                    {
+                                        'paramNameZh': 'hosts',
+                                        'value': reqData['target_host_list']
+                                    }
+                                )
 
                         if bool:
                             operation_result = hu.post(serivceName="p_job",restName="/rest/appmanage/operation/",datas={'deploy_id':deploy_id,'bind_type':bind_type,'tool_id':tool_id,'tool_version':tool_version,'param':param,'remarks':remarks})
