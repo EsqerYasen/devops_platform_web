@@ -205,10 +205,10 @@ class DevopsAppMgeDeployView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseM
                                 p['value'] = v_f.readline().replace("\r",'').replace("\n",'')
 
                                 if p.get("type", None) == "path":
-                                    p['type'] = 'input'
+                                    p['type'] = 'text'
                             except Exception as e:
                                 if p.get("type", None) == "path":
-                                    p['type'] = 'input'
+                                    p['type'] = 'text'
                                 p['value'] = ''
                                 logger.error(e,exc_info=1)
                             finally:
