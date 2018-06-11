@@ -194,7 +194,7 @@ class DevopsAppMgeDeployView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseM
     def get_version(self,p_list):
         if p_list:
             for p in p_list:
-                if p.get("paramNameZh",None) == 'version_yumc' or p.get("paramNameZh",None) == 'jira_yumc':
+                if p.get("paramNameZh",None) == 'version_yumc' or p.get("paramNameZh",None) == 'jira_yumc' or p.get("type",None) == "path":
                     v = p['value']
                     if v:
                         if v.startswith('http'):
@@ -203,6 +203,9 @@ class DevopsAppMgeDeployView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseM
                             try:
                                 v_f = open(v, 'r')
                                 p['value'] = v_f.readline().replace("\r",'').replace("\n",'')
+
+                                if p.get("type", None) == "path":
+                                    p['type'] = 'input'
                             except Exception as e:
                                 p['value'] = ''
                                 logger.error(e,exc_info=1)
