@@ -570,7 +570,7 @@
                if(script_lang == 'yaml'){
                     $.ajax({
                         type: "POST",
-                        url: '../yamlCheck/',
+                        url: '../../yamlCheck/',
                         data:{"csrfmiddlewaretoken":'{{ csrf_token }}','command':editor.getValue()},
                         error: function (request) {},
                         success: function (data) {
