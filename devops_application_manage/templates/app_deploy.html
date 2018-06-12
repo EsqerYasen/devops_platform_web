@@ -382,9 +382,13 @@ var app_page = new Vue({
             reqData['infom'] = tool_info.infom;
             reqData['script_lang'] = tool_info.script_lang;
 
-            tool_info.param.push({'paramNameZh':'version_yumc','value':app_version,'type':'version'})
+            var param = [];
+            $(tool_info.param).each(function(i,item){
+                param.push(item);
+            })
+            param.push({'paramNameZh':'version_yumc','value':app_version,'type':'version'})
 
-            reqData['param'] = JSON.stringify(tool_info.param);
+            reqData['param'] = JSON.stringify(param);
             reqData['csrfmiddlewaretoken'] = '{{ csrf_token }}';
             layer.load();
             $.ajax({

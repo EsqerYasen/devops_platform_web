@@ -167,7 +167,7 @@ class DevopsAppMgeDeployView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseM
             if len(tool_list) > 0:
                 tool = tool_list[0]
 
-                app_manage_version_list_result = hu.get(serivceName="p_job", restName="/rest/appmanage/appversionlist/",datas={'app_manage_id': tool['id']})
+                app_manage_version_list_result = hu.get(serivceName="p_job", restName="/rest/appmanage/appversionlist/",datas={'app_manage_id': id})
                 app_manage_version_list = app_manage_version_list_result.get("results", [])
 
                 if int(tool['infom']) == 2 or tool['script_lang'] == 'yaml':
