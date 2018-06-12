@@ -163,8 +163,13 @@ class DevopsAppMgeDeployView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseM
             tool_list_result = hu.get(serivceName="p_job", restName="/rest/tool/list/",datas={'tool_id': tool_id, 'tool_version': tool_version,'is_history': -1})  # /rest/job/list_tool_set/
             tool_list = tool_list_result.get("results", [])
             tool = {}
+            app_manage_version_list = []
             if len(tool_list) > 0:
                 tool = tool_list[0]
+
+                app_manage_version_list_result = hu.get(serivceName="p_job", restName="/rest/appmanage/appversionlist/",datas={'app_manage_id': tool['id']})
+                app_manage_version_list = app_manage_version_list_result.get("results", [])
+
                 if int(tool['infom']) == 2 or tool['script_lang'] == 'yaml':
                     hostgroupResult = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_tree/", datas=getData)
                     hostGroup_list = hostgroupResult.get("data", [])
@@ -182,7 +187,8 @@ class DevopsAppMgeDeployView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseM
                 del tool['is_enabled']
 
             context["version"] = version
-            context["result_dict"] = {}
+            context["app_versions"] = app_manage_version_list
+            #context["result_dict"] = {}
             context['hostGroup_list'] = hostGroup_list
             context['tool_info'] = tool
             context['commandId'] = commandId

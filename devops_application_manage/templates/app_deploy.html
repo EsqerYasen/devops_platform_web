@@ -31,6 +31,16 @@
                             </div>
                         </div>
                         {% endif %}
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label"><span class="red">*</span> 应用版本号</label>
+                            <div class="col-sm-10">
+                                <select id="app_version" class="form-control text_ar">
+                                    {% for o in app_versions %}
+                                    <option value="{{ o.version }}">{{ o.version }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
                         <div class="form-group" v-for="parm in tool_info.param">
                              <label class="col-sm-2 control-label"><span class="red"></span> {% verbatim %}{{ parm.paramNameZh|filterVersion }}{% endverbatim %}</label>
                              <div class="col-sm-10" v-if="parm.type === 'text'">
@@ -349,6 +359,12 @@ var app_page = new Vue({
             var command_set_id = {{ commandId }};
             var bind_type = {{ bind_type }};
             var remarks = $('#remarks').val();
+            var app_version = $('#app_version').val();
+            if(!app_version){
+                Alertwin.alert({message:"请选择应用版本"});
+                return false;
+            }
+
             var reqData = {"command_set_id":command_set_id,'deploy_id':'{{ deploy_id }}','bind_type':bind_type,'tool_id':tool_id,'tool_version':tool_version,"remarks":remarks};
 {#            var param = {};#}
 {#            $(tool_info.param).each(function(i,item){#}
@@ -365,6 +381,8 @@ var app_page = new Vue({
             reqData['target_type'] = formData.target_type;
             reqData['infom'] = tool_info.infom;
             reqData['script_lang'] = tool_info.script_lang;
+
+            tool_info.param.push({'paramNameZh':'version_yumc','value':app_version,'type':'version'})
 
             reqData['param'] = JSON.stringify(tool_info.param);
             reqData['csrfmiddlewaretoken'] = '{{ csrf_token }}';
