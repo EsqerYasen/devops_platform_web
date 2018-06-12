@@ -8,5 +8,6 @@ urlpatterns = [
         url(r'^(?P<pk>\d+)/edit/', DevopsFlowUpdateView.as_view(), name='edit'),
         url(r'^(?P<pk>\d+)/operation/', DevopsFlowOperationView.as_view(), name='operation'),
         url(r'^report/', DevopsFlowReportView.as_view(), name='report'),
+        url(r'^delete/', DevopsFlowDeleteView.as_view(), name='delete'),
     ]))
 ]
