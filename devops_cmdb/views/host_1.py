@@ -180,8 +180,9 @@ def import_host_fn(req,wb):
                 if addResult['status'] == 200:
                     add_total += 1
                     if groupId > 0:
-                        logger.info("static_group_append2 200 datas: groupId:%s host_ids%s:" % (groupId,host_ip))
-                        appendResult = hu.post(serivceName="cmdb", restName="/rest/hostgroup/static_group_append2/",datas={'group_id': groupId, 'host_id': addResult['id']})
+                        host_id = addResult['id']
+                        logger.info("static_group_append2 200 datas: groupId:%s host_ip:%s host_id:%s" % (groupId,host_ip,host_id))
+                        appendResult = hu.post(serivceName="cmdb", restName="/rest/hostgroup/static_group_append2/",datas={'group_id': groupId, 'host_id': host_id})
                         append = appendResult.json()
                         logger.info("static_group_append2 200 result:%s" % (append))
                         if append['status'] == 200:
@@ -196,9 +197,9 @@ def import_host_fn(req,wb):
                     result_host = addResult['host']
                     if int(result_host['go_live']) < 3:
                         if groupId > 0:
-                            logger.info("static_group_append2 400 datas: groupId:%s host_ids:%s" % (groupId, result_host['id']))
-                            appendResult = hu.post(serivceName="cmdb", restName="/rest/hostgroup/static_group_append2/",
-                                                   datas={'group_id': groupId, 'host_ids': [host_ip]})
+                            host_id = result_host['id']
+                            logger.info("static_group_append2 400 datas: groupId:%s host_ip:%s host_id:%s" % (groupId, host_ip,host_id))
+                            appendResult = hu.post(serivceName="cmdb", restName="/rest/hostgroup/static_group_append2/",datas={'group_id': groupId, 'host_id': host_id})
                             append = appendResult.json()
                             logger.info("static_group_append2 400 result:%s" % (append))
                             if append['status'] == 200:
