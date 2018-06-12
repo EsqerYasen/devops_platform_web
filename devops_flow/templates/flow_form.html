@@ -35,7 +35,8 @@
                         <div class="form-group">
                             <label class="col-sm-2 control-label"><span class="red">*</span> 工具版本</label>
                             <div class="col-sm-10">
-                                <select id="tool_version_sel" class="form-control text_ar" v-model="formData.tool_version" onchange="toolVersionSelChanage(this)">
+                                <select  class="form-control text_ar" v-model="formData.tool_id" onchange="toolVersionSelChanage">
+                                    <option :value="item.tool_id" v-for="item in tool_versions" v-html="item.tool_version"></option>
                                 </select>
                             </div>
                         </div>
@@ -57,6 +58,7 @@
     var page = new Vue({
         el: '#add_deploy_record',
         data: {
+            tool_versions:[],
             formData: {
                 id:'{{ app_info.id }}',
                 name:'{{ app_info.name }}',
@@ -72,6 +74,15 @@
 {#            removeVersion: function(index){#}
 {#                this.formData.version_list.splice(index, 1);#}
 {#            },#}
+            toolVersionSelChanage:function(){
+                var tool_id = this.formData.tool_id;
+                var t = this;
+                this.tool_versions.forEach(function(item){
+                    if(item.tool_id == tool_id ){
+                        t.formData.tool_version = item.tool_version;
+                    }
+                })
+            },
             checkForm: function(){
                 var formData = this.formData;
                 if(!formData.name){
@@ -135,14 +146,12 @@
     function getVersionByName(name,v){
         $.get('/working/tools/getversionbyname/?name='+name, function(r){
             if(r.status == 200){
-                var sel = $("#tool_version_sel");
-                sel.empty();
                 page.formData.tool_id='';
                 page.formData.tool_version = '';
                 if(r.data.length > 0){
-                    $(r.data).each(function(i,item){
-                       sel.append("<option tool_id='"+item.tool_id+"' value='"+item.tool_version+"'>"+item.tool_version+"</option>")
-                    });
+                    page.tool_versions = r.data;
+                    page.formData.tool_id = r.data[0].tool_id;
+                    page.formData.tool_version = r.data[0].tool_version;
                 }else{
                     Alertwin.alert({ message: '没有找到相关工具'});
                 }
@@ -150,11 +159,6 @@
                 Alertwin.alert({ message: '查询工具信息失败'});
             }
         });
-    }
-
-    function toolVersionSelChanage(sel){
-         var option = $(sel).find("option:selected");
-         page.formData.tool_id = option.attr('tool_id');
     }
 
 </script>
