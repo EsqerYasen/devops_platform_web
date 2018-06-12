@@ -128,6 +128,7 @@ def import_host_fn(req,wb):
         hu = HttpUtils(req)
         groupId = 0
         for i in range(1, wb.sheets()[0].nrows):
+            total += 1
             row = wb.sheets()[0].row_values(i)
             host_ip = row[0].strip()
             if re.match("((25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d)))\.){3}(25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d)))$",
@@ -181,45 +182,34 @@ def import_host_fn(req,wb):
                 if addResult['status'] == 200:
                     add_total += 1
                     if groupId > 0:
-                        logger.info("static_group_append 200 datas: groupId:%s host_ids%s:" % (groupId,host_ip))
-                        appendResult = hu.post(serivceName="cmdb", restName="/rest/hostgroup/static_group_append/",datas={'group_id': groupId, 'host_ids': [host_ip]})
+                        host_id = addResult['id']
+                        logger.info("static_group_append2 200 datas: groupId:%s host_ip:%s host_id:%s" % (groupId,host_ip,host_id))
+                        appendResult = hu.post(serivceName="cmdb", restName="/rest/hostgroup/static_group_append2/",datas={'group_id': groupId, 'host_id': host_id})
                         append = appendResult.json()
-                        logger.info("static_group_append 200 result:%s" % (append))
-                        if append['status'] == "SUCCESS":
-                            success_count = append['success_count']
-                            fail_count = append['fail_count']
-                            skip_count = append['skip_count']
-                            if int(success_count) > 0:
-                                binding_total += 1
-                            elif int(fail_count) > 0:
-                                failList.append({'host_ip': host_ip, "msg": "新增IP成功 %s 绑定失败 请检查此机器相关数据" % (path)})
-                            elif int(skip_count) > 0:
-                                failList.append({'host_ip': host_ip, "msg": "新增IP成功 %s 发现重复绑定此应用 取消绑定" % (path)})
-                            else:
-                                failList.append({'host_ip': host_ip, "msg": "新增IP成功 %s 未知错误 请检查此机器相关数据" % (path)})
+                        logger.info("static_group_append2 200 result:%s" % (append))
+                        if append['status'] == 200:
+                            binding_total += 1
+                        elif append['status'] == 400:
+                            failList.append({'host_ip': host_ip, "msg": "新增IP成功 %s 发现重复绑定此应用 取消绑定" % (path)})
+                        else:
+                            failList.append({'host_ip': host_ip, "msg": "新增IP成功 %s 绑定失败 请检查此机器相关数据" % (path)})
                     else:
                         failList.append({'host_ip': host_ip, "msg": "新增IP成功 %s未查询到此节点，绑定失败" % (path)})
                 elif addResult['status'] == 400:
-                    result_host = json.loads(addResult['host'])
+                    result_host = addResult['host']
                     if int(result_host['go_live']) < 3:
                         if groupId > 0:
-                            logger.info("static_group_append 400 datas: groupId:%s host_ids%s:" % (groupId, host_ip))
-                            appendResult = hu.post(serivceName="cmdb", restName="/rest/hostgroup/static_group_append/",
-                                                   datas={'group_id': groupId, 'host_ids': [host_ip]})
+                            host_id = result_host['id']
+                            logger.info("static_group_append2 400 datas: groupId:%s host_ip:%s host_id:%s" % (groupId, host_ip,host_id))
+                            appendResult = hu.post(serivceName="cmdb", restName="/rest/hostgroup/static_group_append2/",datas={'group_id': groupId, 'host_id': host_id})
                             append = appendResult.json()
-                            logger.info("static_group_append 400 result:%s" % (append))
-                            if append['status'] == "SUCCESS":
-                                success_count = append['success_count']
-                                fail_count = append['fail_count']
-                                skip_count = append['skip_count']
-                                if int(success_count) > 0:
-                                    binding_total += 1
-                                elif int(fail_count) > 0:
-                                    failList.append({'host_ip': host_ip, "msg": "新增IP成功 %s 绑定失败 请检查此机器相关数据" % (path)})
-                                elif int(skip_count) > 0:
-                                    failList.append({'host_ip': host_ip, "msg": "新增IP成功 %s 发现重复绑定此应用 取消绑定" % (path)})
-                                else:
-                                    failList.append({'host_ip': host_ip, "msg": "新增IP成功 %s 未知错误 请检查此机器相关数据" % (path)})
+                            logger.info("static_group_append2 400 result:%s" % (append))
+                            if append['status'] == 200:
+                                binding_total += 1
+                            elif append['status'] == 400:
+                                failList.append({'host_ip': host_ip, "msg": "IP已存在 %s 发现重复绑定此应用 取消绑定" % (path)})
+                            else:
+                                failList.append({'host_ip': host_ip, "msg": "IP已存在 %s 绑定失败 请检查此机器相关数据" % (path)})
                         else:
                             failList.append({'host_ip': host_ip, "msg": "IP已存在 %s未查询到此节点，绑定失败" % (path)})
                     else:

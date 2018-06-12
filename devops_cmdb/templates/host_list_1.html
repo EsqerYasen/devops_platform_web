@@ -443,9 +443,6 @@
                         <div class="col-sm-3">
                             <label class="col-sm-1 control-label" style="width: 60px">新增:</label><label id="import_info_add" class="col-sm-1 control-label" style="width: 150px"></label>
                         </div>
-                         <div class="col-sm-3">
-                            <label class="col-sm-1 control-label" style="width: 60px">绑定:</label><label id="import_info_bind" class="col-sm-1 control-label" style="width: 150px"></label>
-                        </div>
                         <div class="col-sm-3">
                             <label class="col-sm-1 control-label" style="width: 60px">失败:</label><label id="import_info_fail" class="col-sm-1 control-label" style="width: 150px"></label>
                         </div>
@@ -528,8 +525,7 @@
                     data = d.result
 
                     $("#import_info_total").text(data.total);
-                    $("#import_info_add").text(data.add_total);
-                    $("#import_info_bind").text(data.binding_total);
+                    $("#import_info_success").text(data.add_total);
                     $("#import_info_fail").text(data.fail);
                     var tb = $("#import_info_tb tbody");
                     $(data.failList).each(function(i,item){
