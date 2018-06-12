@@ -127,7 +127,8 @@ class DevopsAppMgeDeleteView(LoginRequiredMixin, JSONResponseMixin, View):
             req = self.request
             id = req.GET.get("id",0)
             hu = HttpUtils(req)
-            resultJson = hu.get(serivceName="p_job", restName="/rest/appmanage/deleteById/",datas={"id": id}) #/rest/app/delete_app/
+            delResult = hu.post(serivceName="p_job", restName="/rest/appmanage/deleteById/",datas={"id": id}) #/rest/app/delete_app/
+            resultJson = delResult.json()
             if resultJson['status'] == 200:
                 result['status'] = 0
                 result['msg'] = '删除成功'
