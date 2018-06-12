@@ -23,12 +23,14 @@
                 </div>
                 <div class="ibox-content" id="app_deploy">
                     <form class="form-horizontal" @submit.prevent="submit">
+                        {% if tool_info.infom|str_to_int == 2 or tool_info.script_lang == 'yaml' %}
                          <div class="form-group">
                             <label class="col-sm-2 control-label"><span class="red">*</span> 选择机器</label>
                             <div class="col-sm-10">
                                 <a href="javascript:;" class="btn btn-primary" @click="selectHost">选择机器</a>
                             </div>
                         </div>
+                        {% endif %}
                         <div class="form-group" v-for="parm in tool_info.param">
                              <label class="col-sm-2 control-label"><span class="red"></span> {% verbatim %}{{ parm.paramNameZh }}{% endverbatim %}</label>
                              <div class="col-sm-10" v-if="parm.type === 'text'">
