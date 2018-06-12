@@ -209,7 +209,7 @@ class DevopsAppMgeDeployView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseM
                                     value_set = []
                                     for f in f_list:
                                         if is_file(f):
-                                            value_set.append({'desc':'','name':f[f.rfind('/'):-1]})
+                                            value_set.append({'desc': '', 'name': f[f.rfind('/')+1:len(f)]})
                                     p['valueSet'] = value_set
                                     p['value'] = ''
                                 else:
