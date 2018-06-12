@@ -117,7 +117,7 @@ class DevopsFlowUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMix
 
 
 class DevopsFlowDeleteView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, TemplateView):
-    def post_ajax(self, request, *args, **kwargs):
+    def get_ajax(self, request, *args, **kwargs):
         result = {'status': 0}
         try:
             hu = HttpUtils(request)

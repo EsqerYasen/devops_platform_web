@@ -116,8 +116,8 @@ class DeployToolUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMix
         return HttpResponse(json.dumps(result), content_type='application/json')
 
 
-class DeployToolUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, TemplateView):
-    def post_ajax(self, request, *args, **kwargs):
+class DeployToolDeleteView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, TemplateView):
+    def get_ajax(self, request, *args, **kwargs):
         result = {'status': 0}
         try:
             hu = HttpUtils(self.request)
