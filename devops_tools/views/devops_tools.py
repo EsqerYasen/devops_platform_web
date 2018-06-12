@@ -144,8 +144,8 @@ class DevopsToolsUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMi
             if reqData:
                 logger.info("DevopsToolsUpdateView.post_ajax reqData:%s" % (reqData))
                 #tool_set_prime_type = reqData.get("tool_set_prime_type", None)
-                tool_set_type = reqData.get("tool_set_type", None)
-                if tool_set_type:
+                tool_type = reqData.get("tool_type", None)
+                if tool_type:
                     #if tool_set_prime_type == '1' and tool_set_type == '5':
                     script_md5 = reqData['script_md5']
                     command = reqData.get("command",None)

@@ -3,6 +3,7 @@ from django.views.generic import *
 from common.utils.HttpUtils import *
 from django.http import HttpResponse
 from django.core.paginator import Paginator
+from common.utils.common_utils import *
 import logging,time,os
 
 logger = logging.getLogger('devops_platform_log')
@@ -163,7 +164,7 @@ class DevopsAppMgeDeployView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseM
             tool = {}
             if len(tool_list) > 0:
                 tool = tool_list[0]
-                if int(tool['infom']) == 2:
+                if int(tool['infom']) == 2 or tool['script_lang'] == 'yaml':
                     hostgroupResult = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_tree/", datas=getData)
                     hostGroup_list = hostgroupResult.get("data", [])
                 if tool['is_public']:
@@ -200,9 +201,21 @@ class DevopsAppMgeDeployView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseM
                         if v.startswith('http'):
                             pass
                         else:
+                            v_f = None
                             try:
-                                v_f = open(v, 'r')
-                                p['value'] = v_f.readline().replace("\r",'').replace("\n",'')
+                                if is_dir(v):
+                                    p['type'] = 'select'
+                                    f_list = search_all_files_return_by_time_reversed(v)
+                                    value_set = []
+                                    for f in f_list:
+                                        if is_file(f):
+                                            value_set.append({'desc':'','name':f[f.rfind('/'):-1]})
+                                    p['valueSet'] = value_set
+                                    p['value'] = ''
+                                else:
+                                    p['type'] = 'text'
+                                    v_f = open(v, 'r')
+                                    p['value'] = v_f.readline().replace("\r", '').replace("\n", '')
 
                                 if p.get("type", None) == "path":
                                     p['type'] = 'text'
@@ -222,6 +235,7 @@ class DevopsAppMgeDeployView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseM
             reqData = hu.getRequestParam()
             bind_type = int(reqData['bind_type'])
             infom = int(reqData['infom'])
+            script_lang = reqData['script_lang']
             param = reqData.get('param', None)
             remarks = reqData.get('remarks')
             if param:
@@ -231,7 +245,7 @@ class DevopsAppMgeDeployView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseM
                     tool_version = reqData.get('tool_version')
                     if tool_id and tool_version:
                         bool = True
-                        if infom == 2:
+                        if infom == 2 or script_lang == 'yaml':
                             param = json.loads(param)
                             target_type = int(reqData['target_type'])
                             if target_type == 1:
@@ -240,13 +254,24 @@ class DevopsAppMgeDeployView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseM
                                 resultNhPilotList = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/",datas={"id": target_group_ids})
                                 host_list = resultNhPilotList.get("data", [])
                                 if len(host_list) > 0:
-                                    param['hosts'] = ','.join(host_list)
+                                    param.append(
+                                        {
+                                            'paramNameZh':'hosts',
+                                            'value':','.join(host_list)
+                                        }
+                                    )
                                 else:
                                     bool = False
                                     result['status'] = 500
                                     result['msg'] = '未查到机器列表'
                             else:
-                                param['hosts'] = reqData['target_host_list']
+                                target_host_list = ','.join(json.loads(reqData['target_host_list']))
+                                param.append(
+                                    {
+                                        'paramNameZh': 'hosts',
+                                        'value': target_host_list
+                                    }
+                                )
 
                         if bool:
                             operation_result = hu.post(serivceName="p_job",restName="/rest/appmanage/operation/",datas={'deploy_id':deploy_id,'bind_type':bind_type,'tool_id':tool_id,'tool_version':tool_version,'param':param,'remarks':remarks})

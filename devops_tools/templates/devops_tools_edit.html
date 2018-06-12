@@ -564,24 +564,54 @@
                 delete formData.param2;
                 delete formData.param3;
                 var script_lang = formData.script_lang;
-                if(!script_lang){
+               if(!script_lang){
                     script_lang = "";
-                }
-                $.ajax({
-                    type: "POST",
-                    url: '../edit/',
-                    data:{"csrfmiddlewaretoken":'{{ csrf_token }}','id':{{ result_dict.id }},'name':formData.name,'tool_set_prime_type':formData.tool_set_prime_type,
-                        'tool_set_type':formData.tool_set_type,'script_lang':script_lang,'command':editor.getValue(),'param':JSON.stringify(formData.param),
-                        'filename':formData.filename,'script_md5':formData.script_md5},
-                    error: function (request) {},
-                    success: function (data) {
-                        if(data.status==0){
-                            location.href = '../../list'
-                        }else{
-                            Alertwin.alert({ message: data.msg});
+               }
+               if(script_lang == 'yaml'){
+                    $.ajax({
+                        type: "POST",
+                        url: '../../yamlCheck/',
+                        data:{"csrfmiddlewaretoken":'{{ csrf_token }}','command':editor.getValue()},
+                        error: function (request) {},
+                        success: function (data) {
+                            if(data.status==0){
+                                $.ajax({
+                                    type: "POST",
+                                    url: '../edit/',
+                                    data:{"csrfmiddlewaretoken":'{{ csrf_token }}','id':{{ result_dict.id }},'name':formData.name,'infom':formData.infom,'tool_set_prime_type':formData.tool_set_prime_type,
+                                        'tool_type':formData.tool_set_type,'script_lang':script_lang,'command':editor.getValue(),'param':JSON.stringify(formData.param),'is_public':$('#is_enabled').val(),
+                                        'filename':formData.filename,'script_md5':formData.script_md5},
+                                    error: function (request) {},
+                                    success: function (data) {
+                                        if(data.status==0){
+                                            location.href = '../../list'
+                                        }else{
+                                            Alertwin.alert({ message: data.msg});
+                                        }
+                                    }
+                                });
+                            }else{
+                                Alertwin.alert({ message: data.msg});
+                            }
                         }
-                    }
-                });
+                    })
+               }else{
+                    $.ajax({
+                        type: "POST",
+                        url: '../edit/',
+                        data:{"csrfmiddlewaretoken":'{{ csrf_token }}','id':{{ result_dict.id }},'name':formData.name,'infom':formData.infom,'tool_set_prime_type':formData.tool_set_prime_type,
+                            'tool_type':formData.tool_set_type,'script_lang':script_lang,'command':editor.getValue(),'param':JSON.stringify(formData.param),'is_public':$('#is_enabled').val(),
+                            'filename':formData.filename,'script_md5':formData.script_md5},
+                        error: function (request) {},
+                        success: function (data) {
+                            if(data.status==0){
+                                location.href = '../../list'
+                            }else{
+                                Alertwin.alert({ message: data.msg});
+                            }
+                        }
+                    });
+               }
             }
         }
     });

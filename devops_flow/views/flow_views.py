@@ -5,6 +5,7 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.core.paginator import Paginator
 from django.conf import settings
+from common.utils.common_utils import *
 import logging,time,os
 
 logger = logging.getLogger('devops_platform_log')
@@ -177,9 +178,21 @@ class DevopsFlowOperationView(LoginRequiredMixin, JSONResponseMixin,AjaxResponse
                         if v.startswith('http'):
                             pass
                         else:
+                            v_f = None
                             try:
-                                v_f = open(v, 'r')
-                                p['value'] = v_f.readline().replace("\r",'').replace("\n",'')
+                                if is_dir(v):
+                                    p['type'] = 'select'
+                                    f_list = search_all_files_return_by_time_reversed(v)
+                                    value_set = []
+                                    for f in f_list:
+                                        if is_file(f):
+                                            value_set.append({'desc':'','name':f[f.rfind('/'):-1]})
+                                    p['valueSet'] = value_set
+                                    p['value'] = ''
+                                else:
+                                    p['type'] = 'text'
+                                    v_f = open(v, 'r')
+                                    p['value'] = v_f.readline().replace("\r", '').replace("\n", '')
 
                                 if p.get("type", None) == "path":
                                     p['type'] = 'text'
