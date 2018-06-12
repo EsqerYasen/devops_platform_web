@@ -183,12 +183,9 @@ class DeployToolOperationView(LoginRequiredMixin, JSONResponseMixin,AjaxResponse
                                     p['type'] = 'select'
                                     f_list = search_all_files_return_by_time_reversed(v)
                                     value_set = []
-                                    logger.info("-------------%s" % f_list)
                                     for f in f_list:
                                         if is_file(f):
-                                            logger.info("-------------%s" % f)
-                                            logger.info("-------------%s" % f[f.rfind('/'):-1])
-                                            value_set.append({'desc':'','name':f[f.rfind('/'):-1]})
+                                            value_set.append({'desc':'','name':f[f.rfind('/'):len(f)]})
                                     p['valueSet'] = value_set
                                     p['value'] = ''
                                 else:
