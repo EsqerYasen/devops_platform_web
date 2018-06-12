@@ -205,9 +205,9 @@ def import_host_fn(req,wb):
                             if append['status'] == 200:
                                 binding_total += 1
                             elif append['status'] == 400:
-                                failList.append({'host_ip': host_ip, "msg": "新增IP成功 %s 发现重复绑定此应用 取消绑定" % (path)})
+                                failList.append({'host_ip': host_ip, "msg": "IP已存在 %s 发现重复绑定此应用 取消绑定" % (path)})
                             else:
-                                failList.append({'host_ip': host_ip, "msg": "新增IP成功 %s 绑定失败 请检查此机器相关数据" % (path)})
+                                failList.append({'host_ip': host_ip, "msg": "IP已存在 %s 绑定失败 请检查此机器相关数据" % (path)})
                         else:
                             failList.append({'host_ip': host_ip, "msg": "IP已存在 %s未查询到此节点，绑定失败" % (path)})
                     else:
