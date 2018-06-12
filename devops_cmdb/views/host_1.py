@@ -181,7 +181,7 @@ def import_host_fn(req,wb):
                     add_total += 1
                     if groupId > 0:
                         logger.info("static_group_append2 200 datas: groupId:%s host_ids%s:" % (groupId,host_ip))
-                        appendResult = hu.post(serivceName="cmdb", restName="/rest/hostgroup/static_group_append2/",datas={'group_id': groupId, 'host_ids': [host_ip]})
+                        appendResult = hu.post(serivceName="cmdb", restName="/rest/hostgroup/static_group_append2/",datas={'group_id': groupId, 'host_id': addResult['id']})
                         append = appendResult.json()
                         logger.info("static_group_append2 200 result:%s" % (append))
                         if append['status'] == 200:
@@ -196,7 +196,7 @@ def import_host_fn(req,wb):
                     result_host = addResult['host']
                     if int(result_host['go_live']) < 3:
                         if groupId > 0:
-                            logger.info("static_group_append2 400 datas: groupId:%s host_ids:%s" % (groupId, host_ip))
+                            logger.info("static_group_append2 400 datas: groupId:%s host_ids:%s" % (groupId, result_host['id']))
                             appendResult = hu.post(serivceName="cmdb", restName="/rest/hostgroup/static_group_append2/",
                                                    datas={'group_id': groupId, 'host_ids': [host_ip]})
                             append = appendResult.json()
