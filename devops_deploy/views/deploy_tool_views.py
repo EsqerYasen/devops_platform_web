@@ -116,6 +116,27 @@ class DeployToolUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMix
         return HttpResponse(json.dumps(result), content_type='application/json')
 
 
+class DeployToolUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, TemplateView):
+    def post_ajax(self, request, *args, **kwargs):
+        result = {'status': 0}
+        try:
+            hu = HttpUtils(self.request)
+            reqData = hu.getRequestParam()
+            id = reqData.get("id", None)
+            deploy_tool_delete_result = hu.post(serivceName="p_job", restName="/rest/deploytool/deleteById/",datas={'id':id})  # /rest/deploytool/update/
+            deploy_tool_delete = deploy_tool_delete_result.json()
+            if deploy_tool_delete['status'] == 200:
+                result['status'] = 0
+                result['msg'] = '删除成功'
+            else:
+                result['status'] = 1
+                result['msg'] = '删除失败'
+        except Exception as e:
+            result['status'] = 1
+            result['msg'] = '删除异常'
+            logger.error(e)
+        return HttpResponse(json.dumps(result), content_type='application/json')
+
 
 class DeployToolOperationView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, TemplateView):
     template_name = "deploy_tool_operation.html"

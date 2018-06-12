@@ -116,6 +116,31 @@ class DevopsFlowUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMix
         return HttpResponse(json.dumps(result), content_type='application/json')
 
 
+class DevopsFlowDeleteView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, TemplateView):
+    def post_ajax(self, request, *args, **kwargs):
+        result = {'status': 0}
+        try:
+            hu = HttpUtils(request)
+            id = request.GET.get('id',None)
+            if id:
+                addAppResults = hu.post(serivceName="p_job", restName="/rest/flowcontrol/deleteById/",datas={'id':id})
+                addAppResults = addAppResults.json()
+                if addAppResults['status'] == 200:
+                    result['status'] = 0
+                    result['msg'] = '删除成功'
+                else:
+                    result['status'] = 1
+                    result['msg'] = '删除失败'
+            else:
+                result['status'] = 1
+                result['msg'] = '删除失败'
+        except Exception as e:
+            result['status'] = 1
+            result['msg'] = '删除异常'
+            logger.error(e, exc_info=1)
+        return HttpResponse(json.dumps(result), content_type='application/json')
+
+
 class DevopsFlowOperationView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, TemplateView):
     template_name = "flow_operation.html"
 

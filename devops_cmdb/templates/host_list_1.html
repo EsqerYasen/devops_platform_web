@@ -529,7 +529,7 @@
                     $("#import_info_fail").text(data.fail);
                     var tb = $("#import_info_tb tbody");
                     $(data.failList).each(function(i,item){
-                        var htmlStr = "<tr><td>"+item.host_ip+"</td><td>"+item.error+"</td></tr>";
+                        var htmlStr = "<tr><td>"+item.host_ip+"</td><td>"+item.msg+"</td></tr>";
                         tb.append(htmlStr)
                     });
                     if(data.isImportRun == 0 || d.isRun == 0){

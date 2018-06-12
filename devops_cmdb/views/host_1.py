@@ -199,7 +199,7 @@ def import_host_fn(req,wb):
                     else:
                         failList.append({'host_ip': host_ip, "msg": "新增IP成功 %s未查询到此节点，绑定失败" % (path)})
                 elif addResult['status'] == 400:
-                    result_host = json.loads(addResult['host'])
+                    result_host = addResult['host']
                     if int(result_host['go_live']) < 3:
                         if groupId > 0:
                             logger.info("static_group_append 400 datas: groupId:%s host_ids%s:" % (groupId, host_ip))
