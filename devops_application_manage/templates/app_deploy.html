@@ -361,10 +361,6 @@ var app_page = new Vue({
             var bind_type = {{ bind_type }};
             var remarks = $('#remarks').val();
             var app_version = $('#app_version').val();
-            if(!app_version){
-                Alertwin.alert({message:"请选择应用版本"});
-                return false;
-            }
 
             var reqData = {"command_set_id":command_set_id,'deploy_id':'{{ deploy_id }}','bind_type':bind_type,'tool_id':tool_id,'tool_version':tool_version,"remarks":remarks};
 {#            var param = {};#}
