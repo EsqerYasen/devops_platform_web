@@ -55,6 +55,45 @@ class VIPCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, Tem
         return HttpResponse(json.dumps(result),content_type='application/json')
 
 
+class VIPUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, TemplateView):
+    def post_ajax(self, request, *args, **kwargs):
+        result = {}
+        try:
+            hu = HttpUtils(self.request)
+            reqData = hu.getRequestParam()
+            vipAddResult = hu.post(serivceName="cmdb", restName="/rest/vip_edit/", datas={"id":reqData["id"],"name":reqData["name"],"key_code":reqData["key_code"],"virtual_router_id":reqData["virtual_router_id"]})
+            vipAdd = vipAddResult.json()
+            if vipAdd['status'] == "SUCCESS":
+                result['status'] = 0
+            else:
+                result['status'] = 1
+                result['msg'] = "更新VIP失败"
+        except Exception as e:
+            result['status'] = 1
+            result['msg'] = "更新VIP异常"
+            logger.error(e)
+        return HttpResponse(json.dumps(result),content_type='application/json')
+
+class VIPDeleteView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, TemplateView):
+    def post_ajax(self, request, *args, **kwargs):
+        result = {}
+        try:
+            hu = HttpUtils(self.request)
+            reqData = hu.getRequestParam()
+            vipDelResult = hu.post(serivceName="cmdb", restName="/rest/vip_del/", datas={"id":reqData["id"]})
+            vipdel = vipDelResult.json()
+            if vipdel['status'] == 200:
+                result['status'] = 0
+            else:
+                result['status'] = 1
+                result['msg'] = "删除VIP失败"
+        except Exception as e:
+            result['status'] = 1
+            result['msg'] = "删除VIP异常"
+            logger.error(e)
+        return HttpResponse(json.dumps(result),content_type='application/json')
+
+
 class VIPBindIPView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, TemplateView):
     def post_ajax(self, request, *args, **kwargs):
         result = {}
