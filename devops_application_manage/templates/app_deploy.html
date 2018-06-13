@@ -35,6 +35,7 @@
                             <label class="col-sm-2 control-label"><span class="red">*</span> 应用版本号</label>
                             <div class="col-sm-10">
                                 <select id="app_version" class="form-control text_ar">
+                                    <option value="" selected>-----------</option>
                                     {% for o in app_versions %}
                                     <option value="{{ o.version }}">{{ o.version }}</option>
                                     {% endfor %}
@@ -384,11 +385,13 @@ var app_page = new Vue({
 
             var param = [];
             $(tool_info.param).each(function(i,item){
-                if(!param['value'] || param['value'] != '' || param['value'] == 'default'){
+                if(!param['value'] && param['value'] != '' && param['value'] != 'default'){
                     param.push(item);
                 }
             })
-            param.push({'paramNameZh':'version_yumc','value':app_version,'type':'version'})
+            if(app_version){
+                param.push({'paramNameZh':'version_yumc','value':app_version,'type':'version'})
+            }
 
             reqData['param'] = JSON.stringify(param);
             reqData['csrfmiddlewaretoken'] = '{{ csrf_token }}';
