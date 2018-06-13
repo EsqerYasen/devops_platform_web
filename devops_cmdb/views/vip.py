@@ -79,8 +79,7 @@ class VIPDeleteView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, Tem
         result = {}
         try:
             hu = HttpUtils(self.request)
-            reqData = hu.getRequestParam()
-            vipDelResult = hu.post(serivceName="cmdb", restName="/rest/vip_del/", datas={"id":reqData["id"]})
+            vipDelResult = hu.post(serivceName="cmdb", restName="/rest/vip_del/", datas={"id":kwargs.get('pk',0)})
             vipdel = vipDelResult.json()
             if vipdel['status'] == 200:
                 result['status'] = 0
