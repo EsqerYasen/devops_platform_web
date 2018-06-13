@@ -60,6 +60,7 @@
                                 <label class="col-sm-2 control-label"> 执行日志</label>
                                <input id="deploy_id" type="hidden" value="{{ deploy_id }}"/>
                                <input id="bind_type" type="hidden" value="{{ bind_type }}"/>
+                               <input id="exec_type" type="hidden" value="{{ exec_type }}"/>
                                <input id="log_index" type="hidden" value="0"/>
                            </div>
                             <div class="row logbox ibox-content" style="width:100%;">
@@ -177,11 +178,12 @@
         var deploy_id = $("#deploy_id").val();
         var bind_type = $("#bind_type").val();
         var log_index = $("#log_index").val();
+        var exec_type = $("#exec_type").val();
         if(deploy_id && bind_type){
             $.ajax({
                   type: "GET",
                   url: '../getExecLog/',
-                  data:{"exec_id":deploy_id,"bind_type":bind_type,"log_index":log_index},
+                  data:{"exec_id":deploy_id,"bind_type":bind_type,"exec_type":exec_type,"log_index":log_index},
                   error: function (request) {
                       clearInterval(sh);
                       sh = null;

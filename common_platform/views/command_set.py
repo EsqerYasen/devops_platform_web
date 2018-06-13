@@ -321,6 +321,7 @@ class CommandExecuteLogView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMi
             context['name'] = name
             context['deploy_id'] = deploy_id
             context['bind_type'] = bind_type
+            context['exec_type'] = req.GET.get("exec_type","")
         except Exception as e:
             logger.error(e)
         return context
@@ -341,6 +342,7 @@ class GetCommandExecuteLogView(LoginRequiredMixin,JSONResponseMixin, AjaxRespons
             id = req.GET.get("id", None)
             deploy_id = req.GET.get("exec_id", None)
             bind_type = req.GET.get("bind_type", None)
+            exec_type = req.GET.get("exec_type", None)
             log_index = int(req.GET.get("log_index", 0))
             log_str = ""
             if deploy_id and bind_type:
@@ -362,7 +364,7 @@ class GetCommandExecuteLogView(LoginRequiredMixin,JSONResponseMixin, AjaxRespons
                         result_json['log_str'] = "未查询到相关记录"
                         result_json['status'] = 500
                 else:
-                    log_k = "%s_%s_log" % (deploy_id, bind_type)
+                    log_k = "%s_%s_%s_log" % (deploy_id, bind_type,exec_type)
                     r_v1 = RedisBase.get("%s_%s" % (deploy_id, bind_type),1)
                     if r_v1:
                         r_v1 = str(r_v1,encoding="utf-8")
