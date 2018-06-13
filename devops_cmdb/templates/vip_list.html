@@ -57,7 +57,7 @@
                     </td>
                     <td>
                         <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='#vip_add_modal' data-vipid="{{ o.id }}" data-vip="{{ o.name }}" data-vrid="{{ o.virtual_router_id }}" style="margin-right: 10px"><i class="glyphicon glyphicon-edit"></i> 修改</button>
-                        <a href="../{{ o.id }}/delete" class="btn btn-sm btn-success"><i class="fa fa-book"></i> 删除</a>
+                        <a href="javascript:void(0)" onclick="deleteVip('{{ o.id }}')" class="btn btn-sm btn-danger"><i class="fa fa-book"></i> 删除</a>
                     </td>
                 </tr>
             {% endfor %}
@@ -87,6 +87,22 @@
                 $("#virtual_router_id").val('');
             })
         });
+
+        function deleteVip(id){
+            if(id){
+                Alertwin.confirm({ message: "确认要删除选择的数据吗？" }).on(function (e) {
+                 $.ajax({
+                    type: "GET",
+                    url: '../delete',
+                    data:{"id":id},
+                    error: function (request) {},
+                    success: function (data) {
+                        location.reload();
+                    }
+                });
+             });
+            }
+        }
     </script>
 {% endblock %}
 

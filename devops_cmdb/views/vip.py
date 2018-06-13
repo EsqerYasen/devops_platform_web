@@ -75,11 +75,12 @@ class VIPUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, Tem
         return HttpResponse(json.dumps(result),content_type='application/json')
 
 class VIPDeleteView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, TemplateView):
-    def get(self, request, *args, **kwargs):
+    def get_ajax(self, request, *args, **kwargs):
         result = {}
         try:
             hu = HttpUtils(self.request)
-            vipDelResult = hu.post(serivceName="cmdb", restName="/rest/vip_del/", datas={"id":kwargs.get('pk',0)})
+            reqData = hu.getRequestParam()
+            vipDelResult = hu.post(serivceName="cmdb", restName="/rest/vip_del/", datas={"id":reqData["id"]})
             vipdel = vipDelResult.json()
             if vipdel['status'] == 200:
                 result['status'] = 0
