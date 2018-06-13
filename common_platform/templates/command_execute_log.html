@@ -153,11 +153,12 @@
     function execute_record_list(){
         var deploy_id = $("#deploy_id").val();
         var bind_type = $("#bind_type").val();
+        var exec_type = $("#exec_type").val();
         if(deploy_id && bind_type) {
             $.ajax({
                 type: "GET",
                 url: '../executeRecordList/',
-                data: {"exec_id": deploy_id, "bind_type": bind_type},
+                data: {"exec_id": deploy_id, "type": exec_type},
                 error: function (error) {
                     console.log(error);
                 },
