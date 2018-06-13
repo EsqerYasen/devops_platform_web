@@ -47,6 +47,6 @@ urlpatterns = [
         url(r'^add/', VIPCreateView.as_view(), name='add'),
         url(r'^edit/', VIPUpdateView.as_view(), name='edit'),
         url(r'^bindIp/', VIPBindIPView.as_view(), name='bindIp'),
-        url(r'^(?P<pk>\d+)/delete/', VIPDeleteView.as_view(), name='delete'),
+        url(r'^delete/', VIPDeleteView.as_view(), name='delete'),
     ]))
 ]
