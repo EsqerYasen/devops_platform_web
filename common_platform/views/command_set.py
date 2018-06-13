@@ -348,7 +348,7 @@ class GetCommandExecuteLogView(LoginRequiredMixin,JSONResponseMixin, AjaxRespons
             if deploy_id and bind_type:
                 if id:
                     hu = HttpUtils(request)
-                    execRecordResult = hu.get(serivceName="p_job", restName="/rest/tool/execRecordList/", datas={'id': id})
+                    execRecordResult = hu.get(serivceName="p_job", restName="/rest/tool/execRecordList/", datas={'id': id,'type':exec_type})
                     list = execRecordResult.get("results", [])
                     if len(list):
                         execRecord = list[0]
@@ -365,7 +365,7 @@ class GetCommandExecuteLogView(LoginRequiredMixin,JSONResponseMixin, AjaxRespons
                         result_json['status'] = 500
                 else:
                     log_k = "%s_%s_%s_log" % (deploy_id, bind_type,exec_type)
-                    r_v1 = RedisBase.get("%s_%s" % (deploy_id, bind_type),1)
+                    r_v1 = RedisBase.get("%s_%s_%s" % (deploy_id, bind_type,exec_type),1)
                     if r_v1:
                         r_v1 = str(r_v1,encoding="utf-8")
                     r_v2 = RedisBase.exists(log_k,1)

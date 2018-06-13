@@ -60,7 +60,7 @@
                 <td>
                     <a href="../{{ o.id }}/edit/" class="btn btn-sm btn-success"><i class="fa fa-edit"></i>&nbsp;编辑</a>
                     <a href="javascript:void(0)" class="btn btn-sm btn-success" onclick="deployToolOperation('{{ o.id }}','{{ o.name }}','{{ o.tool_id }}','{{ o.tool_version }}','{{ o.command_set_id }}','{{ o.bind_type }}')"><i class="fa fa-play"></i>发版</a>
-                    <a href="/platform/command_set/{{ o.id }}/execLog?deploy_id={{ o.id }}&bind_type=1&name={{ o.name }}" class="btn btn-sm btn-success"><i class="fa fa-list"></i>&nbsp;历史</a>
+                    <a href="/platform/command_set/{{ o.id }}/execLog?deploy_id={{ o.id }}&bind_type=1&name={{ o.name }}&exec_type=2" class="btn btn-sm btn-success"><i class="fa fa-list"></i>&nbsp;历史</a>
                     <a href="javascript:void(0)" onclick="deleteDeployTool('{{ o.id }}')" class="btn  btn-sm btn-danger"><i class="fa fa-trash"></i>&nbsp;删除</a>
                 </td>
             </tr>
