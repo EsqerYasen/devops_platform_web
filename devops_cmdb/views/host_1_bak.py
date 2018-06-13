@@ -59,7 +59,7 @@ class List1View(LoginRequiredMixin, OrderableListMixin, ListView):
             context['page_obj'] = paginator.page(req.offset)
             context['paginator'] = paginator
         except Exception as e:
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return context
 
 
@@ -128,7 +128,7 @@ class Host1Import(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, View)
             #         result_json = {"status": 0}
         except Exception as e:
             result_json = {"status": 1,"msg":"导入执行异常"}
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return self.render_json_response(result_json)
 
 
@@ -199,7 +199,7 @@ def importFunction(req,wb):
                     d['error'] = failDict.get(d['status'], "其他错误")
                     failList.append(d)
     except Exception as e:
-        logger.error(e)
+        logger.error(e,exc_info=1)
     finally:
         s = HOST1_IMPORT_STATIC[username]
         s['isImportRun'] = 0
@@ -277,7 +277,7 @@ class Host1EditView(LoginRequiredMixin,JSONResponseMixin, AjaxResponseMixin, Vie
                 if result['status'] == '0':
                     result_json = {"status": 0}
         except Exception as e:
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return self.render_json_response(result_json)
 
 
@@ -295,7 +295,7 @@ class Host1DeleteView(LoginRequiredMixin,JSONResponseMixin, View):
             if len(result) > 0:
                 result_json = {"status": 0}
         except Exception as e:
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return self.render_json_response(result_json)
 
 class Host1ScanView(LoginRequiredMixin,JSONResponseMixin, View):

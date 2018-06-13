@@ -28,7 +28,7 @@ def checkLogin(request):
     redirect_url = "/?type=1"
     try:
         method = request.method
-        bool = True
+        bool = False
         username = ""
         if method == "GET":
             code = request.GET.get('code',None)

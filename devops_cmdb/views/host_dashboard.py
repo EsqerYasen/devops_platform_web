@@ -40,7 +40,7 @@ class HostDashboardView(LoginRequiredMixin, OrderableListMixin,JSONResponseMixin
                 resultList = self.GetPublicEGiftcardInfo();
 
         except Exception as e:
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return self.render_json_response(resultList)
 
     def GetPhysicalIdcInfo(self):

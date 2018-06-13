@@ -92,7 +92,7 @@ class IssuesDetailView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, 
                     result['reporter'] = fields['reporter']['name']
             context["result"] = result
         except Exception as e:
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return context
 
     def post_ajax(self, request, *args, **kwargs):
@@ -111,7 +111,7 @@ class IssuesDetailView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, 
                 jira_obj.transition_issues(issues_id, transition_id, assignee, comment)
                 JIRA_ISSUES.objects.filter(issues_id=issues_id).update(issue_assignee=assignee,issue_status=None)
         except Exception as e:
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return HttpResponse(json.dumps(result),content_type='application/json')
 
 class JiraIssueListSync():
@@ -145,4 +145,4 @@ class JiraIssueListSync():
                                 }
                     JIRA_ISSUES.objects.update_or_create(issues_id=issues.id, defaults=defaults)
         except Exception as e:
-            logger.error(e)
+            logger.error(e,exc_info=1)

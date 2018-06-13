@@ -16,7 +16,9 @@
                                 <label class="control-label"> 执行历史</label>
                             </div>
                             <div class="row" style="height: 95%;">
-                                <table style="width: 100%;max-height: 100%;text-align:center;overflow-y: auto; ">
+                                <table id="executeRecordListTb" style="width: 100%;max-height: 100%;text-align:center;overflow-y: auto; ">
+                                    <tbody></tbody>
+
                                     {% if job_id %}
 {#                                        <tr>#}
 {#                                            <td style="height:20px">#}
@@ -56,8 +58,9 @@
                         <div class="col-sm-10" style="border-style: groove;height: 100%;">
                            <div class="row" style="height: 5%;">
                                 <label class="col-sm-2 control-label"> 执行日志</label>
-                               <input id="command_set_id" type="hidden" value="{{ set_id }}"/>
-                               <input id="command_job_id" type="hidden" value="{{ job_id }}"/>
+                               <input id="deploy_id" type="hidden" value="{{ deploy_id }}"/>
+                               <input id="bind_type" type="hidden" value="{{ bind_type }}"/>
+                               <input id="log_index" type="hidden" value="0"/>
                            </div>
                             <div class="row logbox ibox-content" style="width:100%;">
                                 <div class="row" style="height:20px;">
@@ -141,58 +144,82 @@
         get_job_output();
         clearInterval(sh);
         sh = null;
-        sh = setInterval(get_job_output,3000);
+        sh = setInterval(get_job_output,2000);
+        execute_record_list();
+    }
+
+
+    function execute_record_list(){
+        var deploy_id = $("#deploy_id").val();
+        var bind_type = $("#bind_type").val();
+        if(deploy_id && bind_type) {
+            $.ajax({
+                type: "GET",
+                url: '../executeRecordList/',
+                data: {"exec_id": deploy_id, "bind_type": bind_type},
+                error: function (error) {
+                    console.log(error);
+                },
+                success: function (data) {
+                    var trhtml = "";
+                    var tb = $("#executeRecordListTb");
+                    tb.empty();
+                    $(data.data).each(function (i, item) {
+                        trhtml += "<tr><td style='height:20px'><a href='javascript:void(0)' onclick='showLogInfo("+deploy_id+","+bind_type+","+item.id+")'>" + item.exec_num+"_"+item.create_time + "</a></tr>"
+                    })
+                    tb.append(trhtml);
+                }
+            })
+        }
     }
 
     function get_job_output(){
-        var job_id = $("#command_job_id").val()
-        if(job_id){
+        var deploy_id = $("#deploy_id").val();
+        var bind_type = $("#bind_type").val();
+        var log_index = $("#log_index").val();
+        if(deploy_id && bind_type){
             $.ajax({
                   type: "GET",
                   url: '../getExecLog/',
-                  data:{"jobId":job_id},
+                  data:{"exec_id":deploy_id,"bind_type":bind_type,"log_index":log_index},
                   error: function (request) {
                       clearInterval(sh);
                       sh = null;
                   },
                   success: function (data) {
-                     var jsonObj = data.log_info;
-                     var textArea = $("#textarea_log");
-                     textArea.text("");
-                     if(jsonObj){
-                        var steps = jsonObj["command_steps"]
-                         $(steps).each(function(i,item){
-                             textArea.append("----------------------------------------------------------------"+item.name+"-----------------------------------------------------------------\n");
-                             var lines = item["command_lines"];
-                             var success_count = 0;
-                             var fail_count = 0;
-                             $(lines).each(function(i2,item2){
-                                success_count = item2['success_count'];
-                                fail_count = item2['fail_count'];
-                                textArea.append(item2["result_message"]);
-                                textArea.append("\n***********************\n")
-                             })
-                             textArea.append("成功："+success_count+"台    失败："+fail_count+"台\n");
-                             textArea.append("----------------------------------------------------------------------------------------------------------------------------------------------\n");
-                         })
-                     }
-                     var status = jsonObj["status"];
-                     if(status != 1){
-                        var classStr = "";
-                        var span = $("#1"+jsonObj['job_id']).removeClass();
-                        $("#stopBtn").css({"display":"none"});
-                        if(status == 2){
-                            span.addClass("glyphicon glyphicon-ok");
-                            span.css({'color':'green'});
-                        }else{
-                            span.addClass("glyphicon glyphicon-remove");
-                            span.css({'color':'red'});
-                        }
-                        $("#"+jsonObj['job_id']).addClass(classStr);
-                        clearInterval(sh);
-                        $("#log_modal_img").hide();
-                        sh = null;
-                     }
+                      if(data.status == 200){
+                          var log_str = data.log_str;
+                          $("#log_index").val(data.log_index);
+                          if(log_str && log_str != ""){
+                              var textArea = $("#textarea_log");
+                              textArea.append(data.log_str);
+                          }
+                          $('pre,div').each(function(){
+                              $(this)[0].scrollTop = $(this)[0].scrollHeight
+                          });
+                          $(document).scrollTop($(document).height()-$(window).height());
+                      }else{
+                          $("#log_modal_img").hide();
+                          clearInterval(sh);
+                          sh = null;
+                      }
+{#                      var status = jsonObj["status"];#}
+{#                      if(status != 1){#}
+{#                          var classStr = "";#}
+{#                          var span = $("#1"+jsonObj['job_id']).removeClass();#}
+{#                          $("#stopBtn").css({"display":"none"});#}
+{#                          if(status == 2){#}
+{#                              span.addClass("glyphicon glyphicon-ok");#}
+{#                              span.css({'color':'green'});#}
+{#                          }else{#}
+{#                              span.addClass("glyphicon glyphicon-remove");#}
+{#                              span.css({'color':'red'});#}
+{#                          }#}
+{#                          $("#"+jsonObj['job_id']).addClass(classStr);#}
+{#                          clearInterval(sh);#}
+{#                          $("#log_modal_img").hide();#}
+{#                          sh = null;#}
+{#                      }#}
                   }
             });
         }else{
@@ -202,36 +229,22 @@
         }
     }
 
-    function showLogInfo(jobId){
+    function showLogInfo(deploy_id,bind_type,id){
          clearInterval(sh);
          $("#log_modal_img").hide();
          sh = null;
         $.ajax({
             type: "GET",
             url: '../getExecLog/',
-            data:{"jobId":jobId},
+            data:{"exec_id":deploy_id,"bind_type":bind_type,"id":id},
             error: function (request) {},
             success: function (data) {
-                var jsonObj = data.log_info;
-                var textArea = $("#textarea_log");
-                textArea.text("");
-                if(jsonObj){
-                    var steps = jsonObj["command_steps"]
-                     $(steps).each(function(i,item){
-                         textArea.append("----------------------------------------------------------------"+item.name+"-----------------------------------------------------------------\n");
-                         var lines = item["command_lines"]
-                         var success_count = 0;
-                         var fail_count = 0;
-                         $(lines).each(function(i2,item2){
-                            success_count = item2['success_count'];
-                            fail_count = item2['fail_count'];
-                            textArea.append(item2["result_message"]);
-                            textArea.append("\n***********************\n")
-                         })
-                         textArea.append("成功："+success_count+"台    失败："+fail_count+"台\n");
-                         textArea.append("----------------------------------------------------------------------------------------------------------------------------------------------\n");
-                     })
-                }
+                 var log_str = data.log_str;
+                 if(log_str && log_str != ""){
+                      var textArea = $("#textarea_log");
+                      textArea.empty();
+                      textArea.append(data.log_str);
+                 }
             }
         });
     }

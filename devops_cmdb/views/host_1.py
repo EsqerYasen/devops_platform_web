@@ -70,7 +70,7 @@ class List1View(LoginRequiredMixin, OrderableListMixin, ListView):
             context['page_obj'] = paginator.page(req.offset)
             context['paginator'] = paginator
         except Exception as e:
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return context
 
 
@@ -113,9 +113,8 @@ class Host1Import(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, View)
                 result_json = {"status": 1, "msg":"您有后台任务正在执行导入操作，请稍后操作导入"}
         except Exception as e:
             result_json = {"status": 1,"msg":"导入执行异常"}
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return self.render_json_response(result_json)
-
 
 def import_host_fn(req,wb):
     total = 0
@@ -230,6 +229,147 @@ def import_host_fn(req,wb):
 
 
 
+# def importFunction(req,wb):
+#     updateReq = []
+#     failList = []
+#     success = 0
+#     binding = 0
+#     total = 0
+#     try:
+#         username = req.user.username
+#         HOST1_IMPORT_STATIC[username] = {'isImportRun':1}
+#         addReq = []
+#         param = []
+#         hu = HttpUtils(req)
+#         failDict = {1: '不合法的IP', 2: 'IP已存在于数据库', 3: '数据库操作失败', 4: 'IP不存在于数据库', 5: '不可修改已上线的主机'}
+#         for i in range(1, wb.sheets()[0].nrows):
+#             row = wb.sheets()[0].row_values(i)
+#             host_ip = row[0].strip()
+#             biz_brand = row[1].strip()
+#             biz_group = row[2].strip()
+#             physical_idc = row[3].strip()
+#             deployment_environment = row[4].strip()
+#             logical_idc = row[5].strip()
+#             biz_module = row[6].strip()
+#             groupId = None
+#
+#             count = 0
+#             path = ""
+#             if biz_brand:
+#                 path+=biz_brand
+#                 count+=1
+#             if biz_group:
+#                 path += "_"+biz_group
+#                 count += 1
+#             if physical_idc:
+#                 path += "_"+physical_idc
+#                 count += 1
+#             if deployment_environment:
+#                 path += "_" + deployment_environment
+#                 count += 1
+#             if logical_idc:
+#                 path += "_" + logical_idc
+#                 count += 1
+#             if biz_module:
+#                 path += "_" + biz_module
+#                 count += 1
+#             if count == 6:
+#                 getPathResult = hu.get(serivceName="cmdb", restName="/rest/hostgroup/get_id_by_path/",datas={"path": path})
+#                 print(getPathResult)
+#                 if getPathResult['status'] == "SUCCESS":
+#                     groupId = getPathResult['data']
+#                 else:
+#                     failList.append({'host_ip':})
+#
+#             addReq.append({'host_ip':host_ip})
+#             param.append({'host_ip': host_ip, 'biz_brand': biz_brand, 'biz_group': biz_group,'physical_idc': physical_idc,
+#                              'deployment_environment': deployment_environment,"logical_idc":logical_idc,"biz_module":biz_module,"group_id":groupId})
+#
+#         total = len(addReq)
+#         addResult = hu.post(serivceName="cmdb", restName="/rest/host/add/", datas=addReq)
+#         addResult = addResult.json()
+#         if len(addResult) > 0:
+#             #for d in addResult:
+#             for j in range(len(addResult)):
+#                 d = addResult[j]
+#                 status = d['status']
+#                 host_ip = d['host_ip']
+#                 if status == 0:
+#                     #updateReq.append(param[host_ip])
+#                     updateReq.append(param[j])
+#                 elif status == 2: #IP已存在于数据库 追加绑定应用
+#                     #group_id = param[host_ip]['group_id']
+#                     group_id = param[j]['group_id']
+#                     if (group_id):
+#                         resultJson = hu.get(serivceName="cmdb", restName="/rest/host/", datas={"host_ip":host_ip})
+#                         list = resultJson.get("results", [])
+#                         if len(list) > 0:
+#                             host = list[0];
+#                             go_live = host['go_live']
+#                             if int(go_live) < 3:
+#                                 hostId = host['id']
+#                                 appendResult = hu.post(serivceName="cmdb", restName="/rest/hostgroup/static_group_append/",
+#                                                        datas={'group_id': group_id, 'host_ids': [hostId]})
+#                                 append = appendResult.json()
+#                                 if append['status'] == "SUCCESS":
+#                                     success_count = append['success_count']
+#                                     fail_count = append['fail_count']
+#                                     skip_count = append['skip_count']
+#                                     if int(success_count) > 0:
+#                                         binding += 1
+#                                         d['error'] = "IP已存在于数据库 追加绑定应用:%s_%s_%s_%s_%s_%s" % (
+#                                          param[j]['biz_brand'], param[j]['biz_group'], param[j]['physical_idc'],
+#                                          param[j]['deployment_environment'], param[j]['logical_idc'], param[j]['biz_module'])
+#                                         #param[host_ip]['biz_brand'], param[host_ip]['biz_group'], param[host_ip]['physical_idc'],
+#                                         #param[host_ip]['deployment_environment'], param[host_ip]['logical_idc'], param[host_ip]['biz_module'])
+#                                     elif int(fail_count) > 0:
+#                                         d['error'] = "绑定失败 请检查此机器相关数据"
+#                                     elif int(skip_count) > 0:
+#                                         d['error'] = "发现重复绑定此应用 取消绑定"
+#                                     else:
+#                                         d['error'] = "未知错误 请检查此机器相关数据"
+#                                 else:
+#                                     d['error'] = "绑定失败 请检查此机器相关数据"
+#                             else:
+#                                 d['error'] = "此机器已上线 无法绑定应用"
+#                     failList.append(d)
+#                 else:
+#                     d['error'] = failDict.get(d['status'], "其他错误")
+#                     failList.append(d)
+#
+#         updateResult = hu.post(serivceName="cmdb", restName="/rest/host/update/", datas=updateReq)
+#         updateResult = updateResult.json()
+#
+#         if len(updateResult) > 0:
+#             for d in updateResult:
+#                 status = d['status']
+#                 if status == 0:
+#                     host_ip = d['host_ip']
+#                     success += 1
+#                     group_id = param[host_ip]['group_id']
+#                     if(group_id):
+#                         appendResult = hu.post(serivceName="cmdb", restName="/rest/hostgroup/static_group_append/", datas={'group_id':group_id,'host_ids':[d['host_id']]})
+#                         append = appendResult.json()
+#                         if append['status'] == "SUCCESS":
+#                             binding+=1
+#                         else:
+#                             d['error'] = "绑定失败"
+#                             failList.append(d)
+#                 else:
+#                     d['error'] = failDict.get(d['status'], "其他错误")
+#                     failList.append(d)
+#
+#     except Exception as e:
+#         logger.error(e,exc_info=1)
+#     finally:
+#         s = HOST1_IMPORT_STATIC[username]
+#         s['isImportRun'] = 0
+#         s['success'] = success
+#         s['binding'] = binding
+#         s['fail'] = len(failList)
+#         s['total'] = total
+#         s['failList'] = failList
+
 class GetImportStatus(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, View):
     def get_ajax(self, request, *args, **kwargs):
         result_json = {"status": 1, "msg": "导入执行异常"}
@@ -286,7 +426,7 @@ class Host1BindingGroup(LoginRequiredMixin,JSONResponseMixin, View):
                     result_json['failCount'] = result['fail_count']
                     result_json['successCount'] = result['success_count']
         except Exception as e:
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return self.render_json_response(result_json)
 
 
@@ -307,7 +447,7 @@ class Host1UnbundlingGroup(LoginRequiredMixin,JSONResponseMixin, View):
                     result_json['failCount'] = result['fail_count']
                     result_json['successCount'] = result['success_count']
         except Exception as e:
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return self.render_json_response(result_json)
 
 
@@ -325,7 +465,7 @@ class Host1DeleteView(LoginRequiredMixin,JSONResponseMixin, View):
             if len(result) > 0:
                 result_json = {"status": 0}
         except Exception as e:
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return self.render_json_response(result_json)
 
 class Host1ScanView(LoginRequiredMixin,JSONResponseMixin, View):
@@ -342,7 +482,7 @@ class Host1ScanView(LoginRequiredMixin,JSONResponseMixin, View):
             if len(result) > 0:
                 result_json = {"status": 0}
         except Exception as e:
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return self.render_json_response(result_json)
 
 class Host1ToNotOnlineView(LoginRequiredMixin,JSONResponseMixin, AjaxResponseMixin, View):
@@ -365,5 +505,5 @@ class Host1ToNotOnlineView(LoginRequiredMixin,JSONResponseMixin, AjaxResponseMix
                 result_json['success'] = success
                 result_json['fail'] = fail
         except Exception as e:
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return self.render_json_response(result_json)

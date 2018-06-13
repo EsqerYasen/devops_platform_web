@@ -70,7 +70,7 @@ class List2View(LoginRequiredMixin, OrderableListMixin, ListView):
             context['page_obj'] = paginator.page(req.offset)
             context['paginator'] = paginator
         except Exception as e:
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return context
 
 
@@ -105,7 +105,7 @@ class Host2UpdateGoLiveView(LoginRequiredMixin,JSONResponseMixin, AjaxResponseMi
             if result['status'] == '0':
                 result_json = {"status": 0}
         except Exception as e:
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return self.render_json_response(result_json)
 
 
@@ -128,7 +128,7 @@ class Host2BindingGroup(LoginRequiredMixin,JSONResponseMixin, View):
                     result_json['failCount'] = result['fail_count']
                     result_json['successCount'] = result['success_count']
         except Exception as e:
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return self.render_json_response(result_json)
 
 

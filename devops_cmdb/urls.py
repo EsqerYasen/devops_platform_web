@@ -45,6 +45,8 @@ urlpatterns = [
     url(r'^vip/', include([
         url(r'^list/', VIPListView.as_view(), name='list'),
         url(r'^add/', VIPCreateView.as_view(), name='add'),
+        url(r'^edit/', VIPUpdateView.as_view(), name='edit'),
         url(r'^bindIp/', VIPBindIPView.as_view(), name='bindIp'),
+        url(r'^delete/', VIPDeleteView.as_view(), name='delete'),
     ]))
 ]

@@ -72,8 +72,8 @@
                                 <label class="col-sm-2 control-label"> 类型</label>
 	                            <div class="col-sm-10">
 		                           <select v-model="formData.tool_set_type" class="form-control" style="width:20%">
-                                       <option value="1">常用命令</option>
                                        <!--
+                                       <option value="1">常用命令</option>
                                        <option value="2">上传文件</option>
                                        <option value="3">远程文件</option>
                                        <option value="4">脚本</option>
@@ -112,7 +112,9 @@
 											    <label ><span class="red">*</span> 类型</label>
 					                            <select class="form-control" style="min-width: 150px" v-model="p.type">
                                                   <option value="text">字符</option>
-                                                     <option value="select">枚举</option>
+                                                     <option value="select">单选</option>
+                                                    <option value="multiple">多选</option>
+                                                    <option value="path">PATH</option>
                                                   <!--
 												  <option value="textshell">shell脚本</option>
                                                   <option value="select">下拉框</option>
@@ -122,17 +124,26 @@
 												</select>
 				                            </div>
 
+                                                <div class="fl pabx" v-if="p.type =='text'">
+                                                        <label> 默认值</label>
+                                                        <input class="form-control" style="width: 150px" v-model="p.value"/>
+                                                    </div>
+                                                <div class="fl pabx" v-if="p.type =='path'">
+                                                        <label><span class="red">*</span> URL</label>
+                                                        <input class="form-control" style="width: 150px" v-model="p.value"/>
+                                                    </div>
 				                            <div class="fl pabx">
 											    <label ><span class="red">*</span> 描述</label>
-                                                <textarea v-if="p.type=='select'" type="text" class="form-control" style="width: 250px" v-model="p.desc"></textarea>
-                                                <input v-if="p.type=='text'" type="text" class="form-control" style="width: 250px" v-model="p.desc"/>
+                                                <textarea v-if="p.type=='select'||p.type=='multiple'" type="text" class="form-control" style="width: 250px" v-model="p.desc"></textarea>
+                                                <input v-if="p.type=='text'||p.type=='path'" type="text" class="form-control" style="width: 250px" v-model="p.desc"/>
 				                            </div>
-				                             <div class="" style="display: block;width: 100%;clear: both;padding: 10px;" v-if="p.type === 'select'">
+
+				                             <div class="" style="display: block;width: 100%;clear: both;padding: 10px;" v-if="p.type === 'select'|| p.type === 'multiple'">
 			                                    <hr style="margin: 5px 10px;">
 		                                    </div>
 
 
-				                            <div class="form-group" v-if="p.type === 'select'" style="padding-left: 30px;padding-right: 30px">
+				                            <div class="form-group" v-if="p.type === 'select' || p.type === 'multiple'" style="padding-left: 30px;padding-right: 30px">
 	                                             <transition name="bounce">
 				                                    <transition-group name="list" >
 		                                                <div class="parmabox clear1" style="position: relative;" v-for="(vs, i) in p.valueSet" :key="i">
@@ -150,8 +161,8 @@
 	                                             </transition>
                                             </div>
 
-				                                <div class="clear1 add_button col-sm-12 parmabox mj_btn" v-if="p.type === 'select'">
-                                                <span @click="addValueSet(p)">+添加枚举值</span>
+				                                <div class="clear1 add_button col-sm-12 parmabox mj_btn" v-if="p.type === 'select'|| p.type === 'multiple'">
+                                                <span @click="addValueSet(p)">+添加可选值</span>
                                             </div>
 
 
@@ -171,22 +182,49 @@
                                 <label class="col-sm-2 control-label">版本</label>
 	                            <div class="col-sm-10">
 		                            <div class="parmabox">
+
 			                             <transition name="bounce">
-		                                    <transition-group name="list" >
-			                            <div v-for="(p,i) in formData.versions" :key="i" class="boxbox clear1 form-inline">
-				                            <i class="yum-font icon-guanbi del" style="font-size: 12px" @click="removeVersions(i)"></i>
-				                            <div class="fl pabx">
-											    <label><span class="red">*</span></label>
-											    <input type="text" class="form-control" v-model="formData.versions[i]">
-				                            </div>
-                                             <div class="fl" style="line-height:35px;padding-right:15px;">
-                                                $version_url:控制机路径, &nbsp;&nbsp;$version:svn版本号
-                                            </div>
-			                            </div>
-		                                    </transition-group>
+			                                    <transition-group name="list" >
+						                            <div v-for="(p,i) in formData.version_yumc" :key="i" class="boxbox clear1 form-inline">
+							                            <i class="yum-font icon-guanbi del" style="font-size: 12px" @click="removeVersions(i)"></i>
+							                            <div class="fl pabx">
+														    <label><span class="red"></span></label>
+														    <input type="text" class="form-control" v-model="formData.version_yumc[i]">
+							                            </div>
+                                                        <div class="fl" style="line-height:35px;padding-right:15px;">
+                                                            $version_url : 控制机路径, &nbsp;&nbsp;$version_yumc : svn版本号
+                                                        </div>
+						                            </div>
+			                                    </transition-group>
 			                             </transition>
-                                        <div class="clear1 add_button" @click="addVersions" v-if="!formData.versions.length">
+                                        <div class="clear1 add_button" @click="addVersions" v-if="!formData.version_yumc.length">
 	                                        +添加版本
+                                        </div>
+		                            </div>
+	                            </div>
+	                        </div>
+
+                             <div class="form-group">
+                                <label class="col-sm-2 control-label">JIRA</label>
+	                            <div class="col-sm-10">
+		                            <div class="parmabox">
+
+			                             <transition name="bounce">
+			                                    <transition-group name="list" >
+						                            <div v-for="(p,i) in formData.jira_yumc" :key="i" class="boxbox clear1 form-inline">
+							                            <i class="yum-font icon-guanbi del" style="font-size: 12px" @click="removeJiras(i)"></i>
+							                            <div class="fl pabx">
+														    <label><span class="red"></span></label>
+														    <input type="text" class="form-control" v-model="formData.jira_yumc[i]">
+							                            </div>
+                                                        <div class="fl" style="line-height:35px;padding-right:15px;">
+                                                            $jira_yumc : JiraID
+                                                        </div>
+						                            </div>
+			                                    </transition-group>
+			                             </transition>
+                                        <div class="clear1 add_button" @click="addJiras" v-if="!formData.jira_yumc.length">
+	                                        +添加JiraID
                                         </div>
 		                            </div>
 	                            </div>
@@ -221,6 +259,36 @@
 	                            </div>
 	                        </div>
 
+ <div class="form-group" v-if="formData.script_lang === 'yaml'" v-for="p in formData.param3">
+                                <label class="col-sm-2 control-label" v-html="p.paramNameZh"></label>
+	                            <div class="col-sm-10">
+		                             <div class=" form-group col-sm-12 parmabox form-inline" >
+
+
+                                         <div class="boxbox col-sm-12"  v-if="p.valueSet.length">
+	                                          <transition name="bounce">
+			                                    <transition-group name="list" >
+		                                            <div class="parmabox  clear1 " v-for="(vs, i) in p.valueSet" :key="i">
+		                                                <i class="yum-font icon-guanbi del" style="position:static;top:0;right:25px;font-size: 12px" @click="removeValueSet(p, i)"></i>
+		                                                <div class="fl pabx">
+		                                                    <label><span class="red">*</span> 可选值</label>
+		                                                    <input type="text" class="form-control" v-model="vs.name">
+		                                                </div>
+		                                                <div class="fl pabx">
+		                                                    <label><span class="red">*</span> 描述</label>
+		                                                    <input type="text" class="form-control" v-model="vs.desc">
+		                                                </div>
+		                                            </div>
+			                                     </transition-group>
+			                                    </transition>
+                                         </div>
+
+                                        <div class="clear1 add_button col-sm-12 parmabox" @click="addValueSet(p)">
+                                            +添加可选值
+                                        </div>
+                                    </div>
+	                            </div>
+	                        </div>
 
 	                        <div class="form-group" v-if="formData.script_lang !== 'yaml'">
                                 <label class="col-sm-2 control-label">返回值</label>
@@ -315,12 +383,20 @@
            formData:{
                 id: {{ result_dict.id }},
                 name: '{{ result_dict.name }}',
-                tool_set_prime_type: {{ result_dict.tool_set_prime_type }},
-                tool_set_type: {{ result_dict.tool_set_type }},
+                //tool_set_prime_type:  result_dict.tool_set_prime_type }},
+                tool_set_type: {{ result_dict.tool_type }},
                 filename:'{{ result_dict.filename }}',
-                versions:[
+                script_md5:'{{ result_dict.script_md5 }}',
+                version_yumc:[
                     {% for p in result_dict.param %}
                         {% if p.type == 'version' %}
+                        '{{ p.value }}',
+                        {% endif %}
+                    {% endfor %}
+                ],
+                jira_yumc:[
+                    {% for p in result_dict.param %}
+                        {% if p.paramNameZh == 'jira_yumc' %}
                         '{{ p.value }}',
                         {% endif %}
                     {% endfor %}
@@ -330,13 +406,14 @@
                 script_lang: localStorage.getItem('codemirror_lang') ||  '{{ result_dict.script_lang }}',
                 param: [
                 {% for p in result_dict.param %}
-                {% if p.paramNameZh != 'tags' and p.paramNameZh != 'skip-tags' and p.type != 'version'%}
+                {% if p.paramNameZh != 'tags' and p.paramNameZh != 'skip-tags' and p.paramNameZh != 'jira_yumc' and p.type != 'version' and p.paramNameZh != 'limit'%}
                 {
                     paramNameEn: '{{ p.paramNameEn }}',
                     paramNameZh: '{{ p.paramNameZh }}',
                     type: '{{ p.type }}',
                     desc: '{{ p.desc|replace_to_nr }}',
                     no: '{{ p.no }}',
+                    value: '{{ p.value }}',
                     valueSet: {{ p.valueSet|safe }},
                     default: '{{ p.default }}'
                 },
@@ -346,6 +423,21 @@
                param2:[
                 {% for p in result_dict.param %}
                 {% if p.paramNameZh == 'tags' or p.paramNameZh == 'skip-tags'%}
+                {
+                    paramNameEn: '{{ p.paramNameEn }}',
+                    paramNameZh: '{{ p.paramNameZh }}',
+                    type: '{{ p.type }}',
+                    desc: '{{ p.desc|safe }}',
+                    no: '{{ p.no }}',
+                    valueSet: {{ p.valueSet|safe }},
+                    default: '{{ p.default }}'
+                },
+                {% endif %}
+                {% endfor %}
+               ],
+                param3:[
+                {% for p in result_dict.param %}
+                {% if p.paramNameZh == 'limit' %}
                 {
                     paramNameEn: '{{ p.paramNameEn }}',
                     paramNameZh: '{{ p.paramNameZh }}',
@@ -383,10 +475,16 @@
                 });
             },
             addVersions:function(){
-                this.formData.versions.push('');
+                this.formData.version_yumc.push('');
             },
             removeVersions: function(index){
-                this.formData.versions.splice(index, 1);
+                this.formData.version_yumc.splice(index, 1);
+            },
+             addJiras:function(){
+            this.formData.jira_yumc.push('');
+            },
+            removeJiras: function(index){
+                this.formData.jira_yumc.splice(index, 1);
             },
             removeParam: function(index){
                 this.formData.param.splice(index, 1);
@@ -421,46 +519,99 @@
                     return;
                 }
 
-                if(formData.param2.length && formData.script_lang == 'yaml'){
+                if(formData.param2.length && formData.script_lang == 'yaml' && formData.param2[0].valueSet.length>0){
                     formData.param2[0].paramNameZh = 'tags';
                     formData.param2.push(Object.assign({}, formData.param2[0]));
                     formData.param2[1].paramNameZh = 'skip-tags';
 
                     formData.param = formData.param.concat(formData.param2);
                 }
-                if(formData.versions.length){
-                    var ver = formData.versions[0];
+                if(formData.param3.length && formData.script_lang == 'yaml'){
+                    if(formData.param3[0].valueSet.length>0)
+                    {
+                        formData.param = formData.param.concat(formData.param3);
+                    }
+                }
+                if(formData.version_yumc.length){
+                    var ver = formData.version_yumc[0];
                     formData.param.push({
                         paramNameEn: '',
-                        paramNameZh: 'version',
+                        paramNameZh: 'version_yumc',
                         type: 'version',
-                        desc: '',
+                        desc: '$version_url: 控制机路径,   $version_yumc : svn版本号',
                         no: 0,
                         value: ver,
                         valueSet: [],
                         default: ''
                     })
                 }
-                delete formData.versions;
-                delete formData.ret;
-                var script_lang = formData.script_lang;
-                if(!script_lang){
-                    script_lang = "";
+               if(formData.jira_yumc.length){
+                    var ver = formData.jira_yumc[0];
+                    formData.param.push({
+                        paramNameEn: '',
+                        paramNameZh: 'jira_yumc',
+                        type: 'text',
+                        desc: '$jira_yumc : JiraID',
+                        no: 0,
+                        value: ver,
+                        valueSet: [],
+                        default: ''
+                    })
                 }
-                $.ajax({
-                    type: "POST",
-                    url: '../edit/',
-                    data:{"csrfmiddlewaretoken":'{{ csrf_token }}','id':{{ result_dict.id }},'name':formData.name,'tool_set_prime_type':formData.tool_set_prime_type,
-                        'tool_set_type':formData.tool_set_type,'script_lang':script_lang,'command':editor.getValue(),'param':JSON.stringify(formData.param),'filename':formData.filename},
-                    error: function (request) {},
-                    success: function (data) {
-                        if(data.status==0){
-                            location.href = '../../list'
-                        }else{
-                            Alertwin.alert({ message: data.msg});
+                delete formData.version_yumc;
+                delete formData.jira_yumc;
+                delete formData.ret;
+                delete formData.param2;
+                delete formData.param3;
+                var script_lang = formData.script_lang;
+               if(!script_lang){
+                    script_lang = "";
+               }
+               if(script_lang == 'yaml'){
+                    $.ajax({
+                        type: "POST",
+                        url: '../../yamlCheck/',
+                        data:{"csrfmiddlewaretoken":'{{ csrf_token }}','command':editor.getValue()},
+                        error: function (request) {},
+                        success: function (data) {
+                            if(data.status==0){
+                                $.ajax({
+                                    type: "POST",
+                                    url: '../edit/',
+                                    data:{"csrfmiddlewaretoken":'{{ csrf_token }}','id':{{ result_dict.id }},'name':formData.name,'infom':formData.infom,'tool_set_prime_type':formData.tool_set_prime_type,
+                                        'tool_type':formData.tool_set_type,'script_lang':script_lang,'command':editor.getValue(),'param':JSON.stringify(formData.param),'is_public':$('#is_enabled').val(),
+                                        'filename':formData.filename,'script_md5':formData.script_md5},
+                                    error: function (request) {},
+                                    success: function (data) {
+                                        if(data.status==0){
+                                            location.href = '../../list'
+                                        }else{
+                                            Alertwin.alert({ message: data.msg});
+                                        }
+                                    }
+                                });
+                            }else{
+                                Alertwin.alert({ message: data.msg});
+                            }
                         }
-                    }
-                });
+                    })
+               }else{
+                    $.ajax({
+                        type: "POST",
+                        url: '../edit/',
+                        data:{"csrfmiddlewaretoken":'{{ csrf_token }}','id':{{ result_dict.id }},'name':formData.name,'infom':formData.infom,'tool_set_prime_type':formData.tool_set_prime_type,
+                            'tool_type':formData.tool_set_type,'script_lang':script_lang,'command':editor.getValue(),'param':JSON.stringify(formData.param),'is_public':$('#is_enabled').val(),
+                            'filename':formData.filename,'script_md5':formData.script_md5},
+                        error: function (request) {},
+                        success: function (data) {
+                            if(data.status==0){
+                                location.href = '../../list'
+                            }else{
+                                Alertwin.alert({ message: data.msg});
+                            }
+                        }
+                    });
+               }
             }
         }
     });
@@ -478,12 +629,11 @@
      var initEditor = function(mode){
          mode = mode || 'shell';
          var modes = {
-             shell: '#!/bin/sh\nset -eux\nsource /etc/profile\n',
+             shell: '#!/bin/sh\n',
              python:'#!/usr/bin/python',
              yaml: '---\n' +
              '- hosts: \'{% verbatim %}{{ hosts }}{% endverbatim %}\'\n' +
-             '  remote_user: root'+
-             '  gather_facts: False\n'
+             '  remote_user: root'
          };
          $.getScript('/static/hplus/codemirror/' + mode + '.js', function(){
             editor = CodeMirror.fromTextArea(document.getElementById("code"), {
@@ -521,6 +671,23 @@
         }
     }else{
         page.formData.param2 = [];
+    }
+    if(page.formData.script_lang === 'yaml'){
+        if(!page.formData.param3.length){
+            page.formData.param3 = [
+                {
+                    paramNameEn: '',
+                    paramNameZh: 'limit',
+                    type: 'multiple',
+                    desc: '',
+                    no: 0,
+                    valueSet: [],
+                    default: ''
+                }
+            ]
+        }
+    }else{
+        page.formData.param3 = [];
     }
     $('#changeMode').change(function(){
         var v = $(this).val();

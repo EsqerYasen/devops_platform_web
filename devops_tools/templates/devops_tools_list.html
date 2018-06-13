@@ -25,12 +25,13 @@
         <thead>
             <th style="width:3%;"><input id="checkall" type="checkbox" class="i-checks"></th>
             <th style="width: 10%;">名称</th>
+            <th style="width: 10%;">工具版本</th>
             <th style="width: 10%;">指令类型</th>
             <th style="width: 10%;">参数数量</th>
             <th style="width: 10%;">创建人</th>
             <th style="width: 10%;">最后修改人</th>
-            <th style="width: 15%;">创建时间</th>
-            <th style="width: 15%;">最后修改时间</th>
+            <th style="width: 10%;">创建时间</th>
+            <th style="width: 10%;">最后修改时间</th>
             <th style="width: 10%;">操作</th>
         </thead>
         <tbody>
@@ -40,7 +41,8 @@
                     <input type="checkbox" class="i-checks icheck" id="{{ o.id }}" name="trCheckbox">
                 </td>
                 <td>{{ o.name }}</td>
-                <td>{{ o.tool_set_type|devopsToolsTypeTrans }}</td>
+                <td>{{ o.tool_version }}</td>
+                <td>{{ o.tool_type|devopsToolsTypeTrans }}</td>
                 <td>{{ o.param|length }}</td>
                 <td>{{ o.created_by }}</td>
                 <td>{{ o.updated_by }}</td>
@@ -48,7 +50,7 @@
                 <td>{{ o.update_time }}</td>
                 <td>
                     <a href="../{{ o.id }}/edit/" class="btn btn-sm btn-success"><i class="fa fa-edit"></i>&nbsp;编辑</a>
-                    <a href="javascript:void(0)" onclick="deleteToolSet('{{ o.id }}')" class="btn  btn-sm btn-danger"><i class="fa fa-trash"></i>&nbsp;删除</a>
+                    <a href="javascript:void(0)" onclick="deleteToolSet('{{ o.tool_id }}')" class="btn  btn-sm btn-danger"><i class="fa fa-trash"></i>&nbsp;删除</a>
                 </td>
             </tr>
         {% endfor %}
@@ -60,7 +62,7 @@
                  $.ajax({
                     type: "GET",
                     url: '../delete',
-                    data:{"id":id},
+                    data:{"tool_id":id},
                     error: function (request) {},
                     success: function (data) {
                         location.reload();

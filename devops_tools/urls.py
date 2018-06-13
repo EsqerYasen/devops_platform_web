@@ -8,5 +8,6 @@ urlpatterns = [
         url(r'^(?P<pk>\d+)/edit/', DevopsToolsUpdateView.as_view(), name='edit'),
         url(r'^delete/', DevopsToolsDeleteView.as_view(), name='delete'),
         url(r'^yamlCheck/', DevopsToolsYamlCheckView.as_view(), name='yamlCheck'),
+        url(r'^getversionbyname/', DevopsToolVersionByName.as_view(), name='getversionbyname'),
     ]))
 ]

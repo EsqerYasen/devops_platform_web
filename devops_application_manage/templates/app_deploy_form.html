@@ -43,9 +43,17 @@
                             <label class="col-sm-2 control-label"><span class="red">*</span> </label>
                             <div class="col-sm-10">
                                 <div class="fl" style=" margin-right: 18px;">
-                                    <input type="text"  class="form-control text_ar" v-model="formData.task_name" placeholder="请输入任务名称">
+                                    <input type="text"  class="form-control text_ar" v-model="formData.tool_name" placeholder="请输入任务名称">
                                 </div>
-                                <a href="javascript:;" class="btn btn-primary" @click="bindTask">绑定</a>
+                                <a href="javascript:;" class="btn btn-primary" @click="bindTask">查询</a>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label"><span class="red">*</span> 工具版本</label>
+                            <div class="col-sm-10">
+                                 <select  class="form-control text_ar" v-model="formData.tool_version" @change="toolVersionSelChanage">
+                                    <option :value="item.tool_version" v-for="item in tool_versions" v-html="item.tool_version"></option>
+                                </select>
                             </div>
                         </div>
                         <div class="form-group">
@@ -60,18 +68,32 @@
     </div>
 </div>
 <script>
+    {% if is_add == 0 %}
+         getVersionByName('{{ app_info.tool_name }}', true);
+    {% endif %}
     var page = new Vue({
         el: '#add_deploy_record',
         data: {
+             tool_versions:[],
             formData: {
                 id:'{{ app_info.id }}',
                 name:'{{ app_info.name }}',
-                task_name:'{{ app_info.tool_set_name }}',
-                task_id:'{{ app_info.tool_set_id }}',
+                tool_name:'{{ app_info.tool_name }}',
+                tool_id:'{{ app_info.tool_id }}',
+                tool_version:'{{ app_info.tool_version }}',
                 version_list:{{ version_list|safe }}
             }
         },
         methods:{
+             toolVersionSelChanage:function(){
+                var tool_version = this.formData.tool_version;
+                var t = this;
+                this.tool_versions.forEach(function(item){
+                    if(item.tool_version == tool_version ){
+                        t.formData.tool_id = item.tool_id;
+                    }
+                })
+            },
             addVersion:function(){
                 this.formData.version_list.push('');
             },
@@ -84,7 +106,7 @@
                     Alertwin.alert({ message: '请输入应用名称'});
                     return false;
                 }
-                if(!formData.task_id){
+                if(!formData.tool_id){
                     Alertwin.alert({ message: '请绑定任务'});
                     return false;
                 }
@@ -103,9 +125,11 @@
                 var is_add = {{ is_add }};
                 var reqData = {
                     'name':formData.name,
-                    'tool_set_id':formData.task_id,
-                    'tool_set_name':formData.task_name,
+                    'tool_id':formData.tool_id,
+                    'tool_name':formData.tool_name,
+                    'tool_version':formData.tool_version,
                     'version_list':JSON.stringify(formData.version_list),
+                    'bind_type':1,
                     'csrfmiddlewaretoken':'{{csrf_token}}'
                 };
                 var req_url = "../add/";
@@ -115,6 +139,7 @@
                     req_url = "../edit/";
                     redirect_url = "../../list"
                 }
+
                 layer.load();
                 $.ajax({
                     type: "POST",
@@ -125,7 +150,7 @@
                     },
                     success: function (data) {
                         layer.closeAll('loading');
-                        if(data.status == 0){
+                        if(data.status == 200){
                             location.href = redirect_url;
                         }else{
                             Alertwin.alert({ message:data.msg});
@@ -134,21 +159,40 @@
                 });
             },
             bindTask: function(){
-                var name = this.formData.task_name;
+                var name = this.formData.tool_name;
                 if(!name){
                     return Alertwin.alert({ message: '请输入任务名称'});
                 }
-                var t = this;
-                $.get('/application/manage/get_command_set_info?name='+name, function(r){
-                    if(r && r.id){
-                        t.formData.task_id = r.id;
-                        Alertwin.alert({ message: '绑定成功'});
-                    }else{
-                        Alertwin.alert({ message: '没有找到相关任务'});
-                    }
-                });
+                getVersionByName(name,null);
             }
         }
     });
+
+    function getVersionByName(name,v){
+        $.get('/working/tools/getversionbyname/?name='+name, function(r){
+            if(!v){
+                 page.formData.tool_id='';
+                page.formData.tool_version = '';
+            }
+            if(r.status == 200){
+
+                if(r.data.length > 0){
+                     page.tool_versions = r.data;
+                     if(!v){
+                          page.formData.tool_id = r.data[0].tool_id;
+                    page.formData.tool_version = r.data[0].tool_version;
+                     }
+
+                }else{
+                    Alertwin.alert({ message: '没有找到相关工具'});
+                }
+            }else{
+                Alertwin.alert({ message: '查询工具信息失败'});
+            }
+        });
+    }
+
+
+
 </script>
 {% endblock %}

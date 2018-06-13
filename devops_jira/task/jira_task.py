@@ -48,4 +48,4 @@ def issues_list_sync():
 
             print("issues_list_sync is runing ")
         except Exception as e:
-            logger.error(e)
+            logger.error(e,exc_info=1)

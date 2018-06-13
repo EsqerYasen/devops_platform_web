@@ -5,6 +5,7 @@ from django.core.paginator import Paginator
 from common.utils.HttpUtils import *
 from django.urls import reverse_lazy
 from django.http import HttpResponse
+from common.utils.redis_utils import *
 import logging,os,time,stat
 
 logger = logging.getLogger('devops_platform_log')
@@ -62,50 +63,6 @@ class CommandSetCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMix
             logger.error(e)
         return context
 
-    # def post_ajax(self, request, *args, **kwargs):
-    #     result = {'status': 0}
-    #     try:
-    #         user = request.user
-    #         files = request.FILES
-    #         command_set = request.POST.get("command_set",None)
-    #
-    #         hu = HttpUtils(request)
-    #         #检查是否有高级查询信息 如果有高级查询信息 需要创建临时组
-    #         commandSet = json.loads(command_set)
-    #         commandStep = commandSet['steps']
-    #         resultJson = hu.post(serivceName="job", restName="/rest/job/add/", datas=command_set)
-    #         resultJson  = eval(resultJson.text)
-    #         if(resultJson["status"] == "FAILURE"):
-    #             result['status'] = 1
-    #         else:
-    #             localParamList = commandSet['localParamList']
-    #
-    #             bool = True
-    #             data = resultJson["data"]
-    #             for k in data:
-    #                 if bool:
-    #                     if len(localParamList) > 0:
-    #                         for l in localParamList:
-    #                             l['set_id'] = int(k)
-    #                         resultJson = hu.post(serivceName="job", restName="/rest/para/add/", datas=localParamList)
-    #                     bool = False
-    #                 step_ids = data[k]
-    #                 for file in files:
-    #                     t = file.split(',')
-    #                     step = step_ids[int(t[0])]
-    #                     f = files[file]
-    #                     path = UPLOAD_SCRIPT_PATH + k + "/"
-    #                     for k2 in step:
-    #                         line = step[k2]
-    #                         path += str(k2) + "/"+str(line[int(t[1])])+"/"
-    #                         os.makedirs(path)
-    #                         destination = open(os.path.join(path, f.name), 'wb+')
-    #                         for chunk in f.chunks():
-    #                             destination.write(chunk)
-    #                         destination.close()
-    #     except Exception as e:
-    #         logger.error(e)
-    #     return HttpResponse(json.dumps(result),content_type='application/json')
 
     def post_ajax(self, request, *args, **kwargs):
         result = {'status': 0}
@@ -157,28 +114,6 @@ class CommandSetCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMix
 
 class CommandSetUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, TemplateView):
     template_name = "command_step_edit.html"
-
-    # def get_context_data(self, **kwargs):
-    #     context = {}
-    #     try:
-    #         hu = HttpUtils(self.request)
-    #
-    #         resultJson = hu.get(serivceName="job", restName="/rest/job/list_detail/", datas={'id': kwargs.get('pk', 0)})
-    #         results = resultJson.get("data", [])
-    #         getData = {'offset': 0, 'limit': 1000, 'is_enabled': 1}
-    #         hostgroupResult = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_tree/", datas=getData)
-    #         fileResult = hu.get(serivceName="job", restName="/rest/file/list_tree/", datas={})
-    #         getData['id'] = results['id']
-    #         localParamResult = hu.get(serivceName="job", restName="/rest/para/list/", datas=getData)
-    #
-    #         context["view_num"] = 1
-    #         context['result_dict'] = results
-    #         context['hostGroup_list'] = hostgroupResult.get("data", [])
-    #         context['file_tree'] = json.dumps(fileResult.get("data", []))
-    #         context['localParam_list'] = localParamResult.get("results", [])
-    #     except Exception as e:
-    #         logger.error(e)
-    #     return context
 
     def get_context_data(self,**kwargs):
         context = super(CommandSetUpdateView, self).get_context_data(**kwargs)
@@ -380,21 +315,12 @@ class CommandExecuteLogView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMi
         context = super(CommandExecuteLogView, self).get_context_data(**kwargs)
         try:
             req = self.request
-            setId = req.GET.get("setId","")
-            jobId = req.GET.get("jobId","")
+            deploy_id = req.GET.get("deploy_id","")
+            bind_type = req.GET.get("bind_type","")
             name = req.GET.get("name",'')
-            hu = HttpUtils(req)
-            historyResults = []
-            log_info = {}
-            if setId:
-                historyResults = hu.get(serivceName="job", restName="/rest/job/list_history/", datas={'set_id':setId,'count':50})
-            # if jobId:
-            #     log_info = hu.get(serivceName="job", restName="/rest/job/list_history/", datas={'job_id': jobId})
-            context['list_history'] = historyResults
-            #context['log_info'] = log_info
             context['name'] = name
-            context['set_id'] = setId
-            context['job_id'] = jobId
+            context['deploy_id'] = deploy_id
+            context['bind_type'] = bind_type
         except Exception as e:
             logger.error(e)
         return context
@@ -404,21 +330,81 @@ class CommandExecuteLogView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMi
         try:
             pass
         except Exception as e:
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return HttpResponse(json.dumps(resultJson), content_type='application/json')
 
 class GetCommandExecuteLogView(LoginRequiredMixin,JSONResponseMixin, AjaxResponseMixin, View):
     def get_ajax(self, request, *args, **kwargs):
-        result_json = {"status": 1}
+        result_json = {"status": 200}
+        try:
+            req = self.request
+            id = req.GET.get("id", None)
+            deploy_id = req.GET.get("exec_id", None)
+            bind_type = req.GET.get("bind_type", None)
+            log_index = int(req.GET.get("log_index", 0))
+            log_str = ""
+            if deploy_id and bind_type:
+                if id:
+                    hu = HttpUtils(request)
+                    execRecordResult = hu.get(serivceName="p_job", restName="/rest/tool/execRecordList/", datas={'id': id})
+                    list = execRecordResult.get("results", [])
+                    if len(list):
+                        execRecord = list[0]
+                        path = execRecord['path']
+                        tool_list = execRecord['parameter']
+                        #result_json['tool_list'] = json.loads(tool_list)
+                        log_f = open(path+"exec.log","r")
+                        for line in log_f.readlines():
+                            log_str += line
+                        result_json['log_str'] = log_str
+                        result_json['status'] = 500
+                    else:
+                        result_json['log_str'] = "未查询到相关记录"
+                        result_json['status'] = 500
+                else:
+                    log_k = "%s_%s_log" % (deploy_id, bind_type)
+                    r_v1 = RedisBase.get("%s_%s" % (deploy_id, bind_type),1)
+                    if r_v1:
+                        r_v1 = str(r_v1,encoding="utf-8")
+                    r_v2 = RedisBase.exists(log_k,1)
+                    logger.info("-----------r_v1:%s" % (r_v1))
+                    if r_v1 is not None or r_v2:
+                        r_v1_json= json.loads(r_v1.replace("'",'"').replace("False",'0').replace("True",'1'))
+                        log_list = RedisBase.lrange(redisKey=log_k,start=log_index,db=1)
+                        if log_list:
+                            logger.info("log_list:%s" % (log_list))
+                            for log in log_list:
+                                log_index += 1
+                                log_str += str(log,encoding="utf-8")+"\n"
+                        result_json['log_str'] = log_str
+                        #result_json['tool_list']=r_v1_json['tool_list']
+                        result_json['log_index'] = log_index
+                        result_json['status'] = 200
+                    else:
+                        result_json['status'] = 500
+            else:
+                result_json['status'] = 500
+        except Exception as e:
+            result_json['status'] = 500
+            logger.error(e,exc_info=1)
+        return self.render_json_response(result_json)
+
+class GetCommandExecuteRecord(LoginRequiredMixin,JSONResponseMixin, AjaxResponseMixin, View):
+    def get_ajax(self, request, *args, **kwargs):
+        result_json = {"status": 200}
         try:
             req = self.request
             hu = HttpUtils(req)
-            jobId = req.GET.get("jobId", None)
-            log_info = hu.get(serivceName="job", restName="/rest/job/list_history/", datas={'job_id': jobId})
-            result_json['log_info'] = log_info
+            exec_id = req.GET.get("exec_id", None)
+            type = req.GET.get("type", None)
+            execRecordResult = hu.get(serivceName="p_job", restName="/rest/tool/execRecordList/",datas={'exec_id': exec_id, 'type': type})
+            list = execRecordResult.get("results", [])
+            result_json['data'] = list
         except Exception as e:
-            logger.error(e)
+            result_json['status'] = 500
+            logger.error(e,exc_info=1)
         return self.render_json_response(result_json)
+
 
 class GetCommandExecuteJobIdView(LoginRequiredMixin,JSONResponseMixin, AjaxResponseMixin, View):
     def get_ajax(self, request, *args, **kwargs):
@@ -430,7 +416,7 @@ class GetCommandExecuteJobIdView(LoginRequiredMixin,JSONResponseMixin, AjaxRespo
             log_info = hu.get(serivceName="job", restName="/rest/job/list_history/", datas={'set_id':setId,'status':1})
             result_json['log_info'] = log_info
         except Exception as e:
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return self.render_json_response(result_json)
 
 
@@ -444,7 +430,7 @@ class CommandExecuteStop(LoginRequiredMixin,JSONResponseMixin, AjaxResponseMixin
             log_info = hu.get(serivceName="job", restName="/rest/job/stop/", datas={'job_id': jobId})
             result_json['log_info'] = log_info
         except Exception as e:
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return self.render_json_response(result_json)
 
 
@@ -460,5 +446,5 @@ class ToolSetListView(LoginRequiredMixin,JSONResponseMixin, AjaxResponseMixin, V
                 tool['param'] = json.loads(tool['param'])
             result_json['data'] = tool_list
         except Exception as e:
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return self.render_json_response(result_json)

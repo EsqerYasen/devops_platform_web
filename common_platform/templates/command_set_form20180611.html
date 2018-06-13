@@ -196,6 +196,9 @@
             var obj = store.state.steps[store.state.activeIndex];
             var target_group_ids = obj['target_group_ids'];
             if(obj && target_group_ids){
+                //hostValue = hostValue.replace(/\'/g,"\"");
+                //var obj = JSON.parse(hostValue);
+
                 var tree = $.fn.zTree.getZTreeObj('host_group_tree');
                 if(target_group_ids){
                     $(target_group_ids.split(',')).each(function(i,item){

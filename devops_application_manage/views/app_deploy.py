@@ -3,6 +3,7 @@ from django.views.generic import *
 from common.utils.HttpUtils import *
 from django.http import HttpResponse
 from django.core.paginator import Paginator
+from common.utils.common_utils import *
 import logging,time,os
 
 logger = logging.getLogger('devops_platform_log')
@@ -19,7 +20,7 @@ class DevopsAppMgeListView(LoginRequiredMixin, OrderableListMixin, ListView):
             req = self.request
             hu = HttpUtils(req)
             reqData = hu.getRequestParam()
-            app_list_result = hu.get(serivceName="job", restName="/rest/app/list_app/", datas=reqData)
+            app_list_result = hu.get(serivceName="p_job", restName="/rest/appmanage/list/", datas=reqData) #/rest/app/list_app/
             app_list = app_list_result.get("results", {})
             count = app_list_result.get("count", 0)
             paginator = Paginator(app_list, req.limit)
@@ -29,7 +30,7 @@ class DevopsAppMgeListView(LoginRequiredMixin, OrderableListMixin, ListView):
             context['page_obj'] = paginator.page(req.offset)
             context['paginator'] = paginator
         except Exception as e:
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return context
 
 class DevopsAppMgeCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, TemplateView):
@@ -42,7 +43,7 @@ class DevopsAppMgeCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseM
             context['app_info'] = {}
             context['is_add'] = 1
         except Exception as e:
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return context
 
     def post_ajax(self, request, *args, **kwargs):
@@ -50,28 +51,20 @@ class DevopsAppMgeCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseM
         try:
             hu = HttpUtils(self.request)
             reqData = hu.getRequestParam()
-            version_list_str = reqData.get("version_list",None)
-            addAppResults = hu.post(serivceName="job", restName="/rest/app/add_app/", datas=reqData)
+            addAppResults = hu.post(serivceName="p_job", restName="/rest/appmanage/add/", datas=reqData)  #/rest/app/add_app/
             addAppResults = addAppResults.json()
-            if addAppResults['status'] == 'SUCCESS':
-                app_id = addAppResults['data']
-                version_list = json.loads(version_list_str)
-                appVersionResults = hu.post(serivceName="job", restName="/rest/app/update_app_version/", datas={'app_id':app_id,'version':version_list})
-                appVersion = appVersionResults.json()
-                if appVersion['status'] == 'SUCCESS':
-                    result['status'] = 0
-                    result['msg'] = '保存应用信息成功'
-                else:
-                    result['status'] = 1
-                    result['msg'] = '保存应用版本信息失败'
+            if addAppResults['status'] == 200:
+                result['status'] = 200
+                result['msg'] = '保存应用信息成功'
             else:
-                result['status'] = 1
+                result['status'] = 500
                 result['msg'] = '保存应用信息失败'
         except Exception as e:
-            result['status'] = 1
+            result['status'] = 500
             result['msg'] = '保存异常'
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return HttpResponse(json.dumps(result),content_type='application/json')
+
 
 class DevopsAppMgeUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, TemplateView):
     template_name = "app_deploy_form.html"
@@ -81,21 +74,22 @@ class DevopsAppMgeUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseM
         try:
             id = kwargs.get('pk', 0)
             hu = HttpUtils(self.request)
-            app_list_result = hu.get(serivceName="job", restName="/rest/app/list_app/", datas={'id':id})
-            app_list = app_list_result.get("results", {})
-            app = {}
+            app_manage_list_result = hu.get(serivceName="p_job", restName="/rest/appmanage/list/",datas={'id': id})
+            app_manage_list = app_manage_list_result.get("results", [])
+            app_manage = {}
             version_list = []
-            if len(app_list) > 0:
-                app = app_list[0]
-                versionListResult = hu.get(serivceName="job", restName="/rest/app/list_app_version/", datas={'id': app['id']})
-                versionList = versionListResult.get("data", [])
-                for version in versionList:
-                    version_list.append(version['version'])
+            if len(app_manage_list) > 0:
+                app_manage = app_manage_list[0]
+
+                app_manage_version_list_result = hu.get(serivceName="p_job", restName="/rest/appmanage/appversionlist/",datas={'app_manage_id': app_manage['id']})
+                app_manage_version_list = app_manage_version_list_result.get("results", [])
+                for app_manage_version in app_manage_version_list:
+                    version_list.append(app_manage_version['version'])
             context['version_list'] = version_list
-            context['app_info'] = app
+            context['app_info'] = app_manage
             context['is_add'] = 0
         except Exception as e:
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return context
 
     def post_ajax(self, request, *args, **kwargs):
@@ -103,35 +97,26 @@ class DevopsAppMgeUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseM
         try:
             hu = HttpUtils(self.request)
             reqData = hu.getRequestParam()
-            version_list_str = reqData.get("version_list", None)
             app_id = reqData.get("id",None)
             if app_id:
                 del reqData['offset']
                 del reqData['limit']
                 del reqData['csrfmiddlewaretoken']
-                del reqData['version_list']
-                addAppResults = hu.post(serivceName="job", restName="/rest/app/update_app/", datas=reqData)
+                addAppResults = hu.post(serivceName="p_job", restName="/rest/appmanage/updateById/", datas=reqData) #/rest/app/update_app/
                 addAppResults = addAppResults.json()
-                if addAppResults['status'] == 'SUCCESS':
-                    version_list = json.loads(version_list_str)
-                    appVersionResults = hu.post(serivceName="job", restName="/rest/app/update_app_version/",datas={'app_id': app_id, 'version': version_list})
-                    appVersion = appVersionResults.json()
-                    if appVersion['status'] == 'SUCCESS':
-                        result['status'] = 0
-                        result['msg'] = '更新应用信息成功'
-                    else:
-                        result['status'] = 1
-                        result['msg'] = '更新应用版本信息失败'
+                if addAppResults['status'] == 200:
+                    result['status'] = 200
+                    result['msg'] = '更新应用信息成功'
                 else:
-                    result['status'] = 1
+                    result['status'] = 500
                     result['msg'] = '更新应用信息失败'
             else:
-                result['status'] = 1
+                result['status'] = 500
                 result['msg'] = '更新应用信息失败'
         except Exception as e:
-            result['status'] = 1
+            result['status'] = 500
             result['msg'] = '更新异常'
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return HttpResponse(json.dumps(result), content_type='application/json')
 
 
@@ -142,8 +127,9 @@ class DevopsAppMgeDeleteView(LoginRequiredMixin, JSONResponseMixin, View):
             req = self.request
             id = req.GET.get("id",0)
             hu = HttpUtils(req)
-            resultJson = hu.get(serivceName="job", restName="/rest/app/delete_app/",datas={"id": id})
-            if resultJson['status'] == 'SUCCESS':
+            delResult = hu.post(serivceName="p_job", restName="/rest/appmanage/deleteById/",datas={"id": id}) #/rest/app/delete_app/
+            resultJson = delResult.json()
+            if resultJson['status'] == 200:
                 result['status'] = 0
                 result['msg'] = '删除成功'
             else:
@@ -152,7 +138,7 @@ class DevopsAppMgeDeleteView(LoginRequiredMixin, JSONResponseMixin, View):
         except Exception as e:
             result['status'] = 1
             result['msg'] = '删除异常'
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return self.render_json_response(result)
 
 
@@ -164,106 +150,158 @@ class DevopsAppMgeDeployView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseM
         try:
             req = self.request
             hu = HttpUtils(req)
-            id = kwargs.get('pk',0)
+            id = kwargs.get('pk', 0)
             reqData = hu.getRequestParam()
-            name = reqData.get('name',"")
-            toolId = reqData.get('toolId')
-            commandId = reqData.get('commandId',0)
-            if not commandId or commandId == "None":
-                commandId = 0
-            commandLineId = reqData.get('commandLineId',0)
-            if not commandLineId or commandLineId == "None":
-                commandLineId = 0
+            name = reqData.get('name', "")
+            tool_id = reqData.get('tool_id')
+            tool_version = reqData.get('tool_version')
+            commandId = reqData.get('commandId', 0)
+            bind_type = reqData.get('bind_type', 0)
+            version = reqData.get('version', "")
             getData = {'offset': 0, 'limit': 1000, 'is_enabled': 1}
-            hostgroupResult = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_tree/", datas=getData)
-            versionListResult = hu.get(serivceName="job", restName="/rest/app/list_app_version/", datas={'id':id})
-            tool_list_result = hu.get(serivceName="job", restName="/rest/job/list_tool_set/",datas={'id':toolId})
+            hostGroup_list = []
+            tool_list_result = hu.get(serivceName="p_job", restName="/rest/tool/list/",datas={'tool_id': tool_id, 'tool_version': tool_version,'is_history': -1})  # /rest/job/list_tool_set/
             tool_list = tool_list_result.get("results", [])
             tool = {}
+            app_manage_version_list = []
             if len(tool_list) > 0:
-                for tool in tool_list:
-                    tool['param'] = json.loads(tool['param'])
-                    del tool['is_enabled']
                 tool = tool_list[0]
 
-            version_list = versionListResult.get("data", [])
-            new_version_list = []
-            for version in version_list:
-                new_version_list.append({'id':version['version'],'version':version['version']});
-            context["result_dict"] = {}
-            context['hostGroup_list'] = hostgroupResult.get("data", [])
-            context['version_list'] = new_version_list
+                app_manage_version_list_result = hu.get(serivceName="p_job", restName="/rest/appmanage/appversionlist/",datas={'app_manage_id': id})
+                app_manage_version_list = app_manage_version_list_result.get("results", [])
+
+                if int(tool['infom']) == 2 or tool['script_lang'] == 'yaml':
+                    hostgroupResult = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_tree/", datas=getData)
+                    hostGroup_list = hostgroupResult.get("data", [])
+                if tool['is_public']:
+                    tool['is_public'] = 1
+                else:
+                    tool['is_public'] = 0
+                if tool['is_history']:
+                    tool['is_history'] = 1
+                else:
+                    tool['is_history'] = 0
+                tool['param'] = json.loads(tool['param'])
+                # 检查工具中是否有version_yumc 和 jira_yumc 如果存在获取value值
+                self.get_version(tool['param'])
+                del tool['is_enabled']
+
+            context["version"] = version
+            context["app_versions"] = app_manage_version_list
+            #context["result_dict"] = {}
+            context['hostGroup_list'] = hostGroup_list
             context['tool_info'] = tool
             context['commandId'] = commandId
-            context['commandLineId'] = commandLineId
-            context['is_add'] = 1
             context['name'] = name
+            context['deploy_id'] = id
+            context['bind_type'] = bind_type
         except Exception as e:
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return context
+
+    def get_version(self,p_list):
+        if p_list:
+            for p in p_list:
+                if p.get("paramNameZh",None) == 'version_yumc' or p.get("paramNameZh",None) == 'jira_yumc' or p.get("type",None) == "path":
+                    v = p['value']
+                    if v:
+                        if v.startswith('http'):
+                            pass
+                        else:
+                            v_f = None
+                            try:
+                                if is_dir(v):
+                                    p['type'] = 'select'
+                                    f_list = search_all_files_return_by_time_reversed(v)
+                                    value_set = []
+                                    for f in f_list:
+                                        if is_file(f):
+                                            value_set.append({'desc': '', 'name': f[f.rfind('/')+1:len(f)]})
+                                    p['valueSet'] = value_set
+                                    p['value'] = ''
+                                else:
+                                    p['type'] = 'text'
+                                    v_f = open(v, 'r')
+                                    p['value'] = v_f.readline().replace("\r", '').replace("\n", '')
+
+                                if p.get("type", None) == "path":
+                                    p['type'] = 'text'
+                            except Exception as e:
+                                if p.get("type", None) == "path":
+                                    p['type'] = 'text'
+                                p['value'] = ''
+                                logger.error(e,exc_info=1)
+                            finally:
+                                if v_f:
+                                    v_f.close()
 
     def post_ajax(self, request, *args, **kwargs):
         result = {'status': 0}
         try:
             hu = HttpUtils(self.request)
             reqData = hu.getRequestParam()
-            commandSetId = int(reqData.get("command_set_id",0))
-            command_info = reqData.get("command_info",None)
-            deploy_info = reqData.get("deploy_info",None)
-            if commandSetId == 0 and command_info:
-                jobAddResults = hu.post(serivceName="job", restName="/rest/job/add/", datas=command_info)
-                jobAddResults = jobAddResults.json()
-                if (jobAddResults["status"] == "FAILURE"):
-                    logger.error("创建安装job失败")
-                else:
-                    data = jobAddResults["data"]
-                    deploy_info = {}
-                    step = json.loads(command_info)['steps'][0]
-                    line = step['lines'][0]
-                    for k in data:
-                        commandSetId = k
-                        deploy_info['command_set_id'] = k
-                        deploy_info['new_flow'] = 1
-                        deploy_info['paras'] = {
-                            1:{
-                                "target_type": step['target_type'],
-                                "target_group_ids": step['target_group_ids'],
-                                "target_host_list": step['target_host_list'],
-                                "go_live": step['go_live']
-                            }
-                        }
-                        step_ids = data[k]
-                        step = step_ids[0]
-                        for k2 in step:
-                            line_id = step[k2][0]
-                            deploy_info['paras'][1][line_id] = {
-                                "parameter": line['default_script_parameter'],
-                                "is_skip": 0
-                            }
-                            id = kwargs.get('pk', 0)
-                            addAppResults = hu.post(serivceName="job", restName="/rest/app/update_app/", datas={'id':id,"command_set_id":commandSetId,'command_line_id':line_id})
-                            addAppResults = addAppResults.json()
-                            if addAppResults['status'] == 'FAILURE':
-                                deploy_info = None
+            bind_type = int(reqData['bind_type'])
+            infom = int(reqData['infom'])
+            script_lang = reqData['script_lang']
+            param = reqData.get('param', None)
+            remarks = reqData.get('remarks')
+            if param:
+                if bind_type == 1: #1 - 工具   2 - 常用作业
+                    deploy_id = int(reqData.get("deploy_id", 0))
+                    tool_id = reqData.get('tool_id')
+                    tool_version = reqData.get('tool_version')
+                    if tool_id and tool_version:
+                        bool = True
+                        if infom == 2 or script_lang == 'yaml':
+                            param = json.loads(param)
+                            target_type = int(reqData['target_type'])
+                            if target_type == 1:
+                                target_group_ids = reqData['target_group_ids']
+                                go_live = reqData['go_live']
+                                resultNhPilotList = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/",datas={"id": target_group_ids})
+                                host_list = resultNhPilotList.get("data", [])
+                                if len(host_list) > 0:
+                                    param.append(
+                                        {
+                                            'paramNameZh':'hosts',
+                                            'value':','.join(host_list)
+                                        }
+                                    )
+                                else:
+                                    bool = False
+                                    result['status'] = 500
+                                    result['msg'] = '未查到机器列表'
+                            else:
+                                target_host_list = ','.join(json.loads(reqData['target_host_list']))
+                                param.append(
+                                    {
+                                        'paramNameZh': 'hosts',
+                                        'value': target_host_list
+                                    }
+                                )
 
-            if deploy_info:
-                runResults = hu.post(serivceName="job", restName="/rest/job/run/", datas=deploy_info)
-                runJson = runResults.json()
-                if int(runJson.get("job_id", 0)) > 0:
-                    result["status"] = "0"
+                        if bool:
+                            operation_result = hu.post(serivceName="p_job",restName="/rest/appmanage/operation/",datas={'deploy_id':deploy_id,'bind_type':bind_type,'tool_id':tool_id,'tool_version':tool_version,'param':param,'remarks':remarks})
+                            operation_json = operation_result.json()
+                            if operation_json['status'] == 200:
+                                result['status'] = 200
+                                result['msg'] = operation_json['msg']
+                            else:
+                                result['status'] = 500
+                                result['msg'] = operation_json['msg']
+                    else:
+                        result['status'] = 500
+                        result['msg'] = '发版异常'
                 else:
-                    result["status"] = "1"
-                    result['msg'] = '安装失败'
-                result['job_id'] = runJson.get("job_id", 0)
-                result['set_id'] = commandSetId
+                    commandSetId = int(reqData.get("command_set_id", 0))
             else:
-                result['status'] = 1
-                result['msg'] = '没有安装信息，安装失败'
+                result['status'] = 500
+                result['msg'] = '执行参数为空'
 
         except Exception as e:
-            result['status'] = 1
-            result['msg'] = '安装异常'
-            logger.error(e)
+            result['status'] = 500
+            result['msg'] = '发版异常'
+            logger.error(e, exc_info=1)
         return HttpResponse(json.dumps(result),content_type='application/json')
 
 
@@ -280,5 +318,5 @@ class GetCommandSetInfoView(LoginRequiredMixin, JSONResponseMixin, View):
                 if len(resultList) > 0:
                     result = resultList[0]
         except Exception as e:
-            logger.error(e)
+            logger.error(e,exc_info=1)
         return HttpResponse(json.dumps(result), content_type='application/json')
