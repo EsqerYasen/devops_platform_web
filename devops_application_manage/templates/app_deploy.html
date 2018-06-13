@@ -381,7 +381,7 @@ var app_page = new Vue({
 
             var param = [];
             $(tool_info.param).each(function(i,item){
-                if(!param['value'] && param['value'] != '' && param['value'] != 'default'){
+                if(param['value'] && param['value'] != '' && param['value'] != 'default'){
                     param.push(item);
                 }
             })
