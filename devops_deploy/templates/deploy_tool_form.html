@@ -35,8 +35,8 @@
                         <div class="form-group">
                             <label class="col-sm-2 control-label"><span class="red">*</span> 工具版本</label>
                             <div class="col-sm-10">
-                                <select class="form-control text_ar" v-model="formData.tool_id" onchange="toolVersionSelChanage">
-                                <option :value="item.tool_id" v-for="item in tool_versions" v-html="item.tool_version"></option>
+                                <select class="form-control text_ar" v-model="formData.tool_version" @change="toolVersionSelChanage">
+                                <option :value="item.tool_version" v-for="item in tool_versions" v-html="item.tool_version"></option>
                                 </select>
                             </div>
                         </div>
@@ -53,7 +53,7 @@
 </div>
 <script>
     {% if is_add == 0 %}
-         getVersionByName('{{ deploy_tool.tool_name }}');
+         getVersionByName('{{ deploy_tool.tool_name }}', true);
     {% endif %}
     var page = new Vue({
         el: '#add_deploy_record',
@@ -88,11 +88,11 @@
                 return true;
             },
             toolVersionSelChanage:function(){
-                var tool_id = this.formData.tool_id;
+                var tool_version = this.formData.tool_version;
                 var t = this;
                 this.tool_versions.forEach(function(item){
-                    if(item.tool_id == tool_id ){
-                        t.formData.tool_version = item.tool_version;
+                    if(item.tool_version == tool_version ){
+                        t.formData.tool_id = item.tool_id;
                     }
                 })
             },
@@ -149,12 +149,18 @@
         $.get('/working/tools/getversionbyname/?name='+name, function(r){
             if(r.status == 200){
                 //t.formData.task_id = r.id;
-                page.formData.tool_id='';
-                page.formData.tool_version = '';
+                if(!v)
+                {
+                    page.formData.tool_id='';
+                    page.formData.tool_version = '';
+                }
                 if(r.data.length > 0){
+                    if(!v){
+                        page.formData.tool_id = r.data[0].tool_id;
+                        page.formData.tool_version = r.data[0].tool_version;
+                    }
                     page.tool_versions = r.data;
-                    page.formData.tool_id = r.data[0].tool_id;
-                    page.formData.tool_version = r.data[0].tool_version;
+
 {#                    $(r.data).each(function(i,item){#}
 {#                       sel.append("<option tool_id='"+item.tool_id+"' value='"+item.tool_version+"'>"+item.tool_version+"</option>")#}
 {#                        page.tool_versions#}
