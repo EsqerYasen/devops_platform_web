@@ -75,7 +75,7 @@ class VIPUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, Tem
         return HttpResponse(json.dumps(result),content_type='application/json')
 
 class VIPDeleteView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, TemplateView):
-    def post_ajax(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         result = {}
         try:
             hu = HttpUtils(self.request)
