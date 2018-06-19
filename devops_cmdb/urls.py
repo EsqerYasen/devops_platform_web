@@ -29,6 +29,9 @@ urlpatterns = [
         url(r'^scanHost1/$', Host1ScanView.as_view(), name='scanHost1'),
         url(r'^getImportInfo/$', GetImportStatus.as_view(), name='getImportInfo'),
         url(r'^dashboard/$', HostDashboardView.as_view(), name='dashboard'),
+        url(r'^multiconditionquerypage/$', MultiConditionQueryPageView.as_view(), name='multiconditionquerypage'),
+        url(r'multiconditionquery/', MultiConditionQueryView.as_view(), name='multiconditionquery'),
+        url(r'^host_export/$', HostExportView, name='host_export'),
     ])),
     url(r'^business/', include([
         url(r'^attributes_view/', BusinesAttributessView.as_view(), name='attributes_view'),

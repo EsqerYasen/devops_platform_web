@@ -5,6 +5,9 @@ from django.http import StreamingHttpResponse
 from djqscsv import render_to_csv_response
 from devops_platform_web.settings import PER_PAGE,BASE_DIR
 from common.utils.HttpUtils import *
+from xlwt import *
+from io import StringIO
+from django.http import HttpResponse
 
 import logging,os,xlrd,threading,re
 
@@ -507,3 +510,66 @@ class Host1ToNotOnlineView(LoginRequiredMixin,JSONResponseMixin, AjaxResponseMix
         except Exception as e:
             logger.error(e,exc_info=1)
         return self.render_json_response(result_json)
+
+
+class MultiConditionQueryPageView(LoginRequiredMixin, TemplateView,AjaxResponseMixin):
+    template_name = "multi_condition_query.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(MultiConditionQueryPageView, self).get_context_data(**kwargs)
+        return context
+
+class MultiConditionQueryView(LoginRequiredMixin,JSONResponseMixin, AjaxResponseMixin, View):
+    def post_ajax(self, request, *args, **kwargs):
+        result_json = {}
+        try:
+            para = request.POST.get("p", None)
+            hu = HttpUtils(request)
+            results = hu.post(serivceName="cmdb", restName="/rest/hostgroup/multi_condition_query/", datas=para)
+            result = results.json()
+            result_json['status'] = 200
+            result_json['data'] = result['data']
+        except Exception as e:
+            result_json['status'] = 500
+            result_json['msg'] = "查询异常"
+            logger.error(e, exc_info=1)
+        return self.render_json_response(result_json)
+
+def HostExportView(request):
+    response = None
+    try:
+        go_live_dict={"1":"未分配","2":"待上线","3":"已上线"}
+        para = request.GET.get("p",None)
+        hu = HttpUtils(request)
+        results = hu.post(serivceName="cmdb", restName="/rest/hostgroup/multi_condition_query/",datas=para)
+        result = results.json()
+        result_list = result['data']
+        ws = Workbook(encoding='utf-8')
+        w = ws.add_sheet("host_list")
+        w.write(0, 0, "树节点")
+        w.write(0, 1, "IP")
+        w.write(0, 2, "主机名")
+        w.write(0, 3, "操作系统")
+        w.write(0, 4, "操作系统版本")
+        w.write(0, 5, "CPU")
+        w.write(0, 6, "内存")
+        w.write(0, 7, "资源环境")
+        excel_row = 1
+        for host in result_list:
+            w.write(excel_row, 0, host['node_name'])
+            w.write(excel_row, 1, host['host_ip'])
+            w.write(excel_row, 2, host['host_name'])
+            w.write(excel_row, 3, host['os'])
+            w.write(excel_row, 4, host['osrelease'])
+            w.write(excel_row, 5, host['num_cpus'])
+            w.write(excel_row, 6, host['mem_total'])
+            w.write(excel_row, 7, go_live_dict[str(host['go_live'])])
+            excel_row += 1
+
+        response = HttpResponse(content_type='application/vnd.ms-excel')
+        response['Content-Disposition'] = 'attachment; filename=HostExport%s.xls' % time.strftime('%Y%m%d%H%M%S')
+        ws.save(response)
+    except Exception as e:
+        logger.error(e,exc_info=1)
+        response = HttpResponse("无数据")
+    return response

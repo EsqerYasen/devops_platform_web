@@ -1,0 +1,236 @@
+{% extends 'common/basic_rank_list.html' %}
+{% load widget_tweaks %}
+
+{% block list_title %}
+    未分配主机
+{% endblock %}
+{% block  group_count %}
+{#    <div class="col-sm-8">#}
+{#        <a href="#" class="btn btn-sm btn-info" style="margin-right: 10px">全部：300</a>#}
+{#    </div>#}
+{% endblock %}
+
+{% block  list_search %}
+    <div class="col-sm-8">
+        <table>
+            <tr>
+                <td width="60px">树节点</td>
+                <td><input type="text" id="node_name1" class="form-control" style="width: 100px" placeholder="kfc"></td>
+                <td><input type="text" id="node_name2" class="form-control" style="width: 100px" placeholder="preorder"></td>
+                <td><input type="text" id="node_name3" class="form-control" style="width: 100px" placeholder="nh"></td>
+                <td><input type="text" id="node_name4" class="form-control" style="width: 100px" placeholder="pilot"></td>
+                <td><input type="text" id="node_name5" class="form-control" style="width: 100px" placeholder="dmz"></td>
+                <td><input type="text" id="node_name6" class="form-control" style="width: 100px" placeholder="mwos"></td>
+            </tr>
+        </table>
+    </div>
+    <div class="col-sm-8" style="margin-top: 10px">
+        <table>
+            <tr>
+                <td width="60px">IP</td>
+                <td><input type="text" id="ip_1" class="form-control" style="width: 100px" placeholder="172"></td>
+                <td><input type="text" id="ip_2" class="form-control" style="width: 100px" placeholder="17"></td>
+                <td><input type="text" id="ip_3" class="form-control" style="width: 100px" placeholder="32"></td>
+                <td><input type="text" id="ip_4" class="form-control" style="width: 100px" placeholder="21"></td>
+            </tr>
+        </table>
+    </div>
+    <div class="col-sm-8" style="margin-top: 10px">
+        <table>
+            <tr>
+                <td width="60px">机器信息</td>
+                <td><input type="text" id="num_cpus" class="form-control" style="width: 100px" placeholder="CPU"></td>
+                <td><input type="text" id="mem_total" class="form-control" style="width: 100px" placeholder="MEM"></td>
+                <td><input type="text" id="os" class="form-control" style="width: 100px" placeholder="OS"></td>
+                <td>
+                    <select id="go_live" class="form-control">
+                        <option value="">资源环境</option>
+                        <option value="1">未分配</option>
+                        <option value="2">待上线</option>
+                        <option value="3">已上线</option>
+                    </select>
+                </td>
+                <td><input type="text" id="tag" class="form-control" style="width: 300px" placeholder="标签"></td>
+            </tr>
+        </table>
+    </div>
+{% endblock %}
+
+{% block list_filter %}
+    <button type="button" class="btn btn-sm btn-primary" style="margin-right: 10px" onclick="search()"><i class="fa fa-search"></i> 搜索</button>
+    <a href="javascript:void(0)" onclick="exportCsv()" class="btn btn-sm btn-success"><i class="fa fa-save"></i> 导出列表</a>
+{% endblock %}
+
+{% block list_content %}
+    <table id="host_list_tb" class="table table-striped table-bordered table-hover dataTables-example dataTable accordion">
+        <thead>
+            <tr>
+                <th style="width: 12%">
+                    树节点
+                </th>
+                <th style="width: 12%">
+                    IP
+                </th>
+                <th style="width: 12%">
+                    主机名
+                </th>
+                <th style="width: 12%">
+                    操作系统
+                </th>
+                <th style="width: 12%">
+                    操作系统版本
+                </th>
+                <th style="width: 12%">
+                    CPU
+                </th>
+                <th style="width: 12%">
+                    内存
+                </th>
+                <th style="width: 12%">
+                    资源环境
+                </th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    <script>
+        function search(){
+            results = getSearchInfo();
+            $.ajax({
+                type: "POST",
+                url: '/cmdb/host/multiconditionquery/',
+                data:{"p":JSON.stringify(results),'csrfmiddlewaretoken':'{{ csrf_token }}'},
+                success: function (data) {
+                    if(data.status == 200){
+                       go_live_dict={"1":"未分配","2":"待上线","3":"已上线"}
+                       var tb_t = $("#host_list_tb tbody");
+                       tb_t.empty();
+                       var tb_html = "";
+                       $(data.data).each(function(i,host){
+                           tb_html = "";
+                           tb_html += "<tr>";
+                           tb_html += "<td>";
+                           tb_html += host.node_name;
+                           tb_html += "</td>";
+                           tb_html += "<td>";
+                           tb_html += host.host_ip;
+                           tb_html += "</td>";
+                           tb_html += "<td>";
+                           tb_html += host.host_name;
+                           tb_html += "</td>";
+                           tb_html += "<td>";
+                           tb_html += host.os;
+                           tb_html += "</td>";
+                           tb_html += "<td>";
+                           tb_html += host.osrelease;
+                           tb_html += "</td>";
+                           tb_html += "<td>";
+                           tb_html += host.num_cpus;
+                           tb_html += "</td>";
+                           tb_html += "<td>";
+                           tb_html += host.mem_total;
+                           tb_html += "</td>";
+                           tb_html += "<td>";
+                           tb_html += go_live_dict[host.go_live];
+                           tb_html += "</td>";
+                           tb_html += "</tr>";
+                           tb_t.append(tb_html);
+                       })
+                    }
+                },
+                error:function(responseStr) {
+                    console.log(responseStr);
+                }
+            });
+        }
+        function exportCsv() {
+            layer.load();
+            results = getSearchInfo();
+            let url = '/cmdb/host/host_export/?p='+JSON.stringify(results)
+            window.location.href = url
+            layer.closeAll('loading');
+        }
+        function getSearchInfo(){
+            var results = {}
+            var node_name1 = $("#node_name1").val();
+            var node_name2 = $("#node_name2").val();
+            var node_name3 = $("#node_name3").val();
+            var node_name4 = $("#node_name4").val();
+            var node_name5 = $("#node_name5").val();
+            var node_name6 = $("#node_name6").val();
+            var bool = false;
+            if(node_name1){
+                bool = true;
+            }else{
+                node_name1 = "*"
+            }
+            if(node_name2){
+                bool = true;
+            }else{
+                node_name2 = "*"
+            }
+            if(node_name3){
+                bool = true;
+            }else{
+                node_name3 = "*"
+            }
+            if(node_name4){
+                bool = true;
+            }else{
+                node_name4 = "*"
+            }
+            if(node_name5){
+                bool = true;
+            }else{
+                node_name5 = "*"
+            }
+            if(node_name6){
+                bool = true;
+            }else{
+                node_name6 = "*"
+            }
+            if(bool){
+                results['tree_nodes'] =[node_name1,node_name2,node_name3,node_name4,node_name5,node_name6]
+            }
+            var host_field = {}
+            var ip_1 = $("#ip_1").val();
+            if(ip_1){
+                host_field['ip_1'] = ip_1;
+            }
+            var ip_2 = $("#ip_2").val();
+            if(ip_2){
+                host_field['ip_2'] = ip_2;
+            }
+            var ip_3 = $("#ip_3").val();
+            if(ip_3){
+                host_field['ip_3'] = ip_3;
+            }
+            var ip_4 = $("#ip_4").val();
+            if(ip_4){
+                host_field['ip_4'] = ip_4;
+            }
+            var num_cpus = $("#num_cpus").val();
+            if(num_cpus){
+                host_field['num_cpus'] = num_cpus;
+            }
+            var mem_total = $("#mem_total").val();
+            if(mem_total){
+                host_field['mem_total'] = mem_total;
+            }
+            var os = $("#os").val();
+            if(os){
+                host_field['os'] = os;
+            }
+            var go_live = $("#go_live").val();
+            if(go_live){
+                host_field['go_live'] = go_live;
+            }
+            var tag = $("#tag").val();
+            if(tag){
+                host_field['tag'] = tag;
+            }
+            results['host_field'] = host_field
+            return results;
+        }
+    </script>
+{% endblock %}
