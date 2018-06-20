@@ -1,0 +1,63 @@
+{% extends 'common/basic_layout.html' %}
+{% block content %}
+    <link href="/static/hplus/css/jquery-ui.min.css" rel="stylesheet">
+    <link href="/static/hplus/css/xlsTableFilter/xlstablefilter.css" rel="stylesheet">
+    <script src="/static/hplus/js/jquery-ui-1.10.4.min.js"></script>
+    <script type="text/javascript" src="/static/hplus/js/xlsTableFilter/jquery.xlstablefilter.min.js"></script>
+    <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5>拷贝树节点</h5>
+                    </div>
+                    <div class="ibox-content">
+                        <table id="tree_node_tb" class="table table-striped table-bordered table-hover dataTables-example dataTable">
+                            <thead>
+                                <tr>
+                                    <th>品牌  <span class="glyphicon glyphicon-search" aria-hidden="true"></span></th>
+                                    <th>业务线  <span class="glyphicon glyphicon-search" aria-hidden="true"></span></th>
+                                    <th>机房  <span class="glyphicon glyphicon-search" aria-hidden="true"></span></th>
+                                    <th>环境  <span class="glyphicon glyphicon-search" aria-hidden="true"></span></th>
+                                    <th>区域  <span class="glyphicon glyphicon-search" aria-hidden="true"></span></th>
+                                    <th>应用  <span class="glyphicon glyphicon-search" aria-hidden="true"></span></th>
+                                    <th>全节点</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(function() {
+            var hostGroupTreeList = {{ hostGroup_list|safe }};
+            var tree_node_tb = $("#tree_node_tb tbody");
+            tree_node_tb.empty();
+            $(hostGroupTreeList).each(function(i,item){
+                 var node_name1 = item.node_name1;
+                 var node_name2 = item.node_name2;
+                 var node_name3 = item.node_name3;
+                 var node_name4 = item.node_name4;
+                 var node_name5 = item.node_name5;
+                 var node_name6 = item.node_name6;
+                 var tb_html = "";
+                 if(node_name1 && node_name2 && node_name3 && node_name4 && node_name5 && node_name6){
+                     tb_html = "<tr>";
+                     tb_html += "<td>"+node_name1+"</td>";
+                     tb_html += "<td>"+node_name2+"</td>";
+                     tb_html += "<td>"+node_name3+"</td>";
+                     tb_html += "<td>"+node_name4+"</td>";
+                     tb_html += "<td>"+node_name5+"</td>";
+                     tb_html += "<td>"+node_name6+"</td>";
+                     tb_html += "<td>"+node_name1+"_"+node_name2+"_"+node_name3+"_"+node_name4+"_"+node_name5+"_"+node_name6+"</td>";
+                     tb_html += "</tr>";
+                     tree_node_tb.append(tb_html);
+                 }
+            });
+            $("#tree_node_tb").xlsTableFilter({ignoreColumns:[6]});
+        });
+    </script>
+{% endblock %}

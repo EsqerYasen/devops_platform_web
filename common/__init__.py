@@ -151,7 +151,10 @@ def ts_to_date(ts):
 
 @register.filter(name='split')
 def split(value, arg):
-    return value.split(arg)
+    if value:
+        return value.split(arg)
+    else:
+        return []
 
 @register.filter(name='getListFirst')
 def getListFirst(value, arg):

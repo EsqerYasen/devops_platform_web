@@ -19,6 +19,7 @@ from django.conf.urls import url, include
 
 from common import views
 from common.views import LoginView
+from common.views import hostTotalCount
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
@@ -34,5 +35,6 @@ urlpatterns = [
     url(r'^working/',include('devops_tools.urls',namespace='working')),
     url(r'^presrb/',include('devops_pre_srb.urls',namespace='presrb')),
     url(r'^application/',include('devops_application_manage.urls',namespace='application')),
-    url(r'^flow/',include('devops_flow.urls',namespace='flow'))
+    url(r'^flow/',include('devops_flow.urls',namespace='flow')),
+    url(r'^host_total_count/', hostTotalCount, name='host_total_count')
 ]

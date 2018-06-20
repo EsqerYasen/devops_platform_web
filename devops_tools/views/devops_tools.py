@@ -153,7 +153,7 @@ class DevopsToolsUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMi
                     fileName = reqData.get("filename", None)
                     try:
                         #无论是否修改脚本 先做备份
-                        history_path = "%s/history/" % (settings.TOOL_SCRIPT_PATH)
+                        history_path = "%shistory/" % (settings.TOOL_SCRIPT_PATH)
                         script_lang_dict = {'shell': 'sh', 'python': 'py', 'yaml': 'yaml'}
                         script_lang = reqData.get("script_lang", "shell")
                         t = time.time()
@@ -285,3 +285,47 @@ class DevopsToolVersionByName(LoginRequiredMixin,JSONResponseMixin, View):
             result['msg'] = '查询异常'
             logger.error(e,exc_info=1)
         return self.render_json_response(result)
+
+
+class DevopsToolHistoryVersionByToolId(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, TemplateView):
+    template_name = "devops_tools_history.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(DevopsToolHistoryVersionByToolId, self).get_context_data(**kwargs)
+        try:
+            req = self.request
+            hu = HttpUtils(req)
+            reqData = hu.getRequestParam()
+            tool_list_result = hu.get(serivceName="p_job", restName="/rest/tool/list/",datas={'tool_id': kwargs['pk'], 'is_history': 1})
+            context['results'] = tool_list_result['results']
+        except Exception as e:
+            logger.error(e,exc_info=1)
+        return context
+
+    def post_ajax(self, request, *args, **kwargs):
+        result = {}
+        try:
+            command = request.POST.get("command", None)
+            file_object = None
+            if command:
+                if path_is_exists(command):
+                    file_object = open(command, 'rU')
+                    content = ""
+                    for line in file_object:
+                        content += line
+                    result['status'] = 200
+                    result['data'] = content
+                else:
+                    result['status'] = 500
+                    result['msg'] = "路径不存在"
+            else:
+                result['status'] = 500
+                result['msg'] = "文件路径为空"
+        except Exception as e:
+            result['status'] = 500
+            result['msg'] = "异常"
+            logger.error(e,exc_info=1)
+        finally:
+            if file_object:
+                file_object.close()
+        return HttpResponse(json.dumps(result), content_type='application/json')

@@ -25,7 +25,40 @@
     <script src="/static/hplus/js/hplus.min.js?v=4.1.0"></script>
     <script type="text/javascript" src="/static/hplus/js/contabs.min.js"></script>
     <script src="/static/hplus/js/plugins/pace/pace.min.js"></script>
+    <script type="text/javascript">
+        function host_total_count() {
+            var host_total = $("#host_total");
+            var host_go_live1 = $("#host_go_live1");
+            var host_go_live2 = $("#host_go_live2");
+            var host_go_live3 = $("#host_go_live3");
+            $.ajax({
+                type: "GET",
+                url: '/host_total_count/',
+                data: {},
+                error: function (res) {
+                    host_total.text(0);
+                    host_go_live1.text(0);
+                    host_go_live2.text(0);
+                    host_go_live3.text(0);
+                    console.log(res)
+                },
+                success: function (data) {
+                    if (data.status == 200) {
+                        host_total.text(data.data.total);
+                        host_go_live1.text(data.data.go_live1);
+                        host_go_live2.text(data.data.go_live2);
+                        host_go_live3.text(data.data.go_live3);
+                    }
+                }
+            });
 
+        }
+
+        $(document).ready(function () {
+            host_total_count();
+            setInterval("host_total_count()", 10000);
+        });
+    </script>
 </head>
 
 <body class="fixed-sidebar full-height-layout gray-bg" style="overflow:hidden">
@@ -79,17 +112,19 @@
                     <li>
                         <a href="#">
                             <i class="fa fa-th-list"></i>
-                            <span class="nav-label" title="CMDB">资源中心 </span>
+                            <span class="nav-label" title="CMDB">资源中心&nbsp;&nbsp;&nbsp;</span>
+                            <span class="badge" id="host_total" style="background-color:#fffc1c">0</span>
                             <span class="fa arrow"></span>
                         </a>
                         <ul class="nav nav-second-level">
                             <li>
                                 <a class="J_menuItem" href="/cmdb/host/multiconditionquerypage/">高级查询</a>
-                                <a class="J_menuItem" href="/cmdb/host/list1/">未分配主机</a>
-                                <a class="J_menuItem" href="/cmdb/host/list2/">待上线主机</a>
-                                <a class="J_menuItem" href="/cmdb/host/list3/">已上线主机</a>
+                                <a class="J_menuItem" href="/cmdb/host/list1/">未分配主机&nbsp;&nbsp;&nbsp;<span class="badge" id="host_go_live1" style="background-color:#fffc1c">0</span></a>
+                                <a class="J_menuItem" href="/cmdb/host/list2/">待上线主机&nbsp;&nbsp;&nbsp;<span class="badge" id="host_go_live2" style="background-color:#fffc1c">0</span></a>
+                                <a class="J_menuItem" href="/cmdb/host/list3/">已上线主机&nbsp;&nbsp;&nbsp;<span class="badge" id="host_go_live3" style="background-color:#fffc1c">0</span></a>
                                 <a class="J_menuItem" href="/cmdb/vip/list/">VIP管理</a>
                                 <a class="J_menuItem" href="/cmdb/host/dashboard/">资源运营</a>
+                                <a class="J_menuItem" href="/cmdb/host_group/host_tree_list/">树节点</a>
 {#                                <a class="J_menuItem" href="">域名管理</a>#}
 {#                                <a class="J_menuItem" href="/cmdb/business/attributes_view/?tab=0">业务属性</a>#}
 {#                                <a class="J_menuItem" href="/cmdb/host_group/tree_list/">主机组</a>#}

@@ -25,52 +25,30 @@ class List3View(LoginRequiredMixin, OrderableListMixin, ListView):
             req = self.request
             hu = HttpUtils(req)
             reqData = hu.getRequestParam()
-            type = req.GET.get("type", 0)
-            list = []
-            if type == '2':
-                group_id = reqData.get("group_id", 0)
-                resultJson = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host_sp/",
-                                    datas={"id": group_id, "go_live": 3,"offset":reqData.get("offset",0),"limit":reqData.get("limit")})
-                list = resultJson.get("results", [])
+            host = reqData.get('host', None)
+            if host:
+                host = json.loads(host)
+                host['go_live'] = 3
+                reqData['host'] = host
             else:
-                reqData['go_live'] = 3
-                resultJson = hu.get(serivceName="cmdb", restName="/rest/host/", datas=reqData)
-                list = resultJson.get("results",[])
-
-            for host in list:
-                apps = host.get("apps", [])
-                groupIds = []
-                for app in apps:
-                    groupIds.append(str(app.get("group_id", 0)))
-                resultListLeader = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_leader/",
-                                          datas={"id": '+'.join(groupIds)})
-                listLeader = resultListLeader.get("data", {})
-                ops = listLeader.get("ops", [])
-                opsStr = ""
-                for o in ops:
-                    if o:
-                        opsStr += o + ","
-                developStr = ""
-                develop = listLeader.get("develop", [])
-                for d in develop:
-                    if d:
-                        developStr += d + ","
-                host['ops'] = opsStr
-                host['develop'] = developStr
-
-            getData = {'offset': 0, 'limit': 1000, 'is_enabled': 1}
-            hostgroupResult = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_tree/", datas=getData)
-
-            paginator = Paginator(resultJson.get("results",[]), req.limit)
-            count = resultJson.get("count",0)
+                reqData['host'] = {'go_live': 3}
+            tree = reqData.get('tree', None)
+            if tree:
+                reqData['tree'] = json.loads(tree)
+            resultJson = hu.post(serivceName="cmdb", restName="/rest/host/list/", datas=reqData)
+            resultJson = resultJson.json()
+            list = resultJson.get("results", [])
+            hostgroupResult = hu.get(serivceName="cmdb", restName="/rest/host/host_group_list/", datas={})
+            count = resultJson.get("count", 0)
+            paginator = Paginator(list, req.limit)
             paginator.count = count
             context['result_list'] = list
-            context['hostGroup_list'] = hostgroupResult.get("data", [])
             context['is_paginated'] = count > 0
             context['page_obj'] = paginator.page(req.offset)
             context['paginator'] = paginator
+            context['hostGroup_list'] = json.dumps(hostgroupResult.get("results", []))
         except Exception as e:
-            logger.error(e,exc_info=1)
+            logger.error(e, exc_info=1)
         return context
 
 

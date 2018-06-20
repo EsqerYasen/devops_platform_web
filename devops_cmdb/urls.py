@@ -44,6 +44,7 @@ urlpatterns = [
     ])),
     url(r'^host_group/', include([
         url(r'^tree_list/', HostGroupView.as_view(), name='tree_list'),
+        url(r'^host_tree_list/', HostGroupListView.as_view(), name='host_tree_list'),
     ])),
     url(r'^vip/', include([
         url(r'^list/', VIPListView.as_view(), name='list'),

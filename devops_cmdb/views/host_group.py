@@ -18,3 +18,17 @@ class HostGroupView(LoginRequiredMixin, OrderableListMixin, TemplateView):
         except Exception as e:
             logger.error(e)
         return context
+
+
+class HostGroupListView(LoginRequiredMixin, OrderableListMixin, TemplateView):
+    template_name = "host_tree_copy.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(HostGroupListView, self).get_context_data(**kwargs)
+        try:
+            hu = HttpUtils(self.request)
+            hostgroupResult = hu.get(serivceName="cmdb", restName="/rest/host/host_group_list/", datas={})
+            context['hostGroup_list'] =  json.dumps(hostgroupResult.get("results", []))
+        except Exception as e:
+            logger.error(e)
+        return context

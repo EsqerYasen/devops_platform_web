@@ -1,0 +1,75 @@
+{% extends 'common/basic_layout.html' %}
+
+{% block content %}
+<div class="wrapper wrapper-content animated " style="height: 100%;">
+    <div class="row" style="height: 100%;">
+        <div class="col-sm-12" style="height: 100%;">
+            <div class="ibox float-e-margins" style="height: 100%;">
+                <div class="ibox-title" style="height: 5%;">
+                    <h5>{{ name }}   历史版本记录</h5>
+                </div>
+                <div class="ibox-content" style="height: 95%;">
+                    <div class="row" style="height: 100%;">
+                        <div class="col-sm-3" style="border-style: groove;height: 100%;" >
+                            <div class="row" style="height: 95%;">
+                                <table id="executeRecordListTb" class="table table-striped table-bordered table-hover dataTables-example dataTable">
+                                    <thead>
+                                        <tr>
+                                            <th width="20%">版本</th>
+                                            <th width="20%">修改人</th>
+                                            <th width="60%">修改时间</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for v in results %}
+                                            <tr>
+                                                <td  style="height:20px">
+                                                    <a href="javascript:void(0)" onclick="showToolHistoryInfo({{ v.id }},'{{ v.command }}')">{{ v.tool_version }}</a>
+                                                    <input id="hid_param{{ v.id }}" type="hidden" value="{{ v.param }}">
+                                                </td>
+                                                <td>
+                                                    <a href="javascript:void(0)" onclick="showToolHistoryInfo({{ v.id }},'{{ v.command }}')">{{ v.updated_by }}</a>
+                                                </td>
+                                                <td>
+                                                    <a href="javascript:void(0)" onclick="showToolHistoryInfo({{ v.id }},'{{ v.command }}')">{{ v.update_time }}</a>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="col-sm-9" style="border-style: groove;height: 100%;">
+                            <div id="div_param" class="row">
+
+                            </div>
+                            <div class="row">
+                                <textarea id="code" style="width: 100%;height: 100%;resize:none"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function showToolHistoryInfo(id,command){
+        var param = $("#hid_param"+id).val();
+
+        $.ajax({
+            type: "POST",
+            url: '../gethistoryversionbytoolId/',
+            data:{"command":command,"csrfmiddlewaretoken":'{{ csrf_token }}'},
+            error: function (request) {},
+            success: function (data) {
+                var code = $("#code");
+                code.empty();
+                if(data.status == 200){
+                    code.append(data.data)
+                }
+            }
+        });
+    }
+</script>
+{% endblock %}

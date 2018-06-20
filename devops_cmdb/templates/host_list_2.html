@@ -6,28 +6,41 @@
 {% endblock %}
 
 {% block  group_count %}
-    <div class="col-sm-10">
-    {% if user.is_superuser %}
-        <a href="../add/" class="btn btn-sm btn-info" style="margin-right: 10px">全部：300</a>
-        <a href="../add/" class="btn btn-sm btn-info" style="margin-right: 10px">EC：100</a>
-        <a href="../add/" class="btn btn-sm btn-info" style="margin-right: 10px">Brand：100</a>
-        <a href="../add/" class="btn btn-sm btn-info" style="margin-right: 10px">Store：100</a>
-    {% endif %}
-    </div>
+{#    <div class="col-sm-10">#}
+{#    {% if user.is_superuser %}#}
+{#        <a href="../add/" class="btn btn-sm btn-info" style="margin-right: 10px">全部：300</a>#}
+{#        <a href="../add/" class="btn btn-sm btn-info" style="margin-right: 10px">EC：100</a>#}
+{#        <a href="../add/" class="btn btn-sm btn-info" style="margin-right: 10px">Brand：100</a>#}
+{#        <a href="../add/" class="btn btn-sm btn-info" style="margin-right: 10px">Store：100</a>#}
+{#    {% endif %}#}
+{#    </div>#}
 {% endblock %}
 
 {% block  list_search %}
     <div class="col-sm-3" ></div>
-    <div class="col-sm-2">
-        <input type="text" name="host_ip" class="form-control" placeholder="请输入IP">
+    <div class="col-sm-2" style="width: 17%">
+        <div class="input-group">
+            <span class="input-group-btn">
+                <input type="text" id="ip_1" class="form-control" placeholder="172" >
+            </span>
+            <span class="input-group-btn">
+                <input type="text" id="ip_2" class="form-control" placeholder="31" >
+            </span>
+            <span class="input-group-btn">
+                <input type="text" id="ip_3" class="form-control" placeholder="158" >
+            </span>
+            <span class="input-group-btn">
+                <input type="text" id="ip_4" class="form-control" placeholder="12" >
+            </span>
+        </div>
     </div>
 {% endblock %}
 
 {% block list_filter %}
     <div class="col-sm-6">
         <div class="input-group">
-            <button type="submit" class="btn btn-sm btn-primary" style="margin-right: 10px"><i class="fa fa-search"></i> 搜索</button>
-            <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='#advanced_query_modal' style="margin-right: 10px"><i class="glyphicon glyphicon-search"></i> 其他查询</button><!-- <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='' style="margin-right: 10px"><i class="glyphicon glyphicon-floppy-disk"></i> 保存高级查询</button> -->
+            <button type="button" class="btn btn-sm btn-primary" style="margin-right: 10px" onclick="host2Search()"><i class="fa fa-search"></i> 搜索</button>
+            <!--<button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='#advanced_query_modal' style="margin-right: 10px"><i class="glyphicon glyphicon-search"></i> 其他查询</button> <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='' style="margin-right: 10px"><i class="glyphicon glyphicon-floppy-disk"></i> 保存高级查询</button> -->
             <button type="button" class="btn btn-sm btn-success" style="margin-right: 10px" onclick="host2UpldateStatus(3)"><i class="glyphicon glyphicon-cloud-upload"></i> 上线</button>
             <button type="button" class="btn btn-sm btn-success" style="margin-right: 10px" onclick="host2UpldateStatus(1)"><i class="glyphicon glyphicon-log-out"></i> 未分配</button>
 {#            <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='#export_host_modal' style="margin-right: 10px"><i class="glyphicon glyphicon-export"></i> 导出</button>#}
@@ -37,40 +50,24 @@
     <script>
         $(document).ready(function () {
             var hostGroupTreeList = {{ hostGroup_list|safe }};
-            readHostGroupTreeNext(hostGroupTreeList,0);
+            initTreeData(hostGroupTreeList);
             zHostGroupTreeInit();
         });
 
         var zHostGroupNodes = [];
         var middleware = {"memcached":1,"nginx":1,"rabbitmq":1,"haproxy":1,"mongodb":1,"redis":1}
-         function readHostGroupTreeNext(list,pid){
-            $(list).each(function(i,item){
-                var ids = item.id;
-                var open = false;
-                if(pid == 0){
-                    open = true;
-                }
-                var flag = "";
-                if(item.empty_flag == 1){
-                    flag = " 无";
-                }
-                var nodeData = {id:ids,pId:pid,name:item.name+flag,nodeId:ids,open:open,hasIp:item.has_ip,'nocheck':true,emptyFlag:item.empty_flag};
+        function initTreeData(list){
+             $(list).each(function(i,item){
+                 var bool = true;
+                 if(item.node_name1 && item.node_name2 && item.node_name3 && item.node_name4 && item.node_name5 && item.node_name6){
+                     bool = false;
+                 }
+                 item['nocheck'] = bool;
+                 zHostGroupNodes.push(item);
+             })
+        }
 
-                if(item.childs){
-                    readHostGroupTreeNext(item.childs,ids);
-                    nodeData['isLeaf']=false;
-                }else{
-                    nodeData['nocheck']=false;
-                    nodeData['isLeaf']=true;
-                    if(middleware[item.name]){
-                        nodeData['iconSkin'] ="middleware";
-                    }
-                }
-                zHostGroupNodes.push(nodeData);
-            });
-         }
-
-         function zHostGroupTreeInit(){
+        function zHostGroupTreeInit(){
             var setting = {
                 view: {
                     selectedMulti: false,
@@ -97,20 +94,6 @@
 
         function addDiyDom(treeId, treeNode) {
              var aObj = $("#" + treeNode.tId + "_a");
-
-{#             if(treeNode.hasIp == 1 && treeNode.isLeaf == false){#}
-{#                 if($("#viewIpBtn_"+treeNode.id).length==0){#}
-{#                     var viewBtn = "<span class='button ico_docu' id='viewIpBtn_" + treeNode.id+ "' title='节点下绑定的IP' onfocus='this.blur();'></span>";#}
-{#                     aObj.append(viewBtn);#}
-{#                     var btn = $("#viewIpBtn_"+treeNode.id);#}
-{#                     if (btn){#}
-{#                         btn.bind("click", function(){#}
-{#                             $(location).attr('href', '/cmdb/host/list2/?group_id='+treeNode.id);#}
-{#                             $("#viewIpBtn_"+treeNode.tId).unbind().remove();#}
-{#                         });#}
-{#                     }#}
-{#                 }#}
-{#             }#}
              if(!treeNode.nocheck && treeNode.emptyFlag != 1){
                  if($("#bindIpToNode_"+treeNode.id).length==0){
                      var bindIpToNode = "<span class='button add' id='bindIpToNode_" + treeNode.id+ "' title='机器绑定' onfocus='this.blur();'></span>";
@@ -161,7 +144,14 @@
         }
 
         function zHostGroupTreeDblClick(event, treeId, treeNode){
-              $(location).attr('href', '/cmdb/host/list2/?group_id='+treeNode.id+"&type=2");
+             var node_name1 = treeNode.node_name1;
+             var node_name2 = treeNode.node_name2;
+             var node_name3 = treeNode.node_name3;
+             var node_name4 = treeNode.node_name4;
+             var node_name5 = treeNode.node_name5;
+             var node_name6 = treeNode.node_name6;
+             var tree = {"node_name1":node_name1,"node_name2":node_name2,"node_name3":node_name3,"node_name4":node_name4,"node_name5":node_name5,"node_name6":node_name6}
+            $(location).attr('href', '/cmdb/host/list2/?tree='+JSON.stringify(tree));
         }
 
         function bindingGroup(groupId,ids){
@@ -218,6 +208,35 @@
             });
         }
 
+        function host2Search(){
+            var ip_1 = $("#ip_1").val();
+            var ip_2 = $("#ip_2").val();
+            var ip_3 = $("#ip_3").val();
+            var ip_4 = $("#ip_4").val();
+            var tag = $("#tag").val();
+            var host = {}
+            if(ip_1){
+                host['ip_1'] = ip_1;
+            }
+            if(ip_2){
+                host['ip_2'] = ip_2;
+            }
+            if(ip_3){
+                host['ip_3'] = ip_3;
+            }
+            if(ip_4){
+                host['ip_4'] = ip_4;
+            }
+            if(tag){
+                host['tag'] = tag;
+            }
+            if($.isEmptyObject(host)){
+                $(location).attr('href', '/cmdb/host/list2/');
+            }else{
+                $(location).attr('href', '/cmdb/host/list2/?host='+JSON.stringify(host));
+            }
+        }
+
     </script>
 {% endblock %}
 
@@ -244,11 +263,11 @@
                         <th style="width:3%;">
                             监控
                         </th>
-                        <th style="width: 70%;">
+                        <th style="width: 55%;">
                             主机组
                         </th>
-                        <th style="width:8%;">开发负责人</th>
-                        <th style="width:8%;">运维负责人</th>
+                        <th style="width:10%;">创建人</th>
+                        <th style="width:12%;">创建时间</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -264,15 +283,15 @@
                             <a href=""><span class="glyphicon glyphicon-scale" aria-hidden="true"></span></a>
                         </td>
                         <td>
-                            {% for i in o.apps %}
-                                <span class="label label-success">{{ i.path }}</span>
+                            {% for name in o.node_name|split:',' %}
+                                <span class="label label-success">{{ name }}</span>
                             {% endfor %}
                         </td>
                         <td>
-                            {{ o.develop }}
+                            {{ o.created_by }}
                         </td>
                         <td>
-                            {{ o.ops }}
+                            {{ o.create_time }}
                         </td>
                     </tr>
                 {% endfor %}

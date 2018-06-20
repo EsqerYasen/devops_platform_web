@@ -1,9 +1,11 @@
 #-*- coding: UTF-8 -*-
 from django.contrib import auth
 from django.shortcuts import render, redirect
+from django.http import HttpResponse
 from django.views.generic import TemplateView
 from common.utils.ldap3_api import *
 from common.utils.HttpUtils import *
+from common.utils.redis_utils import *
 from django.conf import settings
 import logging,time
 
@@ -81,3 +83,27 @@ def dashboard(request):
     return render(request, 'common/dashboard.html', {
         'module': ""
     })
+
+
+def hostTotalCount(request):
+    results = {}
+    try:
+        r_key = "hostTotalCount_%s" % request.devopsgroup
+        result = RedisBase.get(redisKey=r_key,db=1)
+        if result:
+            results['status'] = 200
+            results['data'] = json.loads(result)
+        else:
+            hu = HttpUtils(request)
+            get_results = hu.get(serivceName="cmdb", restName="/rest/host/host_total_count/",datas={})
+            if get_results['status'] == 200:
+                data = get_results['data']
+                RedisBase.set(redisKey=r_key,value=json.dumps(data),time_ms=120,db=1)
+                results['status'] = 200
+                results['data'] = data
+            else:
+                results['status'] = 500
+    except Exception as e:
+        results['status'] = 500
+        logger.error(e,exc_info=1)
+    return HttpResponse(json.dumps(results),content_type='application/json')
