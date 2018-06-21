@@ -130,8 +130,9 @@
                 var that = td;
                 var text = $(td).text();
                 layer.tips(text, that,{
-                    tips: 1,
-                    time: 2000
+                    tips: [2, 'black'],
+                    time: 5000,
+                    area: ['auto', 'auto']
                 });
             }
         }
