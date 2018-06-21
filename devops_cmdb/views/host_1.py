@@ -198,7 +198,7 @@ def import_host_fn(req,wb):
                             logger.info("static_group_append2 400 result:%s" % (append))
                             if append['status'] == 200:
                                 binding_total += 1
-                                file_log.write("%s 已存在 未查询到此节点(%s) 绑定成功\n" % (host_ip, path))
+                                file_log.write("%s 已存在 节点(%s) 绑定成功\n" % (host_ip, path))
                             elif append['status'] == 400:
                                 failList.append({'host_ip': host_ip, "msg": "IP已存在 %s 发现重复绑定此应用 取消绑定" % (path)})
                                 file_log.write("%s 已存在 发现重复绑定此应用(%s) 取消绑定\n" % (host_ip, path))
