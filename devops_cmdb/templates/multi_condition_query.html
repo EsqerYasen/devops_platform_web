@@ -93,7 +93,7 @@
 {% endblock %}
 
 {% block list_content %}
-    <table id="host_list_tb" class="table table-striped table-bordered table-hover dataTables-example dataTable accordion">
+    <table id="host_list_tb" class="table table-striped table-bordered table-hover dataTables-example dataTable accordion" style="table-layout:fixed">
         <thead>
             <tr>
                 <th style="width: 12%">
@@ -125,6 +125,16 @@
         <tbody></tbody>
     </table>
     <script>
+        function td_mouseenter(td){
+            if (td.offsetWidth < td.scrollWidth) {
+                var that = td;
+                var text = $(td).text();
+                layer.tips(text, that,{
+                    tips: 1,
+                    time: 2000
+                });
+            }
+        }
         function search(){
             var total_div = $("#total_div");
             var lab_total = $("#lab_total");
@@ -186,7 +196,7 @@
                            }
                            tb_html = "";
                            tb_html += "<tr>";
-                           tb_html += "<td>";
+                           tb_html += "<td style='overflow: hidden;white-space: nowrap;text-overflow: ellipsis;' onmouseenter='td_mouseenter(this)'>";
                            tb_html += node_name;
                            tb_html += "</td>";
                            tb_html += "<td>";
