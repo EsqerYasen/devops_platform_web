@@ -158,11 +158,11 @@ def import_host_fn(req,wb):
                         groupId = 0
                 else:
                     groupId = 0
-
+                host_ips = host_ip.split('.')
                 add_host = {'host_ip': host_ip, 'biz_brand': biz_brand, 'biz_group': biz_group,
                             'physical_idc': physical_idc,
                             'deployment_environment': deployment_environment, "logical_idc": logical_idc,
-                            "biz_module": biz_module}
+                            "biz_module": biz_module,"ip_1":host_ips[0],"ip_2":host_ips[1],"ip_3":host_ips[2],"ip_4":host_ips[3]}
                 logger.info("add2 datas:%s" % (add_host))
                 add2ResultObj = hu.post(serivceName="cmdb", restName="/rest/host/add2/", datas=add_host)
                 addResult = add2ResultObj.json()
@@ -216,6 +216,7 @@ def import_host_fn(req,wb):
                 file_log.write("%s 格式错误\n" % (host_ip))
 
     except Exception as e:
+        file_log.write("导入异常 停止导入\n")
         logger.error(e, exc_info=1)
     finally:
         if file_log:

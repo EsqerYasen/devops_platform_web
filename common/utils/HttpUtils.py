@@ -41,8 +41,12 @@ class HttpUtils(object):
         if method == "POST":
             param = webRequest.POST
 
-        offset2 = (webRequest.offset - 1) * 10
         limit = webRequest.limit
+        if limit:
+            offset2 = (webRequest.offset - 1) * int(limit)
+        else:
+            offset2 = (webRequest.offset - 1) * 10
+
         datas["offset"] = offset2
         datas["limit"] = limit
 

@@ -127,6 +127,9 @@
                      bool = false;
                  }
                  item['nocheck'] = bool;
+                 if(middleware[item.name]){
+                     item['iconSkin'] ="middleware";
+                 }
                  zHostGroupNodes.push(item);
              })
          }
