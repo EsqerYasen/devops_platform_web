@@ -88,7 +88,7 @@ def dashboard(request):
 def hostTotalCount(request):
     results = {}
     try:
-        r_key = "hostTotalCount_%s" % request.devopsgroup
+        r_key = "hostTotalCount_%s" % settings.DEVOPSGROUP
         result = RedisBase.get(redisKey=r_key,db=1)
         if result:
             results['status'] = 200
