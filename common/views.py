@@ -107,3 +107,13 @@ def hostTotalCount(request):
         results['status'] = 500
         logger.error(e,exc_info=1)
     return HttpResponse(json.dumps(results),content_type='application/json')
+
+
+def page_not_found(request):
+    return render(request, '404.html')
+
+def page_error(request):
+    return render(request, '500.html')
+
+def page_forbidden(request):
+    return render(request, '403.html')
