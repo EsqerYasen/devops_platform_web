@@ -1,0 +1,59 @@
+<%if(item) {%>
+    <tr>
+        <td class="margin_t_10 text-center text_22px col-md-1 col-xs-1 col-sm-1 align-baseline">
+            <div class="lh_38">
+                <div class="lh_38"><%=i%></div>
+            </div>
+        </td>
+        <td class="margin_t_10 text-center text_22px col-md-4 col-xs-4 col-sm-4 align-baseline">
+            <div class="lh_38"><%= item.name%></div>
+        </td>
+        <%console.log(1111, locals.userInfo, item, item.owner_id, locals.userInfo.userid, item.owner_id==locals.userInfo.userid);%>
+        <%if(!locals.no_privilege && ( (locals.userInfo && locals.userInfo.admin) || (locals.userInfo.userid==item.owner_id))){%>
+        <td class="<%=locals.no_privilege? 'hide':''%> checkbox margin_t_10 text-center text_22px col-md-4 col-xs-4 col-sm-4 align-baseline">
+            <%if( ( (locals.userInfo && locals.userInfo.admin) || (locals.userInfo.userid==item.owner_id))){%>
+            <div class="btn-group lh_38 " data-toggle="buttons" >
+                <label class="btn btn-primary inline-block <%=item.privilege === 1? "active":"" %>"> <input class="inline-block" type="radio" name="privilege[<%=i%>]" value="1"> 可读</label>
+
+                <label class="btn btn-primary  inline-block  <%=item.privilege === 2? "active":"" %>"> <input class="inline-block " type="radio" name="privilege[<%=i%>]"  value="2"> 运行</label>
+
+                <label class="btn btn-primary  inline-block  <%=item.privilege === 4? "active":"" %>"> <input class="inline-block" type="radio" name="privilege[<%=i%>]" value="4"> 配置</label>
+            </div>
+            <%}%>
+        </td>
+        <%}%>
+
+        <td class="margin_t_10 text-center text_22px col-md-3 col-xs-3 col-sm-3 align-baseline">
+            <%if( ( (locals.userInfo && locals.userInfo.admin) || (locals.userInfo.userid==item.owner_id))){%>
+            <div class="lh_38">
+                <%if (!locals.no_edit) {%>
+                    <label class="<%=locals.no_edit? 'hide':''%>">
+                    <input
+                        class="form-control fs_16 btn_edit btn btn-primary"
+                        type="button"
+                        name="operation"
+                        data-item="<%=JSON.stringify(item)%>"
+                        data-id="<%=item.id%>"
+                        data-type="<%=locals.grid_type%>"
+                        data-name="<%=item.name%>"
+                        data-privilege="<%=item.privilege%>"
+                        data-routingid="<%=locals.routingid%>"
+                        value="编辑"
+                        data-edittitle="<%=modalEditTitle%>">
+                    </label>
+                <%}%>
+                <label>
+                <input
+                    class="form-control fs_16 btn_remove btn btn-primary"
+                    type="button"
+                    name="operation"
+                    data-item="<%=JSON.stringify(item)%>"
+                    data-type="<%=locals.grid_type%>"
+                    data-routingId="<%=locals.routingid%>"
+                    data-id="<%=item.id%>" value="删除">
+                </label>
+            </div>
+            <%}%>
+        </td>
+    </tr>
+<%}%>

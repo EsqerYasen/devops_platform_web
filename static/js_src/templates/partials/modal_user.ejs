@@ -1,0 +1,24 @@
+<%if(data) {%>
+    <div class="row">
+        <div class="col-md-6 col-xs-6 col-sm-6 userInfo">
+            <%=data.name%>
+        </div>
+        <div class="col-md-6 col-xs-6 col-sm-6 privilege">
+            <fieldset class="col-md-12 col-xs-12 col-sm-12">
+                <legend>权限</legend>
+
+                <div class="btn-group" data-toggle="buttons">
+                    <label class="btn btn-primary <%=data.privilege === 1? "active":"" %>">
+                        <input type="radio" name="privilege" <%=data.privilege === 1? "checked":"" %> value="1"> 只读
+                    </label>
+                    <label class="btn btn-primary <%=data.privilege === 2? "active":"" %>">
+                        <input type="radio" name="privilege" <%=data.privilege === 2? "checked":"" %>  value="2"> 运行
+                    </label>
+                    <label class="btn btn-primary <%=data.privilege === 4? "active":"" %>">
+                        <input type="radio" name="privilege"  <%=data.privilege === 4? "checked":"" %>  value="4"> 编辑
+                    </label>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+<%}%>

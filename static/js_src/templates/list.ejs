@@ -1,0 +1,13 @@
+<nav class="items-list">
+    <ul class="list-unstyled list-group">
+        <%console.log(locals.list, JSON.stringify(locals.list))%>
+        <% $.each(locals.list || [], function(i, item){ %>
+            <%console.log(item, i);%>
+            <li class="list-group-item">
+            <div class="margin_t_10 text_align_center text_22px">
+                <a href="#/<%=locals.route_to%>/<%=item[locals.key_field]%>"><%= item[locals.name_field]%></a>
+            </div>
+            </li>
+        <% }) %>
+    </ul>
+</nav>

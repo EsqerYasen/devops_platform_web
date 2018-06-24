@@ -1,0 +1,39 @@
+<%if(locals.list) {%>
+    <div class="row">
+        <div class="col-md-6 col-xs-6 col-sm-6 userInfo">
+            <%if(locals.text_label) {%>
+                <div>
+                    <label><%=locals.text_label%></label>
+                    <input name="<%=locals.text_name%>" class="<%=locals.text_kls%>">
+                </div>
+            <%}%>
+            <div>
+            <label><%=locals.list_label%></label>
+            <select name="<%=locals.list_name%>"  class="<%=locals.list_kls%>">
+                <option value="-1">Select</option>
+            <% (locals.list || []).forEach(function(item, i){ %>
+                <option value="<%=item[locals.keyField]%>"><%=item[locals.valField]%></option>
+            <%})%>
+            </select>
+            </div>
+
+        </div>
+        <div class="col-md-6 col-xs-6 col-sm-6 privilege">
+            <fieldset class="col-md-12 col-xs-12 col-sm-12">
+                <legend>权限</legend>
+
+                <div class="btn-group" data-toggle="buttons">
+                    <label class="btn btn-primary ">
+                        <input type="radio" name="privilege"  value="1"> 只读
+                    </label>
+                    <label class="btn btn-primary ">
+                        <input type="radio" name="privilege"  value="2"> 运行
+                    </label>
+                    <label class="btn btn-primary ">
+                        <input type="radio" name="privilege"  value="4"> 编辑
+                    </label>
+                </div>
+            </fieldset>
+        </div>
+    </div>
+<%}%>

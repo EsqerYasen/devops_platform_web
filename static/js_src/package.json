@@ -1,0 +1,40 @@
+{
+  "name": "Devops",
+  "author": "Eric",
+  "version": "0.0.0",
+  "main": "index.html",
+  "scripts": {
+    "test": "node node_modules/jshint/bin/jshint js --exclude js/bundle.js",
+    "build": "npm run test && node node_modules/browserify/bin/cmd.js -t ejsify index.js -o ../js/app.js",
+    "build-watch": "node node_modules/watchify/bin/cmd.js -t ejsify index.js -o ../js/app.js --debug --verbose"
+  },
+  "dependencies": {
+    "backbone": "^1.2.3",
+    "class.extend": "^0.9.2",
+    "jquery": "^3.0.0-alpha1",
+    "jscrollpane": "2.0.22",
+    "moment": "^2.13.0",
+    "observable-lite": "git+https://github.com/gornostal/observable.git",
+    "underscore": "^1.8.3"
+  },
+  "devDependencies": {
+    "body-parser": "^1.17.1",
+    "bootstrap": "^3.3.7",
+    "browserify": "*",
+    "cookie-parser": "^1.4.3",
+    "ejsify": "*",
+    "express": "^4.15.2",
+    "extend": "^3.0.0",
+    "gulp": "^3.9.1",
+    "gulp-browser": "^3.0.11",
+    "gulp-ejs-precompiler": "^0.2.0",
+    "gulp-ejs-template": "^0.2.0",
+    "gulp-rename": "^1.2.3",
+    "jshint": "*",
+    "morgan": "^1.8.1",
+    "path": "^0.12.7",
+    "prompt": "*",
+    "static-favicon": "^2.0.0-alpha",
+    "watchify": "*"
+  }
+}
