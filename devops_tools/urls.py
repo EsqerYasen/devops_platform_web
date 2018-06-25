@@ -10,5 +10,7 @@ urlpatterns = [
         url(r'^yamlCheck/', DevopsToolsYamlCheckView.as_view(), name='yamlCheck'),
         url(r'^getversionbyname/', DevopsToolVersionByName.as_view(), name='getversionbyname'),
         url(r'^(?P<pk>\d+)/gethistoryversionbytoolId/', DevopsToolHistoryVersionByToolId.as_view(), name='gethistoryversionbytoolId'),
+        url(r'^infobytoolidandversion/', DevopsToolInfoByToolIdAndVersion.as_view(), name='infobytoolidandversion'),
+
     ]))
 ]

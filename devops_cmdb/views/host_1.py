@@ -106,7 +106,7 @@ def import_host_fn(req,wb):
     failList = []
     try:
         username = req.user.username
-        log_path = "/opt/devops/host_import_logs/%s/" % (username)
+        log_path = "/opt/devops/host_operation_log/host_import_logs/%s/" % (username)
         HOST1_IMPORT_STATIC[username] = {'isImportRun': 1}
         hu = HttpUtils(req)
         groupId = 0
@@ -278,13 +278,13 @@ class Host1BindingGroup(LoginRequiredMixin,JSONResponseMixin, View):
             if groupId and host_ids:
                 hu = HttpUtils(request)
                 reqParam = {"group_id":groupId,"host_ids":host_ids.split(',')}
-                updateResult = hu.post(serivceName="cmdb", restName="/rest/hostgroup/static_group_append/", datas=reqParam)
+                updateResult = hu.post(serivceName="cmdb", restName="/rest/hostgroup/batch_host_bind_group/", datas=reqParam) #"/rest/hostgroup/static_group_append/"
                 result = updateResult.json()
-                if result['status'] == "SUCCESS":
-                    result_json = {"status": 0,'failCount':result['fail_count'],'successCount':result['success_count']}
+                if result['status'] == 200:
+                    result_json = {"status": 0,'failCount':len(result['200']),'successCount':len(result['500'])}
                 else:
-                    result_json['failCount'] = result['fail_count']
-                    result_json['successCount'] = result['success_count']
+                    result_json['failCount'] = len(result['500'])
+                    result_json['successCount'] = len(result['200'])
         except Exception as e:
             logger.error(e,exc_info=1)
         return self.render_json_response(result_json)
@@ -299,13 +299,13 @@ class Host1UnbundlingGroup(LoginRequiredMixin,JSONResponseMixin, View):
             if groupId and host_ids:
                 hu = HttpUtils(request)
                 reqParam = {"group_id":groupId,"host_ids":host_ids.split(',')}
-                updateResult = hu.post(serivceName="cmdb", restName="/rest/hostgroup/static_group_delete/", datas=reqParam)
+                updateResult = hu.post(serivceName="cmdb", restName="/rest/hostgroup/batch_host_unbind_group/", datas=reqParam) #/rest/hostgroup/static_group_delete/
                 result = updateResult.json()
-                if result['status'] == "SUCCESS":
-                    result_json = {"status": 0, 'failCount': result['fail_count'],'successCount': result['success_count']}
+                if result['status'] == 200:
+                    result_json = {"status": 0, 'failCount': len(result['200']), 'successCount': len(result['500'])}
                 else:
-                    result_json['failCount'] = result['fail_count']
-                    result_json['successCount'] = result['success_count']
+                    result_json['failCount'] = len(result['500'])
+                    result_json['successCount'] = len(result['200'])
         except Exception as e:
             logger.error(e,exc_info=1)
         return self.render_json_response(result_json)
@@ -315,15 +315,25 @@ class Host1DeleteView(LoginRequiredMixin,JSONResponseMixin, View):
     def post(self, request, *args, **kwargs):
         result_json = {"status": 1}
         try:
+            username = request.user.username
+            log_path = "/opt/devops/host_operation_log/host_del_logs/%s/" % (username)
+            mkdir(log_path)
+            start_t = time.time()
+            curtime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(start_t))
+            file_log = open("%s%s_del.log" % (log_path, str(time.time()).replace('.', '')), 'a+')
+
             hostIp = request.POST.get("hostIp", None);
             reqParam = []
             hu = HttpUtils(request)
             for ip in hostIp.split(','):
                 reqParam.append({'host_ip':ip,'is_enabled':0})
+
+            file_log.write("用户:%s   批量删除机器信息 时间:%s  host_ids:%s \n" % (username, curtime, reqParam))
             updateResult = hu.post(serivceName="cmdb", restName="/rest/host/update/", datas=reqParam)
             result = updateResult.json()
             if len(result) > 0:
                 result_json = {"status": 0}
+            file_log.write("用户:%s   批量删除机器信息 时间:%s   结果:%s \n" % (username, curtime, reqParam))
         except Exception as e:
             logger.error(e,exc_info=1)
         return self.render_json_response(result_json)

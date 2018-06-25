@@ -178,9 +178,6 @@
 	    }
 
 	    layoutSize();
-
-        var hostGroupTreeList = {{ hostGroup_list|safe }};
-        readHostGroupTreeNext(hostGroupTreeList,0);
         zHostGroupTreeInit();
         initSelectHostModal();
 
@@ -220,18 +217,7 @@
 
 
 
-     var zHostGroupNodes = [];
-
-    function readHostGroupTreeNext(list,pid){
-        $(list).each(function(i,item){
-            var ids = item.id;
-            var nodeData = {id:ids,pId:pid,name:item.name,nodeId:ids,open:true,hasIp:item.has_ip};
-            zHostGroupNodes.push(nodeData);
-            if(item.childs){
-                readHostGroupTreeNext(item.childs,ids);
-            }
-        });
-    }
+     var zHostGroupNodes = {{ hostGroup_list|safe }};
 
     function zHostGroupTreeInit(){
         var setting = {
@@ -240,7 +226,7 @@
             },
             check: {
                 enable: true,
-                chkboxType:  { "Y": "", "N": "" }
+                chkboxType:  { "Y": "s", "N": "s" }
             },
             data: {
                 simpleData: {

@@ -50,15 +50,14 @@ class CommandSetCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMix
         context = {}
         try:
             hu = HttpUtils(self.request)
-            getData = {'offset': 0, 'limit': 1000, 'is_enabled': 1}
-            hostgroupResult = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_tree/", datas=getData)
-            fileResult = hu.get(serivceName="job", restName="/rest/file/list_tree/", datas={})
+            hostgroupResult = hu.get(serivceName="cmdb", restName="/rest/host/host_group_list/", datas={})
+            #fileResult = hu.get(serivceName="job", restName="/rest/file/list_tree/", datas={})
 
             context["view_num"] = 0
-            context["result_dict"] = {}
-            context['hostGroup_list'] = hostgroupResult.get("data", [])
-            context['file_tree'] = json.dumps(fileResult.get("data", []))
-            context['localParam_list'] = []
+            #context["result_dict"] = {}
+            context['hostGroup_list'] = hostgroupResult.get("results", [])
+            #context['file_tree'] = json.dumps(fileResult.get("data", []))
+            #context['localParam_list'] = []
         except Exception as e:
             logger.error(e)
         return context
@@ -67,44 +66,11 @@ class CommandSetCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMix
     def post_ajax(self, request, *args, **kwargs):
         result = {'status': 0}
         try:
-            user = request.user
-            files = request.FILES
             command_set_str = request.POST.get("command_set",None)
-
-            t = time.time()
-            filePath = "/opt/devops/shell_script/%s/"%(int(round(t * 1000)))
-
             hu = HttpUtils(request)
-            #检查是否有高级查询信息 如果有高级查询信息 需要创建临时组
-            commandSet = json.loads(command_set_str)
-            commandStep = commandSet['steps']
-            for setp in commandStep:
-                seq_no = setp['seq_no']
-                lines = setp['lines']
-                for i in range(len(lines)):
-                    line = lines[i]
-                    tool_set_type = line.get('tool_set_type', None)
-                    #del line['tool_set_type']
-                    if tool_set_type == 4:  # 1-指令 2-上传文件 3-远程文件 4-shell
-                        source_file_name = line.get('source_file_name',None)
-                        if source_file_name:
-                            f = None
-                            try:
-                                if not os.path.exists(filePath):
-                                    os.makedirs(filePath)
-                                fileName = "%s%s_%s.sh" % (filePath,seq_no,i)
-                                f = open(fileName, 'w')
-                                f.write(source_file_name)
-                                f.close()
-                                os.chmod(fileName, stat.S_IRWXO | stat.S_IRWXG | stat.S_IRWXU)
-                                line['source_file_name'] = fileName
-                            except Exception as e:
-                                logger.error(e)
-                                f.close()
-
-            resultJson = hu.post(serivceName="job", restName="/rest/job/add/", datas=commandSet)
+            resultJson = hu.post(serivceName="p_job", restName="/rest/commandset/add/", datas=command_set_str) #/rest/job/add/
             resultJson  = eval(resultJson.text)
-            if(resultJson["status"] == "FAILURE"):
+            if resultJson["status"] == 200:
                 result['status'] = 1
             else:
                 result['status'] = 0
@@ -163,44 +129,13 @@ class CommandSetUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMix
         result = {'status': 0}
         try:
             command_set_str = request.POST.get("command_set", None)
-            commandSet = json.loads(command_set_str)
-            commandStep = commandSet['steps']
-            for setp in commandStep:
-                seq_no = setp['seq_no']
-                lines = setp['lines']
-                for i in range(len(lines)):
-                    line = lines[i]
-                    tool_set_type = line.get('tool_set_type', None)
-                    #del line['tool_set_type']
-                    if tool_set_type == 4:
-                        source_file_name = line['source_file_name']
-                        fileName = line['filePath']
-                        filePath = fileName[0:fileName.rindex("/")+1]
-                        if os.path.exists(fileName):
-                            os.remove(fileName)
-                        if source_file_name:
-                            f = None
-                            try:
-
-                                if not os.path.exists(filePath):
-                                    os.makedirs(filePath)
-                                fileName = "%s%s_%s.sh" % (filePath, seq_no, i)
-                                f = open(fileName, 'w')
-                                f.write(source_file_name)
-                                f.close()
-                                os.chmod(fileName, stat.S_IRWXO | stat.S_IRWXG | stat.S_IRWXU)
-                                line['source_file_name'] = fileName
-                            except Exception as e:
-                                logger.error(e)
-                                f.close()
             hu = HttpUtils(request)
-            resultJson = hu.post(serivceName="job", restName="/rest/job/update/", datas=commandSet)
+            resultJson = hu.post(serivceName="p_job", restName="/rest/commandset/updateById/",datas=command_set_str)
             resultJson = eval(resultJson.text)
-            if (resultJson["status"] == "FAILURE"):
+            if resultJson["status"] == 200:
                 result['status'] = 1
             else:
                 result['status'] = 0
-
         except Exception as e:
             logger.error(e)
         return HttpResponse(json.dumps(result), content_type='application/json')
@@ -211,26 +146,8 @@ class CommandSetDeleteView(LoginRequiredMixin,JSONResponseMixin, View):
         req = self.request
         id = req.GET.get("id",0)
         hu = HttpUtils(req)
-        resultJson = hu.post(serivceName="job", restName="/rest/job/delete/",datas=[{"command_set_id": id}])
+        resultJson = hu.post(serivceName="p_job", restName="/rest/job/deleteById/",datas=[{"id": id}])
         return self.render_json_response(resultJson.json())
-
-
-# class HostListByIdslView(LoginRequiredMixin,JSONResponseMixin, AjaxResponseMixin, View):
-#
-#     def post_ajax(self, request, *args, **kwargs):
-#         result_json = {"status": 1}
-#         try:
-#             hu = HttpUtils(self.request)
-#             reqData = hu.getRequestParam()
-#             result = hu.post(serivceName="cmdb", restName="/rest/host/id_list/", datas=reqData)
-#             list = result.json().get("result", [])
-#             if list:
-#                 result_json['host_info'] = list
-#             else:
-#                 result_json['host_info'] = {}
-#         except Exception as e:
-#             logger.error(e)
-#         return self.render_json_response(result_json)
 
 
 class HostListByQueryCriteria(LoginRequiredMixin,JSONResponseMixin, AjaxResponseMixin, View):
@@ -442,10 +359,8 @@ class ToolSetListView(LoginRequiredMixin,JSONResponseMixin, AjaxResponseMixin, V
         try:
             req = self.request
             hu = HttpUtils(req)
-            tool_list_result = hu.get(serivceName="job", restName="/rest/job/list_tool_set/", datas={"offset":0,"limit":10000})
+            tool_list_result = hu.get(serivceName="p_job", restName="/rest/tool/listToCommandSet/", datas={}) #/rest/job/list_tool_set/
             tool_list = tool_list_result.get("results",[])
-            for tool in tool_list:
-                tool['param'] = json.loads(tool['param'])
             result_json['data'] = tool_list
         except Exception as e:
             logger.error(e,exc_info=1)

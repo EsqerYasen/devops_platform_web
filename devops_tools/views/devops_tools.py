@@ -286,6 +286,26 @@ class DevopsToolVersionByName(LoginRequiredMixin,JSONResponseMixin, View):
             logger.error(e,exc_info=1)
         return self.render_json_response(result)
 
+class DevopsToolInfoByToolIdAndVersion(LoginRequiredMixin,JSONResponseMixin, View):
+    def get(self, request, *args, **kwargs):
+        result = {'status': 200}
+        try:
+            req = self.request
+            hu = HttpUtils(req)
+            reqData = hu.getRequestParam()
+            logger.info("DevopsToolInfoByToolIdAndVersion.get reqData:%s" % (reqData))
+            tool_list_result = hu.get(serivceName="p_job", restName="/rest/tool/list/",datas={'tool_id':reqData['tool_id'],"tool_version":reqData['tool_version']})  # /rest/job/list_tool_set/
+            tool_list = tool_list_result.get("results", [])
+            if tool_list:
+                result['data'] = tool_list[0]
+            else:
+                result['data'] = {}
+        except Exception as e:
+            result['status'] = 500
+            result['msg'] = '查询异常'
+            logger.error(e,exc_info=1)
+        return self.render_json_response(result)
+
 
 class DevopsToolHistoryVersionByToolId(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, TemplateView):
     template_name = "devops_tools_history.html"
