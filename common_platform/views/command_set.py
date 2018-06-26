@@ -26,7 +26,7 @@ class CommandSetListView(LoginRequiredMixin, OrderableListMixin, ListView):
             req = self.request
             hu = HttpUtils(req)
             reqData = hu.getRequestParam()
-            resultJson = hu.get(serivceName="job", restName="/rest/job/list/", datas=reqData)
+            resultJson = hu.get(serivceName="p_job", restName="/rest/commandset/list/", datas=reqData)
             list = resultJson.get("results", [])
 
             paginator = Paginator(resultJson.get("results", []), req.limit)
@@ -51,13 +51,8 @@ class CommandSetCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMix
         try:
             hu = HttpUtils(self.request)
             hostgroupResult = hu.get(serivceName="cmdb", restName="/rest/host/host_group_list/", datas={})
-            #fileResult = hu.get(serivceName="job", restName="/rest/file/list_tree/", datas={})
-
             context["view_num"] = 0
-            #context["result_dict"] = {}
             context['hostGroup_list'] = hostgroupResult.get("results", [])
-            #context['file_tree'] = json.dumps(fileResult.get("data", []))
-            #context['localParam_list'] = []
         except Exception as e:
             logger.error(e)
         return context
@@ -82,47 +77,21 @@ class CommandSetUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMix
     template_name = "command_step_edit.html"
 
     def get_context_data(self,**kwargs):
-        context = super(CommandSetUpdateView, self).get_context_data(**kwargs)
-        context["view_num"] = '2'
-        context['readOnly'] = 'readonly'
+        try:
+            context = super(CommandSetUpdateView, self).get_context_data(**kwargs)
+            context["view_num"] = '2'
+            context['readOnly'] = 'readonly'
 
-        hu = HttpUtils(self.request)
-        resultJson = hu.get(serivceName="job", restName="/rest/job/list_detail/", datas={'id': kwargs.get('pk', 0)})
-        results = resultJson.get("data", [])
-        result_dcit = {}
-        result_dcit['id'] = results['id']
-        result_dcit['name'] = results['name']
-        steps = []
-        for step in results['steps']:
-            stepDict = {}
-            stepDict['id'] = step['id']
-            stepDict['name'] = step['name']
-            stepDict['activeIndex'] = step['host_filter']
-            stepDict['seq_no'] = step['seq_no']
-            stepDict['target_group_ids'] = step['target_group_ids']
-            stepDict['target_host_list'] = step['target_host_list']
-            stepDict['go_live'] = step['go_live']
-            stepDict['target_type'] = step['target_type']
-            lines = []
-            for line in step['lines']:
-                file_display_name = line['file_display_name']
-                if file_display_name:
-                    lineDict = json.loads(file_display_name)
-                    lineDict['id'] = line['id']
-                    lineDict['filePath'] = line['source_file_name']
-                    if lineDict.get('is_enabled',None):
-                        del lineDict['is_enabled']
-                    lines.append(lineDict)
-            stepDict['lines'] = lines
-            steps.append(stepDict)
+            hu = HttpUtils(self.request)
+            resultJson = hu.get(serivceName="p_job", restName="/rest/commandset/infoById/", datas={'id': kwargs.get('pk', 0)})
+            results = resultJson.get("results", [])
 
-        result_dcit['steps'] = steps
+            hostgroupResult = hu.get(serivceName="cmdb", restName="/rest/host/host_group_list/", datas={}) #/rest/hostgroup/list_tree/
+            context['hostGroup_list'] = hostgroupResult.get("data", [])
 
-        getData = {'offset': 0, 'limit': 1000, 'is_enabled': 1}
-        hostgroupResult = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_tree/", datas=getData)
-        context['hostGroup_list'] = hostgroupResult.get("data", [])
-
-        context['result_dict'] = result_dcit
+            context['result_dict'] = json.dumps(results)
+        except Exception as e:
+            logger.error(e,exc_info=1)
         return context
 
     def post_ajax(self, request, *args, **kwargs):
@@ -171,40 +140,11 @@ class CommandSetExecuteView(LoginRequiredMixin, TemplateView):
         context['readOnly'] = 'readonly'
 
         hu = HttpUtils(self.request)
-        resultJson = hu.get(serivceName="job", restName="/rest/job/list_detail/", datas={'id': kwargs.get('pk',0)})
-        results = resultJson.get("data", [])
-        result_dcit = {}
-        result_dcit['id'] = results['id']
-        result_dcit['name'] = results['name']
-        steps = []
-        for step in results['steps']:
-            stepDict = {}
-            stepDict['id'] = step['id']
-            stepDict['name'] = step['name']
-            stepDict['activeIndex'] = step['host_filter']
-            stepDict['seq_no'] = step['seq_no']
-            stepDict['target_group_ids'] = step['target_group_ids']
-            stepDict['target_host_list'] = step['target_host_list']
-            stepDict['go_live'] = step['go_live']
-            stepDict['target_type'] = step['target_type']
-            lines = []
-            for line in step['lines']:
-                file_display_name = line['file_display_name']
-                if file_display_name:
-                    lineDict = json.loads(file_display_name)
-                    lineDict['id'] = line['id']
-                    if lineDict.get("is_enabled",None):
-                        del lineDict['is_enabled']
-                    lines.append(lineDict)
-            stepDict['lines'] = lines
-            steps.append(stepDict)
-
-        result_dcit['steps'] = steps
-
-        getData = {'offset': 0, 'limit': 1000, 'is_enabled': 1}
-        hostgroupResult = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_tree/", datas=getData)
+        resultJson = hu.get(serivceName="p_job", restName="/rest/commandset/infoById/",datas={'id': kwargs.get('pk', 0)})
+        results = resultJson.get("results", [])
+        hostgroupResult = hu.get(serivceName="cmdb", restName="/rest/host/host_group_list/", datas={})
         context['hostGroup_list'] = hostgroupResult.get("data", [])
-        context['result_dict'] = result_dcit
+        context['result_dict'] = json.dumps(results)
         return context
 
     def post(self, request, *args, **kwargs):

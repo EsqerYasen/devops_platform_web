@@ -197,3 +197,11 @@ def getPercent(value, total):
         return '0'
 
 
+@register.filter(name='hostOperationLogTypeTrans')
+def hostOperationLogTypeTrans(value):
+    if value:
+        # 1:新增host  2:绑定树节点   3:解绑树节点  4:未分配  5:待上线  6:已上线  7:删除
+        type_dict = {"1":"新增主机","2":"绑定主机组","3":"解绑主机组","4":"未分配","5":"待上线","6":"已上线","7":"删除"}
+        return type_dict[str(value)]
+    else:
+        return ""

@@ -281,10 +281,9 @@ class Host1BindingGroup(LoginRequiredMixin,JSONResponseMixin, View):
                 updateResult = hu.post(serivceName="cmdb", restName="/rest/hostgroup/batch_host_bind_group/", datas=reqParam) #"/rest/hostgroup/static_group_append/"
                 result = updateResult.json()
                 if result['status'] == 200:
-                    result_json = {"status": 0,'failCount':len(result['200']),'successCount':len(result['500'])}
+                    result_json = {"status": 0,'failCount':len(result['500']),'successCount':len(result['200'])}
                 else:
-                    result_json['failCount'] = len(result['500'])
-                    result_json['successCount'] = len(result['200'])
+                    result_json = {"status": 1, 'failCount': len(result['500']), 'successCount': len(result['200'])}
         except Exception as e:
             logger.error(e,exc_info=1)
         return self.render_json_response(result_json)
@@ -302,10 +301,9 @@ class Host1UnbundlingGroup(LoginRequiredMixin,JSONResponseMixin, View):
                 updateResult = hu.post(serivceName="cmdb", restName="/rest/hostgroup/batch_host_unbind_group/", datas=reqParam) #/rest/hostgroup/static_group_delete/
                 result = updateResult.json()
                 if result['status'] == 200:
-                    result_json = {"status": 0, 'failCount': len(result['200']), 'successCount': len(result['500'])}
+                    result_json = {"status": 0, 'failCount': len(result['500']), 'successCount': len(result['200'])}
                 else:
-                    result_json['failCount'] = len(result['500'])
-                    result_json['successCount'] = len(result['200'])
+                    result_json = {"status": 1, 'failCount': len(result['500']), 'successCount': len(result['200'])}
         except Exception as e:
             logger.error(e,exc_info=1)
         return self.render_json_response(result_json)
@@ -315,28 +313,19 @@ class Host1DeleteView(LoginRequiredMixin,JSONResponseMixin, View):
     def post(self, request, *args, **kwargs):
         result_json = {"status": 1}
         try:
-            username = request.user.username
-            log_path = "/opt/devops/host_operation_log/host_del_logs/%s/" % (username)
-            mkdir(log_path)
-            start_t = time.time()
-            curtime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(start_t))
-            file_log = open("%s%s_del.log" % (log_path, str(time.time()).replace('.', '')), 'a+')
-
-            hostIp = request.POST.get("hostIp", None);
-            reqParam = []
             hu = HttpUtils(request)
-            for ip in hostIp.split(','):
-                reqParam.append({'host_ip':ip,'is_enabled':0})
-
-            file_log.write("用户:%s   批量删除机器信息 时间:%s  host_ids:%s \n" % (username, curtime, reqParam))
-            updateResult = hu.post(serivceName="cmdb", restName="/rest/host/update/", datas=reqParam)
+            host_ids = request.POST.get("host_ids", None)
+            updateResult = hu.post(serivceName="cmdb", restName="/rest/host/batch_delete/",datas={"host_ids":host_ids.split(',')})
             result = updateResult.json()
-            if len(result) > 0:
-                result_json = {"status": 0}
-            file_log.write("用户:%s   批量删除机器信息 时间:%s   结果:%s \n" % (username, curtime, reqParam))
+            if result['status'] == 200:
+                result_json = {"status": 0, 'failCount': len(result['500']), 'successCount': len(result['200'])}
+            else:
+                result_json = {"status": 1, 'failCount': len(result['500']), 'successCount': len(result['200'])}
         except Exception as e:
             logger.error(e,exc_info=1)
         return self.render_json_response(result_json)
+
+
 
 class Host1ScanView(LoginRequiredMixin,JSONResponseMixin, View):
     def post(self, request, *args, **kwargs):
@@ -440,3 +429,31 @@ def HostExportView(request):
         logger.error(e,exc_info=1)
         response = HttpResponse("无数据")
     return response
+
+
+
+class HostOpertionLogListView(LoginRequiredMixin, OrderableListMixin, ListView):
+    template_name = "host_operationlog_list.html"
+    context_object_name = 'result_list'
+
+    def get_queryset(self):
+        return []
+
+    def get_context_data(self, **kwargs):
+        context = super(HostOpertionLogListView, self).get_context_data(**kwargs)
+        try:
+            req = self.request
+            hu = HttpUtils(req)
+            reqData = hu.getRequestParam()
+            resultJson = hu.get(serivceName="cmdb", restName="/rest/host/operationlog_list/", datas=reqData)
+            list = resultJson.get("results", [])
+            count = resultJson.get("count", 0)
+            paginator = Paginator(list, req.limit)
+            paginator.count = count
+            context['result_list'] = list
+            context['is_paginated'] = count > 0
+            context['page_obj'] = paginator.page(req.offset)
+            context['paginator'] = paginator
+        except Exception as e:
+            logger.error(e, exc_info=1)
+        return context

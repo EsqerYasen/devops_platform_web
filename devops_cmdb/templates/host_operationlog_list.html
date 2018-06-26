@@ -1,0 +1,57 @@
+{% extends 'common/basic_rank_list.html' %}
+{% load widget_tweaks %}
+
+{% block list_title %}
+    操作记录
+{% endblock %}
+
+{% block  list_search %}
+{% endblock %}
+
+{% block list_filter %}
+{% endblock %}
+
+{% block list_content %}
+    <table class="table table-striped table-bordered table-hover dataTables-example dataTable accordion">
+        <thead>
+            <tr>
+                <th style="width: 12%;">
+                    操作人
+                </th>
+                <th style="width: 12%;">
+                    时间
+                </th>
+                <th style="width: 15%;">
+                    类型
+                </th>
+                <th style="width: 15%;">
+                    IP
+                </th>
+                <th style="width: 15%;">
+                   节点
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for o in result_list %}
+            <tr class="accordion-toggle" data-toggle="collapse" data-parent="#accordion_tb" href="#collapseTr{{ o.id }}">
+                <td >
+                    {{ o.user }}
+                </td>
+                <td>
+                    {{ o.create_time }}
+                </td>
+                <td>
+                    {{ o.type|hostOperationLogTypeTrans }}
+                </td>
+                <td>
+                    {{ o.host_ip }}
+                </td>
+                <td>
+                    {{ o.node_name }}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
