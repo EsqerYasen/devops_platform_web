@@ -8,11 +8,12 @@ from devops_auth.models.Module_groups import Module_groups
 from devops_auth.models.Module_permission import Module_permission
 from devops_auth.models.Module_group_permission import Module_group_permission
 from devops_auth.models.User_group_permission import User_group_permission
+from devops_auth.models.Module_groups_users import Module_groups_users
 
 class ModuleSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Module
-        fields = ('id', 'name', 'alias', 'url', 'owner_id')
+        fields = ('id', 'name', 'alias', 'url', 'open_db', 'open_table', 'open_id', 'owner_id')
 
 class ModuleGroupSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -38,3 +39,8 @@ class UserGroupPermissionSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User_group_permission
         fields = ('group_id', 'module_id', 'value')
+
+class ModuleGroupUserSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Module_groups_users
+        fields = ('group_id', 'user_id', 'id')

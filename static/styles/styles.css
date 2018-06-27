@@ -20,3 +20,12 @@
 .data-grid table.table{
   margin-bottom:0;
 }
+.modal_error_msg{
+    display: none;
+}
+.alert.modal_error_msg{
+    display: block;
+}
+.yumModal label{
+    width: 150px;
+}

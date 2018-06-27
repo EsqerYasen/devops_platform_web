@@ -1,29 +1,38 @@
 <%if(modules) {%>
     <div class="row">
-        <div class="col-md-6 col-xs-6 col-sm-6 userInfo">
+        <div class="col-md-1 col-xs-1 col-sm-1"/>
+        <div class="col-md-5 col-xs-5 col-sm-5 userInfo">
             <select class="select_module">
                 <option value="-1">Select</option>
             <% (locals.modules || []).forEach(function(item, i){ %>
                 <option value="<%=item.id%>"><%=item.name%></option>
             <%})%>
             </select>
+            <div class="modal_error_msg">
+                请选择<%=locals.title? locals.title: ''%>
+            </div>
         </div>
-        <div class="col-md-6 col-xs-6 col-sm-6 privilege">
-            <fieldset class="col-md-12 col-xs-12 col-sm-12">
-                <legend>权限</legend>
+        <div class="col-md-5 col-xs-5 col-sm-5 privilege btn-privilege">
+            <div>
+                <fieldset class="col-md-12 col-xs-12 col-sm-12">
+                    <legend>权限</legend>
 
-                <div class="btn-group" data-toggle="buttons">
-                    <label class="btn btn-primary ">
-                        <input type="radio" name="privilege"  value="1"> 只读
-                    </label>
-                    <label class="btn btn-primary ">
-                        <input type="radio" name="privilege"  value="2"> 运行
-                    </label>
-                    <label class="btn btn-primary ">
-                        <input type="radio" name="privilege"  value="4"> 编辑
-                    </label>
-                </div>
-            </fieldset>
+                    <div class="btn-group" data-toggle="buttons">
+                        <label class="btn btn-primary ">
+                            <input type="radio" name="privilege"  value="1"> 只读
+                        </label>
+                        <label class="btn btn-primary ">
+                            <input type="radio" name="privilege"  value="2"> 运行
+                        </label>
+                        <label class="btn btn-primary ">
+                            <input type="radio" name="privilege"  value="4"> 编辑
+                        </label>
+                    </div>
+                </fieldset>
+            </div>
+            <div class="modal_error_msg">
+                    请选择权限
+            </div>
         </div>
     </div>
 <%}%>

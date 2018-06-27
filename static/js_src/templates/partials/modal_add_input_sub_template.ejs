@@ -1,0 +1,113 @@
+<%if(locals.list) {%>
+    <div class="row">
+        <div class="col-md-1 col-xs-1 col-sm-1"/>
+
+        <div class="col-md-5 col-xs-5 col-sm-5 userInfo">
+
+            <%if (locals.inputTitle) {%>
+            <div class="input row input inputTitle input_row">
+                <div>
+                    <label><%=locals.inputTitle? locals.inputTitle: ''%></label>
+                    <input type="text" name="name" class="inputTitle select_name" placeholder="请输入<%=locals.inputTitle? locals.inputTitle: ''%>">
+                </div>
+                <div class="modal_error_msg">
+                    请输入<%=locals.inputTitle? locals.inputTitle: ''%>
+                </div>
+            </div>
+            <%}%>
+
+            <%if (locals.inputTitle2) {%>
+            <div class="row input inputTitle2 input_row">
+                <div>
+                    <label><%=locals.inputTitle2? locals.inputTitle2: ''%></label>
+                    <input type="text" name="name" class="inputTitle2 select_name" placeholder="请输入<%=locals.inputTitle2? locals.inputTitle2: ''%>">
+                </div>
+                <div class="modal_error_msg">
+                    请输入<%=locals.inputTitle2? locals.inputTitle2: ''%>
+                </div>
+            </div>
+            <%}%>
+
+            <%if (locals.inputTitle3) {%>
+            <div class="row input inputTitle3 input_row">
+                <div>
+                    <label><%=locals.inputTitle3? locals.inputTitle3: ''%></label>
+                    <input type="text" name="name" class="inputTitle3 select_name" placeholder="请输入<%=locals.inputTitle3? locals.inputTitle3: ''%>">
+                </div>
+                <div class="modal_error_msg">
+                    请输入<%=locals.inputTitle3? locals.inputTitle3: ''%>
+                </div>
+            </div>
+            <%}%>
+            <%if (locals.inputTitle4) {%>
+            <div class="row input inputTitle4 input_row">
+                <div>
+                    <label><%=locals.inputTitle4? locals.inputTitle4: ''%></label>
+                    <input type="text" name="name" class="inputTitle4 select_name" placeholder="请输入<%=locals.inputTitle4? locals.inputTitle4: ''%>">
+                </div>
+                <div class="modal_error_msg">
+                    请输入<%=locals.inputTitle4? locals.inputTitle4: ''%>
+                </div>
+            </div>
+            <%}%>
+            <%if (locals.inputTitle5) {%>
+            <div class="row input inputTitle5 input_row">
+                <div>
+                    <label><%=locals.inputTitle5? locals.inputTitle5: ''%></label>
+                    <input type="text" name="name" class="inputTitle5 select_name" placeholder="请输入<%=locals.inputTitle5? locals.inputTitle5: ''%>">
+                </div>
+                <div class="modal_error_msg">
+                    请输入<%=locals.inputTitle5? locals.inputTitle5: ''%>
+                </div>
+            </div>
+            <%}%>
+            <%if (locals.inputTitle6) {%>
+            <div class="row input inputTitle6 input_row">
+                <div>
+                    <label><%=locals.inputTitle6? locals.inputTitle6: ''%></label>
+                    <input type="text" name="name" class="inputTitle6 select_name" placeholder="请输入<%=locals.inputTitle6? locals.inputTitle6: ''%>">
+                </div>
+                <div class="modal_error_msg">
+                    请输入<%=locals.inputTitle6? locals.inputTitle6: ''%>
+                </div>
+            </div>
+            <%}%>
+            <div class="row select">
+                <label><%=locals.selectTitle? locals.selectTitle: ''%></label>
+                <select class="select_module">
+                    <option value="-1">Select</option>
+                <% (locals.list || []).forEach(function(item, i){ %>
+                    <option value="<%=item[locals.keyField]%>"><%=item[locals.valField]%></option>
+                <%})%>
+                </select>
+                <div class="modal_error_msg">
+                    请选择<%=locals.selectTitle? locals.selectTitle: ''%>
+                </div>
+            </div>
+        </div>
+        <%if (!locals.disable_privilege) {%>
+            <div class="col-md-5 col-xs-5 col-sm-5 privilege btn-privilege">
+                <div class="row">
+                <fieldset class="col-md-12 col-xs-12 col-sm-12">
+                    <legend>权限</legend>
+
+                    <div class="btn-group" data-toggle="buttons">
+                        <label class="btn btn-primary ">
+                            <input type="radio" name="privilege"  value="1"> 只读
+                        </label>
+                        <label class="btn btn-primary ">
+                            <input type="radio" name="privilege"  value="2"> 运行
+                        </label>
+                        <label class="btn btn-primary ">
+                            <input type="radio" name="privilege"  value="4"> 编辑
+                        </label>
+                    </div>
+                </fieldset>
+                </div>
+                <div class="modal_error_msg">
+                    请选择权限
+                </div>
+            </div>
+        <%}%>
+    </div>
+<%}%>

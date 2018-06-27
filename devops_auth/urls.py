@@ -18,6 +18,7 @@ urlpatterns = [
         url(r'^module_group/$', rest_views.ModuleGroupView.as_view()),
         url(r'^module_group/list/$', rest_views.ModuleGroupView.as_view()),
         url(r'^module_groups/$', rest_views.ModuleGroupsView.as_view()),
+        url(r'^module_group/users/$', rest_views.ModuleGroupsUsersView.as_view()),
         url(r'^permission/module/$', rest_views.ModulePermissionView.as_view()),
         url(r'^permission/user_group/$', rest_views.UserGroupPermissionView.as_view()),
         url(r'^permission/module_group/$', rest_views.ModuleGroupPermissionView.as_view()),
