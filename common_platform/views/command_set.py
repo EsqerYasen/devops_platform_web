@@ -66,9 +66,9 @@ class CommandSetCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMix
             resultJson = hu.post(serivceName="p_job", restName="/rest/commandset/add/", datas=command_set_str) #/rest/job/add/
             resultJson  = eval(resultJson.text)
             if resultJson["status"] == 200:
-                result['status'] = 1
-            else:
                 result['status'] = 0
+            else:
+                result['status'] = 1
         except Exception as e:
             logger.error(e)
         return HttpResponse(json.dumps(result),content_type='application/json')
