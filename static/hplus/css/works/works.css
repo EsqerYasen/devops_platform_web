@@ -385,6 +385,7 @@ i.teskico:hover{
     width: 50%;
     box-sizing: border-box;
     border-left: 1px solid #efefef;
+    float:left;
 
 
 }
@@ -609,6 +610,23 @@ i.teskico:hover{
 text-overflow:ellipsis;
 white-space: nowrap;
 
+}
+
+.variableInput{
+    width: 35%;
+    float: left;
+    height: 30px;
+    line-height: 30px;
+    text-indent: 8px;
+    border: 1px solid #efefef;
+}
+.variableEqual{
+    width: 30%;
+    float: left;
+    height: 30px;
+    line-height: 30px;
+    text-align: center;
+    font-size: 22px;
 }
 
 

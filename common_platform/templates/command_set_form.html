@@ -365,6 +365,7 @@
                     var step1 = res.steps;
                     var step2 = [];
                     var hostMsgList = [];
+                    var versionSelectedFlag = true;
                     $(step1).each(function(i,item){
                         var temp = {};
                         temp['name'] = item.name;
@@ -374,6 +375,7 @@
                         temp['target_type'] = item.target_type;
                         temp['target_go_live'] = item.go_live;
 
+                        temp['vars'] = item.vars;
                         if(!item.target_group_ids){
                              hostMsgList.push(item.name)
                         }
@@ -383,8 +385,8 @@
                         $(line1).each(function(i2,item2){
                             var temp3 = {};
                             temp3['sub_seq_no'] = item2['sub_seq_no'];
-                            temp3['command_tool_id'] = item2['command_tool_id'];
-                            temp3['command_tool_version'] = item2['command_tool_version'];
+                            temp3['command_tool_id'] = item2['tool_id'];
+                            temp3['command_tool_version'] = item2['currentVersion'];
                             temp3['is_error_continue'] = item2['ignoreData']?1:0;
                             var parma = item2['param'];
                             var default_script_parameter = [];
@@ -393,6 +395,9 @@
                                     default_script_parameter.push({"key":pitem.paramNameZh,"value":pitem.value});
                                 }
                             })
+                            if(default_script_parameter.length === 0){
+                                versionSelectedFlag = false;
+                            }
                             temp3['default_script_parameter'] = default_script_parameter;
                             line2.push(temp3);
                         })
@@ -404,7 +409,10 @@
                         Alertwin.alert({message:hostMsgList[0]+" 未勾选机器组或机器"});
                         return;
                     }
-                    debugger
+                    if(!versionSelectedFlag){
+                        Alertwin.alert({message:" 请选择自定义version版本"});
+                        return;
+					}
                     $.ajax({
                         type : 'POST',
                         url: '/platform/command_set/add/',
@@ -435,7 +443,7 @@
             }
     });
 
-    transApiDataToLocal({"steps":[{"lines":[],"name":"步骤1","activeIndex":0,"seq_no":1}]});
+    transApiDataToLocal({"steps":[{"lines":[],"name":"步骤1","activeIndex":0,"seq_no":1,"vars":[]}]});
 
 </script>
 

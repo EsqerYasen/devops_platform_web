@@ -31,7 +31,8 @@ Vue.component('task-info', {
     return {
       taskInfo:{},
         curCmd:{},
-        versions:[]
+        versions:[],
+        cmdIndexTop: 1
     }
   },
   template: '#task-info',
@@ -91,14 +92,22 @@ Vue.component('task-info', {
     },
     showEdit:function(index){
        var cmd = this.curCmds[index]['list'][this.curCmds[index]['activeIndex']||0];
+      if(cmd.tool_versions){  //新增
        this.versions = cmd.tool_versions.split(',');
        this.curCmd = cmd;
        if( this.curCmd && !this.curCmd.ignoreData){
            Vue.set(this.curCmd, 'ignoreData', false); //默认不忽略错误
        }
-       Vue.set(this.curCmd, 'currentVersion', this.curCmd.currentVersion ?this.curCmd.currentVersion : this.versions[0]); //默认选中第一个（最新使用版本）
+          Vue.set(this.curCmd, 'currentVersion', Number(this.curCmd.currentVersion ?this.curCmd.currentVersion : this.versions[0])); //默认选中第一个（最新使用版本）
         // 根据id和版本号查找到对应的参数列表
-        this.getParamsByVersion(cmd.tool_id,this.curCmd);
+          this.getParamsByVersion(cmd.tool_id,this.curCmd.currentVersion, null);
+      }else if(cmd.command_tool_version){  //编辑
+          if( typeof  cmd.default_script_parameter === "string"){
+              cmd.default_script_parameter = JSON.parse(cmd.default_script_parameter.replace(/'/g, '"'));
+          }
+          // 根据id和版本号查找到对应的参数列表
+          this.getParamsByVersion(cmd.command_tool_id,cmd.command_tool_version, cmd.default_script_parameter);
+      }
        $('#dialogModal').modal('show');
        // if(parseInt(cmd.tool_set_type) !== 4)return;
        if(parseInt(cmd.tool_set_type) !== 5)return;
@@ -118,9 +127,9 @@ Vue.component('task-info', {
         // },500)
 
     },
-      getParamsByVersion: function (tool_id, curCmd) {
+      getParamsByVersion: function (tool_id, currentVersion, default_script_parameter) {
           var _this = this;
-          $.get("/working/tools/infobytoolidandversion/?tool_id="+tool_id + "&tool_version=" + Number(curCmd.currentVersion),function(result){
+          $.get("/working/tools/infobytoolidandversion/?tool_id="+tool_id + "&tool_version=" + Number(currentVersion),function(result){
               var paramList = [];
               var param = result.data.param;
             if(param){
@@ -129,16 +138,22 @@ Vue.component('task-info', {
                     paramList.push(jsonObj[i]);
                 }
             }
-            //todo: 显示上次更改记录
-              paramList.filter(function (param) {
-                  if (param.value) {
+            // 显示上次更改记录
+              if(default_script_parameter) {
+                  paramList.filter(function (param, index) {
+                      default_script_parameter.filter(function (default_param, default_index) {
+                          if (default_param.key === param.paramNameZh) {
                       switch (param.type) {
                           case "text":
-                              param.desc = param.value
-                              break;
                           case  "select":
+                                      param.desc = default_param.value
                             break;
                           case "multiple":
+                                      param.valueSet.filter(function (keyObj, keyIndex) {
+                                          if (default_param.value.indexOf(keyObj.name) > -1) {
+                                              keyObj.checked = true;
+                                          }
+                                      });
                               break;
                           default:
                               break;
@@ -146,17 +161,21 @@ Vue.component('task-info', {
 
                   }
               });
-              console.log("================",paramList);
+                  });
+              }
               Vue.set(_this.curCmd, 'param', paramList);
           });
 
       },
       changeVersion: function (currentCmd) {
-          this.getParamsByVersion(currentCmd.tool_id, currentCmd)
+          this.getParamsByVersion(currentCmd.tool_id, currentCmd.currentVersion, null)
       },
     closeEdit:function(currentCmd){
-      console.log('----currentCmd params----',currentCmd)
+        if(currentCmd) {
         this.curCmd = currentCmd;
+            console.log("__________________curCmd:",this.curCmd);
+            //todo:保存信息
+        }
       if(window.editor){
         this.curCmd.command =  window.editor.getValue() ;
         window.editor.setValue('');
@@ -221,7 +240,8 @@ Vue.component('task-cmds', {
       cmds:[],
         keywords:'',
       cmdIndexLeft: '1',//当前选中的左边的index
-      cmdIndexTop: '1'//当前选中的右边的index
+      cmdIndexTop: '1',//当前选中的右边的index
+      switchLabelFlag: 1
     }
   },
   methods:{
@@ -252,14 +272,17 @@ Vue.component('task-cmds', {
       this.cmdIndexLeft = index;
       this.findCmdByTopLeft(this.cmdIndexTop, this.cmdIndexLeft);
     },
-    changeCmdTopIndex: function(item, index){
-      if(parseInt(index) !== 1){
-        Alertwin.alert({ message: '本功能正在维护中'});
-        return;
-      }
-
-      this.cmdIndexTop = index;
-      this.findCmdByTopLeft(this.cmdIndexTop, this.cmdIndexLeft);
+    changeCmdTopIndex: function(index){
+      // if(parseInt(index) !== 1){
+      //   Alertwin.alert({ message: '本功能正在维护中'});
+      //   return;
+      // }
+      //   this.cmdIndexTop = index;
+      // this.findCmdByTopLeft(this.cmdIndexTop, this.cmdIndexLeft);
+        this.switchLabelFlag = index;
+    },
+      addVaraibleObj: function () {
+          store.commit('addVariable');
     }
   },
   template:'#task-cmds'
@@ -296,10 +319,18 @@ var transApiDataToLocal  = function(apiData){
   }
   delete apiData.steps;
   store.commit('setBasic', apiData);
+  if(steps && steps.length > 0){
+      steps.filter(function (step){
+          if(!step.vars){
+             Vue.set(step,'vars',[]);
+          }
+      });
+  }
   store.commit('setSteps', steps);
   console.log('解析接口数据: ', apiData, steps);
 };
 var transLocalToApiData = function(basic, steps){
+    console.log("------------transLocalToApiData",steps);
   var res = {name: basic.name};
   for(var key in basic){
     res[key] = basic[key];
@@ -307,7 +338,7 @@ var transLocalToApiData = function(basic, steps){
   res.steps = [];
   for(var i=0; i<steps.length; i++ ){
     var step = steps[i];//左边大步
-    res.steps[i] = {lines:[],name:steps[i].name, is_skip:steps[i].is_skip?1:0, activeIndex:steps[i].activeIndex, seq_no:i+1, target_group_ids:steps[i].target_group_ids,target_host_list:steps[i].target_host_list,go_live:steps[i].go_live,target_type:steps[i].target_type };
+    res.steps[i] = {lines:[],name:steps[i].name,vars:[], is_skip:steps[i].is_skip?1:0, activeIndex:steps[i].activeIndex, seq_no:i+1, target_group_ids:steps[i].target_group_ids,target_host_list:steps[i].target_host_list,go_live:steps[i].go_live,target_type:steps[i].target_type };
     for(var i$1=0; i$1<step.lines.length; i$1++ ){//中间一块
       for(var i$$1=0; i$$1<step.lines[i$1].list.length; i$$1++){//一个命令块
         var tls = JSON.parse(JSON.stringify(step.lines[i$1].list[i$$1]));
@@ -316,8 +347,19 @@ var transLocalToApiData = function(basic, steps){
         res.steps[i].lines[res.steps[i].lines.length] = tls;
       }
     }
+    // 全局变量
+     if(step.vars && step.vars.length > 0){
+        var validVars = [];
+        //获取有效变量，key=null 或 value=null均为无效变量
+        step.vars.filter(function (varObj,index) {
+            if(varObj.key && varObj.value){
+                validVars.push(varObj);
   }
 
+        });
+         res.steps[i].vars = validVars;
+     }
+  }
   console.log(arguments.callee.name, JSON.stringify(res), '---');
   return res;
 };

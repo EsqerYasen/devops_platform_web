@@ -27,7 +27,8 @@ var store = new Vuex.Store({
         "lines":[],
         "name":'双击修改',
         "activeIndex":-1,
-        "isGroup":false
+        "isGroup":false,
+        "vars": []
       });
       state.activeIndex=state.steps.length-1
     },
@@ -58,6 +59,15 @@ var store = new Vuex.Store({
     },
     selectTool:function(state,i){
       state.steps[state.activeIndex]['activeIndex']=i
+    },
+    addVariable:function (state,index) {
+        state.steps[state.activeIndex].vars.push({
+            "key":"",
+            "value":""
+        });
+        if(state.steps[state.activeIndex].vars && state.steps[state.activeIndex].vars.length > 0){
+            console.log(state.steps[state.activeIndex].vars)
+        }
     }
   }
 });

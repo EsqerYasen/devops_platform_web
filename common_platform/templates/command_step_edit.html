@@ -377,6 +377,7 @@
                     temp['target_type'] = item.target_type;
                     temp['go_live'] = item.go_live;
 
+                    temp['vars'] = item.vars;
                     if(!item.target_group_ids){
                         hostMsgList.push(item.name)
                     }
@@ -397,22 +398,45 @@
                         if(script_lang == 'yaml'){
                             temp3['type'] = 2;
                         }
-                        var default_script_parameter = "";
                         temp3['source_file_name'] = command;
-                        $(parma).each(function (pi, pitme) {
-                            if(pitme.value){
-                                if(Array.isArray(pitme.value))pitme.value = pitme.value.join(',');
-                                if(tool_set_type == 5 || tool_set_type == 6){
-                                    default_script_parameter += pitme.paramNameZh+"="+pitme.value+";";
-                                }else{
-                                    default_script_parameter += pitme.value+" ";
+                        var default_script_parameter = [];
+                        if(item2['default_script_parameter']) {
+                            console.log(typeof item2['default_script_parameter'])
+                            var param_obj = item2['default_script_parameter'];
+                            if (typeof  param_obj === "string") {
+                                var jsonObj = JSON.parse(param_obj.replace(/'/g, '"'));//转换为json对象
+                                for (var i = 0; i < jsonObj.length; i++) {
+                                    default_script_parameter.push(jsonObj[i]);
                                 }
+                                }else{
+                                default_script_parameter = param_obj;
+                                }
+                            temp3['default_script_parameter'] = default_script_parameter;
+                        }else {
+                            // $(parma).each(function (pi, pitme) {
+                            //     if (pitme.value) {
+                            //         if (Array.isArray(pitme.value)) pitme.value = pitme.value.join(',');
+                            //         if (tool_set_type == 5 || tool_set_type == 6) {
+                            //             default_script_parameter += pitme.paramNameZh + "=" + pitme.value + ";";
+                            //         } else {
+                            //             default_script_parameter += pitme.value + " ";
+                            //         }
+                            //     }
+                            // })
+                            // temp3['default_script_parameter'] = default_script_parameter.substring(0, default_script_parameter.length - 1);
+                            $(parma).each(function(pi,pitem){
+                                if(pitem.value){
+                                    default_script_parameter.push({"key":pitem.paramNameZh,"value":pitem.value});
                             }
                         })
+                            temp3['default_script_parameter'] = default_script_parameter;
+                        }
                         temp3['tool_set_type'] = tool_set_type;
-                        temp3['default_script_parameter'] = default_script_parameter.substring(0, default_script_parameter.length - 1);
                         temp3['file_display_name'] = JSON.stringify(item2);
                         temp3['filePath'] = item2['filePath'];
+                        temp3['command_tool_id'] = item2['tool_id'] || item2['command_tool_id'];
+                        temp3['command_tool_version'] = item2['currentVersion'] || Number(item2['command_tool_version']);
+                        temp3['is_error_continue'] = item2['ignoreData']?1:0;
                         line2.push(temp3);
                     })
                     temp['lines'] = line2;
@@ -423,7 +447,6 @@
                     Alertwin.alert({message:hostMsgList[0]+" 未勾选机器组或机器"});
                     return;
                 }
-                debugger
                 
                 $.ajax({
                     type : 'POST',
