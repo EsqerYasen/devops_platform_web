@@ -242,20 +242,16 @@
 
     function determineSelectHost(){
         var select_host_modal = $('#select_host_modal');
-        var gid = select_host_modal.data('gid');
-        //var selectHostValue = $("#selectHostValue"+gid);
         var ips = getCheckedHostIP();
-        //selectHostValue.val('');
-
         var values = getSelectHostFromModal();
 
         if(!$.isEmptyObject(values)){
             var obj = {};
-            obj = {'target_group_ids':values['id']}
+            obj = {'target_group_ids':values['target_group_ids']}
             var target_type = 1;
             if(ips.length > 0){
                 values['target_host_list']= ips;
-                target_type = 3;
+                target_type = 2;
             }else{
                 values['target_host_list']= "";
             }
@@ -282,7 +278,7 @@
                     layer.closeAll('loading');
                 },
                 success: function (data) {
-                    createSelectHostIpTable(data.host_list.data);
+                    createSelectHostIpTable(data.host_list);
                     layer.closeAll('loading');
                 }
             });
@@ -293,17 +289,18 @@
 
      function getSelectHostFromModal(){
         var result = {};
-        var tabIds = $("#select_host_tab li[class='active'] a").attr('href');
         var host_group_tree=$.fn.zTree.getZTreeObj("host_group_tree");
         var nodes = host_group_tree.getCheckedNodes(true);
         var groupIds = "";
         $(nodes).each(function(i,item){
-            groupIds += item.id+",";
+            if(item.node_name1 && item.node_name2 && item.node_name3 && item.node_name4 && item.node_name5 && item.node_name6){
+                groupIds += item.id+",";
+            }
         });
         if(groupIds){
             groupIds = groupIds.substring(0,groupIds.length-1);
         }
-        result['group_id'] = groupIds;
+        result['target_group_ids'] = groupIds;
 
         if(!$.isEmptyObject(result)){
             result['go_live'] = $("#host_go_live").val();
@@ -317,15 +314,14 @@
         hostIpTb.empty();
         $("#hostIpBadge").text('总：0台');
         $("#checkall").unbind();
-
         if(data){
             $(data).each(function(i,item){
 
                 var htmlStr =  htmlStr = "<tr>" +
                     "   <td>" +
-                    "       <input type='checkbox' class='i-checks icheck' hostip='"+item+"' name='trCheckbox'>" +
+                    "       <input type='checkbox' class='i-checks icheck' hostip='"+item.host_ip+"' name='trCheckbox'>" +
                     "   </td>" +
-                    "   <td>" + item +"</td>"+
+                    "   <td>" + item.host_ip +"</td>"+
                     "</tr>";
                 hostIpTb.append(htmlStr);
             });
