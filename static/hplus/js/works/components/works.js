@@ -30,7 +30,8 @@ Vue.component('task-info', {
   data: function(){
     return {
       taskInfo:{},
-        curCmd:{}
+        curCmd:{},
+        versions:[]
     }
   },
   template: '#task-info',
@@ -89,27 +90,73 @@ Vue.component('task-info', {
       }
     },
     showEdit:function(index){
-      var cmd = this.curCmds[index]['list'][this.curCmds[index]['activeIndex']||0];
-      this.curCmd = cmd;
+       var cmd = this.curCmds[index]['list'][this.curCmds[index]['activeIndex']||0];
+       this.versions = cmd.tool_versions.split(',');
+       this.curCmd = cmd;
+       if( this.curCmd && !this.curCmd.ignoreData){
+           Vue.set(this.curCmd, 'ignoreData', false); //默认不忽略错误
+       }
+       Vue.set(this.curCmd, 'currentVersion', this.curCmd.currentVersion ?this.curCmd.currentVersion : this.versions[0]); //默认选中第一个（最新使用版本）
+        // 根据id和版本号查找到对应的参数列表
+        this.getParamsByVersion(cmd.tool_id,this.curCmd);
        $('#dialogModal').modal('show');
-       if(parseInt(cmd.tool_set_type) !== 4)return;
-        setTimeout(function() {
-          window.editor = null;
-          $('.CodeMirror').remove();
-            if (!window.editor) {
-              window.editor = CodeMirror.fromTextArea(document.getElementById("code"), {
-                  lineNumbers: true,
-                  styleActiveLine: true,
-                  matchBrackets: true,
-                  theme: 'eclipse'
-              });
-              editor.setSize('auto', '250px');
-            }
-            window.editor.setValue(cmd.command);
-        },500)
+       // if(parseInt(cmd.tool_set_type) !== 4)return;
+       if(parseInt(cmd.tool_set_type) !== 5)return;
+        // setTimeout(function() {
+        //   window.editor = null;
+        //   $('.CodeMirror').remove();
+        //     if (!window.editor) {
+        //       window.editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        //           lineNumbers: true,
+        //           styleActiveLine: true,
+        //           matchBrackets: true,
+        //           theme: 'eclipse'
+        //       });
+        //       editor.setSize('auto', '250px');
+        //     }
+        //     window.editor.setValue(cmd.command);
+        // },500)
 
     },
-    closeEdit:function(){
+      getParamsByVersion: function (tool_id, curCmd) {
+          var _this = this;
+          $.get("/working/tools/infobytoolidandversion/?tool_id="+tool_id + "&tool_version=" + Number(curCmd.currentVersion),function(result){
+              var paramList = [];
+              var param = result.data.param;
+            if(param){
+                var jsonObj =  JSON.parse(param);//转换为json对象
+                for(var i=0;i<jsonObj.length;i++){
+                    paramList.push(jsonObj[i]);
+                }
+            }
+            //todo: 显示上次更改记录
+              paramList.filter(function (param) {
+                  if (param.value) {
+                      switch (param.type) {
+                          case "text":
+                              param.desc = param.value
+                              break;
+                          case  "select":
+                            break;
+                          case "multiple":
+                              break;
+                          default:
+                              break;
+                      }
+
+                  }
+              });
+              console.log("================",paramList);
+              Vue.set(_this.curCmd, 'param', paramList);
+          });
+
+      },
+      changeVersion: function (currentCmd) {
+          this.getParamsByVersion(currentCmd.tool_id, currentCmd)
+      },
+    closeEdit:function(currentCmd){
+      console.log('----currentCmd params----',currentCmd)
+        this.curCmd = currentCmd;
       if(window.editor){
         this.curCmd.command =  window.editor.getValue() ;
         window.editor.setValue('');
@@ -124,6 +171,7 @@ Vue.component('task-info', {
   },
   computed:{
     curCmds: function(){
+      console.log("*********1",this.$store.state.steps[this.$store.state.activeIndex]);
       return this.$store.state.steps[this.$store.state.activeIndex] && this.$store.state.steps[this.$store.state.activeIndex]['lines'] || [];
     },
     steps:function(){
@@ -138,9 +186,7 @@ Vue.component('task-info', {
 Vue.component('task-cmds', {
   data: function(){
     var t = this;
-
      $.get("/platform/toolset/list",function(result){
-
        var _taskCmds = result;
         //服务端数据替换区=============================================================
         var  top = {}, left =  {};
@@ -155,7 +201,8 @@ Vue.component('task-cmds', {
         var initLeft = Object.getOwnPropertyNames(left)[0];
         for(var i in taskCmds){
           var item = taskCmds[i];
-          if(item.tool_set_prime_type == initTop && item.tool_set_type == initLeft){
+          // if(item.tool_set_prime_type == initTop && item.tool_set_type == initLeft){
+          if(item.tool_set_type == initLeft){
             cmds.push(item);
           }
         }
@@ -183,7 +230,8 @@ Vue.component('task-cmds', {
       var cmds = [];
       for(var i in this.taskCmds){
         var item = this.taskCmds[i];
-        if(item.tool_set_prime_type == top && item.tool_set_type == left){
+        // if(item.tool_set_prime_type == top && item.tool_set_type == left){
+        if(item.tool_set_type == left){
           cmds.push(item);
         }
       }

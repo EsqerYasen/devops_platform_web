@@ -101,6 +101,17 @@
                                   </div>
                                   <div class="modal-body">
                                       <form class="form-horizontal">
+                                          <!--todo:新增版本-->
+                                          <div class="form-group" v-if="curCmd.tool_set_type==5">
+                                              <label  class="col-sm-2 control-label">version版本:</label>
+                                              <div class="col-sm-10">
+                                                  <div style="width:30%;">
+                                                      <select class="form-control" v-model="curCmd.currentVersion" id="sel" @change="changeVersion(curCmd)">
+                                                          <option  v-for="v in versions" :value="v" v-html="v" ></option>
+                                                      </select>
+                                                  </div>
+                                              </div>
+                                          </div>
                                           <div class="form-group" v-if="curCmd.tool_set_type==4">
                                               <label class="col-sm-2 control-label">{% verbatim %}SHELL脚本{% endverbatim %}</label>
                                               <div class="col-sm-10">
@@ -109,7 +120,8 @@
                                                   </div>
                                               </div>
                                           </div>
-                                          <div class="form-group" v-for="(ites, i$1) in curCmd.param" v-show="ites.type != 'version'">
+                                          <!--<div class="form-group" v-for="(ites, i$1) in curCmd.param" v-show="ites.type != 'version'">-->
+                                          <div class="form-group" v-for="(ites, i$1) in curCmd.param" v-if="curCmd.param.length>0">
                                             <label class="col-sm-2 control-label">{% verbatim %}{{ites.paramNameZh}}{% endverbatim %}</label>
                                             <div class="col-sm-5">
                                               <div v-if="ites.type==='text'">
@@ -165,7 +177,11 @@
 
                                   </div>
                                   <div class="modal-footer">
-                                    <button type="button" class="btn btn-primary" @click="closeEdit">保存</button>
+                                    <div style=" position: absolute;left: 18px;width:200px;float: left;">
+                                        <input type="checkbox" class="i-checks icheck" id="ignoreData" name="input[]" style="width:20px;height:20px;float:left;" v-model="curCmd.ignoreData">
+                                        <div style="width: 60px; height: 30px;line-height: 30px;float: left;">是否忽略</div>
+                                    </div>
+                                    <button type="button" class="btn btn-primary" @click="closeEdit(curCmd)">保存</button>
                                   </div>
                               </div>
                           </div>
@@ -187,7 +203,7 @@
         <div class="title">工具箱</div>
         <div class="rt-top">
           <ul>
-            <li v-for="(item, index) in top" @click="changeCmdTopIndex(item, index)" :class="{act:cmdIndexTop==index}">{% verbatim %}{{ item }}{% endverbatim %}</li>
+            <!--<li v-for="(item, index) in top" @click="changeCmdTopIndex(item, index)" :class="{act:cmdIndexTop==index}">{% verbatim %}{{ item }}{% endverbatim %}</li>-->
           </ul>
         </div>
         <div class="search clear">
@@ -201,7 +217,7 @@
         </div>
         <div class="rt-right">
           <ul>
-            <draggable  :list="cmds"  :options="{group:{name:'task', pull:'clone', put:false },animation:160,filter:'.dragga',scroll:true}">
+            <draggable  :list="cmds"  :options="{group:{name:'task', pull:'clone', put:false },animation:160,filter:'.dragga',scroll:true}" style="height:100%;">
               <li v-for="(cmd, i) in cmds" class="cmds">{% verbatim %}{{ cmd.name }}{% endverbatim %}</li>
             </draggable>
           </ul>
