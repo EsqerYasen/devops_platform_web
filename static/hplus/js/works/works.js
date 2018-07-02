@@ -68,6 +68,12 @@ var store = new Vuex.Store({
         if(state.steps[state.activeIndex].vars && state.steps[state.activeIndex].vars.length > 0){
             console.log(state.steps[state.activeIndex].vars)
         }
+      },
+      removeVar: function (state, index) {
+          state.steps[state.activeIndex].vars.splice(index,1);
+          if(state.steps[state.activeIndex].vars.length && state.activeIndex<0){
+              state.activeIndex = 0;
+          }
     }
   }
 });

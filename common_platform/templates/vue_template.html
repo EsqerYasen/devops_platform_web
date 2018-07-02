@@ -102,11 +102,22 @@
                                   <div class="modal-body">
                                       <form class="form-horizontal">
                                           <!--todo:新增版本-->
-                                          <div class="form-group" v-if="curCmd.tool_set_type==5">
+                                          <div class="form-group" v-if="curCmd.tool_set_type==5 && curCmd.tool_versions">
                                               <label  class="col-sm-2 control-label">version版本:</label>
                                               <div class="col-sm-10">
                                                   <div style="width:30%;">
-                                                      <select class="form-control" v-model="curCmd.currentVersion" id="sel" @change="changeVersion(curCmd)">
+                                                      <select class="form-control" v-model="curCmd.currentVersion" id="sel" @change="changeVersion(curCmd,'add')">
+                                                          <option  v-for="v in versions" :value="v" v-html="v" ></option>
+                                                      </select>
+                                                  </div>
+                                              </div>
+                                          </div>
+                                          <!--编辑版本信息-->
+                                          <div class="form-group" v-if="curCmd.command_tool_version">
+                                              <label  class="col-sm-2 control-label">version版本:</label>
+                                              <div class="col-sm-10">
+                                                  <div style="width:30%;">
+                                                      <select class="form-control" v-model="curCmd.command_tool_version"  @change="changeVersion(curCmd,'edit')">
                                                           <option  v-for="v in versions" :value="v" v-html="v" ></option>
                                                       </select>
                                                   </div>
@@ -124,7 +135,7 @@
                                           <div class="form-group" v-for="(ites, i$1) in curCmd.param" v-if="curCmd.param.length>0">
                                             <label class="col-sm-2 control-label">{% verbatim %}{{ites.paramNameZh}}{% endverbatim %}</label>
                                             <div class="col-sm-5">
-                                              <div v-if="ites.type==='text'">
+                                              <div v-if="ites.type==='text' || ites.type === 'version' || ites.type === 'path'">
                                                 <input type="text" class="form-control" v-model="ites.value" :placeholder="ites.desc">
                                               </div>
                                                 <div v-if="ites.type === 'select'">
@@ -229,6 +240,7 @@
                   <input type="text" placeholder="key" class="variableInput" v-model="item.key"/>
                   <span class="variableEqual">=</span>
                   <input type="text" placeholder="value"class="variableInput" v-model="item.value"/>
+                  <i class="yum-font icon-guanbi del" style="font-size: 12px" @click="delVar(index)"></i>
               </li>
             </ul>
             <div class="plus" @dblclick="addVaraibleObj()">
