@@ -64,6 +64,8 @@
                  }
                  if(item.host_count){
                      item['name'] = item['name'] + "("+item.host_count+")";
+                 }else{
+                     tem['name'] = item['name'] + "(0)";
                  }
                  item['nocheck'] = bool;
                  zHostGroupNodes.push(item);
