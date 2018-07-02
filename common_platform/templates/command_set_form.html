@@ -362,6 +362,7 @@
                 var command_set = {};
                 if(res.name){
                     command_set['name'] = res.name;
+                    command_set['vars'] = res.vars;
                     var step1 = res.steps;
                     var step2 = [];
                     var hostMsgList = [];
@@ -375,7 +376,6 @@
                         temp['target_type'] = item.target_type;
                         temp['target_go_live'] = item.go_live;
 
-                        temp['vars'] = item.vars;
                         if(!item.target_group_ids){
                              hostMsgList.push(item.name)
                         }
@@ -443,7 +443,7 @@
             }
     });
 
-    transApiDataToLocal({"steps":[{"lines":[],"name":"步骤1","activeIndex":0,"seq_no":1,"vars":[]}]});
+    transApiDataToLocal({"steps":[{"lines":[],"name":"步骤1","activeIndex":0,"seq_no":1}]});
 
 </script>
 

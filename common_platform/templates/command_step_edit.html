@@ -362,6 +362,7 @@
             if(res.name) {
                 command_set['id'] = res.id;
                 command_set['name'] = res.name;
+                command_set['vars'] = res.vars;
                 var step1 = res.steps;
                 var step2 = [];
                 var hostMsgList = [];
@@ -377,7 +378,6 @@
                     temp['target_type'] = item.target_type;
                     temp['go_live'] = item.go_live;
 
-                    temp['vars'] = item.vars;
                     if(!item.target_group_ids){
                         hostMsgList.push(item.name)
                     }
