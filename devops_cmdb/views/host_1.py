@@ -6,6 +6,7 @@ from djqscsv import render_to_csv_response
 from devops_platform_web.settings import PER_PAGE,BASE_DIR
 from common.utils.HttpUtils import *
 from common.utils.common_utils import *
+from common.utils.redis_utils import *
 from xlwt import *
 from io import StringIO
 from django.http import HttpResponse
@@ -43,7 +44,8 @@ class List1View(LoginRequiredMixin, OrderableListMixin, ListView):
             resultJson = hu.post(serivceName="cmdb", restName="/rest/host/list/", datas=reqData)
             resultJson = resultJson.json()
             list = resultJson.get("results", [])
-            hostgroupResult = hu.get(serivceName="cmdb", restName="/rest/host/host_group_list/", datas={})
+            #hostgroupResult = hu.get(serivceName="cmdb", restName="/rest/host/host_group_list/", datas={})
+            hostGroup_list = RedisBase.get("host_group_1",2)
             count = resultJson.get("count", 0)
             paginator = Paginator(list, req.limit)
             paginator.count = count
@@ -51,7 +53,7 @@ class List1View(LoginRequiredMixin, OrderableListMixin, ListView):
             context['is_paginated'] = count > 0
             context['page_obj'] = paginator.page(req.offset)
             context['paginator'] = paginator
-            context['hostGroup_list'] = json.dumps(hostgroupResult.get("results", []))
+            context['hostGroup_list'] = hostGroup_list
         except Exception as e:
             logger.error(e, exc_info=1)
         return context

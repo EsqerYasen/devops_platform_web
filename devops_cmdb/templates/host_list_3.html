@@ -56,6 +56,9 @@
         function initTreeData(list){
              $(list).each(function(i,item){
                  item['nocheck'] = true;
+                 if(item.host_count){
+                     item['name'] = item['name'] + "("+item.host_count+")";
+                 }
                  zHostGroupNodes.push(item);
              })
         }

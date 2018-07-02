@@ -62,6 +62,9 @@
                  if(item.node_name1 && item.node_name2 && item.node_name3 && item.node_name4 && item.node_name5 && item.node_name6){
                      bool = false;
                  }
+                 if(item.host_count){
+                     item['name'] = item['name'] + "("+item.host_count+")";
+                 }
                  item['nocheck'] = bool;
                  zHostGroupNodes.push(item);
              })

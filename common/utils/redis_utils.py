@@ -7,10 +7,10 @@ class RedisBase(object):
 
     @staticmethod
     def getConnection(db=0):
-        if settings.REDIS_POOL == None:
+        if settings.REDIS_POOL.get(db) == None:
             redis_connection = settings.REDIS_CONNECTION
-            settings.REDIS_POOL = redis.ConnectionPool(host=redis_connection['host'], port=redis_connection['port'],db=db)
-        pools = settings.REDIS_POOL
+            settings.REDIS_POOL[db] = redis.ConnectionPool(host=redis_connection['host'], port=redis_connection['port'],db=db)
+        pools = settings.REDIS_POOL[db]
         connection = redis.Redis(connection_pool=pools)
         return connection
 
