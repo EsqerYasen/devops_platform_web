@@ -236,7 +236,7 @@
         </div>
         <div class="left-task-warp"  v-if="switchLabelFlag == 2">
             <ul style="height:auto;">
-              <li style="background: #fff;border:0" v-for="(item,index) in $store.state.steps[$store.state.activeIndex].vars" key="index">
+              <li style="background: #fff;border:0" v-for="(item,index) in $store.state.vars" key="index">
                   <input type="text" placeholder="key" class="variableInput" v-model="item.key"/>
                   <span class="variableEqual">=</span>
                   <input type="text" placeholder="value"class="variableInput" v-model="item.value"/>

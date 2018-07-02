@@ -356,7 +356,7 @@
               $('#showList').modal('hide')
           },
           save: function(){
-            var res = transLocalToApiData(this.$store.state.basic, this.$store.state.steps);
+            var res = transLocalToApiData(this.$store.state.basic, this.$store.state.steps, this.$store.state.vars);
             var exec_json = {};
             var command_set = {};
             if(res.name) {

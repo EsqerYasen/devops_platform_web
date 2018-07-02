@@ -358,7 +358,7 @@
 	    },
         methods:{
             save: function(){
-                var res = transLocalToApiData(this.$store.state.basic, this.$store.state.steps);
+                var res = transLocalToApiData(this.$store.state.basic, this.$store.state.steps, this.$store.state.vars);
                 var command_set = {};
                 if(res.name){
                     command_set['name'] = res.name;

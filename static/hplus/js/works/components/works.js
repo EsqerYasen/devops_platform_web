@@ -155,7 +155,7 @@ Vue.component('task-info', {
                       switch (param.type) {
                           case "text":
                           case  "select":
-                                      param.desc = default_param.value
+                                      param.value = default_param.value
                             break;
                           case "multiple":
                                       param.valueSet.filter(function (keyObj, keyIndex) {
@@ -306,6 +306,10 @@ Vue.component('task-cmds', {
 
 var transApiDataToLocal  = function(apiData){
   var steps = apiData.steps;
+    var vars = [];
+    if(apiData.vars){
+        vars = apiData.vars;
+  }
   for(var i in steps){
     var tmp = steps[i];
     tmp.tlines = [];
@@ -342,18 +346,29 @@ var transApiDataToLocal  = function(apiData){
       });
   }
   store.commit('setSteps', steps);
+  store.commit('setVars', vars);
   console.log('解析接口数据: ', apiData, steps);
 };
-var transLocalToApiData = function(basic, steps){
+var transLocalToApiData = function(basic, steps,vars){
     console.log("------------transLocalToApiData",steps);
-  var res = {name: basic.name};
+    // 全局变量
+    var validVars = [];
+    if(vars && vars.length > 0){
+        //获取有效变量，key=null 或 value=null均为无效变量
+        vars.filter(function (varObj,index) {
+            if(varObj.key && varObj.value){
+                validVars.push(varObj);
+            }
+        });
+    }
+  var res = {name: basic.name,vars:validVars};
   for(var key in basic){
     res[key] = basic[key];
   }
   res.steps = [];
   for(var i=0; i<steps.length; i++ ){
     var step = steps[i];//左边大步
-    res.steps[i] = {lines:[],name:steps[i].name,vars:[], is_skip:steps[i].is_skip?1:0, activeIndex:steps[i].activeIndex, seq_no:i+1, target_group_ids:steps[i].target_group_ids,target_host_list:steps[i].target_host_list,go_live:steps[i].go_live,target_type:steps[i].target_type };
+    res.steps[i] = {lines:[],name:steps[i].name,is_skip:steps[i].is_skip?1:0, activeIndex:steps[i].activeIndex, seq_no:i+1, target_group_ids:steps[i].target_group_ids,target_host_list:steps[i].target_host_list,go_live:steps[i].go_live,target_type:steps[i].target_type };
     for(var i$1=0; i$1<step.lines.length; i$1++ ){//中间一块
       for(var i$$1=0; i$$1<step.lines[i$1].list.length; i$$1++){//一个命令块
         var tls = JSON.parse(JSON.stringify(step.lines[i$1].list[i$$1]));
@@ -361,18 +376,6 @@ var transLocalToApiData = function(basic, steps){
         tls.is_skip = tls.is_skip ? 1:0;
         res.steps[i].lines[res.steps[i].lines.length] = tls;
       }
-    }
-    // 全局变量
-     if(step.vars && step.vars.length > 0){
-        var validVars = [];
-        //获取有效变量，key=null 或 value=null均为无效变量
-        step.vars.filter(function (varObj,index) {
-            if(varObj.key && varObj.value){
-                validVars.push(varObj);
-  }
-
-        });
-         res.steps[i].vars = validVars;
      }
   }
   console.log(arguments.callee.name, JSON.stringify(res), '---');
