@@ -84,7 +84,8 @@ Vue.component('task-info', {
             Vue.set(this.$store.state, 'message',   ('并行操作最多4个'));
             return;
           }
-          curStep['lines'][curStep.activeIndex]['list'].push(cmd);
+          curStep['lines'][curStep.activeIndex]['list'].push(cmd);  //编辑页面切换bug
+          Vue.set(curStep['lines'], 0, {list:curStep['lines'][curStep.activeIndex]['list'],activeIndex:0});
         }
       }else{
         Vue.set(curStep['lines'], e.newIndex, {list:[cmd],activeIndex:0});

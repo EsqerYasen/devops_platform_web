@@ -399,23 +399,22 @@
                         step2.push(temp);
                     })
                     command_set['steps'] = step2;
-                    debugger
-{#                    $.ajax({#}
-{#                        type : 'POST',#}
-{#                        url: '/platform/command_set/'+res.id+'/edit/',#}
-{#                        data:{"command_set":JSON.stringify(command_set),"csrfmiddlewaretoken":'{{ csrf_token }}'},#}
-{#                        success : function(responseStr) {#}
-{#                            if(responseStr.status==0){#}
-{#                                //Alertwin.alert({message:"更新成功"});#}
-{#                                location.href = '../../list'#}
-{#                            }else{#}
-{#                                Alertwin.alert({message:"更新失败"});#}
-{#                            }#}
-{#                        },#}
-{#                        error : function(responseStr) {#}
-{#                            console.log(responseStr);#}
-{#                        }#}
-{#                    });#}
+                    $.ajax({
+                        type : 'POST',
+                        url: '/platform/command_set/'+res.id+'/edit/',
+                        data:{"command_set":JSON.stringify(command_set),"csrfmiddlewaretoken":'{{ csrf_token }}'},
+                        success : function(responseStr) {
+                            if(responseStr.status==0){
+                                //Alertwin.alert({message:"更新成功"});#}
+                                location.href = '../../list'
+                            }else{
+                                Alertwin.alert({message:"更新失败"});
+                            }
+                        },
+                        error : function(responseStr) {
+                            console.log(responseStr);
+                        }
+                    });
 
                 }
             }
