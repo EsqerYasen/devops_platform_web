@@ -60,10 +60,10 @@ def checkLogin(request):
                 user = auth.authenticate(username=username, password=password)
             else:
                 user = auth.authenticate(username=username, password=settings.USER_DEFAULT_PWD)
-                if user and user.is_active:
-                    auth.login(request, user)
-                    redirect_url = '/mainform/'
-                    logger.info("user '" + username + "' authentication through")
+            if user and user.is_active:
+                auth.login(request, user)
+                redirect_url = '/mainform/'
+                logger.info("user '" + username + "' authentication through")
     except Exception as e:
         logging.error(e)
     return redirect(redirect_url)
