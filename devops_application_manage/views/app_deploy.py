@@ -29,6 +29,8 @@ class DevopsAppMgeListView(LoginRequiredMixin, OrderableListMixin, ListView):
             context['is_paginated'] = count > 0
             context['page_obj'] = paginator.page(req.offset)
             context['paginator'] = paginator
+            user = req.user
+            context['userid'] = user.id
         except Exception as e:
             logger.error(e,exc_info=1)
         return context

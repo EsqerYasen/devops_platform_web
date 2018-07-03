@@ -20,17 +20,19 @@ class DevopsFlowListView(LoginRequiredMixin, OrderableListMixin, ListView):
         context = super(DevopsFlowListView, self).get_context_data(**kwargs)
         try:
             req = self.request
-            hu = HttpUtils(req)
-            reqData = hu.getRequestParam()
-            app_list_result = hu.get(serivceName="p_job", restName="/rest/flowcontrol/list/", datas=reqData) #/rest/flowcontrol/list/
-            app_list = app_list_result.get("results", {})
-            count = app_list_result.get("count", 0)
-            paginator = Paginator(app_list, req.limit)
-            paginator.count = count
-            context['result_list'] = app_list
-            context['is_paginated'] = count > 0
-            context['page_obj'] = paginator.page(req.offset)
-            context['paginator'] = paginator
+            # hu = HttpUtils(req)
+            # reqData = hu.getRequestParam()
+            # app_list_result = hu.get(serivceName="p_job", restName="/rest/flowcontrol/list/", datas=reqData) #/rest/flowcontrol/list/
+            # app_list = app_list_result.get("results", {})
+            # count = app_list_result.get("count", 0)
+            # paginator = Paginator(app_list, req.limit)
+            # paginator.count = count
+            # context['result_list'] = app_list
+            # context['is_paginated'] = count > 0
+            # context['page_obj'] = paginator.page(req.offset)
+            # context['paginator'] = paginator
+            user = req.user
+            context['userid'] = user.id
         except Exception as e:
             logger.error(e)
         return context

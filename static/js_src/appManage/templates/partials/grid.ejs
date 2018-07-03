@@ -1,0 +1,28 @@
+<%if(locals.item) {%>
+<tr>
+    <td>
+        <input type="checkbox" class="i-checks icheck" id="<%= locals.item.id %>" name="trCheckbox">
+    </td>
+    <td><%= locals.item.name %></td>
+    <td><%= locals.item.tool_name %></td>
+    <td><%= locals.item.tool_version %></td>
+    <td><%= locals.item.created_by %></td>
+    <td><%= locals.item.updated_by %></td>
+    <td><%= locals.item.create_time %></td>
+    <td><%= locals.item.update_time %></td>
+    <td>
+        <% if (Math.max(locals.item.mp_v, locals.item.mgp_v, locals.item.ug_v)>=4) {%>
+            <a href="../<%= locals.item.id %>/edit/" class="btn btn-sm btn-success"><i class="fa fa-edit"></i>&nbsp;编辑</a>
+        <%}%>
+        <% if (Math.max(locals.item.mp_v, locals.item.mgp_v, locals.item.ug_v)>=2) {%>
+            <a href="javascript:void(0)" class="btn btn-sm btn-success" onclick="appOperation('<%= locals.item.id %>','<%= locals.item.name %>','<%= locals.item.tool_id %>','<%= locals.item.tool_version %>','<%= locals.item.command_set_id %>','<%= locals.item.bind_type %>')"><i class="fa fa-play"></i>安装</a>
+        <%}%>
+        <% if (Math.max(locals.item.mp_v, locals.item.mgp_v, locals.item.ug_v)>=1) {%>
+            <a href="/platform/command_set/<%= locals.item.id %>/execLog?deploy_id=<%= locals.item.id %>&bind_type=1&name=<%= locals.item.name %>&exec_type=3" class="btn btn-sm btn-success"><i class="fa fa-list"></i>&nbsp;历史</a>
+        <%}%>
+        <% if (Math.max(locals.item.mp_v, locals.item.mgp_v, locals.item.ug_v)>=4) {%>
+            <a href="javascript:void(0)" onclick="deleteApp('<%= locals.item.id %>')" class="btn  btn-sm btn-danger"><i class="fa fa-trash"></i>&nbsp;删除</a>
+        <%}%>
+    </td>
+</tr>
+<%}%>

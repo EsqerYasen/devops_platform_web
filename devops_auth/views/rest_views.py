@@ -98,7 +98,7 @@ class ModuleView(LoginRequiredMixin, APIView):
                     if error:
                         return HttpResponseBadRequest(error)
 
-                    m = Module(name=name,alias=alias,url=url,owner_id=owner_id, created_by=request.user.username,updated_by=request.user.username)
+                    m = Module(name=name,alias=alias,url=url,owner_id=owner_id, created_by=request.user.username,updated_by=request.user.username, open_table=open_table, open_db=open_db, open_id=open_id)
                     m.save()
                     result['status'] = 0
                     result['msg'] = "保存成功"
@@ -120,6 +120,13 @@ class ModulesView(LoginRequiredMixin, APIView):
         result['status'] = 0
         data = Module.objects.filter(is_enabled=1)
         result['info'] = serializers.serialize('json',  data)
+        return HttpResponse(json.dumps(result),content_type='application/json')
+
+class ModulesPermissionView(LoginRequiredMixin, APIView):
+    # TODO
+    def get(self, request):
+        result = {}
+        result['info'] = auth_utils.get_user_permission({"user_id": int(request.user.id), "user_group_ids": request.user.groups.values('id')});
         return HttpResponse(json.dumps(result),content_type='application/json')
 
 class UsersView(LoginRequiredMixin, APIView):

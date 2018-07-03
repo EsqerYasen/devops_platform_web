@@ -1,0 +1,10 @@
+.job_list_container{
+    height: 800px;
+    overflow: auto;
+}
+.job_list_container .table{
+    margin-bottom:  0;
+}
+.wrapper-content {
+    overflow: hidden;
+}
