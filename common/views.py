@@ -32,6 +32,7 @@ def checkLogin(request):
         method = request.method
         bool = False
         username = ""
+        password = ""
         if method == "GET":
             code = request.GET.get('code',None)
             if code:
@@ -49,14 +50,20 @@ def checkLogin(request):
         elif method == "POST":
             username = request.POST.get('username',None)
             password = request.POST.get('password',None)
-            if username and password:
-                bool = AdAuthenticate.authenricate(username,password)
+            if username == 'admin':
+                bool = True
+            else:
+                if username and password:
+                    bool = AdAuthenticate.authenricate(username,password)
         if bool:
-            user = auth.authenticate(username=username, password=settings.USER_DEFAULT_PWD)
-            if user and user.is_active:
-                auth.login(request, user)
-                redirect_url = '/mainform/'
-                logger.info("user '" + username + "' authentication through")
+            if username == 'admin':
+                user = auth.authenticate(username=username, password=password)
+            else:
+                user = auth.authenticate(username=username, password=settings.USER_DEFAULT_PWD)
+                if user and user.is_active:
+                    auth.login(request, user)
+                    redirect_url = '/mainform/'
+                    logger.info("user '" + username + "' authentication through")
     except Exception as e:
         logging.error(e)
     return redirect(redirect_url)
