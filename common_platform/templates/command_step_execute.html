@@ -337,64 +337,94 @@
                 var exec_json = {};
                 if(res.id){
                     exec_json['id'] = res.id;
-                    exec_json['name'] = res.name;
                     var vars = res.vars;
+                    var tool_list = [];
+                    var remarks = {"name":res.name};
                     $(res.steps).each(function(i,item){
                          var temp_list = [];
-                         $(res.lines).each(function(i2,item2){
+                         var is_skip_step = item.is_skip;
+                         var step_name = item.name;
+                         var seq_no = item.seq_no;
+                         $(item.lines).each(function(i2,item2){
                              var index = item2.sub_seq_no - 1;
-                             if(temp_list[index]){
-                                 temp_list[index] = temp_list[index].push({
-                                     "id":item2.command_tool_id,
-                                     "name":item2.tool.name,
-                                     "tool_version":item2.command_tool_version,
-                                     "time_out":600,
-                                     "seq_no":item.seq_no,
-                                     "is_error_continue":item2['ignoreData']?1:0,
-                                     "param":tool_param,
-                                     "command":item2.tool.command
-                                 })
-                             }else{
-                                 var parma = item2['param'];
-                                 tool_param = {}
-                                 if(parma){
-                                    var default_script_parameter = [];
-                                    $(parma).each(function(pi,pitem){
-                                        if(pitem.value){
-                                            tool_param.push({"key":pitem.paramNameZh,"value":pitem.value});
-                                        }
-                                    })
+                             var is_skip_line = item2.is_skip;
+                             if(is_skip_step == 1){
+                                 is_skip_line = 1;
+                             }
+                             if(is_skip_line == 0){
+                                 if(temp_list[index]){
+                                     temp_list[index].push({
+                                         "id":item2.command_tool_id,
+                                         "name":item2.tool.name,
+                                         "tool_version":item2.command_tool_version,
+                                         "time_out":600,
+                                         "seq_no":seq_no,
+                                         "is_error_continue":item2['ignoreData']?1:0,
+                                         "param":tool_param,
+                                         "command":item2.tool.command,
+                                         "vars":vars,
+                                         "step_name":step_name,
+                                         "is_skip":is_skip_line,
+                                         "sub_seq_no":item2.sub_seq_no
+
+                                     })
                                  }else{
-                                    tool_param = JSON.parse(item2.default_script_parameter.replace(/'/g,'"'));
+                                     var parma = item2['param'];
+                                     tool_param = [];
+                                     if(parma){
+                                        $(parma).each(function(pi,pitem){
+                                            if(pitem.value){
+                                                tool_param.push({"key":pitem.paramNameZh,"value":pitem.value});
+                                            }
+                                        })
+                                     }else{
+                                        tool_param = JSON.parse(item2.default_script_parameter.replace(/'/g,'"'));
+                                     }
+                                     temp_list.push([{
+                                         "id":item2.command_tool_id,
+                                         "name":item2.tool.name,
+                                         "tool_version":item2.command_tool_version,
+                                         "time_out":600,
+                                         "seq_no":seq_no,
+                                         "is_error_continue":item2['ignoreData']?1:0,
+                                         "param":tool_param,
+                                         "command":item2.tool.command,
+                                         "vars":vars,
+                                         "step_name":step_name,
+                                         "is_skip":is_skip_line,
+                                         "sub_seq_no":item2.sub_seq_no
+                                     }])
                                  }
-                                 temp_list.push({
-                                     "id":item2.command_tool_id,
-                                     "name":item2.tool.name,
-                                     "tool_version":item2.command_tool_version,
-                                     "time_out":600,
-                                     "seq_no":item.seq_no,
-                                     "is_error_continue":item2['ignoreData']?1:0,
-                                     "param":tool_param,
-                                     "command":item2.tool.command
-                                 })
+                             }else{
+                                var temp = remarks[step_name+"_"+seq_no];
+                                if(temp){
+                                    temp.push(item2.tool.name)
+                                }else{
+                                    remarks[step_name+"_"+seq_no] = [item2.tool.name]
+                                }
                              }
                          })
+                        tool_list = tool_list.concat(temp_list);
+                        exec_json['tool_list'] = tool_list;
+                        exec_json['remarks'] = remarks;
                     })
-{#                    $.ajax({#}
-{#                        type : 'POST',#}
-{#                        url: '/platform/command_set/'+res.id+'/exec/',#}
-{#                        data:{"execJson":JSON.stringify(exec_json),"csrfmiddlewaretoken":'{{ csrf_token }}'},#}
-{#                        success : function(responseStr) {#}
-{#                            if(responseStr.status==0){#}
-{#                                window.location.href = "../execLog?setId="+responseStr.set_id+"&jobId="+responseStr.job_id#}
-{#                            }else{#}
-{#                                Alertwin.alert({message:"失败"});#}
-{#                            }#}
-{#                        },#}
-{#                        error : function(responseStr) {#}
-{#                            console.log(responseStr);#}
-{#                        }#}
-{#                    });#}
+                    if(tool_list.length > 0){
+                        $.ajax({
+                            type : 'POST',
+                            url: '/platform/command_set/'+res.id+'/exec/',
+                            data:{"execJson":JSON.stringify(exec_json),"csrfmiddlewaretoken":'{{ csrf_token }}'},
+                            success : function(responseStr) {
+                                if(responseStr.status==0){
+                                    window.location.href = "../execLog?setId="+responseStr.set_id+"&jobId="+responseStr.job_id;
+                                }else{
+                                    Alertwin.alert({message:"失败"});
+                                }
+                            },
+                            error : function(responseStr) {
+                                console.log(responseStr);
+                            }
+                        });
+                    }
                 }
             }
         }
