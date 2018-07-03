@@ -294,7 +294,7 @@ class DevopsToolInfoByToolIdAndVersion(LoginRequiredMixin,JSONResponseMixin, Vie
             hu = HttpUtils(req)
             reqData = hu.getRequestParam()
             logger.info("DevopsToolInfoByToolIdAndVersion.get reqData:%s" % (reqData))
-            tool_list_result = hu.get(serivceName="p_job", restName="/rest/tool/list/",datas={'tool_id':reqData['tool_id'],"tool_version":reqData['tool_version']})  # /rest/job/list_tool_set/
+            tool_list_result = hu.get(serivceName="p_job", restName="/rest/tool/list/",datas={'tool_id':reqData['tool_id'],"tool_version":reqData['tool_version'],"is_history":"-1"})  # /rest/job/list_tool_set/
             tool_list = tool_list_result.get("results", [])
             if tool_list:
                 result['data'] = tool_list[0]

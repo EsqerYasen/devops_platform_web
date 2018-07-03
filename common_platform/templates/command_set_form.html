@@ -365,8 +365,6 @@
                     command_set['vars'] = res.vars;
                     var step1 = res.steps;
                     var step2 = [];
-                    var hostMsgList = [];
-                    var versionSelectedFlag = true;
                     $(step1).each(function(i,item){
                         var temp = {};
                         temp['name'] = item.name;
@@ -376,9 +374,9 @@
                         temp['target_type'] = item.target_type;
                         temp['target_go_live'] = item.go_live;
 
-                        if(!item.target_group_ids){
-                             hostMsgList.push(item.name)
-                        }
+{#                        if(!item.target_group_ids){#}
+{#                             hostMsgList.push(item.name)#}
+{#                        }#}
 
                         var line1 = item.lines;
                         var line2 = [];
@@ -395,9 +393,6 @@
                                     default_script_parameter.push({"key":pitem.paramNameZh,"value":pitem.value});
                                 }
                             })
-                            if(default_script_parameter.length === 0){
-                                versionSelectedFlag = false;
-                            }
                             temp3['default_script_parameter'] = default_script_parameter;
                             line2.push(temp3);
                         })
@@ -405,14 +400,6 @@
                         step2.push(temp);
                     })
                     command_set['steps'] = step2;
-                    if(hostMsgList.length > 0){
-                        Alertwin.alert({message:hostMsgList[0]+" 未勾选机器组或机器"});
-                        return;
-                    }
-                    if(!versionSelectedFlag){
-                        Alertwin.alert({message:" 请选择自定义version版本"});
-                        return;
-					}
                     $.ajax({
                         type : 'POST',
                         url: '/platform/command_set/add/',
