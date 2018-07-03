@@ -55,10 +55,11 @@ class HttpUtils(object):
                 continue
             value = param[d]
             if not hasEmpty and value:
-                if ',' in value and not self.check_json_format(value):
-                    datas[d] = '+'.join(value.split(','))
-                else:
-                    datas[d] = value
+                # if ',' in value and not self.check_json_format(value):
+                #     datas[d] = '+'.join(value.split(','))
+                # else:
+                #     datas[d] = value
+                datas[d] = value
             if hasEmpty:
                 datas[d] = value
 

@@ -2,6 +2,7 @@ var store = new Vuex.Store({
   state:{
     basic:{},
     steps:[],
+    vars:[],
     activeIndex:0 //当前最左边index
   },
   mutations:{
@@ -37,6 +38,9 @@ var store = new Vuex.Store({
     setSteps: function(state, tl){
       state.steps = [].slice.call(Object.create(tl));
     },
+    setVars: function (state, tl) {
+      state.vars = [].slice.call(Object.create(tl));
+    },
     deleteDesk:function(state,indexObj){
       var linesListLen = state.steps[state.activeIndex]['lines'][indexObj.ind1]['list'].length;
       if(linesListLen<=1){
@@ -58,6 +62,21 @@ var store = new Vuex.Store({
     },
     selectTool:function(state,i){
       state.steps[state.activeIndex]['activeIndex']=i
+    },
+    addVariable:function (state,index) {
+          state.vars.push({
+            "key":"",
+            "value":""
+        });
+          if (state.vars && state.vars.length > 0) {
+              console.log(state.vars)
+        }
+      },
+      removeVar: function (state, index) {
+          state.vars.splice(index,1);
+          if(state.vars.length && state.activeIndex<0){
+              state.activeIndex = 0;
+          }
     }
   }
 });

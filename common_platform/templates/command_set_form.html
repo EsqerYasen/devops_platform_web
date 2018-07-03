@@ -242,20 +242,16 @@
 
     function determineSelectHost(){
         var select_host_modal = $('#select_host_modal');
-        var gid = select_host_modal.data('gid');
-        //var selectHostValue = $("#selectHostValue"+gid);
         var ips = getCheckedHostIP();
-        //selectHostValue.val('');
-
         var values = getSelectHostFromModal();
 
         if(!$.isEmptyObject(values)){
             var obj = {};
-            obj = {'target_group_ids':values['id']}
+            obj = {'target_group_ids':values['target_group_ids']}
             var target_type = 1;
             if(ips.length > 0){
                 values['target_host_list']= ips;
-                target_type = 3;
+                target_type = 2;
             }else{
                 values['target_host_list']= "";
             }
@@ -282,7 +278,7 @@
                     layer.closeAll('loading');
                 },
                 success: function (data) {
-                    createSelectHostIpTable(data.host_list.data);
+                    createSelectHostIpTable(data.host_list);
                     layer.closeAll('loading');
                 }
             });
@@ -293,17 +289,18 @@
 
      function getSelectHostFromModal(){
         var result = {};
-        var tabIds = $("#select_host_tab li[class='active'] a").attr('href');
         var host_group_tree=$.fn.zTree.getZTreeObj("host_group_tree");
         var nodes = host_group_tree.getCheckedNodes(true);
         var groupIds = "";
         $(nodes).each(function(i,item){
-            groupIds += item.nodeId+",";
+            if(item.node_name1 && item.node_name2 && item.node_name3 && item.node_name4 && item.node_name5 && item.node_name6){
+                groupIds += item.id+",";
+            }
         });
         if(groupIds){
             groupIds = groupIds.substring(0,groupIds.length-1);
         }
-        result['group_id'] = groupIds;
+        result['target_group_ids'] = groupIds;
 
         if(!$.isEmptyObject(result)){
             result['go_live'] = $("#host_go_live").val();
@@ -317,15 +314,14 @@
         hostIpTb.empty();
         $("#hostIpBadge").text('总：0台');
         $("#checkall").unbind();
-
         if(data){
             $(data).each(function(i,item){
 
                 var htmlStr =  htmlStr = "<tr>" +
                     "   <td>" +
-                    "       <input type='checkbox' class='i-checks icheck' hostip='"+item+"' name='trCheckbox'>" +
+                    "       <input type='checkbox' class='i-checks icheck' hostip='"+item.host_ip+"' name='trCheckbox'>" +
                     "   </td>" +
-                    "   <td>" + item +"</td>"+
+                    "   <td>" + item.host_ip +"</td>"+
                     "</tr>";
                 hostIpTb.append(htmlStr);
             });
@@ -362,84 +358,64 @@
 	    },
         methods:{
             save: function(){
-                var res = transLocalToApiData(this.$store.state.basic, this.$store.state.steps);
+                var res = transLocalToApiData(this.$store.state.basic, this.$store.state.steps, this.$store.state.vars);
                 var command_set = {};
                 if(res.name){
                     command_set['name'] = res.name;
+                    command_set['vars'] = res.vars;
                     var step1 = res.steps;
                     var step2 = [];
-                    var hostMsgList = [];
                     $(step1).each(function(i,item){
                         var temp = {};
                         temp['name'] = item.name;
-                        temp['host_filter'] = item.activeIndex;
                         temp['seq_no'] = item.seq_no;
-                        temp['type'] = 0;
                         temp['target_group_ids'] = item.target_group_ids;
                         temp['target_host_list'] = item.target_host_list;
                         temp['target_type'] = item.target_type;
-                        temp['go_live'] = item.go_live;
+                        temp['target_go_live'] = item.go_live;
 
-                        if(!item.target_group_ids){
-                             hostMsgList.push(item.name)
-                        }
+{#                        if(!item.target_group_ids){#}
+{#                             hostMsgList.push(item.name)#}
+{#                        }#}
 
                         var line1 = item.lines;
                         var line2 = [];
                         $(line1).each(function(i2,item2){
                             var temp3 = {};
                             temp3['sub_seq_no'] = item2['sub_seq_no'];
-                            temp3['type'] = 0;
+                            temp3['command_tool_id'] = item2['tool_id'];
+                            temp3['command_tool_version'] = item2['currentVersion'];
+                            temp3['is_error_continue'] = item2['ignoreData']?1:0;
                             var parma = item2['param'];
-                            var command = item2['command'];
-                            var tool_set_type = item2.tool_set_type; //1-指令 2-上传文件 3-远程文件 4-shell 5-工具
-                            if(tool_set_type == 6){
-                                temp3['type'] = 1;
-                            }
-                            var script_lang = item2.script_lang;
-                            if(script_lang == 'yaml'){
-                                temp3['type'] = 2;
-                            }
-                            var default_script_parameter = "";
-                            temp3['source_file_name'] = command;
-                            $(parma).each(function(pi,pitme){
-
-                                if(pitme.value){
-                                    if(Array.isArray(pitme.value))pitme.value = pitme.value.join(',');
-                                    if(tool_set_type == 5 || tool_set_type == 6){
-                                        default_script_parameter += pitme.paramNameZh+"="+pitme.value+";";
-                                    }else{
-                                        default_script_parameter += pitme.value+" ";
-                                    }
+                            var default_script_parameter = [];
+                            $(parma).each(function(pi,pitem){
+                                if(pitem.value){
+                                    default_script_parameter.push({"key":pitem.paramNameZh,"value":pitem.value});
                                 }
                             })
-                            temp3['tool_set_type'] = tool_set_type;
-                            temp3['default_script_parameter'] = default_script_parameter.substring(0,default_script_parameter.length-1);
-                            temp3['file_display_name'] = JSON.stringify(item2);
+                            temp3['default_script_parameter'] = default_script_parameter;
                             line2.push(temp3);
                         })
                         temp['lines'] = line2;
                         step2.push(temp);
                     })
                     command_set['steps'] = step2;
-                    if(hostMsgList.length > 0){
-                        Alertwin.alert({message:hostMsgList[0]+" 未勾选机器组或机器"});
-                        return;
-                    }
-                    debugger
-{#                    $.ajax({#}
-{#                        type: "POST",#}
-{#                        url: '/platform/command_set/add/',#}
-{#                        data:{"command_set":JSON.stringify(command_set),"csrfmiddlewaretoken":'{{ csrf_token }}'},#}
-{#                        error: function (request) {},#}
-{#                        success: function (data) {#}
-{#                            if(data.status == 0){#}
-{#                                location.href = '../list'#}
-{#                            }else{#}
-{#                                Alertwin.alert({message:"新增失败"});#}
-{#                            }#}
-{#                        }#}
-{#                    })#}
+                    $.ajax({
+                        type : 'POST',
+                        url: '/platform/command_set/add/',
+                        data:{"command_set":JSON.stringify(command_set),"csrfmiddlewaretoken":'{{ csrf_token }}'},
+                        success : function(responseStr) {
+                            if(responseStr.status==0){
+                                //Alertwin.alert({message:"更新成功"});
+                                location.href = '../../command_set/list'
+                            }else{
+                                Alertwin.alert({message:"新增失败"});
+                            }
+                        },
+                        error : function(responseStr) {
+                            console.log(responseStr);
+                        }
+                    });
 
                 }else{
                     Alertwin.alert({message:"请填写作业名称"});

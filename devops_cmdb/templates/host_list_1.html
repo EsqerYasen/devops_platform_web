@@ -130,6 +130,11 @@
                  if(middleware[item.name]){
                      item['iconSkin'] ="middleware";
                  }
+                 if(item.host_count){
+                     item['name'] = item['name'] + "("+item.host_count+")";
+                 }else{
+                     item['name'] = item['name'] + "(0)";
+                 }
                  zHostGroupNodes.push(item);
              })
          }

@@ -66,9 +66,9 @@ class CommandSetCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMix
             resultJson = hu.post(serivceName="p_job", restName="/rest/commandset/add/", datas=command_set_str) #/rest/job/add/
             resultJson  = eval(resultJson.text)
             if resultJson["status"] == 200:
-                result['status'] = 1
-            else:
                 result['status'] = 0
+            else:
+                result['status'] = 1
         except Exception as e:
             logger.error(e)
         return HttpResponse(json.dumps(result),content_type='application/json')
@@ -125,8 +125,13 @@ class HostListByQueryCriteria(LoginRequiredMixin,JSONResponseMixin, AjaxResponse
         try:
             hu = HttpUtils(self.request)
             reqData = hu.getRequestParam()
-            result = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_host/", datas={"id":reqData.get("group_id",0),"go_live":reqData.get("go_live",0)})
-            result_json['host_list'] = result
+            result = hu.get(serivceName="cmdb", restName="/rest/hostgroup/gethostlistbygroupids/", datas={"group_ids":reqData.get("target_group_ids",0),"go_live":reqData.get("go_live",0),"offset":0,"limit":100})
+            if result['status'] == 200:
+                result_json['status'] = 0
+                result_json['host_list'] = result['results']
+            else:
+                result_json['status'] = 1
+                result_json['host_list'] = []
         except Exception as e:
             logger.error(e)
         return self.render_json_response(result_json)
@@ -143,7 +148,7 @@ class CommandSetExecuteView(LoginRequiredMixin, TemplateView):
         resultJson = hu.get(serivceName="p_job", restName="/rest/commandset/infoById/",datas={'id': kwargs.get('pk', 0)})
         results = resultJson.get("results", [])
         hostgroupResult = hu.get(serivceName="cmdb", restName="/rest/host/host_group_list/", datas={})
-        context['hostGroup_list'] = hostgroupResult.get("data", [])
+        context['hostGroup_list'] = hostgroupResult.get("results", [])
         context['result_dict'] = json.dumps(results)
         return context
 
@@ -154,7 +159,7 @@ class CommandSetExecuteView(LoginRequiredMixin, TemplateView):
         resultJson = {}
 
         hu = HttpUtils(self.request)
-        runResults = hu.post(serivceName="job", restName="/rest/job/run/", datas=execJson)
+        runResults = hu.post(serivceName="p_job", restName="/rest/commandset/operation/", datas=execJson) #/rest/job/run/
         runJson = runResults.json()
         if int(runJson.get("job_id",0)) > 0:
             resultJson["status"] = "0"

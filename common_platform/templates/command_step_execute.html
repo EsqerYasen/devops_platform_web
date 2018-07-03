@@ -147,8 +147,6 @@
           }
         })
 
-        var hostGroupTreeList = {{ hostGroup_list|safe }};
-        readHostGroupTreeNext(hostGroupTreeList,0);
         zHostGroupTreeInit();
         initSelectHostModal();
 
@@ -162,8 +160,9 @@
             var selectHostValue = $("#selectHostValue"+gid);
             var hostValue = selectHostValue.val();
             var obj = store.state.steps[store.state.activeIndex];
-            var target_group_ids = obj['target_group_ids'];
-            if(obj && target_group_ids){
+
+            if(obj){
+                var target_group_ids = obj['target_group_ids'];
                 //hostValue = hostValue.replace(/\'/g,"\"");
                 //var obj = JSON.parse(hostValue);
 
@@ -189,19 +188,7 @@
         });
     }
 
-     var zHostGroupNodes = [];
-
-    function readHostGroupTreeNext(list,pid){
-        $(list).each(function(i,item){
-            var ids = item.id;
-            var nodeData = {id:ids,pId:pid,name:item.name,nodeId:ids,open:true,hasIp:item.has_ip};
-            zHostGroupNodes.push(nodeData);
-            if(item.childs){
-                readHostGroupTreeNext(item.childs,ids);
-            }
-        });
-    }
-
+     var zHostGroupNodes = {{ hostGroup_list|safe }};
     function zHostGroupTreeInit(){
         var setting = {
             view: {
@@ -225,20 +212,16 @@
 
     function determineSelectHost(){
         var select_host_modal = $('#select_host_modal');
-        var gid = select_host_modal.data('gid');
-        //var selectHostValue = $("#selectHostValue"+gid);
         var ips = getCheckedHostIP();
-        //selectHostValue.val('');
-
         var values = getSelectHostFromModal();
 
         if(!$.isEmptyObject(values)){
-            //var obj = {};
-            //obj = {'target_group_ids':values['id']}
+            var obj = {};
+            obj = {'target_group_ids':values['target_group_ids']}
             var target_type = 1;
             if(ips.length > 0){
                 values['target_host_list']= ips;
-                target_type = 3;
+                target_type = 2;
             }else{
                 values['target_host_list']= "";
             }
@@ -265,7 +248,7 @@
                     layer.closeAll('loading');
                 },
                 success: function (data) {
-                    createSelectHostIpTable(data.host_list.data);
+                    createSelectHostIpTable(data.host_list);
                     layer.closeAll('loading');
                 }
             });
@@ -276,17 +259,18 @@
 
      function getSelectHostFromModal(){
         var result = {};
-        var tabIds = $("#select_host_tab li[class='active'] a").attr('href');
         var host_group_tree=$.fn.zTree.getZTreeObj("host_group_tree");
         var nodes = host_group_tree.getCheckedNodes(true);
         var groupIds = "";
         $(nodes).each(function(i,item){
-            groupIds += item.nodeId+",";
+            if(item.node_name1 && item.node_name2 && item.node_name3 && item.node_name4 && item.node_name5 && item.node_name6){
+                groupIds += item.id+",";
+            }
         });
         if(groupIds){
             groupIds = groupIds.substring(0,groupIds.length-1);
         }
-        result['group_id'] = groupIds;
+        result['target_group_ids'] = groupIds;
 
         if(!$.isEmptyObject(result)){
             result['go_live'] = $("#host_go_live").val();
@@ -306,9 +290,9 @@
 
                 var htmlStr =  htmlStr = "<tr>" +
                     "   <td>" +
-                    "       <input type='checkbox' class='i-checks icheck' hostip='"+item+"' name='trCheckbox'>" +
+                    "       <input type='checkbox' class='i-checks icheck' hostip='"+item.host_ip+"' name='trCheckbox'>" +
                     "   </td>" +
-                    "   <td>" + item +"</td>"+
+                    "   <td>" + item.host_ip +"</td>"+
                     "</tr>";
                 hostIpTb.append(htmlStr);
             });
@@ -338,80 +322,113 @@
 
 
 
-      new Vue( {el: '#container',
-          store:store,
-          data:{},
-          methods:{
-             showList:function(){
+    new Vue( {el: '#container',
+        store:store,
+        data:{},
+        methods:{
+            showList:function(){
                 $('#showList').modal('show')
-             },
-             closeList:function(){
+            },
+            closeList:function(){
                 $('#showList').modal('hide')
-             },
-             save: function(){
+            },
+            save: function(){
                 var res = transLocalToApiData(this.$store.state.basic, this.$store.state.steps);
-          //  console.log(JSON.stringify(res));return;
                 var exec_json = {};
                 if(res.id){
-                    exec_json['command_set_id'] = res.id;
-                    exec_json['new_flow'] = 1;
-                    var paras = {}
-                    var steps1 = res.steps;
-                    var hostMsgList = [];
-                    $(steps1).each(function(i,item){
-                        if(!item.target_group_ids){
-                            hostMsgList.push(item.name)
-                        }
-                        var target_host_list = "";
-                        if(item.target_host_list){
-                            var host_list = JSON.parse(item.target_host_list.replace(/'/g,'"'));
-                            target_host_list = host_list.join(',');
-                        }
-                        var temp = {'target_type':item.target_type,'target_group_ids':item.target_group_ids,'target_host_list':target_host_list,'go_live':item.go_live};
-                        var lines1 = item.lines;
-                        $(lines1).each(function(i2,item2){
-                            var parma = item2['param'];
-                            var tool_set_type = item2.tool_set_type; //1-指令 2-上传文件 3-远程文件 4-shell
-                            var default_script_parameter = "";
-                            $(parma).each(function(pi,pitme){
-                                if(pitme.value){
-                                    if(Array.isArray(pitme.value))pitme.value = pitme.value.join(',');
-                                    if(tool_set_type == 5 || tool_set_type == 6){
-                                        default_script_parameter += pitme.paramNameZh+"="+pitme.value+";";
-                                    }else{
-                                        default_script_parameter += pitme.value+" ";
-                                    }
+                    exec_json['id'] = res.id;
+                    var vars = res.vars;
+                    var tool_list = [];
+                    var remarks = {"name":res.name};
+                    $(res.steps).each(function(i,item){
+                         var temp_list = [];
+                         var is_skip_step = item.is_skip;
+                         var step_name = item.name;
+                         var seq_no = item.seq_no;
+                         $(item.lines).each(function(i2,item2){
+                             var index = item2.sub_seq_no - 1;
+                             var is_skip_line = item2.is_skip;
+                             if(is_skip_step == 1){
+                                 is_skip_line = 1;
+                             }
+                             if(is_skip_line == 0){
+                                 if(temp_list[index]){
+                                     temp_list[index].push({
+                                         "id":item2.command_tool_id,
+                                         "name":item2.tool.name,
+                                         "tool_version":item2.command_tool_version,
+                                         "time_out":600,
+                                         "seq_no":seq_no,
+                                         "is_error_continue":item2['ignoreData']?1:0,
+                                         "param":tool_param,
+                                         "command":item2.tool.command,
+                                         "vars":vars,
+                                         "step_name":step_name,
+                                         "is_skip":is_skip_line,
+                                         "sub_seq_no":item2.sub_seq_no
+
+                                     })
+                                 }else{
+                                     var parma = item2['param'];
+                                     tool_param = [];
+                                     if(parma){
+                                        $(parma).each(function(pi,pitem){
+                                            if(pitem.value){
+                                                tool_param.push({"key":pitem.paramNameZh,"value":pitem.value});
+                                            }
+                                        })
+                                     }else{
+                                        tool_param = JSON.parse(item2.default_script_parameter.replace(/'/g,'"'));
+                                     }
+                                     temp_list.push([{
+                                         "id":item2.command_tool_id,
+                                         "name":item2.tool.name,
+                                         "tool_version":item2.command_tool_version,
+                                         "time_out":600,
+                                         "seq_no":seq_no,
+                                         "is_error_continue":item2['ignoreData']?1:0,
+                                         "param":tool_param,
+                                         "command":item2.tool.command,
+                                         "vars":vars,
+                                         "step_name":step_name,
+                                         "is_skip":is_skip_line,
+                                         "sub_seq_no":item2.sub_seq_no
+                                     }])
+                                 }
+                             }else{
+                                var temp = remarks[step_name+"_"+seq_no];
+                                if(temp){
+                                    temp.push(item2.tool.name)
+                                }else{
+                                    remarks[step_name+"_"+seq_no] = [item2.tool.name]
                                 }
-                            });
-                            default_script_parameter = default_script_parameter.substring(0,default_script_parameter.length-1);
-                            temp[item2.id] = {"parameter":default_script_parameter}
-                        })
-                        paras[item.seq_no] = temp;
-                    });
-                    exec_json['paras'] = paras;
-                    if(hostMsgList.length > 0){
-                        Alertwin.alert({message:hostMsgList[0]+" 未勾选机器组或机器"});
-                        return;
-                    }
-                    $.ajax({
-                        type : 'POST',
-                        url: '/platform/command_set/'+res.id+'/exec/',
-                        data:{"execJson":JSON.stringify(exec_json),"csrfmiddlewaretoken":'{{ csrf_token }}'},
-                        success : function(responseStr) {
-                            if(responseStr.status==0){
-                                window.location.href = "../execLog?setId="+responseStr.set_id+"&jobId="+responseStr.job_id
-                            }else{
-                                Alertwin.alert({message:"失败"});
+                             }
+                         })
+                        tool_list = tool_list.concat(temp_list);
+                        exec_json['tool_list'] = tool_list;
+                        exec_json['remarks'] = remarks;
+                    })
+                    if(tool_list.length > 0){
+                        $.ajax({
+                            type : 'POST',
+                            url: '/platform/command_set/'+res.id+'/exec/',
+                            data:{"execJson":JSON.stringify(exec_json),"csrfmiddlewaretoken":'{{ csrf_token }}'},
+                            success : function(responseStr) {
+                                if(responseStr.status==0){
+                                    window.location.href = "../execLog?setId="+responseStr.set_id+"&jobId="+responseStr.job_id;
+                                }else{
+                                    Alertwin.alert({message:"失败"});
+                                }
+                            },
+                            error : function(responseStr) {
+                                console.log(responseStr);
                             }
-                        },
-                        error : function(responseStr) {
-                            console.log(responseStr);
-                        }
-                    });
+                        });
+                    }
                 }
-          }
+            }
         }
-      });
+    });
 
     var initJson = {{ result_dict|safe }};
     //initJson = initJson.replace(/'/g,'"').replace(/\r/g,'\\r').replace(/\n/g,'\\n');
