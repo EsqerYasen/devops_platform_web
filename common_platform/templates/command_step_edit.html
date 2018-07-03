@@ -345,107 +345,82 @@
 
 
 
-      new Vue( {el: '#container',
+    new Vue( {el: '#container',
         store:store,
         data:{},
         methods:{
-          showList:function(){
-              $('#showList').modal('show')
-          },
-          closeList:function(){
-              $('#showList').modal('hide')
-          },
-          save: function(){
-            var res = transLocalToApiData(this.$store.state.basic, this.$store.state.steps);
-            var exec_json = {};
-            var command_set = {};
-            if(res.name) {
-                command_set['id'] = res.id;
-                command_set['name'] = res.name;
-                var step1 = res.steps;
-                var step2 = [];
-                var hostMsgList = [];
-                $(step1).each(function (i, item) {
-                    var temp = {};
-                    temp['name'] = item.name;
-                    temp['host_filter'] = item.activeIndex;
-                    temp['seq_no'] = item.seq_no;
-                    temp['type'] = 0;
-                    temp['go_live'] = item.go_live;
-                    temp['target_group_ids'] = item.target_group_ids;
-                    temp['target_host_list'] = item.target_host_list;
-                    temp['target_type'] = item.target_type;
-                    temp['go_live'] = item.go_live;
-
-                    if(!item.target_group_ids){
-                        hostMsgList.push(item.name)
-                    }
-
-                    var line1 = item.lines;
-                    var line2 = [];
-                    $(line1).each(function (i2, item2) {
-                        var temp3 = {};
-                        temp3['sub_seq_no'] = item2['sub_seq_no'];
-                        temp3['type'] = 0;
-                        var parma = item2['param'];
-                        var command = item2['command'];
-                        var tool_set_type = item2.tool_set_type; //1-指令 2-上传文件 3-远程文件 4-shell
-                        if(tool_set_type == 6){
-                            temp3['type'] = 1;
-                        }
-                        var script_lang = item2.script_lang;
-                        if(script_lang == 'yaml'){
-                            temp3['type'] = 2;
-                        }
-                        var default_script_parameter = "";
-                        temp3['source_file_name'] = command;
-                        $(parma).each(function (pi, pitme) {
-                            if(pitme.value){
-                                if(Array.isArray(pitme.value))pitme.value = pitme.value.join(',');
-                                if(tool_set_type == 5 || tool_set_type == 6){
-                                    default_script_parameter += pitme.paramNameZh+"="+pitme.value+";";
-                                }else{
-                                    default_script_parameter += pitme.value+" ";
-                                }
+            showList:function(){
+                $('#showList').modal('show')
+            },
+            closeList:function(){
+                $('#showList').modal('hide')
+            },
+            save: function(){
+                var res = transLocalToApiData(this.$store.state.basic, this.$store.state.steps, this.$store.state.vars);
+                var exec_json = {};
+                var command_set = {};
+                if(res.name) {
+                    command_set['id'] = res.id;
+                    command_set['name'] = res.name;
+                    command_set['vars'] = res.vars;
+                    var step1 = res.steps;
+                    var step2 = [];
+                    $(step1).each(function(i,item){
+                        var temp = {};
+                        temp['name'] = item.name;
+                        temp['seq_no'] = item.seq_no;
+                        temp['target_group_ids'] = item.target_group_ids;
+                        temp['target_host_list'] = item.target_host_list;
+                        temp['target_type'] = item.target_type;
+                        temp['target_go_live'] = item.go_live;
+                        var line1 = item.lines;
+                        var line2 = [];
+                        $(line1).each(function(i2,item2){
+                            var temp3 = {};
+                            temp3['sub_seq_no'] = item2['sub_seq_no'];
+                            temp3['command_tool_id'] = item2['tool_id'];
+                            temp3['command_tool_version'] = item2['currentVersion'];
+                            temp3['is_error_continue'] = item2['ignoreData']?1:0;
+                            var parma = item2['param'];
+                            if(parma){
+                                var default_script_parameter = [];
+                                $(parma).each(function(pi,pitem){
+                                    if(pitem.value){
+                                        default_script_parameter.push({"key":pitem.paramNameZh,"value":pitem.value});
+                                    }
+                                })
+                                temp3['default_script_parameter'] = default_script_parameter;
+                            }else{
+                                temp3['default_script_parameter'] = JSON.parse(item2.default_script_parameter.replace(/'/g,'"'));
                             }
+                            line2.push(temp3);
                         })
-                        temp3['tool_set_type'] = tool_set_type;
-                        temp3['default_script_parameter'] = default_script_parameter.substring(0, default_script_parameter.length - 1);
-                        temp3['file_display_name'] = JSON.stringify(item2);
-                        temp3['filePath'] = item2['filePath'];
-                        line2.push(temp3);
+                        temp['lines'] = line2;
+                        step2.push(temp);
                     })
-                    temp['lines'] = line2;
-                    step2.push(temp);
-                })
-                command_set['steps'] = step2;
-                if(hostMsgList.length > 0){
-                    Alertwin.alert({message:hostMsgList[0]+" 未勾选机器组或机器"});
-                    return;
-                }
-                debugger
-                
-                $.ajax({
-                    type : 'POST',
-                    url: '/platform/command_set/'+res.id+'/edit/',
-                    data:{"command_set":JSON.stringify(command_set),"csrfmiddlewaretoken":'{{ csrf_token }}'},
-                    success : function(responseStr) {
-                        if(responseStr.status==0){
-                            //Alertwin.alert({message:"更新成功"});
-                            location.href = '../../list'
-                        }else{
-                            Alertwin.alert({message:"更新失败"});
-                        }
-                    },
-                    error : function(responseStr) {
-                        console.log(responseStr);
-                    }
-                });
+                    command_set['steps'] = step2;
+                    debugger
+{#                    $.ajax({#}
+{#                        type : 'POST',#}
+{#                        url: '/platform/command_set/'+res.id+'/edit/',#}
+{#                        data:{"command_set":JSON.stringify(command_set),"csrfmiddlewaretoken":'{{ csrf_token }}'},#}
+{#                        success : function(responseStr) {#}
+{#                            if(responseStr.status==0){#}
+{#                                //Alertwin.alert({message:"更新成功"});#}
+{#                                location.href = '../../list'#}
+{#                            }else{#}
+{#                                Alertwin.alert({message:"更新失败"});#}
+{#                            }#}
+{#                        },#}
+{#                        error : function(responseStr) {#}
+{#                            console.log(responseStr);#}
+{#                        }#}
+{#                    });#}
 
+                }
             }
-          }
         }
-      });
+    });
 
     var True = true;
     var False = false;

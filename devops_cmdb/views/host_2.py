@@ -1,7 +1,7 @@
 from braces.views import *
 from django.views.generic import *
 from django.core.paginator import Paginator
-
+from common.utils.redis_utils import *
 from devops_platform_web.settings import PER_PAGE
 from common.utils.HttpUtils import *
 
@@ -38,7 +38,8 @@ class List2View(LoginRequiredMixin, OrderableListMixin, ListView):
             resultJson = hu.post(serivceName="cmdb", restName="/rest/host/list/", datas=reqData)
             resultJson = resultJson.json()
             list = resultJson.get("results", [])
-            hostgroupResult = hu.get(serivceName="cmdb", restName="/rest/host/host_group_list/", datas={})
+            #hostgroupResult = hu.get(serivceName="cmdb", restName="/rest/host/host_group_list/", datas={})
+            hostGroup_list = RedisBase.get("host_group_2", 2)
             count = resultJson.get("count", 0)
             paginator = Paginator(list, req.limit)
             paginator.count = count
@@ -46,7 +47,7 @@ class List2View(LoginRequiredMixin, OrderableListMixin, ListView):
             context['is_paginated'] = count > 0
             context['page_obj'] = paginator.page(req.offset)
             context['paginator'] = paginator
-            context['hostGroup_list'] = json.dumps(hostgroupResult.get("results", []))
+            context['hostGroup_list'] = hostGroup_list
         except Exception as e:
             logger.error(e, exc_info=1)
         return context

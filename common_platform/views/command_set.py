@@ -148,7 +148,7 @@ class CommandSetExecuteView(LoginRequiredMixin, TemplateView):
         resultJson = hu.get(serivceName="p_job", restName="/rest/commandset/infoById/",datas={'id': kwargs.get('pk', 0)})
         results = resultJson.get("results", [])
         hostgroupResult = hu.get(serivceName="cmdb", restName="/rest/host/host_group_list/", datas={})
-        context['hostGroup_list'] = hostgroupResult.get("data", [])
+        context['hostGroup_list'] = hostgroupResult.get("results", [])
         context['result_dict'] = json.dumps(results)
         return context
 
