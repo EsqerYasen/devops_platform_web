@@ -29,3 +29,6 @@
 .yumModal label{
     width: 150px;
 }
+.yumModal .btn-group>label{
+  width: 100px;
+}

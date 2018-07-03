@@ -6,6 +6,8 @@ from django.core.paginator import Paginator
 from common.utils.common_utils import *
 import logging,time,os,types
 
+import pprint
+pp = pprint.PrettyPrinter(indent=4)
 logger = logging.getLogger('devops_platform_log')
 
 class DeployToolListView(LoginRequiredMixin, OrderableListMixin, ListView):
@@ -17,21 +19,22 @@ class DeployToolListView(LoginRequiredMixin, OrderableListMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super(DeployToolListView, self).get_context_data(**kwargs)
         try:
-            req = self.request
-            hu = HttpUtils(req)
-            reqData = hu.getRequestParam()
-            deploy_tool_list_result = hu.get(serivceName="p_job", restName="/rest/deploytool/list/", datas=reqData) #/rest/deploytool/list/
-            deploy_tool_list = deploy_tool_list_result.get("results", {})
-            for deploy_tool in deploy_tool_list:
-                version_list_result = hu.get(serivceName="p_job", restName="/rest/deploytool/versionlist/", datas={"deploy_tool_id":deploy_tool['id']}) #/rest/deploytool/versionlist/
-                deploy_tool['version_list'] = version_list_result.get("results",[])
-            count = deploy_tool_list_result.get("count", 0)
-            paginator = Paginator(deploy_tool_list, req.limit)
-            paginator.count = count
-            context['result_list'] = deploy_tool_list
-            context['is_paginated'] = count > 0
-            context['page_obj'] = paginator.page(req.offset)
-            context['paginator'] = paginator
+            pass
+            # req = self.request
+            # hu = HttpUtils(req)
+            # reqData = hu.getRequestParam()
+            # deploy_tool_list_result = hu.get(serivceName="p_job", restName="/rest/deploytool/list/", datas=reqData) #/rest/deploytool/list/
+            # deploy_tool_list = deploy_tool_list_result.get("results", {})
+            # for deploy_tool in deploy_tool_list:
+            #     version_list_result = hu.get(serivceName="p_job", restName="/rest/deploytool/versionlist/", datas={"deploy_tool_id":deploy_tool['id']}) #/rest/deploytool/versionlist/
+            #     deploy_tool['version_list'] = version_list_result.get("results",[])
+            # count = deploy_tool_list_result.get("count", 0)
+            # paginator = Paginator(deploy_tool_list, req.limit)
+            # paginator.count = count
+            # context['result_list'] = deploy_tool_list
+            # context['is_paginated'] = count > 0
+            # context['page_obj'] = paginator.page(req.offset)
+            # context['paginator'] = paginator
         except Exception as e:
             logger.error(e,exc_info=1)
         return context

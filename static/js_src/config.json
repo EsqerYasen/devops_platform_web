@@ -1,0 +1,15 @@
+{
+  "url":{
+    "job": "http://127.0.0.1:8005",
+  },
+  "type":{
+    "job": {
+        "collection": "platform_deploy_tool_deploy_tool",
+        "dataset": "devops_workshop_dev_job"
+    },
+    "app_manage": {
+        "collection": "platform_app_manage_app_manage",
+        "dataset": "devops_workshop_dev_job"
+    },
+  }
+}

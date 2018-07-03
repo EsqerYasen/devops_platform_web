@@ -823,6 +823,11 @@
           text: "添加用户",
           id: moduleId,
           type: "add_moudle_user"
+        },{
+          kls: "add_modal",
+          text: "新建模块组",
+          id: -1,
+          type: "create_moduleGroup"
         }]
       });
       console.log("    showModuleUsers")
