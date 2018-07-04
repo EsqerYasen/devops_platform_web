@@ -1,12 +1,15 @@
 <%if(locals.data) {%>
     <div class="row">
-        <div class="col-md-6 col-xs-6 col-sm-6 userInfo">
+        <div class="col-md-1 col-xs-1 col-sm-1"/>
+
+        <div class="col-md-5 col-xs-5 col-sm-5 userInfo">
             <%=data.name%>
         </div>
-        <div class="col-md-6 col-xs-6 col-sm-6 privilege">
+        <%console.log(1111, locals.data.diable_privilege);%>
+        <%if (!locals.data.diable_privilege) {%>
+        <div class="col-md-5 col-xs-5 col-sm-5 privilege">
             <fieldset class="col-md-12 col-xs-12 col-sm-12">
                 <legend>权限</legend>
-
                 <div class="btn-group" data-toggle="buttons">
                     <label class="btn btn-primary <%=data.privilege === 1? "active":"" %>">
                         <input type="radio" name="privilege" <%=data.privilege === 1? "checked":"" %> value="1"> 只读
@@ -20,5 +23,6 @@
                 </div>
             </fieldset>
         </div>
+        <%}%>
     </div>
 <%}%>

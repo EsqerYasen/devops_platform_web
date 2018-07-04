@@ -2,12 +2,7 @@
     <ul class="list-unstyled list-group">
         <%console.log(locals.list, JSON.stringify(locals.list))%>
         <% $.each(locals.list || [], function(i, item){ %>
-            <%console.log(item, i);%>
-            <li class="list-group-item">
-            <div class="margin_t_10 text_align_center text_22px">
-                <a href="#/<%=locals.route_to%>/<%=item[locals.key_field]%>"><%= item[locals.name_field]%></a>
-            </div>
-            </li>
+            <%- require('./partials/list_menu.ejs')({i: i, item: item,  route_to: locals.route_to, key_field: locals.key_field, name_field:locals.name_field }) %>
         <% }) %>
     </ul>
 </nav>

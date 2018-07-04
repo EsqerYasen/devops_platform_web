@@ -5,9 +5,9 @@
         <% }) %>
     </ul>
 <% } %>
-<%console.log('locals', locals);%>
+<%console.log(locals, locals.userInfo);%>
 <%if (locals.buttons && locals.buttons.length){%>
-    <%if(locals.userInfo && locals.userInfo.admin){%>
+    <%if(locals.userInfo && (locals.userInfo.admin || locals.isOwner)){%>
         <div class="pull-right">
             <%$.each(locals.buttons, function(i, button){%>
               <button data-text="<%=button.text%>" class="<%=button.kls%> btn-primary" data-id="<%=button.id%>" data-type="<%=button.type%>" ><%=button.text%></button>
@@ -15,7 +15,7 @@
         </div>
     <% } %>
 <% } %>
-<%if (locals.list && locals.list.length){%>
+<%if (1 || (locals.list && locals.list.length)){%>
     <table class="table table-hover table-condensed table-striped responsive">
 
             <tr>
@@ -34,7 +34,6 @@
                     修改
                 </th>
             </tr>
-            <%console.log(locals);%>
             <% (locals.list || []).forEach(function(item, i){ %>
                 <%- require('./partials/grid_row.ejs')({i: i, item: item, modalEditTitle: modalEditTitle, no_privilege:locals.no_privilege, no_edit: locals.no_edit, userInfo: locals.userInfo, grid_type: locals.grid_type, routingid: locals.routingid}) %>
             <% }) %>

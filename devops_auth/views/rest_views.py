@@ -3,7 +3,7 @@ from django.apps import apps
 from braces.views import *
 from django.views.generic import *
 from rest_framework.views import APIView
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest
 from django.contrib import auth
 from django.core.paginator import Paginator
 from devops_platform_web.settings import PER_PAGE,BASE_DIR
@@ -13,131 +13,26 @@ from django.contrib.auth.models import Group
 from devops_auth.models.Module import Module
 from devops_auth.models.Module_group import Module_group
 from devops_auth.models.Module_groups import Module_groups
+from devops_auth.models.Module_groups_users import Module_groups_users
 from devops_auth.models.Module_permission import Module_permission
 from devops_auth.models.Module_group_permission import Module_group_permission
 from devops_auth.models.User_group_permission import User_group_permission
 from django.core import serializers
 from django.db import connection
 
+from common.utils.auth_utils import *
+
 import logging,os,xlrd,threading,re
 
 logger = logging.getLogger('devops_platform_log')
 
 class AuthVerifyView(LoginRequiredMixin, APIView):
-    # TODO, 权限效验
+    # 权限效验
     def get(self, request):
-        result = {}
-        result['status'] = 1
-        result['msg'] = "没有操作权限"
-
         hu = HttpUtils(self.request)
         reqData = hu.getRequestParam()
-        url = reqData["url"]
-        action = reqData["action"]
-
-        try:
-            user_id = request.user.id
-            user_group_ids = []
-            groups = request.user.groups.values('id')
-            for gid in groups:
-                user_group_ids.append(gid['id'])
-
-            action_value = self.get_action_value(action)
-            if action_value > 0:
-                permissions = self.get_user_permission({'user_id':user_id, 'user_group_ids': user_group_ids})
-
-                if (url in permissions.keys()):
-                    if action_value <= permissions.get(url):
-                        result['status'] = 0
-                        result['msg'] = "权限效验成功"
-        except Exception as e:
-            logger.error(e)
-            result['status'] = 1
-            result['msg'] = "权限效验失败"
-
-        result['url'] = url
-        result['uid'] = user_id
-
+        result = auth_utils.verify(reqData, request.user)
         return HttpResponse(json.dumps(result),content_type='application/json')
-
-    # 查询操作权限值
-    def get_action_value(self, action):
-        """
-        操作权限, 最大值4：
-        执行操作 x - 1
-        读操作 r - 2
-        写操作 w - 4
-
-        :param action:
-        :return:
-        """
-        value = 0
-        permission_list = {'x':1, 'r':2, 'w':4}
-
-        if len(action) > 0:
-            for a in permission_list.keys():
-                if a in action:
-                    if permission_list.get(a) > value:
-                        value = permission_list.get(a)
-
-        return value
-
-    # TODO, 查询用户权限列表
-    def get_user_permission(self, input_dict):
-        """
-        查询用户权限
-        查询用户拥有模块和模块组
-        查询用户组权限
-        合并权限，权限值取最大
-
-        :param input_dict:
-        :return:
-        """
-
-        permissions = {}
-
-        # Owner 权限
-        owner_list = Module.objects.filter(owner_id=input_dict['user_id'],is_enabled=1)
-        for m in owner_list:
-            permissions[m.url] = 4 # 模块Owner 有全部权限
-
-        # 用户级别权限
-        user_list = owner_list = owner_group_list = user_group_list = []
-        user_list = Module_permission.objects.filter(user_id=input_dict['user_id'],is_enabled=1)
-        for m in user_list:
-            url = Module.objects.get(id=m.module_id).url
-            if url in permissions.keys():
-                if m.value > permissions[url]:
-                    permissions[url] = m.value
-            else:
-                permissions[m.url] = m.value
-
-        # 用户组权限
-        user_group_list = User_group_permission.objects.filter(group_id__in=input_dict['user_group_ids'],is_enabled=1)
-        for m in user_group_list:
-            url = Module.objects.get(id=m.module_id).url
-            if url in permissions.keys():
-                if m.value > permissions[url]:
-                    permissions[url] = m.value
-            else:
-                permissions[m.url] = m.value
-
-        # 模块组权限
-        ids = Module_group.objects.filter(owner_id=input_dict['user_id'],is_enabled=1).values('id')
-        owner_group_list = Module_group_permission.objects.filter(id__in=ids,is_enabled=1)
-        for m in owner_group_list:
-            value = m.value
-            gid = m.group_id
-            mids = Module_groups.objects.filter(group_id=gid)
-            modules = Module.objects.filter(id__in=mids)
-            for mod in modules:
-                if mod.url in permissions.keys():
-                    if (value > permissions[mod.url]):
-                        permissions[url] = value
-                else:
-                    permissions[url] = value
-
-        return permissions
 
 class ModuleView(LoginRequiredMixin, APIView):
     serializer_class = ModuleSerializer
@@ -165,14 +60,19 @@ class ModuleView(LoginRequiredMixin, APIView):
 
         if len(input_dict) > 0:
             try:
-                if "id" in input_dict.keys():
+                if 'id' in input_dict.keys():
                     id = input_dict.get("id")
                     m = Module.objects.get(id=id)
                     m.name = input_dict.get('name', m.name)
                     m.alias = input_dict.get('alias', m.alias)
                     m.url = input_dict.get('url', m.url)
+                    m.open_db = input_dict.get('open_db', m.open_db)
+                    m.open_table = input_dict.get('open_table', m.open_table)
+                    m.open_id = input_dict.get('open_id', m.open_id)
                     m.owner_id = input_dict.get('owner_id', m.owner_id)
-                    m.is_enabled = input_dict.get('owner_id', m.is_enabled)
+                    if 'is_enabled' in input_dict.keys():
+                        m.is_enabled = input_dict.get('is_enabled')
+                    m.updated_by = request.user.username
                     m.save()
                     result['status'] = 0
                     result['msg'] = "保存成功"
@@ -180,15 +80,36 @@ class ModuleView(LoginRequiredMixin, APIView):
                     name = input_dict.get('name', '')
                     alias = input_dict.get('alias', '')
                     url = input_dict.get('url', '')
+                    open_db = input_dict.get('open_db', '')
+                    open_table = input_dict.get('open_table', '')
+                    open_id = input_dict.get('open_id', '')
                     owner_id = input_dict.get('owner_id', '')
-                    m = Module(name=name,alias=alias,url=url,owner_id=owner_id)
+
+                    error = ''
+                    if not name:
+                        error = '模块名不能为空'
+                    elif not alias:
+                        error = '别名不能为空'
+                    elif not url:
+                        error = 'URL不能为空'
+                    elif not owner_id:
+                        error = 'OwnerId不能为空'
+
+                    if error:
+                        return HttpResponseBadRequest(error)
+
+                    m = Module(name=name,alias=alias,url=url,owner_id=owner_id, created_by=request.user.username,updated_by=request.user.username, open_table=open_table, open_db=open_db, open_id=open_id)
                     m.save()
                     result['status'] = 0
                     result['msg'] = "保存成功"
+                    result['id'] = m.id
+                    result['info'] = ModuleSerializer(m).data
             except Exception as e:
+
                 logger.error(e)
                 result['status'] = 1
                 result['msg'] = "保存失败"
+                return HttpResponseBadRequest(result['msg'])
 
         return HttpResponse(json.dumps(result),content_type='application/json')
 
@@ -197,8 +118,15 @@ class ModulesView(LoginRequiredMixin, APIView):
     def get(self, request):
         result = {}
         result['status'] = 0
-        data = Module.objects.filter(is_enabled=int(1))
+        data = Module.objects.filter(is_enabled=1)
         result['info'] = serializers.serialize('json',  data)
+        return HttpResponse(json.dumps(result),content_type='application/json')
+
+class ModulesPermissionView(LoginRequiredMixin, APIView):
+    # TODO
+    def get(self, request):
+        result = {}
+        result['info'] = auth_utils.get_user_permission({"user_id": int(request.user.id), "user_group_ids": request.user.groups.values('id')});
         return HttpResponse(json.dumps(result),content_type='application/json')
 
 class UsersView(LoginRequiredMixin, APIView):
@@ -206,7 +134,7 @@ class UsersView(LoginRequiredMixin, APIView):
     def get(self, request):
         result = {}
         result['status'] = 0
-        data = User.objects.filter(is_active=int(1)).values('id','username', 'first_name', 'last_name', 'is_superuser', 'groups')
+        data = User.objects.filter(is_active=1).values('id','username', 'first_name', 'last_name', 'is_superuser', 'groups')
         result['info'] = list(data)
         return HttpResponse(json.dumps(result),content_type='application/json')
 
@@ -232,8 +160,6 @@ class userModulesView(LoginRequiredMixin, APIView):
             result['status'] = 0
             sql = "SELECT damp.id, damp.user_id, dam.name, dam.owner_id, damp.value as privilege FROM devops_auth_module dam join devops_auth_module_permission damp on dam.id = damp.module_id and dam.is_enabled =1 and  damp.is_enabled=1 where damp.user_id=%s"
             cursor.execute(sql, id)
-            # data = cursor.fetchall()
-            # row = dictFetchAll(cursor)
             data = dictFetchAll(cursor)
             cursor.close()
             connection.close()
@@ -256,14 +182,14 @@ class ModuleGroupView(LoginRequiredMixin, APIView):
         try:
             id = request.GET.get('id', None)# reqData["order_by"] reqData["id"]
             if id is None:
-                m = Module_group.objects.filter(is_enabled=int(1)).values('name', 'owner_id', 'created_by', 'id')
+                m = Module_group.objects.filter(is_enabled=1).values('name', 'owner_id', 'created_by', 'id')
                 result['info'] = list(m)
             else:
                 cursor = connection.cursor()
                 type = request.GET.get('type', 'module')
                 extraParam = ""
                 if type == "module":
-                    sql = "SELECT damg.id AS group_id, dam.id AS id, dam.name AS name FROM devops_auth_module_group damg JOIN devops_auth_module_groups admgs on admgs.group_id=damg.id join devops_auth_module dam ON admgs.module_id = dam.id AND damg.is_enabled = 1 AND admgs.is_enabled = 1 AND dam.is_enabled = 1  where {0}" .format("damg.id=%s")
+                    sql = "SELECT damg.id AS group_id, dam.id AS id, dam.name AS name FROM devops_auth_module_group damg JOIN devops_auth_module_groups admgs on admgs.group_id=damg.id join devops_auth_module dam ON admgs.module_id = dam.id AND damg.is_enabled = 1 AND dam.is_enabled = 1  where {0}" .format("damg.id=%s")
                 else :
                     sql = "SELECT damgu.id as id, concat(au.username, \"(\",au.first_name, \" \", au.last_name,\")\") as name, damg.id as group_id FROM devops_auth_module_group damg JOIN devops_auth_module_groups_users damgu ON damgu.group_id = damg.id JOIN auth_user au ON damgu.user_id = au.id AND damgu.is_enabled = 1 AND damg.is_enabled = 1  where {0}".format("damg.id=%s")
                 cursor.execute(sql, id)
@@ -277,6 +203,7 @@ class ModuleGroupView(LoginRequiredMixin, APIView):
             logger.error(e)
             result['status'] = 1
             result['msg'] = "不存在"
+            return HttpResponseBadRequest(result['msg'])
         return HttpResponse(json.dumps(result),content_type='application/json')
 
     # TODO
@@ -285,58 +212,136 @@ class ModuleGroupView(LoginRequiredMixin, APIView):
         hu = HttpUtils(self.request)
         input_dict = hu.getRequestParam()
 
-        if len(input_dict) > 0:
+        if input_dict is not None:
             try:
                 if "id" in input_dict.keys():
                     id = input_dict.get("id")
                     m = Module_group.objects.get(id=id)
                     m.name = input_dict.get('name', m.name)
                     m.owner_id = input_dict.get('owner_id', m.owner_id)
-                    m.is_enabled = input_dict.get('is_enabled', m.is_enabled)
+                    if 'is_enabled' in input_dict.keys():
+                        m.is_enabled = input_dict.get('is_enabled')
+                    m.updated_by = request.user.username
                     m.save()
                     result['status'] = 0
                     result['msg'] = "保存成功"
                 else:
                     name = input_dict.get('name', '')
                     owner_id = input_dict.get('owner_id', '')
-                    m = Module_group(name=name,owner_id=owner_id)
+
+                    error = ''
+                    if not name:
+                        error = '名称不能为空'
+                    elif not owner_id:
+                        error = 'OwnerId不能为空'
+                    if error:
+                        return HttpResponseBadRequest(error)
+
+                    m = Module_group(name=name,owner_id=owner_id,created_by=request.user.username,updated_by=request.user.username)
                     m.save()
+                    if "value" in input_dict.keys():
+                        value = input_dict.get('name')
+                        Module_group_permission(group_id=m.id,value=value,created_by=request.user.username,updated_by=request.user.username)
                     result['status'] = 0
                     result['msg'] = "保存成功"
+                    result['id'] = m.id
+                    result['info'] = ModuleGroupSerializer(m).data
             except Exception as e:
                 logger.error(e)
                 result['status'] = 1
                 result['msg'] = "保存失败"
+                return HttpResponseBadRequest(result['msg'])
         return HttpResponse(json.dumps(result),content_type='application/json')
 
 class ModuleGroupsView(LoginRequiredMixin, APIView):
-    serializer_class = ModuleGroupsSerializer
     # TODO
     def post(self, request):
         result = {}
         hu = HttpUtils(self.request)
         input_dict = hu.getRequestParam()
 
-        if len(input_dict) > 0:
+        if input_dict is not None:
             try:
                 if "id" in input_dict.keys():
                     id = request.data["id"]
                     m = Module_groups.objects.get(id=id)
-                    m.module_id = input_dict.get('module_id', m.module_id)
-                    m.group_id = input_dict.get('group_id', m.group_id)
-                    m.save()
+                    if 'is_enabled' in input_dict.keys:
+                        m.delete()
+                    else:
+                        m.module_id = input_dict.get('module_id', m.module_id)
+                        m.group_id = input_dict.get('group_id', m.group_id)
+                        m.save()
                     result['status'] = 0
                     result['msg'] = "保存成功"
                 else:
                     module_id = input_dict.get('module_id', '')
                     group_id = input_dict.get('group_id', '')
+
+                    error = ''
+                    if not module_id:
+                        error = 'ModuleId不能为空'
+                    elif not group_id:
+                        error = 'GroupId不能为空'
+                    if error:
+                        return HttpResponseBadRequest(error)
+
                     m = Module_groups(module_id=module_id,group_id=group_id)
                     m.save()
                     result['status'] = 0
                     result['msg'] = "保存成功"
+                    result['id'] = m.id
+                    result['info'] = ModuleGroupsSerializer(m).data
             except Exception as e:
+                logger.error(e)
                 result['status'] = 1
                 result['msg'] = "保存失败"
+                return HttpResponseBadRequest(result['msg'])
+        return HttpResponse(json.dumps(result),content_type='application/json')
+
+class ModuleGroupsUsersView(LoginRequiredMixin, APIView):
+    # TODO
+    def post(self, request):
+        result = {}
+        hu = HttpUtils(self.request)
+        input_dict = hu.getRequestParam()
+
+
+        if input_dict is not None:
+            try:
+                if "id" in input_dict.keys():
+                    id = request.data["id"]
+                    m = Module_groups_users.objects.get(id=id)
+                    if "is_enabled" in input_dict.keys():
+                        m.delete()
+                    else:
+                        m.user_id = input_dict.get('user_id', m.user_id)
+                        m.group_id = input_dict.get('group_id', m.group_id)
+                        m.save()
+                    result['status'] = 0
+                    result['msg'] = "保存成功"
+                else:
+                    user_id = input_dict.get('user_id', '')
+                    group_id = input_dict.get('group_id', '')
+
+                    error = ''
+                    if not user_id:
+                        error = 'UserId不能为空'
+                    elif not group_id:
+                        error = 'GroupId不能为空'
+                    if error:
+                        return HttpResponseBadRequest(error)
+
+                    m = Module_groups_users(user_id=user_id,group_id=group_id)
+                    m.save()
+                    result['status'] = 0
+                    result['msg'] = "保存成功"
+                    result['id'] = m.id
+                    result['info'] = ModuleGroupUserSerializer(m).data
+            except Exception as e:
+                logger.error(e)
+                result['status'] = 1
+                result['msg'] = "保存失败"
+                return HttpResponseBadRequest(result['msg'])
         return HttpResponse(json.dumps(result),content_type='application/json')
 
 class ModulePermissionView(LoginRequiredMixin, APIView):
@@ -354,24 +359,26 @@ class ModulePermissionView(LoginRequiredMixin, APIView):
                 result['info'] = []
                 return HttpResponse(json.dumps(result),content_type='application/json')
             cursor = connection.cursor()
-            param = "";
+            param = ""
             extraParam = ""
-            if type is "module_id":
-                param = "damp.module_id=%s";
+            if type == "module_id":
+                sql = "SELECT damp.id, damp.user_id, concat(au.username, \"(\",au.first_name, \" \", au.last_name,\")\") as name, dam.id as module_id, dam.owner_id, damp.value as privilege FROM devops_auth_module dam join devops_auth_module_permission damp on dam.id = damp.module_id join auth_user au on au.id =damp.user_id and dam.is_enabled =1 and  damp.is_enabled=1 where {0}"
+                param = "damp.module_id=%s"
             else:
                 param = "damp.user_id=%s"
-            sql = "SELECT damp.id, damp.user_id, dam.name, dam.id as module_id, dam.owner_id, damp.value as privilege FROM devops_auth_module dam join devops_auth_module_permission damp on dam.id = damp.module_id and dam.is_enabled =1 and  damp.is_enabled=1 where {0}".format(param)
+                sql = "SELECT damp.id, damp.user_id, dam.name, dam.id as module_id, dam.owner_id, damp.value as privilege FROM devops_auth_module dam join devops_auth_module_permission damp on dam.id = damp.module_id and dam.is_enabled =1 and  damp.is_enabled=1 where {0}"
+            sql = sql.format(param)
             cursor.execute(sql, id)
-            # data = cursor.fetchall()
-            # row = dictFetchAll(cursor)
             data = dictFetchAll(cursor)
             cursor.close()
             connection.close()
             result['info'] = (data)
         except Exception as e:
+            logger.error(e)
             result['status'] = 1
             result['info'] = []
             result['msg'] = "不存在"
+            return HttpResponseBadRequest(result['msg'])
 
         return HttpResponse(json.dumps(result),content_type='application/json')
 
@@ -381,17 +388,17 @@ class ModulePermissionView(LoginRequiredMixin, APIView):
         hu = HttpUtils(self.request)
         input_dict = hu.getRequestParam()
 
-        if len(input_dict) > 0:
+        if input_dict is not None:
             try:
                 if "id" in input_dict.keys():
                     id = request.data["id"]
                     m = Module_permission.objects.get(id=id)
-                    for k in input_dict.keys():
-                        m.k = input_dict.get(k, "")
                     m.user_id = input_dict.get('user_id', m.user_id)
                     m.module_id = input_dict.get('module_id', m.module_id)
                     m.value = input_dict.get('value', m.value)
-                    m.is_enabled = input_dict.get('is_enabled', m.is_enabled)
+                    if 'is_enabled' in input_dict.keys():
+                        m.is_enabled = input_dict.get('is_enabled')
+                    m.updated_by = request.user.username
                     m.save()
                     result['status'] = 0
                     result['msg'] = "保存成功"
@@ -399,13 +406,106 @@ class ModulePermissionView(LoginRequiredMixin, APIView):
                     user_id = input_dict.get('user_id', '')
                     module_id = input_dict.get('module_id', '')
                     value = input_dict.get('value', '')
-                    m = Module_permission(user_id=user_id,module_id=module_id,value=value)
+
+                    error = ''
+                    if not user_id:
+                        error = 'UserID不能为空'
+                    elif not module_id:
+                        error = 'ModuleId不能为空'
+                    elif not value:
+                        error = 'Value不能为空'
+                    if error:
+                        return HttpResponseBadRequest(error)
+
+                    m = Module_permission(user_id=user_id,module_id=module_id,value=value,created_by=request.user.username,updated_by=request.user.username)
                     m.save()
                     result['status'] = 0
                     result['msg'] = "保存成功"
+                    result['id'] = m.id
+                    result['info'] = False
             except Exception as e:
+                logger.error(e)
                 result['status'] = 1
                 result['msg'] = "保存失败"
+                return HttpResponseBadRequest(result['msg'])
+        return HttpResponse(json.dumps(result),content_type='application/json')
+
+class UserGroupView(LoginRequiredMixin, APIView):
+    # TODO
+    def get(self, request):
+        result = {}
+        try:
+            hu = HttpUtils(self.request)
+            reqData = hu.getRequestParam()
+            id = int(reqData["id"])
+            type = (request.GET.get('type', "user"))
+            cursor = connection.cursor()
+            result['status'] = 0
+            if id is -1:
+                cursor.close()
+                result['info'] = []
+                # sql = "SELECT ag.name, ag.id, daugp.value, daugp.created_by, daugp.module_id,group_id FROM  devops_auth_user_group_permission daugp join  auth_group ag on ag.id= daugp.group_id and daugp.is_enabled = 1"
+                return HttpResponse(json.dumps(result),content_type='application/json')
+            else:
+                if type == "module_id":
+                    param = "daugp.module_id=%s"
+                    sql = "SELECT ag.name, ag.id, daugp.value  as privilege, daugp.created_by, daugp.module_id,group_id FROM  devops_auth_user_group_permission daugp join  auth_group ag on ag.id= daugp.group_id and daugp.is_enabled = 1 where {0}".format(param)
+                else:
+                    param = "daugp.group_id=%s"
+                    sql = "SELECT dam.name, dam.id, daugp.value  as privilege, daugp.created_by, daugp.module_id,group_id FROM  devops_auth_user_group_permission daugp join  auth_group ag on ag.id= daugp.group_id join  devops_auth_module dam on dam.id= daugp.module_id and daugp.is_enabled = 1 and dam.is_enabled=1 where {0}".format(param)
+                    print(sql)
+            cursor.execute(sql, id)
+            data = dictFetchAll(cursor)
+            cursor.close()
+            connection.close()
+            result['info'] = (data)
+        except Exception as e:
+            logger.error(e)
+            result['status'] = 1
+            result['info'] = []
+            result['msg'] = "不存在"
+            return HttpResponseBadRequest(result['msg'])
+        return HttpResponse(json.dumps(result),content_type='application/json')
+
+    # TODO
+    def post(self, request):
+        result = {}
+        hu = HttpUtils(self.request)
+        input_dict = hu.getRequestParam()
+
+        if input_dict is not None:
+            try:
+                if "id" in input_dict.keys():
+                    id = request.data["id"]
+                    g = Group.objects.get(id=id)
+                    g.group_id = input_dict.get('group_id', g.group_id)
+                    g.user_id = input_dict.get('user_id', g.user_id)
+                    g.save()
+                    result['status'] = 0
+                    result['msg'] = "保存成功"
+                else:
+                    group_id = input_dict.get('group_id', '')
+                    user_id = input_dict.get('user_id', '')
+
+                    error = ''
+                    if not group_id:
+                        error = 'GroupId不能为空'
+                    elif not user_id:
+                        error = 'UserId不能为空'
+                    if error:
+                        return HttpResponseBadRequest(error)
+
+                    g = Group(group_id=group_id,user_id=user_id)
+                    g.save()
+                    result['status'] = 0
+                    result['msg'] = "保存成功"
+                    result['id'] = g.id
+                    # result['info'] = ModuleSerializer(g).data
+            except Exception as e:
+                logger.error(e)
+                result['status'] = 1
+                result['msg'] = "保存失败"
+                return HttpResponseBadRequest(result['msg'])
         return HttpResponse(json.dumps(result),content_type='application/json')
 
 class UserGroupPermissionView(LoginRequiredMixin, APIView):
@@ -426,23 +526,73 @@ class UserGroupPermissionView(LoginRequiredMixin, APIView):
                 return HttpResponse(json.dumps(result),content_type='application/json')
             else:
                 if type == "module_id":
-                    param = "daugp.module_id=%s";
-                    sql = "SELECT ag.name, ag.id, daugp.value  as privilege, daugp.created_by, daugp.module_id,group_id FROM  devops_auth_user_group_permission daugp join  auth_group ag on ag.id= daugp.group_id and daugp.is_enabled = 1 where {0}".format(param)
+                    param = "daugp.module_id=%s"
+                    sql = "SELECT ag.name, daugp.id, ag.id as group_id, daugp.value  as privilege, daugp.created_by, daugp.module_id FROM  devops_auth_user_group_permission daugp join  auth_group ag on ag.id= daugp.group_id and daugp.is_enabled = 1 where {0}".format(param)
                 else:
                     param = "daugp.group_id=%s"
-                    sql = "SELECT dam.name, dam.id, daugp.value  as privilege, daugp.created_by, daugp.module_id,group_id FROM  devops_auth_user_group_permission daugp join  auth_group ag on ag.id= daugp.group_id join  devops_auth_module dam on dam.id= daugp.module_id and daugp.is_enabled = 1 and dam.is_enabled=1 where {0}".format(param)
-                    print(sql)
+                    sql = "SELECT dam.name, daugp.id, dam.id as module_id, daugp.value  as privilege, daugp.id as user_group_permission_id,daugp.created_by, daugp.module_id, group_id FROM  devops_auth_user_group_permission daugp join  auth_group ag on ag.id= daugp.group_id join  devops_auth_module dam on dam.id= daugp.module_id and daugp.is_enabled = 1 and dam.is_enabled=1 where {0}".format(param)
+            print(2222, sql)
             cursor.execute(sql, id)
             data = dictFetchAll(cursor)
             cursor.close()
             connection.close()
             result['info'] = (data)
         except Exception as e:
+            logger.error(e)
             result['status'] = 1
             result['info'] = []
             result['msg'] = "不存在"
-        # result['status'] = 0
-        # result['msg'] = "get_user_group_permission"
+            return HttpResponseBadRequest(result['msg'])
+        return HttpResponse(json.dumps(result),content_type='application/json')
+
+    # TODO
+    def post(self, request):
+        result = {}
+        hu = HttpUtils(self.request)
+        input_dict = hu.getRequestParam()
+
+        if input_dict is not None:
+            try:
+                if "id" in input_dict.keys():
+                    id = input_dict.get("id")
+                    m = User_group_permission.objects.get(id=id)
+                    m.group_id = input_dict.get('group_id', m.group_id)
+                    m.module_id = input_dict.get('module_id', m.module_id)
+                    m.value = input_dict.get('value', m.value)
+                    if 'is_enabled' in input_dict.keys():
+                        m.is_enabled = input_dict.get('is_enabled')
+                    m.updated_by = request.user.username
+                    m.save()
+                    result['status'] = 0
+                    result['msg'] = "保存成功"
+                else:
+                    group_id = input_dict.get('group_id', '')
+                    module_id = input_dict.get('module_id', '')
+                    value = input_dict.get('value', '')
+                    is_enabled = input_dict.get('is_enabled', 1)
+
+                    error = ''
+                    if not group_id:
+                        error = 'GroupId不能为空'
+                    elif not module_id:
+                        error = 'ModuleId不能为空'
+                    elif not value:
+                        error = 'Value不能为空'
+
+                    if error:
+                        return HttpResponseBadRequest(error)
+
+                    m = User_group_permission(group_id=group_id,module_id=module_id,value=value,is_enabled=is_enabled,created_by=request.user.username,updated_by=request.user.username)
+                    m.save()
+                    result['status'] = 0
+                    result['msg'] = "保存成功"
+                    result['id'] = m.id
+                    result['info'] = UserGroupPermissionSerializer(m).data
+            except Exception as e:
+                logger.error(e)
+                result['status'] = 1
+                result['msg'] = "保存失败"
+                return HttpResponseBadRequest(result['msg'])
         return HttpResponse(json.dumps(result),content_type='application/json')
 
 class ModuleGroupPermissionView(LoginRequiredMixin, APIView):
@@ -464,13 +614,13 @@ class ModuleGroupPermissionView(LoginRequiredMixin, APIView):
             else:
                 pass
                 # if type == "module_id":
-                #     param = "dam.id=%s";
+                #     param = "dam.id=%s"
                 #     sql = "SELECT damg.id, damg.name,dam.id as module_id, damgp.value,damg.owner_id   FROM devops_workshop_dev_web.devops_auth_module_group_permission damgp join devops_auth_module_group damg on damg.id= damgp.group_id join devops_auth_module_groups damgs on damgs.group_id=damgp.group_id join devops_auth_module dam on dam.id = damgs.module_id and damgp.is_enabled=1 and damgs.is_enabled = 1 and dam.is_enabled = 1 and damg.is_enabled = 1 where {0}".format(param)
                 # else:
                 #     param = "daugp.group_id=%s"
                 #     sql = "SELECT ag.name, ag.id, daugp.value, daugp.created_by, daugp.module_id,group_id FROM  devops_auth_user_group_permission daugp join  auth_group ag on ag.id= daugp.group_id and daugp.is_enabled = 1 where {0}".format(param)
-            param = "dam.id=%s";
-            sql = "SELECT damg.id, damg.name,dam.id as module_id, damgp.value  as privilege,damg.owner_id   FROM devops_workshop_dev_web.devops_auth_module_group_permission damgp join devops_auth_module_group damg on damg.id= damgp.group_id join devops_auth_module_groups damgs on damgs.group_id=damgp.group_id join devops_auth_module dam on dam.id = damgs.module_id and damgp.is_enabled=1 and damgs.is_enabled = 1 and dam.is_enabled = 1 and damg.is_enabled = 1 where {0}".format(param)
+            param = "dam.id=%s"
+            sql = "SELECT damgp.id, damg.id as module_group_id,  damg.name,dam.id as module_id, damgp.value  as privilege,damg.owner_id   FROM devops_workshop_dev_web.devops_auth_module_group_permission damgp join devops_auth_module_group damg on damg.id= damgp.group_id join devops_auth_module_groups damgs on damgs.group_id=damgp.group_id join devops_auth_module dam on dam.id = damgs.module_id and damgp.is_enabled=1 and damgs.is_enabled = 1 and dam.is_enabled = 1 and damg.is_enabled = 1 where {0}".format(param)
             print(sql)
             cursor = connection.cursor()
             cursor.execute(sql, id)
@@ -486,6 +636,58 @@ class ModuleGroupPermissionView(LoginRequiredMixin, APIView):
             logger.error(e)
             result['status'] = 1
             result['msg'] = "不存在"
+            return HttpResponseBadRequest(result['msg'])
+        return HttpResponse(json.dumps(result),content_type='application/json')
+
+    # TODO
+    def post(self, request):
+        result = {}
+        hu = HttpUtils(self.request)
+        input_dict = hu.getRequestParam()
+
+        if input_dict is not None:
+            try:
+                if "id" in input_dict.keys():
+                    id = request.data["id"]
+                    m = Module_group_permission.objects.get(id=id)
+                    m.group_id = input_dict.get('group_id', m.group_id)
+                    m.value = input_dict.get('value', m.value)
+                    if 'is_enabled' in input_dict.keys():
+                        m.is_enabled = input_dict.get('is_enabled')
+                    m.updated_by = request.user.username
+                    m.save()
+                    result['status'] = 0
+                    result['msg'] = "保存成功"
+                else:
+                    group_id = input_dict.get('group_id', '')
+                    value = input_dict.get('value', '')
+
+                    error = ''
+                    if not group_id:
+                        error = 'GroupId不能为空'
+                    elif not value:
+                        error = 'Value不能为空'
+                    if error:
+                        return HttpResponseBadRequest(error)
+
+                    m = Module_group_permission(group_id=group_id,value=value,created_by=request.user.username,updated_by=request.user.username)
+                    m.save()
+                    if "module_id" in input_dict.keys():
+                        module_id = input_dict.get('module_id')
+                        try:
+                            mm = Module_groups.objects.get(group_id=group_id,module_id=module_id)
+                        except Module_groups.DoesNotExist:
+                            mm = Module_groups(module_id=module_id,group_id=group_id)
+                            mm.save()
+                    result['status'] = 0
+                    result['msg'] = "保存成功"
+                    result['id'] = m.id
+                    result['info'] = ModuleGroupPermissionSerializer(m).data
+            except Exception as e:
+                logger.error(e)
+                result['status'] = 1
+                result['msg'] = "保存失败"
+                return HttpResponseBadRequest(result['msg'])
         return HttpResponse(json.dumps(result),content_type='application/json')
 
 class ModuleListView(LoginRequiredMixin, APIView):
@@ -503,7 +705,7 @@ class ModuleListView(LoginRequiredMixin, APIView):
             limit = int(request.GET.get('limit', 10))
             offset = int(request.GET.get('offset', 0))
 
-            module = Module.objects.filter(is_enabled=1).values('id', 'name', 'alias', 'owner_id').order_by(orderby)[offset:limit]
+            module = Module.objects.filter(is_enabled=1).values('id', 'name', 'alias', 'url', 'open_db', 'open_table', 'open_id', 'owner_id').order_by(orderby)[offset:limit]
             # serializer = ModuleSerializer(module)
             print(module)
             result['status'] = 0
@@ -513,6 +715,7 @@ class ModuleListView(LoginRequiredMixin, APIView):
             logger.error(e)
             result['status'] = 1
             result['msg'] = "不存在"
+            return HttpResponseBadRequest(result['msg'])
 
         return HttpResponse(json.dumps(result),content_type='application/json')
 
@@ -559,6 +762,7 @@ class UserListView(LoginRequiredMixin, APIView):
             logger.error(e)
             result['status'] = 1
             result['msg'] = "不存在"
+            return HttpResponseBadRequest(result['msg'])
 
         return HttpResponse(json.dumps(result),content_type='application/json')
 
@@ -589,6 +793,7 @@ class UserGroupListView(LoginRequiredMixin, APIView):
             logger.error(e)
             result['status'] = 1
             result['msg'] = "不存在"
+            return HttpResponseBadRequest(result['msg'])
         return HttpResponse(json.dumps(result),content_type='application/json')
         # pass
 

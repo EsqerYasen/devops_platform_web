@@ -37,86 +37,98 @@ window.app = app_router;
 app_router.on('route:load_user', function(userId) {
     console.log('route:load_user', userId);
 
-    model.getUserModules({
-        id: userId ? userId : -1
-    }).then(function(items) {
-        view.showUserModules(items, userId)
-    });
-
+    // model.getUserModules({
+    //     id: userId ? userId : -1
+    // }).then(function(items) {
+    //     view.showUserModules(items, userId)
+    // });
+    view.doGgetUserModules(userId);
 
 });
 
 app_router.on('route:load_user_group', function(groupid) {
     console.log('route:load_user_group', groupid);
 
-    model.getUserGroupModules({
-        id: groupid
-    }).then(function(items) {
-        view.showUserGroupModules(items, groupid)
-    });
+    // model.getUserGroupModules({
+    //     id: groupid
+    // }).then(function(items) {
+    //     view.showUserGroupModules(items, groupid)
+    // });
+    view.doGetUserGroupModules(groupid);
 });
 
 app_router.on('route:load_modules', function(groupid) {
     console.log('route:load_modules', groupid);
     // view.showModuleGroupModules();
-    model.getModules({}).then(function(items) {
-        view.showModules(items, groupid, 'user')
-    });
+    // model.getModules({}).then(function(items) {
+    //     view.showModules(items, groupid, 'user')
+    // });
+    view.doGetModules(groupid);
 });
 app_router.on('route:load_modulegroup', function(groupid) {
     console.log('route:load_modulegroup', groupid);
     // view.showModuleGroupModules();
-    model.getModuleGroups({
-        id: groupid,
-        type: 'user'
-    }).then(function(items) {
-        view.showModuleGroupModules(items, groupid, 'user')
-    });
+    // model.getModuleGroups({
+    //     id: groupid,
+    //     type: 'user'
+    // }).then(function(items) {
+    //     view.showModuleGroupModules(items, groupid, 'user')
+    // });
+    view.doGetModuleGroups(
+        groupid,
+        'user'
+    );
 });
 app_router.on('route:load_module_groups_by_type', function(groupid, type) {
     console.log('route:load_module_groups_by_type', groupid);
     // view.showModuleGroupModules();
-    model.getModuleGroups({
-        id: groupid,
-        type: type
-    }).then(function(items) {
-        view.showModuleGroupModules(items, groupid, type)
-    });
+    // model.getModuleGroups({
+    //     id: groupid,
+    //     type: type
+    // }).then(function(items) {
+    //     view.showModuleGroupModules(items, groupid, type)
+    // });
+    view.doGetModuleGroups(
+        groupid,
+        type
+    );
 });
 
 app_router.on('route:load_module_users', function(moduleid) {
     console.log('route:load_module_users', moduleid);
     // view.showModuleUsers();
 
-    model.getModuleUsers({
-        id: moduleid
+    // model.getModuleUsers({
+    //     id: moduleid
 
-    }).then(function(items) {
-        view.showModuleUsers(items, moduleid)
-    });
+    // }).then(function(items) {
+    //     view.showModuleUsers(items, moduleid)
+    // });
+    view.doGetModuleUsers(moduleid);
 });
 
 app_router.on('route:load_module_user_groups', function(moduleid) {
     console.log('route:load_module_user_groups', moduleid);
     // view.showModuleUserGroups();
 
-    model.getModulesUserGroups({
-        id: moduleid
-    }).then(function(items) {
-        view.showModuleUserGroups(items, moduleid)
-    });
+    // model.getModulesUserGroups({
+    //     id: moduleid
+    // }).then(function(items) {
+    //     view.showModuleUserGroups(items, moduleid)
+    // });
+    view.doGetModulesUserGroups(moduleid);
 });
 
 app_router.on('route:load_module_groups', function(moduleid) {
     console.log('route:load_module_groups', moduleid);
     // view.showModuleModuleGroups();
-
-    model.getModulesModuleGroups({
-        id: moduleid,
-        type: 'module_id'
-    }).then(function(items) {
-        view.showModuleModuleGroups(items, moduleid)
-    });
+    view.doGetModulesModuleGroups(moduleid);
+    // model.getModulesModuleGroups({
+    //     id: moduleid,
+    //     type: 'module_id'
+    // }).then(function(items) {
+    //     view.showModuleModuleGroups(items, moduleid)
+    // });
 });
 
 app_router.on('route:init_user_screen', function(moduleid) {
