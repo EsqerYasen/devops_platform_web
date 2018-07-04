@@ -85,7 +85,7 @@ Vue.component('task-info', {
             return;
           }
           curStep['lines'][curStep.activeIndex]['list'].push(cmd);  //编辑页面切换bug
-          Vue.set(curStep['lines'], 0, {list:curStep['lines'][curStep.activeIndex]['list'],activeIndex:0});
+          Vue.set(curStep['lines'], curStep.activeIndex, {list:curStep['lines'][curStep.activeIndex]['list'],activeIndex:0});
         }
       }else{
         Vue.set(curStep['lines'], e.newIndex, {list:[cmd],activeIndex:0});
@@ -362,10 +362,11 @@ var transLocalToApiData = function(basic, steps,vars){
             }
         });
     }
-  var res = {name: basic.name,vars:validVars};
+  var res = {name: basic.name};
   for(var key in basic){
     res[key] = basic[key];
   }
+  res.vars = validVars;
   res.steps = [];
   for(var i=0; i<steps.length; i++ ){
     var step = steps[i];//左边大步
