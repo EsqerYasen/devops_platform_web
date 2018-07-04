@@ -45,4 +45,5 @@ urlpatterns = [
     url(r'^flow/',include('devops_flow.urls',namespace='flow')),
     url(r'^host_total_count/', hostTotalCount, name='host_total_count'),
     url(r'^auth/',include('devops_auth.urls',namespace='auth')),
+    url(r'^forward_to_service/',views.forward_to_service,name='forward_to_service'),
 ]

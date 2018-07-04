@@ -32,6 +32,7 @@ def checkLogin(request):
         method = request.method
         bool = False
         username = ""
+        password = ""
         if method == "GET":
             code = request.GET.get('code',None)
             if code:
@@ -49,10 +50,16 @@ def checkLogin(request):
         elif method == "POST":
             username = request.POST.get('username',None)
             password = request.POST.get('password',None)
-            if username and password:
-                bool = AdAuthenticate.authenricate(username,password)
+            if username == 'admin':
+                bool = True
+            else:
+                if username and password:
+                    bool = AdAuthenticate.authenricate(username,password)
         if bool:
-            user = auth.authenticate(username=username, password=settings.USER_DEFAULT_PWD)
+            if username == 'admin':
+                user = auth.authenticate(username=username, password=password)
+            else:
+                user = auth.authenticate(username=username, password=settings.USER_DEFAULT_PWD)
             if user and user.is_active:
                 auth.login(request, user)
                 redirect_url = '/mainform/'
@@ -117,3 +124,33 @@ def page_error(request):
 
 def page_forbidden(request):
     return render(request, '403.html')
+
+
+def forward_to_service(request):
+    results = {}
+    try:
+        method = request.method
+        hu = HttpUtils(request)
+        if method == "GET":
+            req_get = request.GET
+            serivceName = req_get.get("serivceName",None)
+            restName = req_get.get("restName",None)
+            req_data = req_get.get("req_data", None)
+            if serivceName and restName:
+                results = hu.get(serivceName=serivceName, restName=restName,datas=req_data)
+            else:
+                results['status'] = 500
+        else:
+            req_post = request.POST
+            serivceName = req_post.get("serivceName", None)
+            restName = req_post.get("restName", None)
+            req_data = req_post.get("req_data", None)
+            if serivceName and restName:
+                p_result = hu.post(serivceName=serivceName, restName=restName,datas=req_data)
+                results = json.dumps(p_result.json())
+            else:
+                results['status'] = 500
+    except Exception as e:
+        logger.error(e,exc_info=1)
+        results['status'] = 500
+    return HttpResponse(json.dumps(results), content_type='application/json')
