@@ -415,7 +415,7 @@
                             data:{"execJson":JSON.stringify(exec_json),"csrfmiddlewaretoken":'{{ csrf_token }}'},
                             success : function(responseStr) {
                                 if(responseStr.status==0){
-                                    window.location.href = "../execLog?setId="+responseStr.set_id+"&jobId="+responseStr.job_id;
+                                   window.location.href = "/platform/command_set/"+tool_id+"/execLog?deploy_id={{ deploy_id }}&bind_type={{ bind_type }}&name={{ name }}&exec_type=2";
                                 }else{
                                     Alertwin.alert({message:"失败"});
                                 }

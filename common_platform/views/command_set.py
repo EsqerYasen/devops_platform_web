@@ -161,7 +161,7 @@ class CommandSetExecuteView(LoginRequiredMixin, TemplateView):
         hu = HttpUtils(self.request)
         runResults = hu.post(serivceName="p_job", restName="/rest/commandset/operation/", datas=execJson) #/rest/job/run/
         runJson = runResults.json()
-        if int(runJson.get("job_id",0)) > 0:
+        if runJson['status'] == 200:
             resultJson["status"] = "0"
         else:
             resultJson["status"] = "1"
