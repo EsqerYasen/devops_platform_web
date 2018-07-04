@@ -22,19 +22,17 @@
         </select>
     </td>
     <td>
-        <%if (locals.permission>=1) {%>
-            <%if (locals.permission>=4) {%>
-                <a  href="../<%=locals.item.id%>/edit/" class="btn btn-sm btn-success"><i class="fa fa-edit"></i>编辑</a>
-            <%}%>
-            <%if (locals.permission>=2) {%>
-                <a onclick="deployToolOperation('<%=locals.item.id%>','<%=locals.item.name%>','<%=locals.item.tool_id%>','<%=locals.item.tool_version%>','<%=locals.item.command_set_id%>','<%=locals.item.bind_type%>')" class="btn btn-sm btn-success"><i class="fa fa-play"></i>发版</a>
-            <%}%>
-            <%if (locals.permission>=1) {%>
-                <a href="/platform/command_set/<%=locals.item.id%>/execLog?deploy_id=<%=locals.item.id%>&bind_type=1&name=<%=locals.item.name%>&exec_type=2" class="btn btn-sm btn-success"><i class="fa fa-list"></i>历史</a>
-            <%}%>
-            <%if (locals.permission>=4) {%>
-            <a class="btn  btn-sm btn-danger" onclick="deleteDeployTool('<%=locals.item.id%>')"><i class="fa fa-trash"></i>删除</a>
-            <%}%>
+        <% if (Math.max(locals.item.mp_v, locals.item.mgp_v, locals.item.ug_v)>=4) {%>
+            <a  href="../<%=locals.item.id%>/edit/" class="btn btn-sm btn-success"><i class="fa fa-edit"></i>编辑</a>
+        <%}%>
+        <% if (Math.max(locals.item.mp_v, locals.item.mgp_v, locals.item.ug_v)>=2) {%>
+            <a onclick="deployToolOperation('<%=locals.item.id%>','<%=locals.item.name%>','<%=locals.item.tool_id%>','<%=locals.item.tool_version%>','<%=locals.item.command_set_id%>','<%=locals.item.bind_type%>')" class="btn btn-sm btn-success"><i class="fa fa-play"></i>发版</a>
+        <%}%>
+        <% if (Math.max(locals.item.mp_v, locals.item.mgp_v, locals.item.ug_v)>=1) {%>
+            <a href="/platform/command_set/<%=locals.item.id%>/execLog?deploy_id=<%=locals.item.id%>&bind_type=1&name=<%=locals.item.name%>&exec_type=2" class="btn btn-sm btn-success"><i class="fa fa-list"></i>历史</a>
+        <%}%>
+        <% if (Math.max(locals.item.mp_v, locals.item.mgp_v, locals.item.ug_v)>=4) {%>
+           <a class="btn  btn-sm btn-danger" onclick="deleteDeployTool('<%=locals.item.id%>')"><i class="fa fa-trash"></i>删除</a>
         <%}%>
     </td>
 </tr>

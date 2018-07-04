@@ -11,7 +11,6 @@ function getCookie(name) {
         var cookies = document.cookie.split(';');
         for (var i = 0; i < cookies.length; i++) {
             var cookie = jQuery.trim(cookies[i]);
-            // Does this cookie string begin with the name we want?
             if (cookie.substring(0, name.length + 1) === (name + '=')) {
                 cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                 break;
@@ -24,29 +23,17 @@ function getCookie(name) {
 function request(url, type, data) {
     var urlString = url;
     console.debug('Call URL: ' + urlString);
-    if (data) {
-        data.csrfmiddlewaretoken = window.csrf_token;
-    }
     var _data = {
         url: urlString,
         data: data,
-        // data: type == 'POST' ? JSON.stringify(data) : data,
         dataType: 'json',
-        // contentType: type == 'POST' ? 'application/json' : null,
         contentType: type == 'POST' ? 'application/x-www-form-urlencoded' : null,
         method: type,
         timeout: 30e3
     };
-
-    if (1) {
-        console.debug('Call URL with Data ', _data);
-        return $.ajax(_data).fail(function(e) {
-            alert(e.responseText);
-        });
-    } else {
-        console.log("skip api call=>", url, data);
-        return $.when(fixture.getFixture(url, data));
-    }
+    return $.ajax(_data).fail(function(e) {
+        alert(e.responseText);
+    });
 }
 var currentUserid = window.currentUserId;
 
@@ -228,12 +215,6 @@ module.exports = {
                     return res;
                 });
                 break;
-                // case "module_users":
-                //     return this.disableUserForModuleGroup(param).then(function(res) {
-                //         $('.btn_edit[data-id="' + param.id + '"]').closest('tr').hide();
-                //         return res;
-                //     });
-                //     break;
             default:
                 console.log('++++++++++!!!!', param);
                 break;
