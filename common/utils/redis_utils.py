@@ -138,6 +138,32 @@ class RedisBase(object):
         finally:
             redisConn = None
 
+    @staticmethod
+    def hset(redisKey, key, value, db=0):
+        redisConn = None
+        try:
+            redisConn = RedisBase.getConnection(db)
+            result = redisConn.hset(redisKey, key, value)
+            return result
+        except Exception as ex:
+            logger.error(msg="hset redis key failed: {ex}".format(ex=str(ex)))
+            return False
+        finally:
+            redisConn = None
+
+    @staticmethod
+    def hget(redisKey, key, db=0):
+        redisConn = None
+        try:
+            redisConn = RedisBase.getConnection(db)
+            result = redisConn.hget(redisKey, key)
+            return result
+        except Exception as ex:
+            logger.error(msg="hget redis key failed: {ex}".format(ex=str(ex)))
+            return False
+        finally:
+            redisConn = None
+
 
 
 

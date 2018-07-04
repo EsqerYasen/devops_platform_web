@@ -333,7 +333,7 @@
                 $('#showList').modal('hide')
             },
             save: function(){
-                var res = transLocalToApiData(this.$store.state.basic, this.$store.state.steps);
+                var res = transLocalToApiData(this.$store.state.basic, this.$store.state.steps, this.$store.state.vars);
                 var exec_json = {};
                 if(res.id){
                     exec_json['id'] = res.id;
@@ -408,6 +408,7 @@
                         exec_json['tool_list'] = tool_list;
                         exec_json['remarks'] = remarks;
                     })
+
                     if(tool_list.length > 0){
                         $.ajax({
                             type : 'POST',
@@ -415,7 +416,7 @@
                             data:{"execJson":JSON.stringify(exec_json),"csrfmiddlewaretoken":'{{ csrf_token }}'},
                             success : function(responseStr) {
                                 if(responseStr.status==0){
-                                   window.location.href = "/platform/command_set/"+tool_id+"/execLog?deploy_id={{ deploy_id }}&bind_type={{ bind_type }}&name={{ name }}&exec_type=2";
+                                   window.location.href = "/platform/command_set/"+res.id+"/command_step_exec_log/?name="+res.name;
                                 }else{
                                     Alertwin.alert({message:"失败"});
                                 }

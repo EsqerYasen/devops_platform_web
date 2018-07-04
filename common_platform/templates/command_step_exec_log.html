@@ -1,0 +1,208 @@
+{% extends 'common/basic_layout.html' %}
+
+{% block content %}
+     <link href="/static/hplus/css/works/yum-font.css" rel="stylesheet">
+<div class="wrapper wrapper-content animated " style="height: 100%;">
+    <div class="row" style="height: 100%;">
+        <div class="col-sm-12" style="height: 100%;">
+            <div class="ibox float-e-margins" style="height: 100%;">
+                <div class="ibox-title" style="height: 5%;">
+                    <h5>{{ name }}   执行日志</h5>
+                </div>
+                <div class="ibox-content" style="height: 95%;">
+                    <div class="row" style="height: 100%;">
+                        <div class="col-sm-2" style="border-style: groove;height: 100%;" >
+                            <div class="row" style="height: 5%;">
+                                <label class="control-label"> 执行历史</label>
+                            </div>
+                            <div class="row" style="height: 95%;">
+                                <table id="executeRecordListTb" style="width: 100%;max-height: 100%;text-align:center;overflow-y: auto; ">
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="col-sm-10" style="border-style: groove;height: 100%;">
+                           <div class="row" style="height: 5%;">
+                               <label class="col-sm-2 control-label"> 执行日志</label>
+                               <input id="deploy_id" type="hidden" value="{{ deploy_id }}"/>
+                               <input id="bind_type" type="hidden" value="{{ bind_type }}"/>
+                               <input id="exec_type" type="hidden" value="{{ exec_type }}"/>
+                               <input id="log_key_index" type="hidden" value="0"/>
+                               <input id="log_index" type="hidden" value="0"/>
+                           </div>
+                            <div class="row logbox ibox-content" style="width:100%;">
+                                <div class="row" style="height:20px;">
+                                    <i class="ico yum-font icon-suofang" id="iconZoom"></i>
+                                </div>
+                                <div style="width:100%;">
+                                   <pre style="width: 100%;height: 95%;resize: none;background:none;color:#ADFF2F; font-size: 12px" id="textarea_log" readonly value=""></pre>
+                                   <img id="log_modal_img" src="/static/hplus/img/5-121204194103.gif">
+                               </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var sh = null;
+    function toggleFullScreen(full) {
+        var doc = window.top && window.top.document || document;
+        if (full && !doc.fullscreenElement && // alternative standard method
+            !doc.mozFullScreenElement && !doc.webkitFullscreenElement) {// current working methods
+            if (doc.documentElement.requestFullscreen) {
+                doc.documentElement.requestFullscreen();
+            } else if (doc.documentElement.mozRequestFullScreen) {
+                doc.documentElement.mozRequestFullScreen();
+            } else if (doc.documentElement.webkitRequestFullscreen) {
+                doc.documentElement.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+            }
+        } else {
+            if (doc.cancelFullScreen) {
+                doc.cancelFullScreen();
+            } else if (doc.mozCancelFullScreen) {
+                doc.mozCancelFullScreen();
+            } else if (doc.webkitCancelFullScreen) {
+                doc.webkitCancelFullScreen();
+            }
+        }
+    }
+    $(document).ready(function () {
+        initInterval();
+        var zoom = false;
+        var contentMainHeight = window.top.$('#content-main').height();
+        var pageWrapperMleft = window.top.$('#page-wrapper').css('margin-left');
+        $('#iconZoom').click(function(){
+            zoom = !zoom;
+            if(zoom){
+                contentMainHeight = window.top.$('#content-main').height();
+                pageWrapperMleft = window.top.$('#page-wrapper').css('margin-left');
+                window.top.$('.navbar-default,.border-bottom,.content-tabs,.footer').hide();
+                window.top.$('#content-main').height('100%');
+                window.top.$('#page-wrapper').css('margin-left', 0);
+                toggleFullScreen(true);
+                $('.logbox').addClass('big2');
+                setTimeout(function(){
+                    console.log($(document.body).height());
+                    $('.logbox').height($(document.body).height());
+                }, 100);
+                $(this).addClass('icon-suoxiao');
+            }else{
+                window.top.$('.navbar-default,.border-bottom,.content-tabs,.footer').show();
+                window.top.$('#content-main').height(contentMainHeight);
+                window.top.$('#page-wrapper').css('margin-left', pageWrapperMleft);
+                toggleFullScreen(false);
+                $('.logbox').removeClass('big2');
+                $(this).removeClass('icon-suoxiao');
+                $('.logbox').height(500)
+            }
+        });
+        $(document).keyup(function(e){
+            if(e.keyCode == 27){
+                if(zoom){
+                    $('#iconZoom').trigger('click');
+                }
+            }
+        });
+    });
+    function initInterval(){
+        get_job_output();
+        clearInterval(sh);
+        sh = null;
+        sh = setInterval(get_job_output,3000);
+        execute_record_list();
+    }
+
+
+    function execute_record_list(){
+        var deploy_id = $("#deploy_id").val();
+        var bind_type = $("#bind_type").val();
+        var exec_type = $("#exec_type").val();
+        if(deploy_id && bind_type) {
+            $.ajax({
+                type: "GET",
+                url: '../executeRecordList/',
+                data: {"exec_id": deploy_id, "type": exec_type},
+                error: function (error) {
+                    console.log(error);
+                },
+                success: function (data) {
+                    var trhtml = "";
+                    var tb = $("#executeRecordListTb");
+                    tb.empty();
+                    $(data.data).each(function (i, item) {
+                        trhtml += "<tr><td style='height:20px'><a href='javascript:void(0)' onclick='showLogInfo("+deploy_id+","+bind_type+","+item.id+")'>" + item.exec_num+"_"+item.create_time + "</a></tr>"
+                    })
+                    tb.append(trhtml);
+                }
+            })
+        }
+    }
+
+    function get_job_output(){
+        var deploy_id = $("#deploy_id").val();
+        var bind_type = $("#bind_type").val();
+        var log_key_index = $("#log_key_index").val();
+        var log_index = $("#log_index").val();
+        var exec_type = $("#exec_type").val();
+        if(deploy_id && bind_type){
+            $.ajax({
+                  type: "POST",
+                  url: '../command_step_exec_log/',
+                  data:{"exec_id":deploy_id,"bind_type":bind_type,"exec_type":exec_type,"log_key_index":log_key_index,"log_index":log_index,"csrfmiddlewaretoken":'{{csrf_token}}'},
+                  error: function (request) {
+                      clearInterval(sh);
+                      sh = null;
+                  },
+                  success: function (data) {
+                      if(data.status == 200){
+                          var log_str = data.log_str;
+                          $("#log_key_index").val(data.log_key_index);
+                          $("#log_index").val(data.log_index);
+                          if(log_str && log_str != ""){
+                              var textArea = $("#textarea_log");
+                              textArea.append(data.log_str);
+                          }
+                          $('pre,div').each(function(){
+                              $(this)[0].scrollTop = $(this)[0].scrollHeight
+                          });
+                          $(document).scrollTop($(document).height()-$(window).height());
+                      }else{
+                          $("#log_modal_img").hide();
+                          clearInterval(sh);
+                          sh = null;
+                      }
+                  }
+            });
+        }else{
+            clearInterval(sh);
+            $("#log_modal_img").hide();
+            sh = null;
+        }
+    }
+
+    function showLogInfo(deploy_id,bind_type,id){
+         clearInterval(sh);
+         $("#log_modal_img").hide();
+         sh = null;
+        $.ajax({
+            type: "POST",
+            url: '../command_step_exec_log/',
+            data:{"exec_id":deploy_id,"bind_type":bind_type,"id":id,"csrfmiddlewaretoken":'{{csrf_token}}'},
+            error: function (request) {},
+            success: function (data) {
+                 var log_str = data.log_str;
+                 if(log_str && log_str != ""){
+                      var textArea = $("#textarea_log");
+                      textArea.empty();
+                      textArea.append(data.log_str);
+                 }
+            }
+        });
+    }
+
+</script>
+{% endblock %}

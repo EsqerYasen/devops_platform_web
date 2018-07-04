@@ -21,6 +21,8 @@ urlpatterns = [
         url(r'stop/', CommandExecuteStop.as_view(), name='stop'),
         url(r'getExecJobId',GetCommandExecuteJobIdView.as_view(),name='getExecJobId'),
         url(r'executeRecordList',GetCommandExecuteRecord.as_view(),name='executeRecordList'),
+        url(r'^(?P<pk>\d+)/command_step_exec_log',CommandStepExecLogView.as_view(),name='command_step_exec_log'),
+
     ])),
     url(r'^command_set2/', include([
         url(r'^list/', CommandSetList2View.as_view(), name='list'),

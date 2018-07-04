@@ -392,6 +392,8 @@
                                 temp3['default_script_parameter'] = default_script_parameter;
                             }else{
                                 temp3['default_script_parameter'] = JSON.parse(item2.default_script_parameter.replace(/'/g,'"'));
+                                temp3['command_tool_id'] = item2['command_tool_id'];
+                                temp3['command_tool_version'] = item2['command_tool_version'];
                             }
                             line2.push(temp3);
                         })
@@ -399,13 +401,14 @@
                         step2.push(temp);
                     })
                     command_set['steps'] = step2;
+
                     $.ajax({
                         type : 'POST',
                         url: '/platform/command_set/'+res.id+'/edit/',
                         data:{"command_set":JSON.stringify(command_set),"csrfmiddlewaretoken":'{{ csrf_token }}'},
                         success : function(responseStr) {
                             if(responseStr.status==0){
-                                //Alertwin.alert({message:"更新成功"});#}
+                                //Alertwin.alert({message:"更新成功"});
                                 location.href = '../../list'
                             }else{
                                 Alertwin.alert({message:"更新失败"});
