@@ -23,6 +23,9 @@ function getCookie(name) {
 function request(url, type, data) {
     var urlString = url;
     console.debug('Call URL: ' + urlString);
+    if (data) {
+        data.csrfmiddlewaretoken = window.csrf_token;
+    }
     var _data = {
         url: urlString,
         data: data,
