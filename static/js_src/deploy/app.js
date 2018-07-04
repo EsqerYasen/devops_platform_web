@@ -3,7 +3,7 @@ var _ = require('underscore');
 
 var View = require('./view');
 var model = require('./model');
-var view = new View(window.currentUser, model);
+var view = new View(window.currentUser, window.currentUserId, model);
 
 Backbone.fixtures = true;
 var currentUserInfo = window.currentUser;

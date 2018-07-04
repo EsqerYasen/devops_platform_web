@@ -19,8 +19,7 @@ class DeployToolListView(LoginRequiredMixin, OrderableListMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super(DeployToolListView, self).get_context_data(**kwargs)
         try:
-            pass
-            # req = self.request
+            req = self.request
             # hu = HttpUtils(req)
             # reqData = hu.getRequestParam()
             # deploy_tool_list_result = hu.get(serivceName="p_job", restName="/rest/deploytool/list/", datas=reqData) #/rest/deploytool/list/
@@ -35,6 +34,8 @@ class DeployToolListView(LoginRequiredMixin, OrderableListMixin, ListView):
             # context['is_paginated'] = count > 0
             # context['page_obj'] = paginator.page(req.offset)
             # context['paginator'] = paginator
+            user = req.user
+            context['userid'] = user.id
         except Exception as e:
             logger.error(e,exc_info=1)
         return context

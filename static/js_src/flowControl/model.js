@@ -21,15 +21,11 @@ function getCookie(name) {
     return cookieValue;
 }
 
-function request(url, type, data, server) {
+function request(url, type, data) {
     var urlString = url;
     console.debug('Call URL: ' + urlString);
-    if (data) {
-        data.csrfmiddlewaretoken = window.csrf_token;
-    }
-    var host = config.url.job;
     var _data = {
-        url: host + urlString,
+        url: '/forward_to_service/?',
         data: data,
         dataType: 'json',
         contentType: type == 'POST' ? 'application/x-www-form-urlencoded' : null,
@@ -37,49 +33,32 @@ function request(url, type, data, server) {
         timeout: 30e3
     };
 
-    if (1) {
-        console.debug('Call URL with Data ', _data);
-        return $.ajax(_data).fail(function(e) {
-            alert(e.responseText);
-        });
-    } else {
-        console.log("skip api call=>", url, data);
-        return $.when(fixture.getFixture(url, data));
-    }
+    console.debug('Call URL with Data ', _data);
+    return $.ajax(_data).fail(function(e) {
+        alert(e.responseText);
+    });
+
 }
 var currentUserid = window.currentUserId;
 
-function get(url, data, server) {
-    return request(url, 'GET', data, server);
-}
-
-function post(url, data, server) {
-    return request(url, 'POST', data, server);
-}
-
-function filterPermissonByConfig(permissions, section) {
-    var perms = [];
-    var keys = Object.keys(permissions);
-    var perm;
-    for (var i = 0; i < keys.length; i++) {
-        perm = permissions[keys[i]];
-        if (perm.collection === section.collection && perm.dataset === section.dataset) {
-            perm.id = parseInt(keys[i]);
-            perms.push(perm);
-        }
+function get(url, data) {
+    var _data = {
+        serivceName: "p_job",
+        restName: url+'?'+ $.param(data),
+        req_data: ''
     }
-    return perms;
+    return request(url, 'GET', _data);
 }
 
-function filterIDFromPermission(permissions, section) {
-    permissions = filterPermissonByConfig(permissions, section)
-    var ids = [];
-    var perm;
-    for (var i = 0; i < permissions.length; i++) {
-        ids.push(permissions[i].idx);
+function post(url, data) {
+    var _data = {
+        serivceName: "p_job",
+        restName: url,
+        req_data: (data)
     }
-    return ids;
+    return request(url, 'POST', _data);
 }
+
 module.exports = {
     config: config,
     getJobList: function(id, limit = 10, offset = 0) {

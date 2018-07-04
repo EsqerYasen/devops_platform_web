@@ -44,38 +44,34 @@
       'click button.add_modal': "showModalAdd",
       'click button.create_modal': "showModalCreate",
     },
-    initialize: function(user, model) {
+    initialize: function(user, userId, model) {
 
       console.log('view inited');
       this.userInfo = user;
       this.model = model;
+      this.userId = userId;
       $('.scrollable').scroll(this.onScroll.bind(this));
       window.YUMEVENTS.on("loadmore", this.loadMore.bind(this));
       window.YUMEVENTS.on("closeModal", this.closeModal.bind(this));
-      this.model.getPermssions().then(function(permssions) {
-        this.permssions = permssions.info;
-        this.showJobList();
-      }.bind(this));
+      this.showJobList();
       $('.job_list_container').height(window.innerHeight - 200);
 
       // $('#yumModal').modal({show: false});
     },
     showJobList: function(limit, offset) {
-      this.model.getJobList(this.permssions, limit, offset).then(function(res) {
+      this.model.getJobList(this.userId, limit, offset).then(function(res) {
         var ids = []
         $(res.results).map(function(i, _item) {
           ids.push(_item.id);
         });
         var model = this.model;
         var self = this;
-        var perms = model.filterPermissonByConfig(self.permssions, config.type.job)
         this.model.getVersionLists(ids).then(function(versions) {
           console.log('res.results', res.results);
           console.log('versions', versions);
           self.appendToGrid({
             results: res.results,
             versions: versions.results,
-            permissions: perms
           });
         });
       }.bind(this));

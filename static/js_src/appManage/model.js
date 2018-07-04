@@ -21,15 +21,11 @@ function getCookie(name) {
     return cookieValue;
 }
 
-function request(url, type, data, server) {
+function request(url, type, data) {
     var urlString = url;
     console.debug('Call URL: ' + urlString);
-    if (data) {
-        data.csrfmiddlewaretoken = window.csrf_token;
-    }
-    var host = config.url.job;
     var _data = {
-        url: host + urlString,
+        url: '/forward_to_service/?',
         data: data,
         dataType: 'json',
         contentType: type == 'POST' ? 'application/x-www-form-urlencoded' : null,
@@ -37,24 +33,30 @@ function request(url, type, data, server) {
         timeout: 30e3
     };
 
-    if (1) {
-        console.debug('Call URL with Data ', _data);
-        return $.ajax(_data).fail(function(e) {
-            alert(e.responseText);
-        });
-    } else {
-        console.log("skip api call=>", url, data);
-        return $.when(fixture.getFixture(url, data));
-    }
+    console.debug('Call URL with Data ', _data);
+    return $.ajax(_data).fail(function(e) {
+        alert(e.responseText);
+    });
+
 }
 var currentUserid = window.currentUserId;
 
-function get(url, data, server) {
-    return request(url, 'GET', data, server);
+function get(url, data) {
+    var _data = {
+        serivceName: "p_job",
+        restName: url+'?'+ $.param(data),
+        req_data: ''
+    }
+    return request(url, 'GET', _data);
 }
 
-function post(url, data, server) {
-    return request(url, 'POST', data, server);
+function post(url, data) {
+    var _data = {
+        serivceName: "p_job",
+        restName: url,
+        req_data: (data)
+    }
+    return request(url, 'POST', _data);
 }
 
 function filterPermissonByConfig(permissions, section) {
@@ -83,13 +85,11 @@ function filterIDFromPermission(permissions, section) {
 module.exports = {
     config: config,
     getJobList: function(id, limit = 10, offset = 0) {
-        ///rest/appmanage/list/?offset=0&limit=10&id=1
         return get('/rest/appmanage/list/', {
                 limit: limit,
                 offset: offset,
                 id: id
-            },
-            config.url.job).then(function(data) {
+            }).then(function(data) {
             return data;
         });
 

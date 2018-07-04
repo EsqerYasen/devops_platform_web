@@ -4,13 +4,16 @@
   "version": "0.0.0",
   "main": "index.html",
   "scripts": {
-    "test": "node node_modules/jshint/bin/jshint js --exclude js/bundle.js",
-    "build": "npm run test && node node_modules/browserify/bin/cmd.js -t ejsify index.js -o ../js/app.js",
+    "test": "node --version",
     "build-watch": "node node_modules/watchify/bin/cmd.js -t ejsify index.js -o ../js/app.js --debug --verbose",
-    "build-deploy": "npm run test && node node_modules/browserify/bin/cmd.js -t ejsify deploy/index.js -o ../js/deploy_app.js",
     "build-watch-deploy": "node node_modules/watchify/bin/cmd.js -t ejsify deploy/index.js -o ../js/deploy_app.js --debug --verbose",
     "build-watch-appManage": "node node_modules/watchify/bin/cmd.js -t ejsify appManage/index.js -o ../js/manage_app.js --debug --verbose",
-    "build-watch-flowControl": "node node_modules/watchify/bin/cmd.js -t ejsify flowControl/index.js -o ../js/flowControl_app.js --debug --verbose"
+    "build-watch-flowControl": "node node_modules/watchify/bin/cmd.js -t ejsify flowControl/index.js -o ../js/flowControl_app.js --debug --verbose",
+    "build-auth": "npm run test && node node_modules/browserify/bin/cmd.js -t ejsify index.js -o ../js/app.js",
+    "build-deploy": "npm run test && node node_modules/browserify/bin/cmd.js -t ejsify deploy/index.js -o ../js/deploy_app.js",
+    "build-appManage": "npm run test && node node_modules/browserify/bin/cmd.js -t ejsify appManage/index.js -o ../js/manage_app.js",
+    "build-flowControl": "npm run test && node node_modules/browserify/bin/cmd.js -t ejsify flowControl/index.js -o ../js/flowControl_app.js",
+    "build-all": "npm run test && npm run build-auth && npm run build-deploy && npm run build-appManage && npm run build-flowControl"
   },
   "dependencies": {
     "backbone": "1.2.3",
@@ -29,11 +32,6 @@
     "ejsify": "*",
     "express": "4.15.2",
     "extend": "3.0.0",
-    "gulp": "3.9.1",
-    "gulp-browser": "3.0.11",
-    "gulp-ejs-precompiler": "0.2.0",
-    "gulp-ejs-template": "0.2.0",
-    "gulp-rename": "1.2.3",
     "jshint": "*",
     "morgan": "1.8.1",
     "path": "0.12.7",
