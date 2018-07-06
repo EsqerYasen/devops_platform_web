@@ -12,17 +12,17 @@
     <td><%= locals.item.update_time %></td>
     <td>
         <% if (Math.max(locals.item.mp_v, locals.item.mgp_v, locals.item.ug_v)>=4) {%>
-            <a href="../<%= locals.itemid %>/edit/" class="btn btn-sm btn-success"><i class="fa fa-edit"></i>&nbsp;编辑</a>
+            <a href="../<%= locals.item.id %>/edit/" class="btn btn-sm btn-success"><i class="fa fa-edit"></i>&nbsp;编辑</a>
         <%}%>
         <% if (Math.max(locals.item.mp_v, locals.item.mgp_v, locals.item.ug_v)>=2) {%>
-            <a href="javascript:void(0)" class="btn btn-sm btn-success" onclick="flowOperation('<%= locals.itemid %>','<%= locals.itemname %>','<%= locals.itemtool_id %>','<%= locals.itemtool_version %>','<%= locals.itemcommand_set_id %>','<%= locals.itembind_type %>')"><i class="fa fa-play"></i>调度</a>
+            <a href="javascript:void(0)" class="btn btn-sm btn-success" onclick="flowOperation('<%= locals.item.id %>','<%= locals.itemname %>','<%= locals.itemtool_id %>','<%= locals.itemtool_version %>','<%= locals.itemcommand_set_id %>','<%= locals.itembind_type %>')"><i class="fa fa-play"></i>调度</a>
         <%}%>
 
         <% if (Math.max(locals.item.mp_v, locals.item.mgp_v, locals.item.ug_v)>=1) {%>
-            <a href="/platform/command_set/<%= locals.itemid %>/execLog?deploy_id=<%= locals.itemid %>&bind_type=1&name=<%= locals.itemname %>&exec_type=4" class="btn btn-sm btn-success"><i class="fa fa-list"></i>&nbsp;历史</a>
+            <a href="/platform/command_set/<%= locals.item.id %>/execLog?deploy_id=<%= locals.item.id %>&bind_type=1&name=<%= locals.itemname %>&exec_type=4" class="btn btn-sm btn-success"><i class="fa fa-list"></i>&nbsp;历史</a>
         <%}%>
         <% if (Math.max(locals.item.mp_v, locals.item.mgp_v, locals.item.ug_v)>=4) {%>
-            <a href="javascript:void(0)" onclick="deleteApp('<%= locals.itemid %>')" class="btn  btn-sm btn-danger"><i class="fa fa-trash"></i>&nbsp;删除</a>
+            <a href="javascript:void(0)" onclick="deleteApp('<%= locals.item.id %>')" class="btn  btn-sm btn-danger"><i class="fa fa-trash"></i>&nbsp;删除</a>
         <%}%>
     </td>
 </tr>
