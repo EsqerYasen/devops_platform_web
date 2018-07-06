@@ -36,6 +36,26 @@
             <th style="width: 10%;">操作</th>
         </thead>
         <tbody>
+           {% for o in result_list %}
+            <tr>
+                <td>
+                    <input type="checkbox" class="i-checks icheck" id="{{ o.id }}" name="trCheckbox">
+                </td>
+                <td>{{ o.name }}</td>
+                <td>{{ o.tool_version }}</td>
+                <td>{{ o.tool_type|devopsToolsTypeTrans }}</td>
+                <td>{{ o.param|length }}</td>
+                <td>{{ o.created_by }}</td>
+                <td>{{ o.updated_by }}</td>
+                <td>{{ o.create_time }}</td>
+                <td>{{ o.update_time }}</td>
+                <td>
+                    <a href="../{{ o.id }}/edit/" class="btn btn-sm btn-success"><i class="fa fa-edit"></i>&nbsp;编辑</a>
+                    <a href="../{{ o.tool_id }}/gethistoryversionbytoolId/" class="btn btn-sm btn-success"><i class="fa fa-edit"></i>&nbsp;历史</a>
+                    <a href="javascript:void(0)" onclick="deleteToolSet('{{ o.tool_id }}')" class="btn  btn-sm btn-danger"><i class="fa fa-trash"></i>&nbsp;删除</a>
+                </td>
+            </tr>
+        {% endfor %}
         </tbody>
     </table>
 </div>

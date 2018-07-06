@@ -78,14 +78,15 @@ class DevopsFlowUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMix
         context = {}
         try:
             id = kwargs.get('pk', 0)
-            hu = HttpUtils(self.request)
-            app_list_result = hu.get(serivceName="p_job", restName="/rest/flowcontrol/list/", datas={'id':id}) #/rest/flowcontrol/list/
-            app_list = app_list_result.get("results", {})
-            app = {}
-            if len(app_list) > 0:
-                app = app_list[0]
-            context['app_info'] = app
-            context['is_add'] = 0
+            if id:
+                hu = HttpUtils(self.request)
+                app_list_result = hu.get(serivceName="p_job", restName="/rest/flowcontrol/getinfo/", datas={'id':id}) #/rest/flowcontrol/list/
+                app = app_list_result.get("results", {})
+                context['app_info'] = app
+                context['is_add'] = 0
+            else:
+                context['app_info'] = {}
+                context['is_add'] = 0
         except Exception as e:
             logger.error(e,exc_info=1)
         return context
@@ -161,13 +162,9 @@ class DevopsFlowOperationView(LoginRequiredMixin, JSONResponseMixin,AjaxResponse
             version = reqData.get('version', "")
             getData = {'offset': 0, 'limit': 1000, 'is_enabled': 1}
             hostGroup_list = []
-            tool_list_result = hu.get(serivceName="p_job", restName="/rest/tool/list/",
-                                      datas={'tool_id': tool_id, 'tool_version': tool_version,
-                                             'is_history': -1})  # /rest/job/list_tool_set/
-            tool_list = tool_list_result.get("results", [])
-            tool = {}
-            if len(tool_list) > 0:
-                tool = tool_list[0]
+            tool_result = hu.get(serivceName="p_job", restName="/rest/tool/getinfo/",datas={'tool_id': tool_id, 'tool_version': tool_version})  # /rest/job/list_tool_set/
+            tool = tool_result.get("results", [])
+            if tool:
                 if int(tool['infom']) == 2 or tool['script_lang'] == 'yaml':
                     hostgroupResult = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_tree/", datas=getData)
                     hostGroup_list = hostgroupResult.get("data", [])

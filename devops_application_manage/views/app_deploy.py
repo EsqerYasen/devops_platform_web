@@ -76,13 +76,10 @@ class DevopsAppMgeUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseM
         try:
             id = kwargs.get('pk', 0)
             hu = HttpUtils(self.request)
-            app_manage_list_result = hu.get(serivceName="p_job", restName="/rest/appmanage/list/",datas={'id': id})
-            app_manage_list = app_manage_list_result.get("results", [])
-            app_manage = {}
+            app_manage_result = hu.get(serivceName="p_job", restName="/rest/appmanage/getinfo/",datas={'id': id})
+            app_manage = app_manage_result.get("results", [])
             version_list = []
-            if len(app_manage_list) > 0:
-                app_manage = app_manage_list[0]
-
+            if app_manage:
                 app_manage_version_list_result = hu.get(serivceName="p_job", restName="/rest/appmanage/appversionlist/",datas={'app_manage_id': app_manage['id']})
                 app_manage_version_list = app_manage_version_list_result.get("results", [])
                 for app_manage_version in app_manage_version_list:
@@ -162,13 +159,10 @@ class DevopsAppMgeDeployView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseM
             version = reqData.get('version', "")
             getData = {'offset': 0, 'limit': 1000, 'is_enabled': 1}
             hostGroup_list = []
-            tool_list_result = hu.get(serivceName="p_job", restName="/rest/tool/list/",datas={'tool_id': tool_id, 'tool_version': tool_version,'is_history': -1})  # /rest/job/list_tool_set/
-            tool_list = tool_list_result.get("results", [])
-            tool = {}
+            tool_result = hu.get(serivceName="p_job", restName="/rest/tool/getinfo/",datas={'tool_id': tool_id, 'tool_version': tool_version})  # /rest/job/list_tool_set/
+            tool = tool_result.get("results", [])
             app_manage_version_list = []
-            if len(tool_list) > 0:
-                tool = tool_list[0]
-
+            if tool:
                 app_manage_version_list_result = hu.get(serivceName="p_job", restName="/rest/appmanage/appversionlist/",datas={'app_manage_id': id})
                 app_manage_version_list = app_manage_version_list_result.get("results", [])
 

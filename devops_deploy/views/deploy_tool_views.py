@@ -81,11 +81,8 @@ class DeployToolUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMix
         try:
             id = kwargs.get('pk', 0)
             hu = HttpUtils(self.request)
-            deploy_tool_list_result = hu.get(serivceName="p_job", restName="/rest/deploytool/list/", datas={'id':id}) #/rest/deploytool/list/
-            deploy_tool_list = deploy_tool_list_result.get("results", [])
-            deploy_tool = {}
-            if len(deploy_tool_list) > 0:
-                deploy_tool = deploy_tool_list[0]
+            deploy_tool_result = hu.get(serivceName="p_job", restName="/rest/deploytool/getinfo/", datas={'id':id}) #/rest/deploytool/list/
+            deploy_tool = deploy_tool_result.get("results", [])
             context['deploy_tool'] = deploy_tool
             context['is_add'] = 0
         except Exception as e:

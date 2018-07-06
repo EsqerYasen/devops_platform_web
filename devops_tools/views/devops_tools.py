@@ -111,11 +111,10 @@ class DevopsToolsUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMi
         context = {}
         try:
             hu = HttpUtils(self.request)
-            tool_list_result = hu.get(serivceName="p_job", restName="/rest/tool/list/", datas={"id":kwargs.get('pk',0),"offset":0,"limit":"1"}) #/rest/job/list_tool_set/
-            tool_list = tool_list_result.get("results", [])
-            for tool in tool_list:
+            tool_result = hu.get(serivceName="p_job", restName="/rest/tool/getinfo/", datas={"id":kwargs.get('pk',0)}) #/rest/job/list_tool_set/
+            tool = tool_result.get("results", [])
+            if tool:
                 tool['param'] = json.loads(tool['param'])
-                #tool_set_prime_type = tool["tool_set_prime_type"]
                 tool_set_type = tool["tool_type"]
                 if tool_set_type == 5:
                     command = tool["command"]
@@ -131,7 +130,7 @@ class DevopsToolsUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMi
                 else:
                     tool['filename'] = ""
                 tool["command"] = tool["command"].replace('"', '\\"').replace('\r', '\\r').replace('\n', '\\n')
-            context["result_dict"] = tool_list[0]
+            context["result_dict"] = tool
         except Exception as e:
             logger.error(e,exc_info=1)
         return context
@@ -267,15 +266,14 @@ class DevopsToolVersionByName(LoginRequiredMixin,JSONResponseMixin, View):
             hu = HttpUtils(req)
             reqData = hu.getRequestParam()
             logger.info("DevopsToolVersionByName.get reqData:%s" % (reqData))
-            tool_list_result = hu.get(serivceName="p_job", restName="/rest/tool/list/",datas={'name':reqData['name']})  # /rest/job/list_tool_set/
-            tool_list = tool_list_result.get("results", [])
+            tool_result = hu.get(serivceName="p_job", restName="/rest/tool/getinfo/",datas={'name':reqData['name']})  # /rest/job/list_tool_set/
+            tool = tool_result.get("results", [])
             datas = []
-            if len(tool_list) == 1:
-                logger.info("DevopsToolVersionByName.get tool_list:%s" % (tool_list))
-                tool = tool_list[0]
+            if tool:
+                logger.info("DevopsToolVersionByName.get tool_list:%s" % (tool))
                 tool_id = tool['tool_id']
                 datas.append({'id':tool['id'],'tool_id':tool['tool_id'],'name':tool['name'],'tool_version':tool['tool_version']})
-                tool_list_result2 = hu.get(serivceName="p_job", restName="/rest/tool/list/",datas={'tool_id': tool_id,'is_history':1})
+                tool_list_result2 = hu.get(serivceName="p_job", restName="/rest/tool/getlistinfo/",datas={'tool_id': tool_id,'is_history':1})
                 tool_list2 = tool_list_result2.get("results", [])
                 for tool2 in tool_list2:
                     datas.append({'id': tool2['id'], 'tool_id': tool2['tool_id'], 'name': tool2['name'],'tool_version': tool2['tool_version']})
