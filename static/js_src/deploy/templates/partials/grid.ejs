@@ -12,7 +12,7 @@
     <td> <%=locals.item.create_time%> </td>
     <td> <%=locals.item.update_time%> </td>
     <td>
-        <select id="versions" class="form-control" style="width: 90%">
+        <select id="version<%=locals.item.id%>" class="form-control" style="width: 90%">
             <option value="" >请选择</option>
             <%if (locals.versions) {%>
                 <%$.each (locals.versions, function(i, ver) {%>
