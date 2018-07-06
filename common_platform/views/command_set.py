@@ -102,9 +102,9 @@ class CommandSetUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMix
             resultJson = hu.post(serivceName="p_job", restName="/rest/commandset/updateById/",datas=command_set_str)
             resultJson = eval(resultJson.text)
             if resultJson["status"] == 200:
-                result['status'] = 1
-            else:
                 result['status'] = 0
+            else:
+                result['status'] = 1
         except Exception as e:
             logger.error(e)
         return HttpResponse(json.dumps(result), content_type='application/json')
@@ -252,6 +252,88 @@ class GetCommandExecuteLogView(LoginRequiredMixin,JSONResponseMixin, AjaxRespons
             result_json['status'] = 500
             logger.error(e,exc_info=1)
         return self.render_json_response(result_json)
+
+
+class CommandStepExecLogView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, TemplateView):
+    template_name = "command_step_exec_log.html"
+    def get_context_data(self, **kwargs):
+        context = super(CommandStepExecLogView, self).get_context_data(**kwargs)
+        try:
+            context['name'] = self.request.GET.get("name",None)
+            context['deploy_id'] = kwargs.get('pk')
+            context['exec_type'] = 1
+            context['bind_type'] = 1
+        except Exception as e:
+            logger.error(e,exc_info=1)
+        return context
+
+    def post(self, request, *args, **kwargs):
+        results = {}
+        try:
+            req_p = request.POST
+            id = req_p.get("id", None)
+            deploy_id = req_p.get("exec_id", None)
+            bind_type = req_p.get("bind_type", 1)
+            exec_type = req_p.get("exec_type", 1)
+            log_key_index = int(req_p.get("log_key_index", None))
+            log_index = int(req_p.get("log_index", 0))
+            log_str = ""
+            if deploy_id and bind_type:
+                if id:
+                    hu = HttpUtils(request)
+                    execRecordResult = hu.get(serivceName="p_job", restName="/rest/tool/execRecordList/",
+                                              datas={'id': id, 'type': exec_type})
+                    list = execRecordResult.get("results", [])
+                    if len(list):
+                        execRecord = list[0]
+                        path = execRecord['path']
+                        tool_list = execRecord['parameter']
+                        log_f = open(path + "exec.log", "r")
+                        for line in log_f.readlines():
+                            log_str += line
+                            results['log_str'] = log_str
+                            results['status'] = 500
+                    else:
+                        results['log_str'] = "未查询到相关记录"
+                        results['status'] = 500
+                else:
+                    run_key = "%s_%s_%s" % (deploy_id, bind_type, exec_type)
+                    r_v1 = RedisBase.get(run_key, 1)
+                    if r_v1:
+                        r_v1 = str(r_v1,encoding="utf-8")
+
+                    run_log_keys_list = RedisBase.lrange('%srun_log_keys_list' % run_key,db=1)
+                    log_key = str(run_log_keys_list[log_key_index],encoding="utf-8")
+                    r_v2 = RedisBase.exists(log_key, 1)
+                    logger.info("-----------r_v1:%s" % (r_v1))
+                    if r_v1 is not None or r_v2:
+                        log_status = str(RedisBase.hget('%srun_log_keys' % run_key, log_key, db=1),encoding="utf-8")
+                        if int(log_status)== 0:
+                            log_key_index += 1
+
+                        log_list = RedisBase.lrange(redisKey=log_key, start=log_index, db=1)
+                        if log_list:
+                            logger.info("log_list:%s" % (log_list))
+                            for log in log_list:
+                                log_index += 1
+                                log_str += str(log, encoding="utf-8") + "\n"
+
+                        if int(log_status)== 0:
+                            log_index = 0
+
+                        results['log_str'] = log_str
+                        results['log_key_index'] = log_key_index
+                        results['log_index'] = log_index
+                        results['status'] = 200
+                    else:
+                        results['status'] = 500
+
+        except Exception as e:
+            results['status'] = 500
+            logger.error(e,exc_info=1)
+        return HttpResponse(json.dumps(results), content_type='application/json')
+
+
 
 class GetCommandExecuteRecord(LoginRequiredMixin,JSONResponseMixin, AjaxResponseMixin, View):
     def get_ajax(self, request, *args, **kwargs):

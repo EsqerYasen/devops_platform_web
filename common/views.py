@@ -101,13 +101,16 @@ def hostTotalCount(request):
             results['status'] = 200
             results['data'] = json.loads(str(result,encoding="utf-8"))
         else:
-            hu = HttpUtils(request)
-            get_results = hu.get(serivceName="cmdb", restName="/rest/host/host_total_count/",datas={})
-            if get_results['status'] == 200:
-                data = get_results['data']
-                RedisBase.set(redisKey=r_key,value=json.dumps(data),time_ms=120,db=1)
-                results['status'] = 200
-                results['data'] = data
+            if request.devopsuser:
+                hu = HttpUtils(request)
+                get_results = hu.get(serivceName="cmdb", restName="/rest/host/host_total_count/",datas={})
+                if get_results['status'] == 200:
+                    data = get_results['data']
+                    RedisBase.set(redisKey=r_key,value=json.dumps(data),time_ms=120,db=1)
+                    results['status'] = 200
+                    results['data'] = data
+                else:
+                    results['status'] = 500
             else:
                 results['status'] = 500
     except Exception as e:
