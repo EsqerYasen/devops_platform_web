@@ -32,3 +32,19 @@
 .yumModal .btn-group>label{
   width: 100px;
 }
+.menu-app .modal-body{
+  overflow: hidden;
+}
+.menu-app .menu_list{
+  /*display: flex;*/
+}
+.menu-app .menu_list>td, .menu-app table th{
+  /*padding: 0 20px;*/
+  text-align: center;
+  /*border-right: 1px solid;*/
+  /*margin-right: 10px;*/
+}
+
+.menu-app .menu_list .menu{
+  overflow: hidden;
+}

@@ -1,0 +1,25 @@
+<div class="row col-md-12 col-xs-12 col-sm-12 menu" data-id="<%=locals.item? locals.item.id:'' %>">
+    <div class="row">
+        <label class="col-md-4 col-xs-4 col-sm-4"><%=locals.text_label%></label>
+        <input name="<%=locals.text_name%>" class="<%=locals.text_kls%> col-md-8 col-xs-8 col-sm-8"  value="<%=locals.item && locals.item.name? locals.item.name:'' %>">
+    </div>
+    <div class="row">
+        <label class="col-md-4 col-xs-4 col-sm-4"><%=locals.texts_label%></label>
+        <textarea name="<%=locals.texts_name%>" class="<%=locals.texts_kls%> col-md-8 col-xs-8 col-sm-8"><%-locals.item && locals.item.menu? locals.item.menu:'' %></textarea>
+    </div>
+    <div class="row">
+    <label class="col-md-4 col-xs-4 col-sm-4"><%=locals.list_label%></label>
+    <select name="<%=locals.list_name%>"  class="<%=locals.list_kls%>  col-md-4 col-xs-4 col-sm-4">
+        <option value="-1">Select</option>
+    <% (locals.list || []).forEach(function(item, i){ %>
+        <option value="<%=item[locals.keyField]%>"
+
+        <%= locals.item && locals.item.parent_id === item[locals.keyField] ? "selected=\"selected\"":'' %> ><%=item[locals.valField]%></option>
+    <%})%>
+    </select>
+    </div>
+    <div class="row">
+        <label class="col-md-4 col-xs-4 col-sm-4"><%=locals.checkbox_label%></label>
+        <input type="checkbox" value="1" name="<%=locals.checkbox_name%>" <%= locals.item && locals.item.has_sub_menu ? "checked=\"checked\"":'' %> class="<%=locals.checkbox_kls%>">
+    </div>
+</div>

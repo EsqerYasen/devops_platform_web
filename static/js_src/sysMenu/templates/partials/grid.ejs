@@ -1,0 +1,39 @@
+<%if(locals.item) {%>
+<tr data-id="<%=locals.item.id%>">
+    <td>
+        <input type="checkbox" class="i-checks icheck" id=" <%=locals.item.id%> " name="trCheckbox">
+    </td>
+    <td> <%=locals.item.name%> </td>
+    <td> <%=locals.item.current_version%> </td>
+    <td> <%=locals.item.tool_name%> </td>
+    <td> <%=locals.item.tool_version ? locals.item.tool_version: "None"%> </td>
+    <td> <%=locals.item.created_by%> </td>
+    <td> <%=locals.item.updated_by%> </td>
+    <td> <%=locals.item.create_time%> </td>
+    <td> <%=locals.item.update_time%> </td>
+    <td>
+        <select id="version<%=locals.item.id%>" class="form-control" style="width: 90%">
+            <option value="" >请选择</option>
+            <%if (locals.versions) {%>
+                <%$.each (locals.versions, function(i, ver) {%>
+                    <option value=" <%=ver.version%>" <%=ver.version == locals.item.current_version? "selected":""%> > <%=ver.version%> </option>
+                <%})%>
+            <%}%>
+        </select>
+    </td>
+    <td>
+        <% if (Math.max(locals.item.mp_v, locals.item.mgp_v, locals.item.ug_v)>=4) {%>
+            <a  href="../<%=locals.item.id%>/edit/" class="btn btn-sm btn-success"><i class="fa fa-edit"></i>编辑</a>
+        <%}%>
+        <% if (Math.max(locals.item.mp_v, locals.item.mgp_v, locals.item.ug_v)>=2) {%>
+            <a onclick="deployToolOperation('<%=locals.item.id%>','<%=locals.item.name%>','<%=locals.item.tool_id%>','<%=locals.item.tool_version%>','<%=locals.item.command_set_id%>','<%=locals.item.bind_type%>')" class="btn btn-sm btn-success"><i class="fa fa-play"></i>发版</a>
+        <%}%>
+        <% if (Math.max(locals.item.mp_v, locals.item.mgp_v, locals.item.ug_v)>=1) {%>
+            <a href="/platform/command_set/<%=locals.item.id%>/execLog?deploy_id=<%=locals.item.id%>&bind_type=1&name=<%=locals.item.name%>&exec_type=2" class="btn btn-sm btn-success"><i class="fa fa-list"></i>历史</a>
+        <%}%>
+        <% if (Math.max(locals.item.mp_v, locals.item.mgp_v, locals.item.ug_v)>=4) {%>
+           <a class="btn  btn-sm btn-danger" onclick="deleteDeployTool('<%=locals.item.id%>')"><i class="fa fa-trash"></i>删除</a>
+        <%}%>
+    </td>
+</tr>
+<%}%>

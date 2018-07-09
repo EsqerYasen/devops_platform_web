@@ -46,4 +46,5 @@ urlpatterns = [
     url(r'^host_total_count/', hostTotalCount, name='host_total_count'),
     url(r'^auth/',include('devops_auth.urls',namespace='auth')),
     url(r'^forward_to_service/',views.forward_to_service,name='forward_to_service'),
+    url(r'^menu/',include('devops_menu.urls',namespace='menu')),
 ]

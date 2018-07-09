@@ -1,0 +1,11 @@
+<%if(locals.item) {%>
+<tr class="menu_list">
+    <td class="idx"><%=locals.idx%></td>
+    <td class="name"><%=locals.item.name%></td>
+    <!--<td class="menu"><%=locals.item.menu%></td>-->
+    <td class="oper" data-item="<%=JSON.stringify(locals.item)%>" data-id="<%=locals.item.id%>">
+        <button class="remove" data-action="remove">删除</button>
+        <button class="edit" data-action="edit">编辑</button>
+    </td>
+</tr>
+<%}%>
