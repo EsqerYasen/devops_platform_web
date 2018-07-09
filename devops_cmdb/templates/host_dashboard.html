@@ -12,21 +12,21 @@
 {#                    <h5>资源运营</h5>#}
 {#                </div>#}
                 <div class="ibox-content">
-                    <div class="row">
-                        <div class="col-sm-6 chartin qipa_style" id="physicalIdcChar"></div>
-                        <div class="col-sm-6 chartin qipa_style" id="dmz"></div>
-	                    <div class="col-sm-6 chartin qipa_style" id="idc"></div>
+                    <div id = "host_char_div" class="row">
+                        <div class="col-sm-3 chartin qipa_style" id="physicalIdcChar"></div>
+                        <div class="col-sm-3 chartin qipa_style" id="dmz"></div>
+	                    <div class="col-sm-3 chartin qipa_style" id="idc"></div>
 
 
-	                    <div class="col-sm-6 chartin qipa_style" id="nhBizGroupChar"></div>
-                        <div class="col-sm-6 chartin qipa_style" id="zrBizGroupChar"></div>
-
-	                    <div class="col-sm-6 chartin qipa_style" id="kfcPreorderChar"></div>
-                        <div class="col-sm-6 chartin qipa_style" id="kfcDeliveryChar"></div>
-	                    <div class="col-sm-6 chartin qipa_style" id="phDeliveryChar"></div>
-
-	                    <div class="col-sm-6 chartin qipa_style" id="publicCouponDiv" style="display: none"></div>
-	                    <div class="col-sm-6 chartin qipa_style" id="publicEGiftcardDiv" style="display: none"></div>
+{#	                    <div class="col-sm-6 chartin qipa_style" id="nhBizGroupChar"></div>#}
+{#                        <div class="col-sm-6 chartin qipa_style" id="zrBizGroupChar"></div>#}
+{##}
+{#	                    <div class="col-sm-6 chartin qipa_style" id="kfcPreorderChar"></div>#}
+{#                        <div class="col-sm-6 chartin qipa_style" id="kfcDeliveryChar"></div>#}
+{#	                    <div class="col-sm-6 chartin qipa_style" id="phDeliveryChar"></div>#}
+{##}
+{#	                    <div class="col-sm-6 chartin qipa_style" id="publicCouponDiv" style="display: none"></div>#}
+{#	                    <div class="col-sm-6 chartin qipa_style" id="publicEGiftcardDiv" style="display: none"></div>#}
 
                     </div>
 
@@ -40,15 +40,10 @@
 
     <script>
         $(document).ready(function () {
-            initNhzrChar();
-            initLogicalIdcChar();
-            initNhBizGroupChar();
-            initZrBizGroupChar();
-            initKfcPreorderChar();
-            initKfcDeliveryChar();
-            initPhDeliveryChar();
-            initPublicCouponChar();
-            initPublicEGiftcardChar();
+            init_physical_idc();
+            init_logical_idc_dmz();
+            init_logical_idc_idc();
+            init_physical_idc_brand();
         });
 
 
@@ -104,222 +99,126 @@
 		 };
 
 
-        function initNhzrChar(){
+        function init_physical_idc(){
             $.ajax({
                 type: "POST",
                 url: '../dashboard/',
-                data:{'flag':0,'csrfmiddlewaretoken':'{{ csrf_token }}'},
+                data:{'key':'physical_idc','csrfmiddlewaretoken':'{{ csrf_token }}'},
                 error: function (request) {},
                 success: function (data) {
-
-
                     createPie(
-                        data,
+                        data.data,
                         {
-                            colors:["#169ef4","#ffc20a"],
+                            colors:["#ffc20a","#999999","#169ef4","#05179b","#bfd404"],
                             elementId:"physicalIdcChar",
                             title:"机房"
                         }
                     );
-                   createHtmlMsg(data,'physicalIdcChar')
+                   createHtmlMsg(data.data,'physicalIdcChar')
 
                 }
             });
         }
 
-        function initLogicalIdcChar(){
+        function init_logical_idc_dmz(){
             $.ajax({
                 type: "POST",
                 url: '../dashboard/',
-                data:{'flag':1,'csrfmiddlewaretoken':'{{ csrf_token }}'},
+                data:{'key':'logical_idc_dmz','csrfmiddlewaretoken':'{{ csrf_token }}'},
                 error: function (request) {},
                 success: function (data) {
-
-
-                    var DMZ = transformArray(data.DMZ,'name','value');
-                    var IDC = transformArray(data.IDC,'name','value');
-
-                    console.log(DMZ,IDC);
-
-
                     createPie(
-                        DMZ,
+                        data.data,
                         {
-                            colors:["#169ef4","#ffc20a"],
+                            colors:["#ffc20a","#999999","#169ef4","#05179b","#bfd404"],
                             elementId:"dmz",
                             title:"区域(DMZ)"
                         }
                     );
+                   createHtmlMsg(data.data,'dmz')
 
-	                createHtmlMsg(DMZ,'dmz')
+                }
+            });
+        }
 
-
+        function init_logical_idc_idc(){
+            $.ajax({
+                type: "POST",
+                url: '../dashboard/',
+                data:{'key':'logical_idc_idc','csrfmiddlewaretoken':'{{ csrf_token }}'},
+                error: function (request) {},
+                success: function (data) {
                     createPie(
-                        IDC,
+                        data.data,
                         {
-                            colors:["#169ef4","#ffc20a"],
+                            colors:["#ffc20a","#999999","#169ef4","#05179b","#bfd404"],
                             elementId:"idc",
                             title:"区域(IDC)"
                         }
                     );
-
-	                createHtmlMsg(IDC,'idc')
-
-
-
-
-
-
+                   createHtmlMsg(data.data,'idc')
 
                 }
             });
         }
 
-        function initNhBizGroupChar(){
+        function init_physical_idc_brand(){
             $.ajax({
                 type: "POST",
                 url: '../dashboard/',
-                data:{'flag':2,'csrfmiddlewaretoken':'{{ csrf_token }}'},
+                data:{'key':'physical_idc_brand','csrfmiddlewaretoken':'{{ csrf_token }}'},
                 error: function (request) {},
                 success: function (data) {
-                    createPie(
-                      data,
-                      {
-                        colors:["#ffc20a","#999999","#169ef4","#05179b","#bfd404"],
-                        elementId:"nhBizGroupChar",
-                        title:"南汇"
-                      }
-                    );
-                    createHtmlMsg(data,'nhBizGroupChar')
-
-                }
-            });
-        }
-
-        function initZrBizGroupChar(){
-            $.ajax({
-                type: "POST",
-                url: '../dashboard/',
-                data:{'flag':3,'csrfmiddlewaretoken':'{{ csrf_token }}'},
-                error: function (request) {},
-                success: function (data) {
-                     createPie(
-                      data,
-                      {
-                        colors:["#ffc20a","#999999","#169ef4","#05179b","#bfd404"],
-                        elementId:"zrBizGroupChar",
-                        title:"真如"
-                      }
-                    );
-                      createHtmlMsg(data,'zrBizGroupChar')
-
-                }
-            });
-        }
-
-        function initKfcPreorderChar(){
-            $.ajax({
-                type: "POST",
-                url: '../dashboard/',
-                data:{'flag':4,'csrfmiddlewaretoken':'{{ csrf_token }}'},
-                error: function (request) {},
-                success: function (data) {
-                     createPie(
-                      data.data,
-                      {
-                        colors:["#169ef4","#ffc20a"],
-                        elementId:"kfcPreorderChar",
-                        title:data.title
-                      }
-                    );
-                     createHtmlMsg(data.data,'kfcPreorderChar')
-                }
-            });
-        }
-
-        function initKfcDeliveryChar(){
-            $.ajax({
-                type: "POST",
-                url: '../dashboard/',
-                data:{'flag':5,'csrfmiddlewaretoken':'{{ csrf_token }}'},
-                error: function (request) {},
-                success: function (data) {
-                      createPie(
-                      data.data,
-                      {
-                        colors:["#169ef4","#ffc20a"],
-                        elementId:"kfcDeliveryChar",
-                        title:data.title
-                      }
-                    );
-                      createHtmlMsg(data.data,'kfcDeliveryChar')
-                }
-            });
-        }
-
-        function initPhDeliveryChar(){
-            $.ajax({
-                type: "POST",
-                url: '../dashboard/',
-                data:{'flag':6,'csrfmiddlewaretoken':'{{ csrf_token }}'},
-                error: function (request) {},
-                success: function (data) {
-                      createPie(
-                      data.data,
-                      {
-                        colors:["#169ef4","#ffc20a"],
-                        elementId:"phDeliveryChar",
-                        title:data.title
-                      }
-                    );
-                      createHtmlMsg(data.data,'phDeliveryChar')
-                }
-            });
-        }
-
-        function initPublicCouponChar(){
-            $.ajax({
-                type: "POST",
-                url: '../dashboard/',
-                data:{'flag':7,'csrfmiddlewaretoken':'{{ csrf_token }}'},
-                error: function (request) {},
-                success: function (data) {
-                    if(data.title) {
-                        $("#publicCouponDiv").show();
+                    var host_char_div = $("#host_char_div");
+                    var data_dict = data.data;
+                    for(var k in data_dict){
+                        var char_id = k+"_brand";
+                        host_char_div.append('<div class="col-sm-6 chartin qipa_style" id="'+char_id+'"></div>');
+                        var data_list = []
+                        $(data_dict[k]).each(function (i,item) {
+                            data_list.push({"name":item.node_name1+"_"+item.name,"value":item.value})
+                        })
                         createPie(
-                            data.data,
+                           data_list,
                             {
-                                colors: ["#169ef4", "#ffc20a"],
-                                elementId: "publicCouponDiv",
-                                title: data.title
+                                colors:["#FFD700","#C4C4C4","#BF3EFF","#B3EE3A","#8B8B00","#87CEFF","#7CFC00","#00FFFF",
+                                    "#0000CD","#008B00","#473C8B","#737373","#8B1A1A","#AEEEEE","#CD3333","#FF3E96","#F0F0F0",
+                                    "#F4F4F4","#CDBA96","#C1FFC1","#9B30FF"],
+                                elementId:char_id,
+                                title:k.toUpperCase()
                             }
                         );
-                        createHtmlMsg(data.data,'publicCouponDiv')
-
-
+                        createHtmlMsg(data_list,char_id)
                     }
+                    init_brand_environment();
                 }
             });
         }
 
-        function initPublicEGiftcardChar(){
+
+        function init_brand_environment(){
             $.ajax({
                 type: "POST",
                 url: '../dashboard/',
-                data:{'flag':8,'csrfmiddlewaretoken':'{{ csrf_token }}'},
+                data:{'key':'brand_environment','csrfmiddlewaretoken':'{{ csrf_token }}'},
                 error: function (request) {},
                 success: function (data) {
-                    if(data.title){
-                        $("#publicEGiftcardDiv").show();
-                        createPie(
-                          data.data,
-                          {
-                            colors:["#169ef4","#ffc20a"],
-                            elementId:"publicEGiftcardDiv",
-                            title:data.title
-                          }
-                        );
-                        createHtmlMsg(data.data,'publicEGiftcardDiv')
+                    var host_char_div = $("#host_char_div");
+                    var data_dict = data.data;
+                    for(var k in data_dict){
+                        if(data_dict[k].length > 0){
+                            var char_id = k+"_environment";
+                            host_char_div.append('<div class="col-sm-6 chartin qipa_style" id="'+char_id+'"></div>');
+                            createPie(
+                               data_dict[k],
+                                {
+                                    colors:["#ffc20a","#999999","#169ef4","#05179b","#bfd404"],
+                                    elementId:char_id,
+                                    title:k
+                                }
+                            );
+                            createHtmlMsg(data_dict[k],char_id)
+                        }
                     }
                 }
             });
