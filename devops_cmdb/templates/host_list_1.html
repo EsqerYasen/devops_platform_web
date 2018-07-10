@@ -561,7 +561,7 @@
                     $("#import_info_total").text(result.total);
                     $("#import_info_success").text(result.success_count);
                     $("#import_info_fail").text(result.fail_count);
-                    pro.update(Math.round((result.index/result.total)*100))
+                    pro.update(Math.round((result.run_index/result.total)*100))
                     var tb = $("#import_info_tb tbody");
                     $(result.data).each(function(i,item){
                         var htmlStr = "<tr><td>"+item.host_ip+"</td><td>"+item.msg+"</td></tr>";
