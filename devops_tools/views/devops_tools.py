@@ -123,7 +123,7 @@ class DevopsToolsUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMi
                     try:
                         content = ""
                         for line in file_object:
-                            content += line
+                            content += r""+line
                         tool["command"] = content
                     finally:
                         file_object.close()
@@ -147,7 +147,7 @@ class DevopsToolsUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMi
                 if tool_type:
                     #if tool_set_prime_type == '1' and tool_set_type == '5':
                     script_md5 = reqData['script_md5']
-                    command = reqData.get("command",None)
+                    command = r""+reqData.get("command",None)
                     history_filename = ""
                     fileName = reqData.get("filename", None)
                     try:
