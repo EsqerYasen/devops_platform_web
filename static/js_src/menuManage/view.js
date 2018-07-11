@@ -59,7 +59,6 @@
       }.bind(this))
     },
     createMenu: function(){
-      console.log(action);
       var data = {
         name: $('.menu_name').val(),
         menu: $('.menus_data').val(),

@@ -1,7 +1,11 @@
 <%if (locals.route_to && locals.item && locals.key_field && locals.name_field) {%>
     <li class="list-group-item">
         <div class="margin_t_10 text_align_center text_22px">
-            <a href="#/<%=locals.route_to%>/<%=locals.item[locals.key_field]%>"><%= locals.item[locals.name_field]%></a>
+            <a href="#/<%=locals.route_to%>/<%=locals.item[locals.key_field]%>"><%= locals.item[locals.name_field]%>
+            <%if(locals.extra && locals.item[locals.extra]){%>
+              - <%= locals.item[locals.extra]%>
+            <%}%>
+            </a>
         </div>
     </li>
 <%}%>

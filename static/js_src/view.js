@@ -950,6 +950,7 @@
         list: modules,
         name_field: 'name',
         key_field: 'id',
+        extra: 'alias'
       });
       this.updateGrid({
         grid_type: "dynamic_module_" + type,

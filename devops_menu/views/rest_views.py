@@ -20,10 +20,101 @@ from devops_menu.models.Devops_Menu import MenuItem as Menu
 from django.core import serializers
 from django.db import connection
 from common.utils import DBUtils
+from django.conf import settings
 
 import logging,os,xlrd,threading,re
 
 logger = logging.getLogger('devops_platform_log')
+
+class MenuView(LoginRequiredMixin, APIView):
+    serializer_class = MenuSerializer
+    # TODO
+    def get(self, request):
+        result = {}
+        try:
+            hu = HttpUtils(self.request)
+            reqData = hu.getRequestParam()
+            adminMenu = False
+            adminAuth = False
+            if self.request.user.is_superuser:
+                adminMenu = {
+                    "id": -20,
+                    "name": "admin",
+                    "menu": """
+                            <a class="J_menuItem" href="/menu/list/">
+                                <i class="fa fa-columns"></i>
+                                <span class="nav-label">菜单</span>
+                            </a>
+                        """,
+                    "parent_id": -1,
+                    "has_sub_menu": 0,
+                    "mgp_v": 0,
+                    "mp_v": 1,
+                    "ug_v":0
+                }
+                adminAuth = {
+                    "id": -10,
+                    "name": "admin",
+                    "menu": """
+                            <a href="#">
+                                <i class="glyphicon glyphicon-user"></i>
+                                <span class="nav-label">权限管理</span>
+                                <span class="fa arrow"></span>
+                            </a>
+                            <ul class="nav nav-second-level">
+                                <li>
+                                    <a class="J_menuItem" href="/auth/manager/list/#users">用户</a>
+                                </li>
+                                <li>
+                                    <a class="J_menuItem" href="/auth/manager/list/#usergroups">用户组</a>
+                                </li>
+                                <li>
+                                    <a class="J_menuItem" href="/auth/manager/list/#modules">模块</a>
+                                </li>
+                                <li>
+                                    <a class="J_menuItem" href="/auth/manager/list/#modulegroups">模块组</a>
+                                </li>
+
+                            </ul>
+                        """,
+                    "parent_id": -1,
+                    "has_sub_menu": 0,
+                    "mgp_v": 0,
+                    "mp_v": 1,
+                    "ug_v":0
+                }
+
+
+            sql = """
+                SELECT
+                    dmm.id, dmm.name, dmm.menu, dmm.parent_id, dmm.has_sub_menu, MAX(mgp.value) AS mgp_v, MAX(mp.value) AS mp_v, MAX(ugp.value) AS ug_v
+                FROM
+                    (select * from {1}.{3} where is_enabled<>0) dmm
+                    JOIN (select * from {1}.devops_auth_module) m ON dmm.id = m.open_id AND m.open_db = '{1}' AND open_table = '{3}'
+                    LEFT OUTER JOIN {1}.devops_auth_module_groups mgs ON m.id = mgs.module_id
+                    LEFT OUTER JOIN (select * from {1}.devops_auth_user_group_permission where is_enabled<>0) ugp ON ugp.module_id = m.id
+                    LEFT OUTER JOIN (select * from {1}.devops_auth_module_permission where user_id = {0} and is_enabled<>0) mp ON m.id = mp.module_id
+                    LEFT OUTER JOIN (select * from {1}.auth_user where id = {0}) u ON mp.user_id = u.id
+                    LEFT OUTER JOIN (select * from {1}.devops_auth_module_group where owner_id = {0}) mg ON mgs.group_id = mg.id
+                    LEFT OUTER JOIN (select * from {1}.devops_auth_module_group_permission where is_enabled<>0) mgp ON mgp.group_id = mgs.group_id
+                    LEFT OUTER JOIN (select * from {1}.devops_auth_module_groups_users where user_id = {0} and is_enabled<>0 ) mgu ON mgu.group_id = mgs.group_id
+                    LEFT OUTER JOIN (select group_id,user_id from {1}.auth_user_groups where user_id = {0}) ug ON (ug.group_id = ugp.group_id )
+                    where (mgu.user_id={0} or mgu.user_id={0} or mp.user_id={0} or ug.user_id={0})
+                    group by m.open_db, m.open_table, m.open_id order by dmm.update_time desc
+            """.format(self.request.user.id, settings.DB_NAME['WEB_DB'], settings.DB_NAME['WEB_DB'], 'devops_menu_menuitem')
+            data = DBUtils.query(sql)
+            if self.request.user.is_superuser:
+                data.append(adminMenu)
+                data.append(adminAuth)
+            result['info'] = (data)
+            result['status'] = 0
+        except Exception as e:
+            logger.error(e)
+            result['status'] = 1
+            result['info'] = []
+            result['msg'] = "不存在"
+            return HttpResponseBadRequest(result['msg'])
+        return HttpResponse(json.dumps(result),content_type='application/json')
 
 class MenuItemsView(LoginRequiredMixin, APIView):
     serializer_class = MenuSerializer

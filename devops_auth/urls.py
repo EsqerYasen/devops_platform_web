@@ -24,6 +24,7 @@ urlpatterns = [
         url(r'^permission/module_group/$', rest_views.ModuleGroupPermissionView.as_view()),
         url(r'^user/list/$', rest_views.UserListView.as_view()),
         url(r'^user_group/list/$', rest_views.UserGroupListView.as_view()),
-        url(r'^modules_permission/$', rest_views.ModulesPermissionView.as_view())
+        url(r'^modules_permission/$', rest_views.ModulesPermissionView.as_view()),
+        url(r'^menuItems/$', rest_views.MenuItemsView.as_view()),
     ]))
 ]

@@ -43,8 +43,8 @@ function post(url, data) {
 
 module.exports = {
     config: config,
-    getUserMenus: function(user) {
-        return get('/auth/rest/menuItems/').then(function(data) {
+    getUserMenus: function() {
+        return get('/menu/rest/menu/').then(function(data) {
             if (parseInt(data.status) === 0) {
                 return data.info;
             } else {

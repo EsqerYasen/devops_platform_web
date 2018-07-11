@@ -1,0 +1,10 @@
+<%console.log(locals);%>
+<%if(locals.item && locals.item.submenu && locals.item.submenu.length) {%>
+    <ul class="nav nav-second-level">
+    <%$.each(locals.item.submenu, function(i, item){%>
+        <li>
+            <%-item.menu%>
+        </li>
+    <%})%>
+    </ul>
+<%}%>

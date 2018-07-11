@@ -19,6 +19,7 @@ from devops_auth.models.Module_group_permission import Module_group_permission
 from devops_auth.models.User_group_permission import User_group_permission
 from django.core import serializers
 from django.db import connection
+from common.utils import DBUtils
 
 from common.utils.auth_utils import *
 
@@ -34,6 +35,13 @@ class AuthVerifyView(LoginRequiredMixin, APIView):
         result = auth_utils.verify(reqData, request.user)
         return HttpResponse(json.dumps(result),content_type='application/json')
 
+class MenuItemsView(LoginRequiredMixin, APIView):
+    def get(self, request):
+        # hu = HttpUtils(self.request)
+        # reqData = hu.getRequestParam()
+        # result = auth_utils.verify(reqData, request.user)
+
+        return HttpResponse(json.dumps([]),content_type='application/json')
 class ModuleView(LoginRequiredMixin, APIView):
     serializer_class = ModuleSerializer
 
@@ -65,6 +73,7 @@ class ModuleView(LoginRequiredMixin, APIView):
                     m = Module.objects.get(id=id)
                     m.name = input_dict.get('name', m.name)
                     m.alias = input_dict.get('alias', m.alias)
+
                     m.url = input_dict.get('url', m.url)
                     m.open_db = input_dict.get('open_db', m.open_db)
                     m.open_table = input_dict.get('open_table', m.open_table)
@@ -83,6 +92,13 @@ class ModuleView(LoginRequiredMixin, APIView):
                     open_db = input_dict.get('open_db', '')
                     open_table = input_dict.get('open_table', '')
                     open_id = input_dict.get('open_id', '')
+                    if open_db is not '' and open_table is not '' and open_id is not '':
+                        try:
+                            target = DBUtils.query("select * from {1}.{2} where id={0}".format(open_id, open_db, open_table))
+                            if target[0] and "name" in target[0]:
+                                alias = target[0]["name"]
+                        except Exception as e:
+                            pass
                     owner_id = input_dict.get('owner_id', '')
 
                     error = ''
@@ -100,6 +116,13 @@ class ModuleView(LoginRequiredMixin, APIView):
 
                     m = Module(name=name,alias=alias,url=url,owner_id=owner_id, created_by=request.user.username,updated_by=request.user.username, open_table=open_table, open_db=open_db, open_id=open_id)
                     m.save()
+                    try:
+                        groups = self.request.user.groups.values('id')
+                        groupId = groups[0]["id"]
+                        g = User_group_permission(group_id=groupId,module_id=m.id,value=4,is_enabled=1,created_by=request.user.username,updated_by=request.user.username)
+                        g.save()
+                    except Exception as e:
+                        pass
                     result['status'] = 0
                     result['msg'] = "保存成功"
                     result['id'] = m.id
@@ -705,9 +728,8 @@ class ModuleListView(LoginRequiredMixin, APIView):
             limit = int(request.GET.get('limit', 10))
             offset = int(request.GET.get('offset', 0))
 
-            module = Module.objects.filter(is_enabled=1).values('id', 'name', 'alias', 'url', 'open_db', 'open_table', 'open_id', 'owner_id').order_by(orderby)[offset:limit]
+            module = Module.objects.filter(is_enabled=1).values('id', 'name', 'alias', 'url', 'open_db', 'open_table', 'open_id', 'owner_id').order_by(orderby)
             # serializer = ModuleSerializer(module)
-            print(module)
             result['status'] = 0
             result['info'] = list(module)
             # result['info'] = serializers.serialize('json', module)
@@ -751,7 +773,8 @@ class UserListView(LoginRequiredMixin, APIView):
             # order_by = reqData["order_by"]
             order_by = request.GET.get('order_by', 'id')# reqData["order_by"]
 
-            user_list = User.objects.all().order_by(order_by)[offset:offset+limit]
+            user_list = User.objects.all().order_by(order_by)
+            # user_list = User.objects.all().order_by(order_by)[offset:offset+limit]
             info = []
             if len(user_list) > 0:
                 for u in user_list:
@@ -782,7 +805,8 @@ class UserGroupListView(LoginRequiredMixin, APIView):
                 offset = 0
             # order_by = reqData["order_by"]
             order_by = request.GET.get('order_by', 'id')# reqData["order_by"]
-            group_list = Group.objects.all().order_by(order_by)[offset:offset+limit]
+            # group_list = Group.objects.all().order_by(order_by)[offset:offset+limit]
+            group_list = Group.objects.all().order_by(order_by)
             info = []
             if len(group_list) > 0:
                 for u in group_list:

@@ -1,0 +1,8 @@
+<%if(locals.items && locals.items.length) {%>
+    <%$.each(locals.items, function(i, item){%>
+        <li>
+            <%-item.menu%>
+            <%- require('./partials/subMenu.ejs')({item: item}) %>
+        </li>
+    <%})%>
+<%}%>
