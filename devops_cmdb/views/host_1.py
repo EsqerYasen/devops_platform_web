@@ -75,54 +75,59 @@ def TemplateDownload(request):
     response['Content-Disposition'] = 'attachment;filename="{0}"'.format(the_file_name.encode('utf-8').decode('ISO-8859-1'))
     return response
 
-HOST1_IMPORT_STATIC={}
+
 class Host1Import(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, View):
 
     def post_ajax(self, request, *args, **kwargs):
         result_json = {}
         try:
             username = request.user.username
-            s = HOST1_IMPORT_STATIC.get(username,None)
-            isImportRun = 0
-            if s:
-                isImportRun = int(s.get('isImportRun', 0))
-
-            if s is None or isImportRun == 0:
-                HOST1_IMPORT_STATIC[username] = {}
+            host_import_key = "%s_host_import" % username
+            isImportRun = RedisBase.hget(host_import_key,"is_run",1)
+            if isImportRun is None or isImportRun == 0:
+                RedisBase.delete(host_import_key,1)
+                host_import_key2 = "%s_msg" % host_import_key
+                RedisBase.delete(host_import_key2, 1)
                 assert_file = request.FILES.get('files', None)
                 wb = xlrd.open_workbook(filename=None, file_contents=assert_file.read())
                 ta = threading.Thread(target=import_host_fn, args=(request,wb,))
                 ta.start()
-                result_json = {"status": 1, "msg": "后台正在导入，请点击“查看后台任务”按钮查看结果"}
+                time.sleep(1)
+                result_json = {"status": 200, "msg": "后台正在导入，请点击“查看后台任务”按钮查看结果"}
             else:
-                result_json = {"status": 1, "msg":"您有后台任务正在执行导入操作，请稍后操作导入"}
+                result_json = {"status": 500, "msg":"您有后台任务正在执行导入操作，请稍后操作导入"}
         except Exception as e:
-            result_json = {"status": 1,"msg":"导入执行异常"}
+            result_json = {"status": 500,"msg":"导入执行异常"}
             logger.error(e,exc_info=1)
         return self.render_json_response(result_json)
 
 def import_host_fn(req,wb):
     total = 0
-    add_total = 0
-    binding_total = 0
-    failList = []
+    success_count = 0
+    fail_count = 0
     try:
         username = req.user.username
+        start_t = time.time()
+        total = wb.sheets()[0].nrows
+
+        host_import_key = "%s_host_import" % username
+        host_import_key2 = "%s_msg" % host_import_key
+        RedisBase.hset(host_import_key,"is_run",1,1)
+        RedisBase.hset(host_import_key, "total", total, 1)
+
         log_path = "/opt/devops/host_operation_log/host_import_logs/%s/" % (username)
-        HOST1_IMPORT_STATIC[username] = {'isImportRun': 1}
         hu = HttpUtils(req)
         groupId = 0
         mkdir(log_path)
-        start_t = time.time()
+
         curtime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(start_t))
-        file_log = open("%s%s.log" % (log_path,str(time.time()).replace('.', '')),'a+')
+        file_log = open("%s%s.log" % (log_path,str(start_t).replace('.', '')),'a+')
         file_log.write("用户:%s   批量导入机器信息 时间:%s\n" % (username, curtime))
-        for i in range(1, wb.sheets()[0].nrows):
-            total += 1
-            row = wb.sheets()[0].row_values(i)
+        wb_sheets = wb.sheets()[0]
+        for i in range(1, total):
+            row = wb_sheets.row_values(i)
             host_ip = row[0].strip()
-            if re.match("((25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d)))\.){3}(25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d)))$",
-                        host_ip):
+            if re.match("((25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d)))\.){3}(25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d)))$",host_ip):
 
                 biz_brand = row[1].strip()
                 biz_group = row[2].strip()
@@ -170,7 +175,7 @@ def import_host_fn(req,wb):
                 addResult = add2ResultObj.json()
                 logger.info("add2 result:%s" % (addResult))
                 if addResult['status'] == 200:
-                    add_total += 1
+                    success_count += 1
                     if groupId > 0:
                         host_id = addResult['id']
                         logger.info("static_group_append2 200 datas: groupId:%s host_ip:%s host_id:%s" % (groupId,host_ip,host_id))
@@ -179,15 +184,14 @@ def import_host_fn(req,wb):
                         logger.info("static_group_append2 200 result:%s" % (append))
                         if append['status'] == 200:
                             file_log.write("新增 %s 成功 绑定此应用(%s) 成功\n" % (host_ip,path))
-                            binding_total += 1
                         elif append['status'] == 400:
-                            failList.append({'host_ip': host_ip, "msg": "新增IP成功 %s 发现重复绑定此应用 取消绑定" % (path)})
+                            RedisBase.lpush(host_import_key2, json.dumps({'host_ip': host_ip, "msg": "新增IP成功 %s 发现重复绑定此应用 取消绑定" % (path)}), 1)
                             file_log.write("新增 %s 成功 发现重复绑定此应用(%s) 取消绑定\n" % (host_ip, path))
                         else:
-                            failList.append({'host_ip': host_ip, "msg": "新增IP成功 %s 绑定失败 请检查此机器相关数据" % (path)})
+                            RedisBase.lpush(host_import_key2, json.dumps({'host_ip': host_ip, "msg": "新增IP成功 %s 绑定失败 请检查此机器相关数据" % (path)}), 1)
                             file_log.write("新增 %s 成功 绑定失败(%s) 请检查此机器相关数据\n" % (host_ip, path))
                     else:
-                        failList.append({'host_ip': host_ip, "msg": "新增IP成功 %s未查询到此节点，绑定失败" % (path)})
+                        RedisBase.lpush(host_import_key2,json.dumps({'host_ip': host_ip, "msg": "新增IP成功 %s未查询到此节点，绑定失败" % (path)}),1)
                         file_log.write("新增 %s 成功 未查询到此节点(%s) 绑定失败\n" % (host_ip, path))
                 elif addResult['status'] == 400:
                     result_host = addResult['host']
@@ -199,51 +203,79 @@ def import_host_fn(req,wb):
                             append = appendResult.json()
                             logger.info("static_group_append2 400 result:%s" % (append))
                             if append['status'] == 200:
-                                binding_total += 1
+                                success_count += 1
                                 file_log.write("%s 已存在 节点(%s) 绑定成功\n" % (host_ip, path))
                             elif append['status'] == 400:
-                                failList.append({'host_ip': host_ip, "msg": "IP已存在 %s 发现重复绑定此应用 取消绑定" % (path)})
+                                fail_count += 1
+                                RedisBase.lpush(host_import_key2, json.dumps({'host_ip': host_ip, "msg": "IP已存在 %s 发现重复绑定此应用 取消绑定" % (path)}), 1)
                                 file_log.write("%s 已存在 发现重复绑定此应用(%s) 取消绑定\n" % (host_ip, path))
                             else:
-                                failList.append({'host_ip': host_ip, "msg": "IP已存在 %s 绑定失败 请检查此机器相关数据" % (path)})
+                                fail_count += 1
+                                RedisBase.lpush(host_import_key2, json.dumps({'host_ip': host_ip, "msg": "IP已存在 %s 绑定失败 请检查此机器相关数据" % (path)}), 1)
                                 file_log.write("%s 已存在 绑定失败(%s) 请检查此机器相关数据\n" % (host_ip, path))
                         else:
-                            failList.append({'host_ip': host_ip, "msg": "IP已存在 %s未查询到此节点，绑定失败" % (path)})
+                            fail_count += 1
+                            RedisBase.lpush(host_import_key2, json.dumps({'host_ip': host_ip, "msg": "IP已存在 %s未查询到此节点，绑定失败" % (path)}), 1)
                             file_log.write("%s 已存在 未查询到此节点(%s) 绑定失败\n" % (host_ip, path))
                     else:
-                        failList.append({'host_ip': host_ip, "msg": "已上线，不能进行任何操作,放弃绑定"})
+                        fail_count += 1
+                        RedisBase.lpush(host_import_key2,json.dumps({'host_ip': host_ip, "msg": "已上线，不能进行任何操作,放弃绑定"}), 1)
                         file_log.write("%s 已上线 不能进行任何操作,放弃绑定(%s)\n" % (host_ip, path))
             else:
-                failList.append({'host_ip': host_ip, "msg": "IP格式错误"})
+                fail_count += 1
+                RedisBase.lpush(host_import_key2, json.dumps({'host_ip': host_ip, "msg": "IP格式错误"}), 1)
                 file_log.write("%s 格式错误\n" % (host_ip))
 
+            RedisBase.hset(host_import_key, "index", i, 1)
+            RedisBase.hset(host_import_key, "success_count", success_count, 1)
+            RedisBase.hset(host_import_key, "fail_count", fail_count, 1)
     except Exception as e:
+        RedisBase.lpush(host_import_key2, json.dumps({'host_ip': "", "msg": "导入异常 停止导入"}), 1)
         file_log.write("导入异常 停止导入\n")
         logger.error(e, exc_info=1)
     finally:
         if file_log:
             file_log.close()
-        s = HOST1_IMPORT_STATIC[username]
-        s['isImportRun'] = 0
-        s['add_total'] = add_total
-        s['binding_total'] = binding_total
-        s['fail'] = len(failList)
-        s['total'] = total
-        s['failList'] = failList
+        RedisBase.expire(host_import_key,10,1)
+        RedisBase.expire(host_import_key2, 9, 1)
+        RedisBase.hset(host_import_key, "is_run", 0, 1)
 
 
 class GetImportStatus(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, View):
     def get_ajax(self, request, *args, **kwargs):
-        result_json = {"status": 1, "msg": "导入执行异常"}
-        username = request.user.username
-        s = HOST1_IMPORT_STATIC.get(username,None)
-        if s:
-            isImportRun = int(s.get('isImportRun', 0))
-            result_json = {"status": 0, "msg": "您没有正在导入的后台操作",'result':s}
-            if isImportRun == 0:
-                 del HOST1_IMPORT_STATIC[username]
-        else:
-            result_json = {"status": 0, "msg": "您没有正在导入的后台操作","result":[],"isRun":0}
+        result_json = {}
+        try:
+            index = int(request.GET.get("index",0))
+            username = request.user.username
+            host_import_key = "%s_host_import" % username
+            host_import_key2 = "%s_msg" % host_import_key
+            isImportRun = int(RedisBase.hget(host_import_key, "is_run", 1))
+            result_json['is_run'] = isImportRun
+            if isImportRun is not None or isImportRun == 1:
+                result_json['total'] = int(RedisBase.hget(host_import_key, "total", 1))
+                result_json['run_index'] = int(RedisBase.hget(host_import_key, "index", 1))
+                result_json['success_count'] = int(RedisBase.hget(host_import_key, "success_count", 1))
+                result_json['fail_count'] = int(RedisBase.hget(host_import_key, "fail_count", 1))
+                msg_list = RedisBase.lrange(redisKey=host_import_key2, start=index, db=1)
+                if msg_list:
+                    data_list = []
+                    for msg in msg_list:
+                        index += 1
+                        data_list.append(json.loads(str(msg,encoding='utf-8')))
+                    result_json['status'] = 200
+                    result_json['data'] = data_list
+                    result_json['index'] = index
+                else:
+                    result_json['status'] = 200
+                    result_json['data'] = []
+                    result_json['index'] = index
+            else:
+                result_json['status'] = 500
+                result_json['msg'] = "没有正在执行的任务"
+        except Exception as e:
+            logger.error(e,exc_info=1)
+            result_json['status'] = 500
+            result_json['msg'] = "查询异常"
         return self.render_json_response(result_json)
 
 
