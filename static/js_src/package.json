@@ -20,7 +20,7 @@
     "build-appManage": "npm run test && node node_modules/browserify/bin/cmd.js -t ejsify appManage/index.js -o ../js/manage_app.js",
     "build-flowControl": "npm run test && node node_modules/browserify/bin/cmd.js -t ejsify flowControl/index.js -o ../js/flowControl_app.js",
 
-    "build-all": "npm run build-auth && npm run build-deploy && npm run build-appManage && npm run build-flowControl && npm run build-menu"
+    "build-all": "npm run build-auth && npm run build-deploy && npm run build-appManage && npm run build-flowControl && npm run build-menu && npm run build-menu-app"
 
   },
   "dependencies": {

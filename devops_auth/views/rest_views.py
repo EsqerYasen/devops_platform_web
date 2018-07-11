@@ -22,7 +22,7 @@ from django.db import connection
 from common.utils import DBUtils
 
 from common.utils.auth_utils import *
-
+from django.db.models import Q
 import logging,os,xlrd,threading,re
 
 logger = logging.getLogger('devops_platform_log')
@@ -116,11 +116,23 @@ class ModuleView(LoginRequiredMixin, APIView):
 
                     m = Module(name=name,alias=alias,url=url,owner_id=owner_id, created_by=request.user.username,updated_by=request.user.username, open_table=open_table, open_db=open_db, open_id=open_id)
                     m.save()
+                    user = self.request.user
                     try:
-                        groups = self.request.user.groups.values('id')
-                        groupId = groups[0]["id"]
-                        g = User_group_permission(group_id=groupId,module_id=m.id,value=4,is_enabled=1,created_by=request.user.username,updated_by=request.user.username)
-                        g.save()
+                        # job_deploy_tool
+                        if open_table.lower() != "devops_menu_menuitem":
+                            groups = user.groups.values('id')
+                        else:
+                            users = User.objects.filter(id=owner_id)
+                            user = users[0]
+                            groups = user.groups.values('id')
+                        if (len(groups)>0):
+                            groupId = groups[0]["id"]
+                            g = User_group_permission(group_id=groupId,module_id=m.id,value=4,is_enabled=1,created_by=request.user.username,updated_by=request.user.username)
+                            g.save()
+                        else:
+                            user_id = user.id
+                            mp = Module_permission(user_id=user.id,module_id=m.id,value=4,created_by=request.user.username,updated_by=request.user.username)
+                            mp.save()
                     except Exception as e:
                         pass
                     result['status'] = 0
@@ -773,7 +785,7 @@ class UserListView(LoginRequiredMixin, APIView):
             # order_by = reqData["order_by"]
             order_by = request.GET.get('order_by', 'id')# reqData["order_by"]
 
-            user_list = User.objects.all().order_by(order_by)
+            user_list = User.objects.filter(~Q(id=1)).order_by(order_by)
             # user_list = User.objects.all().order_by(order_by)[offset:offset+limit]
             info = []
             if len(user_list) > 0:
