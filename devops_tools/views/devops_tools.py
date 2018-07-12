@@ -125,13 +125,13 @@ class DevopsToolsUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMi
                     try:
                         content = ""
                         for line in file_object:
-                            content += line
-                        tool["command"] = content
+                            content += r""+line
+                        tool["command"] = content.replace('\\','\\\\').replace('"', '\\"').replace('\r', '\\r').replace('\n', '\\n')
                     finally:
                         file_object.close()
                 else:
                     tool['filename'] = ""
-                tool["command"] = tool["command"].replace('"', '\\"').replace('\r', '\\r').replace('\n', '\\n')
+                #tool["command"] = tool["command"].replace('"', '\\"').replace('\r', '\\r').replace('\n', '\\n')
             context["result_dict"] = tool
         except Exception as e:
             logger.error(e,exc_info=1)
@@ -149,7 +149,7 @@ class DevopsToolsUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMi
                 if tool_type:
                     #if tool_set_prime_type == '1' and tool_set_type == '5':
                     script_md5 = reqData['script_md5']
-                    command = reqData.get("command",None)
+                    command = r""+reqData.get("command",None)
                     history_filename = ""
                     fileName = reqData.get("filename", None)
                     try:
