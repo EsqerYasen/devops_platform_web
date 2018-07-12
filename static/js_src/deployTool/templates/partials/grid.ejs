@@ -1,0 +1,20 @@
+<%if(locals.item) {%>
+<tr>
+    <td>
+        <input type="checkbox" class="i-checks icheck" id="<%= locals.item.id %>" name="trCheckbox">
+    </td>
+    <td><%= locals.item.name %></td>
+    <td><%= locals.item.tool_version %></td>
+    <td><%= locals.devopsToolsTypeTrans[locals.item.tool_type] %></td>
+    <td><%= JSON.parse(locals.item.param).length %></td>
+    <td><%= locals.item.created_by %></td>
+    <td><%= locals.item.updated_by %></td>
+    <td><%= locals.item.create_time %></td>
+    <td><%= locals.item.update_time %></td>
+    <td>
+        <a href="../<%= locals.item.id %>/edit/" class="btn btn-sm btn-success"><i class="fa fa-edit"></i>&nbsp;编辑</a>
+        <a href="../<%= locals.item.tool_id %>/gethistoryversionbytoolId/" class="btn btn-sm btn-success"><i class="fa fa-edit"></i>&nbsp;历史</a>
+        <a href="javascript:void(0)" onclick="deleteToolSet('<%= locals.item.tool_id %>')" class="btn  btn-sm btn-danger"><i class="fa fa-trash"></i>&nbsp;删除</a>
+    </td>
+</tr>
+<%}%>
