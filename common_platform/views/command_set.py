@@ -115,7 +115,7 @@ class CommandSetDeleteView(LoginRequiredMixin,JSONResponseMixin, View):
         req = self.request
         id = req.GET.get("id",0)
         hu = HttpUtils(req)
-        resultJson = hu.post(serivceName="p_job", restName="/rest/job/deleteById/",datas=[{"id": id}])
+        resultJson = hu.post(serivceName="p_job", restName="/rest/commandset/deleteById/",datas=[{"id": id}])
         return self.render_json_response(resultJson.json())
 
 
