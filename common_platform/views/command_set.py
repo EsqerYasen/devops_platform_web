@@ -26,16 +26,18 @@ class CommandSetListView(LoginRequiredMixin, OrderableListMixin, ListView):
             req = self.request
             hu = HttpUtils(req)
             reqData = hu.getRequestParam()
-            resultJson = hu.get(serivceName="p_job", restName="/rest/commandset/list/", datas=reqData)
-            list = resultJson.get("results", [])
-
-            paginator = Paginator(resultJson.get("results", []), req.limit)
-            count = resultJson.get("count", 0)
-            paginator.count = count
-            context['result_list'] = list
-            context['is_paginated'] = count > 0
-            context['page_obj'] = paginator.page(req.offset)
-            context['paginator'] = paginator
+            # resultJson = hu.get(serivceName="p_job", restName="/rest/commandset/list/", datas=reqData)
+            # list = resultJson.get("results", [])
+            list = []
+            # paginator = Paginator(resultJson.get("results", []), req.limit)
+            # count = resultJson.get("count", 0)
+            # paginator.count = count
+            # context['result_list'] = list
+            # context['is_paginated'] = count > 0
+            # context['page_obj'] = paginator.page(req.offset)
+            # context['paginator'] = paginator
+            user = req.user
+            context['userid'] = user.id
         except Exception as e:
             logger.error(e)
         return context
