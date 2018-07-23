@@ -41,7 +41,7 @@
 {#                            <li><a href="#tab2" data-toggle="tab"><span class="label">2</span>容量需求</a></li>#}
                             <li><a href="#tab3" data-toggle="tab"><span class="label">2</span>应用配置</a></li>
                             <li><a href="#tab4" data-toggle="tab"><span class="label">3</span>评估报告</a></li>
-                            <li><a href="#tab5" data-toggle="tab"><span class="label">4</span>项目文档</a></li>
+{#                            <li><a href="#tab5" data-toggle="tab"><span class="label">4</span>项目文档</a></li>#}
                         </ul>
                         <div class="tab-content">
                             {% include 'pro_assess_add/pro_assess1.html' %}
@@ -52,7 +52,12 @@
                             <ul class="pager wizard">
                                 <li id="previous" class="previous"><a href="#">上一页</a></li>
                                 <li id="next" class="next"><a href="#" title="点击下一页会触发本页数据保存">下一页</a></li>
+                                {% if is_auditor == 0 %}
                                 <button id="submit2" type='button' class='btn btn-sm btn-success' style="float:right;display: none" onclick="submit()"><i class="fa fa-save"></i> 提交审核</button>
+                                {% elif is_auditor == 1 and type == 2 %}
+                                <button id="agreebtn" type='button' class='btn btn-sm btn-success' style="float:right;display: none" onclick="agreefun()"><i class="fa fa-save"></i> 同意</button>
+                                <button id="disagreebtn" type='button' class='btn btn-sm btn-success' style="float:right;display: none" onclick="disagreefun()"><i class="fa fa-save"></i> 不同意</button>
+                                {% endif %}
                             </ul>
                         </div>
                     </div>
@@ -92,34 +97,49 @@
                 return false
             }
             tab4ReportView();
-        }else if(index == 3){
-           var b = tab4Save();
-           if(!b){
-               return false
-           }
-           tab4ReportView();
-        }
-        if(index == 3){
-            //$("#next").hide();
-            //$("#submit").css("display","block");
+            $("#next").hide();
             $("#submit2").css("display","block");
+            {% if is_auditor == 1 and type == 2 %}
+                $("#agreebtn").css("display","block");
+                $("#disagreebtn").css("display","block");
+            {% endif %}
         }
+{#        else if(index == 3){#}
+{#           var b = tab4Save();#}
+{#           if(!b){#}
+{#               return false#}
+{#           }#}
+{#           tab4ReportView();#}
+{#        }#}
+
     }
 
-    function onTabClickEvent(){
-        $("#submit2").css("display","none");
+    function onTabClickEvent(tab, navigation, index){
+        if(index == 2){
+            $("#next").hide();
+            $("#submit2").css("display","block");
+
+        }else{
+            $("#next").show();
+            $("#submit2").css("display","none");
+        }
+
         //return false;
     }
 
     function onPreviousEvent(tab, navigation, index){
         //$("#next").css("display","block");
         //$("#submit").css("display","none");
-        if(index == 3){
-            //$("#next").hide();
-            //$("#submit").css("display","block");
-            $("#submit2").css("display","block");
-        }else{
+        if(index != 2){
+            $("#next").show();
             $("#submit2").css("display","none");
+            {% if is_auditor == 1 and type == 2 %}
+                $("#agreebtn").css("display","none");
+                $("#disagreebtn").css("display","none");
+            {% endif %}
+        }else{
+            $("#next").hide();
+            $("#submit2").css("display","block");
         }
     }
 

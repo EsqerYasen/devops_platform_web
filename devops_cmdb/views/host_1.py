@@ -113,7 +113,7 @@ def import_host_fn(req,wb):
         host_import_key = "%s_host_import" % username
         host_import_key2 = "%s_msg" % host_import_key
         RedisBase.hset(host_import_key,"is_run",1,1)
-        RedisBase.hset(host_import_key, "total", total, 1)
+        RedisBase.hset(host_import_key, "total", total - 1, 1)
 
         log_path = "/opt/devops/host_operation_log/host_import_logs/%s/" % (username)
         hu = HttpUtils(req)

@@ -2,17 +2,16 @@
     <div class="row" style="margin-top: 20px;margin-bottom: 20px">
          <div class="col-md-6">
             <label class="col-sm-5 control-label" style="text-align: right">
-                新项目
+                项目
             </label>
             <div class="col-sm-7">
                 <div class="input-group">
-                  <span class="input-group-addon">
-                    <input id="newProjectRadio"  name="projectRadio" type="radio" value="0" aria-label="..." onclick="radioClick(1)" checked>
-                  </span>
-                    <input id="projectName" type="text" placeholder="中文名" value="{{ result.name }}" class="form-control projectInput" aria-label="...">
-	                <input id="projectNameEn" type="text" placeholder="英文名" value="{{ result.name_en }}" class="form-control projectInput" aria-label="...">
+{#                  <span class="input-group-addon">#}
+{#                    <input id="newProjectRadio"  name="projectRadio" type="radio" value="0" aria-label="..." onclick="radioClick(1)" checked>#}
+{#                  </span>#}
+                    <input id="projectName" type="text" placeholder="中文名" value="{{ result.name }}" class="form-control projectInput" aria-label="..." {{ readonly }}>
+	                <input id="projectNameEn" type="text" placeholder="英文名" value="{{ result.name_en }}" class="form-control projectInput" aria-label="..." {{ readonly }}>
                 </div>
-
                 <input type="hidden" id="project_id" value="{{ result.id }}"/>
                 <input type="hidden" id="is_add" value="{{ is_add }}"/>
                <!--   <input type="text" class="form-control" id="projectName" value=""/> -->
@@ -22,25 +21,25 @@
     </div>
 
 
-	<div class="row" style="margin-top: 20px;margin-bottom: 20px">
-
-		 <div class="col-md-6">
-            <label class="col-sm-5 control-label" style="text-align: right">
-                已有项目
-            </label>
-            <div class="col-sm-7">
-                <div class="input-group">
-                    <span class="input-group-addon">
-                        <input id="oldProjectRadio" name="projectRadio" type="radio" aria-label="..." value="1" onclick="radioClick(2)">
-                    </span>
-                    <select id="projectNameSel"  class="form-control" onchange="" disabled="disabled">
-                        <option value="">--------请选择--------</option>
-                    </select>
-                </div>
-            </div>
-         </div>
-
-	</div>
+{#	<div class="row" style="margin-top: 20px;margin-bottom: 20px">#}
+{##}
+{#		 <div class="col-md-6">#}
+{#            <label class="col-sm-5 control-label" style="text-align: right">#}
+{#                已有项目#}
+{#            </label>#}
+{#            <div class="col-sm-7">#}
+{#                <div class="input-group">#}
+{#                    <span class="input-group-addon">#}
+{#                        <input id="oldProjectRadio" name="projectRadio" type="radio" aria-label="..." value="1" onclick="radioClick(2)">#}
+{#                    </span>#}
+{#                    <select id="projectNameSel"  class="form-control" onchange="" disabled="disabled">#}
+{#                        <option value="">--------请选择--------</option>#}
+{#                    </select>#}
+{#                </div>#}
+{#            </div>#}
+{#         </div>#}
+{##}
+{#	</div>#}
 
 
 	<hr>
@@ -54,7 +53,7 @@
                  项目简书
              </label>
              <div class="col-sm-7">
-                <textarea id="description" class="form-control" style="width: 100%;height: 70px;resize: none;background: white;font: caption;color: black;">{{ result.description }}</textarea>
+                <textarea id="description" maxlength="200" class="form-control" style="width: 100%;height: 70px;resize: none;background: white;color: black;" {{ readonly }}>{{ result.description }}</textarea>
              </div>
          </div>
     </div>
@@ -69,7 +68,7 @@
                  申请人
              </label>
              <div class="col-sm-7">
-	             <input type="text" id="applicant" class="form-control" value="{{ result.applicant }}"/>
+	             <input type="text" id="applicant" class="form-control" value="{{ result.applicant }}"  readonly />
              </div>
          </div>
     </div>
@@ -82,7 +81,7 @@
                  Email
              </label>
              <div class="col-sm-7">
-                <input type="text" class="form-control" id="applicant_email" value="{{ result.applicant_email }}"/>
+                <input type="text" class="form-control" id="applicant_email" value="{{ result.applicant_email }}"  readonly />
              </div>
          </div>
     </div>
@@ -94,7 +93,7 @@
                  分机
              </label>
              <div class="col-sm-7">
-                <input type="text" id="applicant_phone" class="form-control" value="{{ result.applicant_phone }}"/>
+                <input type="text" id="applicant_phone" class="form-control" value="{{ result.applicant_phone }}" {{ readonly }}/>
              </div>
          </div>
     </div>
@@ -112,7 +111,7 @@
              </label>
              <div class="col-sm-7">
 	             <div class='input-group date'  id='datetimepicker1' style="width: 100%">
-                    <input id="estimated_pilot_date" type='text' name="estimated_rollout_date1" value="{{ result.estimated_pilot_date }}" class="form-control" placeholder="预计上线时间"/>
+                    <input id="estimated_pilot_date" type='text' name="estimated_rollout_date1" value="{{ result.estimated_pilot_date }}" class="form-control" placeholder="预计上线时间" {{ readonly }}/>
                     <span class="input-group-addon">
                         <span class="glyphicon glyphicon-calendar"></span>
                     </span>
@@ -130,7 +129,7 @@
              </label>
              <div class="col-sm-7">
 	             <div class='input-group date'  id='datetimepicker2'>
-                    <input id="estimated_online_date" type='text' name="estimated_rollout_date2" value="{{ result.estimated_online_date }}" class="form-control" placeholder="预计上线时间"/>
+                    <input id="estimated_online_date" type='text' name="estimated_rollout_date2" value="{{ result.estimated_online_date }}" class="form-control" placeholder="预计上线时间" {{ readonly }}/>
                     <span class="input-group-addon">
                         <span class="glyphicon glyphicon-calendar"></span>
                     </span>
@@ -151,7 +150,7 @@
              </label>
              <div class="col-sm-7">
 	             <div class='input-group date'  id='datetimepicker1' style="width: 100%">
-                     <input id="estimated_total_capacity" type="number" class="form-control" placeholder="订单量或请求数"  value="{{ result.estimated_total_capacity }}"/>
+                     <input id="estimated_total_capacity" type="number" class="form-control" placeholder="订单量或请求数"  value="{{ result.estimated_total_capacity }}" {{ readonly }}/>
                 </div>
              </div>
          </div>
@@ -166,7 +165,7 @@
              </label>
              <div class="col-sm-7">
 	             <div class='input-group date'  id='datetimepicker2' style="width: 100%">
-                    <input id="estimated_singleton_capacity" type="number" class="form-control" placeholder="请求数"  value="{{ result.estimated_singleton_capacity }}"/>
+                    <input id="estimated_singleton_capacity" type="number" class="form-control" placeholder="请求数"  value="{{ result.estimated_singleton_capacity }}" {{ readonly }}/>
                 </div>
              </div>
          </div>
@@ -222,6 +221,10 @@
     }
 
     function tab1Save(){
+        var type = {{ type }};
+        if(type > 0){
+            return true;
+        }
         var p_id = $("#project_id").val();
         var name = $("#projectName").val();
         var nameEn = $("#projectNameEn").val();
@@ -246,9 +249,6 @@
                 return bool;
             }
         }
-        if(!p_id){
-            saveJson['p_id'] = p_id;
-        }
         if(!name){
             Alertwin.alert({ message: "项目名称为空"});
             bool = false;
@@ -260,9 +260,9 @@
             bool = false;
             return bool;
         }
-        saveJson['nameEn'] = nameEn;
+        saveJson['name_en'] = nameEn;
         if(!description){
-            Alertwin.alert({ message: "部署计划为空"});
+            Alertwin.alert({ message: "项目简书为空"});
             bool = false;
             return bool;
         }
@@ -292,13 +292,13 @@
 {#        }#}
 {#        saveJson['assignee'] = assignee;#}
         if(!estimated_pilot_date){
-            Alertwin.alert({ message: "预计上PILOT时间为空"});
+            Alertwin.alert({ message: "项目正式上线时间"});
             bool = false;
             return bool;
         }
         saveJson['estimated_pilot_date'] = estimated_pilot_date;
         if(!estimated_online_date){
-            Alertwin.alert({ message: "预计上线时间为空"});
+            Alertwin.alert({ message: "需要运维接入时间"});
             bool = false;
             return bool;
         }
@@ -318,6 +318,7 @@
         var postUrl ="";
 
         if(p_id){
+            saveJson['p_id'] = p_id;
             postUrl = "/presrb/project/"+p_id+"/edit/";
         }else{
             postUrl = "/presrb/project/add/";
