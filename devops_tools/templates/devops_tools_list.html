@@ -14,7 +14,7 @@
 {% block list_filter %}
     <div class="col-sm-6">
         <div class="input-group">
-            <button type="submit" class="btn btn-sm btn-primary" style="margin-right: 10px"><i class="fa fa-search"></i> 搜索</button>
+            <button type="submit" class="btn btn-sm btn-primary search" style="margin-right: 10px"><i class="fa fa-search"></i> 搜索</button>
             <a href="../add/" class="btn btn-sm btn-success"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> 新增</a>
         </div>
     </div>
@@ -36,7 +36,9 @@
             <th style="width: 10%;">操作</th>
         </thead>
         <tbody>
+        {%if 0%}
            {% for o in result_list %}
+
             <tr>
                 <td>
                     <input type="checkbox" class="i-checks icheck" id="{{ o.id }}" name="trCheckbox">
@@ -55,10 +57,19 @@
                     <a href="javascript:void(0)" onclick="deleteToolSet('{{ o.tool_id }}')" class="btn  btn-sm btn-danger"><i class="fa fa-trash"></i>&nbsp;删除</a>
                 </td>
             </tr>
-        {% endfor %}
+            {% endfor %}
+        {% endif %}
         </tbody>
     </table>
 </div>
+    <script type="text/javascript" charset="utf-8" >
+        var currentUserId="{{userid}}";
+        window.currentUser="{% autoescape off %}{{user}}{% endautoescape %}";
+        window.currentUserId = currentUserId;
+        window.csrf_token = "{{ csrf_token }}";
+    </script>
+    <link href="/static/styles/deploy.css" rel="stylesheet">
+    <script src="/static/js/deployTool_app.js"></script>
     <script>
         function deleteToolSet(id){
              Alertwin.confirm({ message: "确认要删除选择的数据吗？" }).on(function (e) {

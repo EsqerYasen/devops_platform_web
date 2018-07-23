@@ -12,6 +12,8 @@
     "build-watch-deploy": "node node_modules/watchify/bin/cmd.js -t ejsify deploy/index.js -o ../js/deploy_app.js --debug --verbose",
     "build-watch-appManage": "node node_modules/watchify/bin/cmd.js -t ejsify appManage/index.js -o ../js/manage_app.js --debug --verbose",
     "build-watch-flowControl": "node node_modules/watchify/bin/cmd.js -t ejsify flowControl/index.js -o ../js/flowControl_app.js --debug --verbose",
+    "build-watch-deploy-tool": "node node_modules/watchify/bin/cmd.js -t ejsify deployTool/index.js -o ../js/deployTool_app.js --debug --verbose",
+
 
     "build-auth": "npm run test && node node_modules/browserify/bin/cmd.js -t ejsify index.js -o ../js/app.js",
     "build-menu": "npm run test && node node_modules/browserify/bin/cmd.js -t ejsify sysMenu/index.js -o ../js/sys_menu_app.js",
@@ -19,8 +21,10 @@
     "build-deploy": "npm run test && node node_modules/browserify/bin/cmd.js -t ejsify deploy/index.js -o ../js/deploy_app.js",
     "build-appManage": "npm run test && node node_modules/browserify/bin/cmd.js -t ejsify appManage/index.js -o ../js/manage_app.js",
     "build-flowControl": "npm run test && node node_modules/browserify/bin/cmd.js -t ejsify flowControl/index.js -o ../js/flowControl_app.js",
+    "build-deploy-tool": "npm run test && node node_modules/browserify/bin/cmd.js -t ejsify deployTool/index.js -o ../js/deployTool_app.js",
 
-    "build-all": "npm run build-auth && npm run build-deploy && npm run build-appManage && npm run build-flowControl && npm run build-menu && npm run build-menu-app"
+
+    "build-all": "npm run build-auth && npm run build-deploy && npm run build-appManage && npm run build-flowControl && npm run build-menu && npm run build-menu-app &&  npm run build-deploy-tool"
 
   },
   "dependencies": {
