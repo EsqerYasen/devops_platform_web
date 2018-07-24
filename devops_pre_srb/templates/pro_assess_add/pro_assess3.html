@@ -21,9 +21,16 @@
 			discribe="版本变更验证环境，确保每次变更稳定高效"
 			title="灰度">
 	</evn-component>
-	<level level="S"> S级 : 主站节点全部高可用 有备份机房 </level>
-	<level level="A"> A级 : 主站存在单节点 有备份机房 /  主站节点全部高可用 无备份机房 </level>
-	<level level="B"> B级: 主站存在单节点 无备份机房 /  主站节点全部单节点 有备份机房 </level>
+    <evn-component
+			typekey="additional"
+			:show_checkbox="True"
+			:show_add="True"
+			discribe="运维 = (生产 + 灾备) * 10%"
+			title="运维">
+	</evn-component>
+	<level level="S"> S级 : 主站节点全部高可用 有备份机房全部高可用  5星</level>
+	<level level="A"> A级 : 主站存在单节点 有备份机房 /  主站节点全部高可用 无备份机房  4星</level>
+	<level level="B"> B级: 主站存在单节点 无备份机房 /  主站节点全部单节点 有备份机房  3星</level>
 </div>
 {% include "pro_assess_add/temps.html" %}
 <script>
@@ -34,21 +41,40 @@
 		modules:{
 		    evns:{
 		         state:{
-			        production:{
+			        production:{ //生产
 			            data:[],
 				        selected:true,
 				        isDefectResut:''
 			        },
-				    disaster_recovery:{
+				    disaster_recovery:{ //灾备
 			            data:[],
 					    selected:false,
 					    isDefectResut:''
 				    },
-				    preview:{
+				    preview:{ //灰度
 			            data:[],
 					    selected:false,
 					    isDefectResut:''
-				    }
+				    },
+                    additional:{
+			            data:[
+			                {
+			                'project_id':'',
+					        'app_category':"0",
+					        'app_category_item':"0",
+					        'other_category_name':"",
+					        'estimated_server_count':1,
+					        'estimated_singleton_memory_capacity':8,
+					        'estimated_singleton_CPU_core':4,
+					        'estimated_singleton_disk_capacity':100,
+					        'need_high_availability':false,
+					        'comment':"",
+					        'env':4
+		                 }
+                        ],
+                        selected:true,
+                        isDefectResut:''
+                    }
 			    },
 			    mutations:{
 		             addData:function(state,key){
@@ -65,11 +91,12 @@
 			                      envType=3;
 			                     break;
 		                 }
+
 		                 state[key].data.push({
 			                'project_id':'',
 					        'app_category':"1",
 					        'app_category_item':"1",
-					        'other_category_name':"其他文本框值",
+					        'other_category_name':"",
 					        'estimated_server_count':4,
 					        'estimated_singleton_memory_capacity':8,
 					        'estimated_singleton_CPU_core':4,
@@ -97,11 +124,11 @@
 
 			    },
 			    actions:{
-		             addData:function(context,key){
-		                 context.commit('addData',key)
-		             },
+		            addData:function(context,key){
+		                context.commit('addData',key)
+		            },
 				    deleteData:function(context,keys){
-		                 context.commit('deleteData',keys)
+		                context.commit('deleteData',keys)
 				    },
                     copyData:function(context, key){
 				        context.commit('copyData',key);
@@ -142,13 +169,43 @@
 			},
 			getTotal:function(key,key1){
 		        var total = 0;
+		        var total2 = 0;
+		        var pre_srb_additional = {{ pre_srb_additional }};
+		        var pre_srb_additional_percent = {{ pre_srb_additional_percent }};
 		        var lists = this.$store.state.evns[key].data;
 		        for(var i=0;i<lists.length;i++){
-		            total+=  lists[i].need_high_availability? parseInt(lists[i][key1]*2) :parseInt(lists[i][key1]);//.estimated_singleton_CPU_core
+		            if(key1 != "estimated_server_count"){
+		                var total3 = parseInt(lists[i][key1]);
+                        total += total3 * parseInt(lists[i]['estimated_server_count']);
+                    }else{
+		                total+= parseInt(lists[i][key1]);
+                    }
 		        }
+		        if((key == "production" || key == "disaster_recovery") && key1 == "estimated_server_count"){
+		            var dict = {"production":"disaster_recovery","disaster_recovery":"production"}
+		            var key2 = dict[key];
+		            var data2 = this.$store.state.evns[key2].data;
+		            total2 = total;
+		            if(data2.length > 0){
+		                var value = data2[0][key1];
+                        if(value){
+                            total2+= parseInt(value);
+                        }
+                    }
+
+                    this.$store.state.evns[key].server_count = total2;
+                    if(total2 < 2){
+                        total2 = pre_srb_additional;
+                    }else{
+                        total2 = Math.ceil(total2 * pre_srb_additional_percent);
+                    }
+
+                    this.$store.state.evns['additional'].data[0][key1] = 0;
+                    this.$store.state.evns['additional'].data[0][key1] = total2;
+                }
 		        return parseInt(total);
 	        },
-            resetData:function(typekey){debugger;
+            resetData:function(typekey){
 			    if(!this.$store.state.evns[typekey].selected){
 			        var t = this;
 			        this.$store.state.evns[typekey].selected = true;
@@ -186,6 +243,10 @@
 		},
 		methods:{
 		    save:function(){
+		        var type = {{ type }};
+                if(type > 0){
+                    return true;
+                }
                  var pid = $("#project_id").val();
                  var bool = false;
                  if(pid){
@@ -196,13 +257,20 @@
                      var v_pilot = values.preview;
                      var deploy_envs = 0;
                      var items = [];
+                     var info = "";
                      if(v_online.selected){
+                         var t = false;
                          $(v_online.data).each(function(i,item){
-                             if(item.need_high_availability){
-                                 item.need_high_availability = 1
+                             if(item.estimated_server_count > 1){
+                                 item.need_high_availability = 1;
                              }else{
-                                 item.need_high_availability = 0
+                                 item.need_high_availability = 0;
+                                 t = true;
                              }
+                             if(t){
+                                 info = "生产";
+                             }
+                             item.env = 1;
                              items.push(item);
                          })
                          deploy_envs += 1;
@@ -211,25 +279,32 @@
                          return;
                      }
                      if(v_3in1.selected){
-                         $(v_online.data).each(function(i,item){
-                             if(item.need_high_availability){
-                                 item.need_high_availability = 1
+                         $(v_3in1.data).each(function(i,item){
+                             var t = false;
+                             if(item.estimated_server_count > 1){
+                                 item.need_high_availability = 1;
                              }else{
-                                 item.need_high_availability = 0
+                                 item.need_high_availability = 0;
+                                 t = true;
                              }
+                             item.env = 2;
                              items.push(item);
+                             if(t){
+                                 info += "、灾备";
+                             }
                          })
                          deploy_envs += 1;
                      }else{
                          items.push({"is_defect":"1","comment":v_3in1.isDefectResut,"env":"2"});
                      }
                      if(v_pilot.selected){
-                         $(v_online.data).each(function(i,item){
+                         $(v_pilot.data).each(function(i,item){
                              if(item.need_high_availability){
                                  item.need_high_availability = 1
                              }else{
                                  item.need_high_availability = 0
                              }
+                             item.env = 3;
                              items.push(item);
                          })
                          deploy_envs += 2;
@@ -238,28 +313,64 @@
                      }
                      reqData["deploy_envs"] = deploy_envs;
                      reqData["items"] = items;
-                     $.ajax({
-                            type: "POST",
-                            async:false,
-                            url: '/presrb/project/projectItem_add/',
-                            data:{"saveJson":JSON.stringify(reqData),"csrfmiddlewaretoken":'{{ csrf_token }}'},
-                            error: function (request) {
-                                console.log(request)
-                            },
-                            success: function (data) {
-                                if(data.status == 0){
-                                    $("#is_save3").val(1);
-                                    bool = true;
-                                    Alertwin.alert({ message: "操作成功"});
-                                }else{
-                                    bool = false;
-                                    Alertwin.alert({ message: "操作失败"});
+                     if(info.length>0){
+                         Alertwin.confirm({ message: info+"存在单节点，会影响S级评定，确定提交吗？" }).on(function (e) {
+                             if(e){
+                                 layer.load();
+                                 $.ajax({
+                                        type: "POST",
+                                        async:false,
+                                        url: '/presrb/project/projectItem_add/',
+                                        data:{"saveJson":JSON.stringify(reqData),"csrfmiddlewaretoken":'{{ csrf_token }}'},
+                                        error: function (request) {
+                                            layer.closeAll('loading');
+                                            console.log(request)
+                                        },
+                                        success: function (data) {
+                                            if(data.status == 0){
+                                                $("#is_save3").val(1);
+                                                bool = true;
+                                                Alertwin.alert({ message: "操作成功"});
+                                            }else{
+                                                bool = false;
+                                                Alertwin.alert({ message: "操作失败"});
+                                            }
+                                            layer.closeAll('loading');
+                                        }
+                                 })
+                             }
+                         })
+                     }else{
+                         layer.load();
+                         $.ajax({
+                                type: "POST",
+                                async:false,
+                                url: '/presrb/project/projectItem_add/',
+                                data:{"saveJson":JSON.stringify(reqData),"csrfmiddlewaretoken":'{{ csrf_token }}'},
+                                error: function (request) {
+                                    layer.closeAll('loading');
+                                    console.log(request)
+                                },
+                                success: function (data) {
+                                    if(data.status == 0){
+                                        $("#is_save3").val(1);
+                                        bool = true;
+                                        Alertwin.alert({ message: "操作成功"});
+                                    }else{
+                                        bool = false;
+                                        Alertwin.alert({ message: "操作失败"});
+                                    }
+                                    layer.closeAll('loading');
                                 }
-                            }
-                     })
+                         })
+                     }
 
-                  }
-                  return bool;
+
+
+                 }else{
+                      Alertwin.alert({ message: "请先保存项目"});
+                 }
+                 return bool;
 		    }
 		},
 		mounted:function(){
@@ -267,6 +378,37 @@
 		}
 	});
 	function initProAssess3(){
+	    if($("#is_add").val() == 1){
+	        var pid = $("#project_id").val();
+	        if(pid){
+	            $.ajax({
+                    type: "GET",
+                    url: '/presrb/project/project_item_list/',
+                    data:{"id":pid},
+                    error: function (request) {
+                        console.log(request)
+                    },
+                    success: function (data) {
+                        var evns = store.state.evns;
+                        if(data.status == 200){
+                            $(data.data).each(function(i,item){
+
+                                if(item.env == 1){
+                                    evns.production.selected = true;
+                                    evns.production.data.push(item);
+                                }else if(item.env == 2){
+                                    evns.disaster_recovery.selected = true;
+                                    evns.disaster_recovery.data.push(item);
+                                }else{
+                                    evns.preview.selected = true;
+                                    evns.preview.data.push(item);
+                                }
+                            })
+                        }
+                    }
+                })
+            }
+        }
 	}
 	function tab3Save(){
 	    return vm.save();

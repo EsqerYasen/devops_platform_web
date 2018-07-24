@@ -31,14 +31,14 @@
         <thead>
             <tr>
                 <th style="width:3%;"><input id="checkall" type="checkbox" class="i-checks"></th>
-                <th style="width: 20%;">
+                <th style="width: 30%;">
                     项目名
                 </th>
-                <th style="width: 20%;">
+                <th style="width: 10%;">
                     申请人
                 </th>
-                <th style="width: 20%;">
-                    指派给
+                <th style="width: 10%;">
+                    审核组
                 </th>
                 <th style="width: 20%;">
                     创建时间
@@ -46,7 +46,7 @@
                 <th style="width: 10%;">
                     状态
                 </th>
-                <th style="width:8%;">操作</th>
+                <th style="width:20%;">操作</th>
             </tr>
         </thead>
         <tbody>
@@ -57,28 +57,45 @@
                 </td>
                 <td>{{ o.name }}</td>
                 <td>{{ o.applicant }}</td>
-                <td>{{ o.assignee_name }}</td>
+                <td>{{ o.auditor_group_name }}</td>
                 <td>{{ o.create_time }}</td>
                 <td>
                      {% if o.status == 1 %}
                          未审核
                      {% elif o.status == 2 %}
-                         提交审核
+                         等待审核
+                     {% elif o.status == 3 %}
+                        审核通过
                      {% elif o.status == 4 %}
-                        审核拒绝
-                     {% elif o.status == 6 %}
-                        审核拒绝
+                        审核不通过
                      {% endif %}
                 </td>
                 <td>
+                {% if is_auditor == 0 %}
                     {% if o.status == 2 %}
-                    <a href="../pro_report_views/?id={{ o.id }}" class="btn btn-sm btn-success"><i class="fa fa-search"></i> 报表查看</a>
+                    <a href="../{{ o.id }}/edit/?type=1" class="btn btn-sm btn-success"><i class="fa fa-search"></i> 查看</a>
+                    <a href="javascript:void(0);" onclick="project_change({{ o.id }},1)" class="btn btn-sm btn-success"><i class="fa fa-edit"></i> 撤回</a>
+                    {% elif o.status == 1 %}
+                    <a href="../{{ o.id }}/edit/?type=0" class="btn btn-sm btn-success"><i class="fa fa-edit"></i> 编辑</a>
                     {% else %}
-                    <a href="../{{ o.id }}/edit/" class="btn btn-sm btn-success"><i class="fa fa-edit"></i> 编辑</a>
+                    <a href="../{{ o.id }}/edit/?type=1" class="btn btn-sm btn-success"><i class="fa fa-edit"></i> 查看</a>
                     {% endif %}
+                {% else %}
+                    {% if o.status == 2 %}
+                    <a href="../{{ o.id }}/edit/?&type=2" class="btn btn-sm btn-success"><i class="fa fa-edit"></i> 审核</a>
+                    {% else %}
+                    <a href="../{{ o.id }}/edit/?type=1" class="btn btn-sm btn-success"><i class="fa fa-search"></i> 查看</a>
+                    {% endif %}
+                    <a href="javascript:void(0);" onclick="project_change({{ o.id }},2)" class="btn btn-sm btn-success"><i class="fa fa-edit"></i> 作废</a>
+                {% endif %}
                 </td>
             </tr>
         {% endfor %}
         </tbody>
     </table>
+    <script>
+        function project_change(id,type){
+
+        }
+    </script>
 {% endblock %}

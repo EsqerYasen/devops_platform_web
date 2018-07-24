@@ -2,6 +2,18 @@
 	<div id="tab4ReportDiv" class="row" style="margin-top: 20px"></div>
 	<div class="processbox row" id="vm4">
 
+        <h1 class="totaldis" style="font-size:15px">
+            项目名: <span v-html="name" style="margin-right:100px"></span>项目上线时间: <span v-html="estimated_pilot_date"></span>
+        </h1>
+        <h1 class="totaldis" style="font-size:15px">
+			项目合计需求资源：
+			服务器台数: <span v-html="server_sum"></span>台 /
+			内存: <span v-html="memory_sum"></span>G /
+			CPU: <span v-html="cpu_sum"></span>C /
+			硬盘: <span v-html="disk_sum"></span>G
+			（系统自动计算）
+		</h1>
+
 		<div class="row col-md-6 line_24 mb10" v-for="item in items">
 			<div class="col-md-12 sc" :class="{'sc':item.env==1,'zb':item.env==2,'hd':item.env==3}">
 				<h4 class="fl_title" v-if="item.env==1">生产环境:</h4>
@@ -32,92 +44,127 @@
 				<div class="clear"></div>
 			</div>
 		</div>
-		<h2 class="totaldis">
-			项目合计需求资源：
-			服务器台数:<span v-html="server_sum"></span>台 /
-			内存:<span v-html="memory_sum"></span>C /
-			CPU:<span v-html="cpu_sum"></span>G /
-			硬盘:<span v-html="disk_sum"></span>G
-			（系统自动计算）
-		</h2>
+
+        <h3 class="totaldis">
+            评级:
+            <span v-if="level=='S'">
+                <span v-html="level" style="color: #3c763d"></span>
+                <span class="glyphicon glyphicon-star" aria-hidden="true" style="color: orange"></span>
+                <span class="glyphicon glyphicon-star" aria-hidden="true" style="color: orange"></span>
+                <span class="glyphicon glyphicon-star" aria-hidden="true" style="color: orange"></span>
+                <span class="glyphicon glyphicon-star" aria-hidden="true" style="color: orange"></span>
+                <span class="glyphicon glyphicon-star" aria-hidden="true" style="color: orange"></span>
+            </span>
+            <span v-if="level=='B'">
+                <span v-html="level" style="color: #8a6d3b"></span>
+                <span class="glyphicon glyphicon-star" aria-hidden="true" style="color: orange"></span>
+                <span class="glyphicon glyphicon-star" aria-hidden="true" style="color: orange" ></span>
+                <span class="glyphicon glyphicon-star" aria-hidden="true" style="color: orange"></span>
+                <span class="glyphicon glyphicon-star" aria-hidden="true" style="color: orange"></span>
+                <span class="glyphicon glyphicon-star-empty" aria-hidden="true" style="color: orange"></span>
+            </span>
+            <span v-if="level=='A'">
+                <span v-html="level" style="color: #a94442"></span>
+                <span class="glyphicon glyphicon-star" aria-hidden="true" style="color: orange"></span>
+                <span class="glyphicon glyphicon-star" aria-hidden="true" style="color: orange"></span>
+                <span class="glyphicon glyphicon-star" aria-hidden="true" style="color: orange"></span>
+                <span class="glyphicon glyphicon-star-empty" aria-hidden="true" style="color: orange"></span>
+                <span class="glyphicon glyphicon-star-empty" aria-hidden="true" style="color: orange"></span>
+            </span>
+
+        </h3>
+
 	</div>
 	<div class="row">
-		<div class="col-md-6" style="padding: 20px">
-			<table class="table table-bordered">
-				<thead>
-					<tr>
-						<td>级别</td>
-						<td>灾备</td>
-						<td>双节点</td>
-					</tr>
-				</thead>
-				<tbody>
-					<tr class="alert-success">
-						<td>SS</td>
-						<td>√</td>
-						<td>X</td>
-					</tr>
-					<tr class="alert-success">
-						<td>S</td>
-						<td>√</td>
-						<td>√</td>
-					</tr>
-					<tr class="alert-warning">
-						<td>A</td>
-						<td>X</td>
-						<td>√</td>
-					</tr>
-					<tr class="alert-danger">
-						<td>B</td>
-						<td>√</td>
-						<td>√</td>
-					</tr>
-				</tbody>
-			</table>
-		</div>
+{#		<div class="col-md-6" style="padding: 20px">#}
+{#			<table class="table table-bordered">#}
+{#				<thead>#}
+{#					<tr>#}
+{#						<td>级别</td>#}
+{#						<td>灾备</td>#}
+{#						<td>双节点</td>#}
+{#					</tr>#}
+{#				</thead>#}
+{#				<tbody>#}
+{#					<tr class="alert-success">#}
+{#						<td>S</td>#}
+{#						<td>√</td>#}
+{#						<td>√</td>#}
+{#					</tr>#}
+{#                    <tr class="alert-danger">#}
+{#						<td>B</td>#}
+{#						<td>X</td>#}
+{#						<td>√</td>#}
+{#					</tr>#}
+{#                    <tr class="alert-danger">#}
+{#						<td>B</td>#}
+{#						<td>√</td>#}
+{#						<td>X</td>#}
+{#					</tr>#}
+{#					<tr class="alert-warning">#}
+{#						<td>A</td>#}
+{#						<td>X</td>#}
+{#						<td>√</td>#}
+{#					</tr>#}
+{#				</tbody>#}
+{#			</table>#}
+{#		</div>#}
 		<div class="col-md-6" style="margin-top: 22px">
 			<div class="row">
 		         <div class="col-md-12">
 		            <div class="alert alert-success" style="margin-bottom: 10px">
-		                S级 : 主站节点全部高可用 有备份机房
+		                S级 : 主站节点全部高可用 有备份机房全部高可用  5星
 		            </div>
 		         </div>
 		    </div>
 		    <div class="row" >
 		         <div class="col-md-12">
 		            <div class="alert alert-warning" style="margin-bottom: 10px">
-		                B级 : 主站存在单节点 有备份机房 /  主站节点全部高可用 无备份机房
+		                B级 : 主站存在单节点 有备份机房 /  主站节点全部高可用 无备份机房  4星
 		            </div>
 		         </div>
 		    </div>
 		    <div class="row">
 		         <div class="col-md-12">
 		            <div class="alert alert-danger" style="margin-bottom: 10px">
-		                A级 : 主站存在单节点 无备份机房 /  主站节点全部单节点 有备份机房
+		                A级 : 主站存在单节点 无备份机房 /  主站节点全部单节点 有备份机房  3星
 		            </div>
 		         </div>
 		    </div>
 		</div>
+        <div class="col-md-6" style="padding: 20px">
+            <table id="tb" class="table table-striped table-bordered table-hover dataTables-example dataTable">
+                <thead>
+                    <th>运维标准文档</th>
+                    <th></th>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="2">为了后续运维团队快速高效介入，请项目PM仔细运维标准手册</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
 
-		<div class="row" style="margin-top: 20px;margin-bottom: 20px; clear:both; ">
-
-			 <div class="col-md-6">
-	            <label class="col-sm-2 control-label" style="text-align: right;line-height: 33px;">
-	                审核人
-	            </label>
-	            <div class="col-sm-7">
-	                <div class="input-group">
-	                    <select id="projectNameSel"  class="form-control" onchange="">
-                        	<option value="">--------请选择--------</option>
-                            {% for auditor in auditor_list %}
-                            <option value="{{ auditor.id }}">{{ auditor.name }}</option>
-                            {% endfor %}
-	                    </select>
-	                </div>
-	            </div>
-	         </div>
-
-		</div>
+{#		<div class="row" style="margin-top: 20px;margin-bottom: 20px; clear:both; ">#}
+{##}
+{#			 <div class="col-md-6">#}
+{#	            <label class="col-sm-2 control-label" style="text-align: right;line-height: 33px;">#}
+{#	                审核人#}
+{#	            </label>#}
+{#	            <div class="col-sm-7">#}
+{#	                <div class="input-group">#}
+{#	                    <select id="projectNameSel"  class="form-control" onchange="">#}
+{#                        	<option value="">--------请选择--------</option>#}
+{#                            {% for auditor in auditor_list %}#}
+{#                            <option value="{{ auditor.id }}">{{ auditor.name }}</option>#}
+{#                            {% endfor %}#}
+{#	                    </select>#}
+{#	                </div>#}
+{#	            </div>#}
+{#	         </div>#}
+{##}
+{#		</div>#}
 
 
 		<div class="checkbox" style="clear: both;line-height: 8px;text-align: right;margin-right: 15px;">
@@ -144,48 +191,65 @@
 		    disk_sum:0,
 		    server_sum:0,
 		    memory_sum:0,
+            level:'',
+            name:'',
+            estimated_pilot_date:'',
 		    items:[]
 	    },
 
 
 	    created:function(){
-		    var p_id = '15';//$("#project_id").val();
-		    var _this = this;
-		    $.ajax({
-	            type: "GET",
-	            url: '/presrb/project/pro_report_views/',
-	            async:false,
-	            data:{"id":p_id},
-	            error: function (request) {
-	                 bool = false;
-	            },
-	            success: function (res) {
-		            var ajaxdata = res.data;
-		            _this.memory_sum=ajaxdata.memory_sum;
-		            _this.cpu_sum=ajaxdata.cpu_sum;
-		            _this.disk_sum=ajaxdata.disk_sum;
-		            _this.server_sum=ajaxdata.server_sum;
-		            _this.items=ajaxdata.items;
-	            }
-	        })
-
+		    var p_id = $("#project_id").val();
+		    if(p_id){
+		        var _this = this;
+                $.ajax({
+                    type: "GET",
+                    url: '/presrb/project/pro_report_views/',
+                    data:{"id":p_id},
+                    error: function (request) {
+                         bool = false;
+                    },
+                    success: function (res) {
+                        if(res.status == 200){
+                            _this.memory_sum=parseInt(res.memory_sum);
+                            _this.cpu_sum=parseInt(res.cpu_sum);
+                            _this.disk_sum=parseInt(res.disk_sum);
+                            _this.server_sum=parseInt(res.server_sum);
+                            _this.level = res.level;
+                            _this.name = res.name;
+                            _this.estimated_pilot_date = res.estimated_pilot_date;
+                            _this.items=res.items;
+                        }
+                    }
+                })
+            }
 	    }
      });
 
-     {#function tab4ReportView(){#}
-     {#   //$("#tab4ReportDiv").empty();#}
-     {#   var p_id = $("#project_id").val();#}
-     {#   $.ajax({#}
-     {#       type: "GET",#}
-     {#       url: '/presrb/project/pro_report_views/',#}
-     {#       async:false,#}
-     {#       data:{"id":p_id},#}
-     {#       error: function (request) {#}
-     {#            bool = false;#}
-     {#       },#}
-     {#       success: function (data) {#}
-     {#           $("#tab4ReportDiv").append(data);#}
-     {#       }#}
-     {#   })#}
-     {#}#}
+     function tab4ReportView(){
+        var p_id = $("#project_id").val();
+        if(p_id){
+            var _this = vm4;
+            $.ajax({
+                type: "GET",
+                url: '/presrb/project/pro_report_views/',
+                data:{"id":p_id},
+                error: function (request) {
+                     bool = false;
+                },
+                success: function (res) {
+                    if(res.status == 200){
+                        _this.memory_sum=parseInt(res.memory_sum);
+                        _this.cpu_sum=parseInt(res.cpu_sum);
+                        _this.disk_sum=parseInt(res.disk_sum);
+                        _this.server_sum=parseInt(res.server_sum);
+                        _this.level = res.level;
+                        _this.name = res.name;
+                        _this.estimated_pilot_date = res.estimated_pilot_date;
+                        _this.items=res.items;
+                    }
+                }
+            })
+        }
+     }
 </script>

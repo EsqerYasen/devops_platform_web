@@ -2,10 +2,11 @@
 	<div class="panel" :class="{
 		'panel-info':typekey=='production',
 		'panel-success':typekey=='disaster_recovery',
-		'panel-primary':typekey=='preview'}">
+		'panel-primary':typekey=='preview',
+		'panel-warning':typekey=='additional'}">
         <div class="panel-heading">
             <div class="row">
-                <div class="col-md-1" style="position: relative">
+                <div class="col-md-1" style="position: relative;display: {{ display }}">
 	                <span v-html="title"></span>
 	                 <label v-if="show_checkbox" class="is_tru" style="position: absolute;top: 3px; left: 60px">
                         <input type="checkbox" value="1" v-model="$store.state.evns[typekey].selected" @change="resetData(typekey)">
@@ -17,7 +18,7 @@
                 <div class="col-md-9">
 	                <span v-html="discribe"></span>
                 </div>
-	            <div class="col-md-2 text-right" v-if="$store.state.evns[typekey].selected">
+	            <div class="col-md-2 text-right" v-if="$store.state.evns[typekey].selected" style="display: {{ display }}">
 		            <i class="yum-font icon-plus-bold" style="cursor: pointer" @click="onAddData(typekey)"></i>
 	            </div>
             </div>
@@ -41,28 +42,28 @@
 				          <transition-group name="list" tag="div">
 					           <div class="evnsbox clear" v-for="(item,index) in $store.state.evns[typekey].data" :key="item">
                                    <div class="devbox mb5" style="padding: 0px 5px">
-										<select class="selectself" v-model="item.app_category_item">
+										<select class="selectself" v-model="item.app_category_item" {{ readonly }}>
                                             <option :value="it.id" v-for="it in categoryItem_list" v-html="it.name"></option>
                                         </select>
 									</div>
 						            <div class="devbox mb5">
 										<span class="fix prod">数量</span>
 										<span class="content">
-											<input type="number" v-model="item.estimated_server_count" class="smnu" min="0" max="99999">
+											<input type="number" v-model="item.estimated_server_count" class="smnu" min="0" max="99999" {{ readonly }}>
 										</span>
 										<span class="fix">台</span>
 									</div>
 						           <div class="devbox mb5">
 										<span class="fix">CPU</span>
 										<span class="content">
-											<input type="number"  v-model="item.estimated_singleton_CPU_core" class="smnu" min="0" max="99999">
+											<input type="number"  v-model="item.estimated_singleton_CPU_core" class="smnu" min="0" max="99999" {{ readonly }}>
 										</span>
 										<span class="fix">核</span>
 									</div>
 									<div class="devbox mb5">
 										<span class="fix">内存</span>
 										<span class="content">
-											<input type="number" v-model="item.estimated_singleton_memory_capacity"  class="smnu" min="0" max="99999">
+											<input type="number" v-model="item.estimated_singleton_memory_capacity"  class="smnu" min="0" max="99999" {{ readonly }}>
 										</span>
 										<span class="fix">G</span>
 									</div>
@@ -70,25 +71,32 @@
 									<div class="devbox mb5">
 										 <span class="fix">磁盘</span>
 										 <span class="content">
-											 <input type="number"  v-model="item.estimated_singleton_disk_capacity" class="smnu" min="0" max="99999">
+											 <input type="number"  v-model="item.estimated_singleton_disk_capacity" class="smnu" min="0" max="99999" {{ readonly }}>
 										 </span>
 										 <span class="fix">G</span>
 									</div>
-						           <div class="devbox mb5">
-							           <label style="padding-right:5px">
-								           <span class="fix">
-									           高可用
-								           </span>
-								           <input type="checkbox" v-model="item.need_high_availability">
-							           </label>
-						           </div>
+{#						           <div class="devbox mb5">#}
+{#							           <label style="padding-right:5px">#}
+{#								           <span class="fix">#}
+{#									           高可用#}
+{#								           </span>#}
+{##}
+{#								           <!--#}
+{#								           <input type="checkbox" v-model="item.need_high_availability">#}
+{#                                            <input type="hidden" v-model="item.need_high_availability">#}
+{#                                           <input type="hidden" v-model="item.need_high_availability">#}
+{#                                           <span v-if="item.need_high_availability==1"  class="glyphicon glyphicon-ok" aria-hidden="true"></span>#}
+{#                                           <span v-if="item.need_high_availability==0"  class="glyphicon glyphicon-remove" aria-hidden="true"></span>#}
+{#                                           -->#}
+{#							           </label>#}
+{#						           </div>#}
 						           <div class="devbox mb5" v-if="item.app_category_item==7">
 							           <span class="content">
-								           <input type="text" placeholder="特殊需求可调整" v-model="item.other_category_name" class="smnu" style="text-align: left;width: 130px">
+								           <input type="text" placeholder="所需中间件名称" v-model="item.other_category_name" class="smnu" style="text-align: left;width: 130px" {{ readonly }}>
 							           </span>
 						           </div>
 
-						           <div class="devbox mb5">
+						           <div class="devbox mb5" style="display: {{ display }}">
 							            <span class="fix" style="cursor: pointer" @click="onDeleteData([typekey,index])">删除</span>
 						           </div>
 					          </div>
