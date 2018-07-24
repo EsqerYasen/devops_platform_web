@@ -21,7 +21,9 @@
       $('.scrollable').scroll(this.onScroll.bind(this));
       window.YUMEVENTS.on("loadmore", this.loadMore.bind(this));
       this.showList();
-      $('.dataTables_wrapper').height(window.innerHeight - 200);
+      // $('.dataTables_wrapper').height(window.innerHeight - 200);
+      // $('.job_list_container').height(650);
+      // $('.scrollable').height(650);
     },
     //var name = $('.btn-primary.search').val()
     search: function(e){

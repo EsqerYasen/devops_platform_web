@@ -11,6 +11,7 @@
     userId: false,
     permssions: [],
     events: {
+      'click .btn-primary.search': 'search'
     },
     initialize: function(user, userId, model) {
       console.log('view inited');
@@ -20,10 +21,17 @@
       $('.scrollable').scroll(this.onScroll.bind(this));
       window.YUMEVENTS.on("loadmore", this.loadMore.bind(this));
       this.showJobList();
-      $('.job_list_container').height(window.innerHeight - 200);
+      // $('.job_list_container').height(window.innerHeight - 200);
+    },
+    search: function(e){
+      this.name = $('input#name').val();
+      $('.scrollable tbody').empty();
+      this.showJobList();
+      e.preventDefault();
+      e.stopPropagation();
     },
     showJobList: function(limit, offset) {
-      this.model.getJobList(this.userId, limit, offset, 1).then(function(res) {
+      this.model.getJobList(this.name, this.userId, limit, offset, 1).then(function(res) {
         var model = this.model;
         this.appendToGrid({
           results: res.results

@@ -8,3 +8,9 @@
 .wrapper-content {
     overflow: hidden;
 }
+div.scrollable{
+  max-height: 650px;
+  /*border: 1px solid;*/
+  overflow: auto;
+  height: 650px;
+}

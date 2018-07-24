@@ -84,11 +84,12 @@ function filterIDFromPermission(permissions, section) {
 }
 module.exports = {
     config: config,
-    getJobList: function(id, limit = 10, offset = 0) {
+    getJobList: function(name, id, limit = 10, offset = 0) {
         return get('/rest/appmanage/list/', {
                 limit: limit,
                 offset: offset,
-                id: id
+                id: id,
+                name: name
             }).then(function(data) {
             return data;
         });
