@@ -61,12 +61,13 @@ function post(url, data) {
 
 module.exports = {
     config: config,
-    getJobList: function(id, limit = 10, offset = 0) {
+    getJobList: function(name, id, limit = 10, offset = 0) {
         ///rest/appmanage/list/?offset=0&limit=10&id=1
         return get('/rest/flowcontrol/list/', {
                 limit: limit,
                 offset: offset,
-                id: id
+                id: id,
+                name: name
             },
             config.url.job).then(function(data) {
             return data;
