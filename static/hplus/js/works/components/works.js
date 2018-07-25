@@ -142,12 +142,27 @@ Vue.component('task-info', {
           $.get("/working/tools/infobytoolidandversion/?tool_id="+tool_id + "&tool_version=" + Number(currentVersion).toFixed(1),function(result){
               var paramList = [];
               var param = result.data.param;
-            if(param){
-                var jsonObj =  JSON.parse(param);//转换为json对象
-                for(var i=0;i<jsonObj.length;i++){
-                    paramList.push(jsonObj[i]);
-                }
-            }
+              var tool_type = result.data.tool_type;
+              if(param){
+                  var jsonObj =  JSON.parse(param);//转换为json对象
+                  for(var i=0;i<jsonObj.length;i++){
+                     paramList.push(jsonObj[i]);
+                  }
+              }
+              if(tool_type==4){
+                  window.editor = null;
+                  $('.CodeMirror').remove();
+                  if (!window.editor) {
+                     window.editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+                        lineNumbers: true,
+                        styleActiveLine: true,
+                        matchBrackets: true,
+                        theme: 'eclipse'
+                     });
+                  editor.setSize('auto', '250px');
+                  }
+                  window.editor.setValue(result.data.command);
+              }
             // 显示上次更改记录
               if(default_script_parameter) {
                   paramList.filter(function (param, index) {

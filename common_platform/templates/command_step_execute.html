@@ -353,6 +353,10 @@
                              }
                              if(is_skip_line == 0){
                                  if(temp_list[index]){
+                                     command = item2.tool.command;
+                                     if(item2.tool_set_type == 4){
+                                        command = item2.command;
+                                     }
                                      temp_list[index].push({
                                          "id":item2.command_tool_id,
                                          "name":item2.tool.name,
@@ -361,7 +365,7 @@
                                          "seq_no":seq_no,
                                          "is_error_continue":item2['ignoreData']?1:0,
                                          "param":tool_param,
-                                         "command":item2.tool.command,
+                                         "command":command,
                                          "vars":vars,
                                          "step_name":step_name,
                                          "is_skip":is_skip_line,
@@ -380,6 +384,10 @@
                                      }else{
                                         tool_param = JSON.parse(item2.default_script_parameter.replace(/'/g,'"'));
                                      }
+                                     command = item2.tool.command;
+                                     if(item2.tool_set_type == 4){
+                                        command = item2.command;
+                                     }
                                      temp_list.push([{
                                          "id":item2.command_tool_id,
                                          "name":item2.tool.name,
@@ -388,7 +396,7 @@
                                          "seq_no":seq_no,
                                          "is_error_continue":item2['ignoreData']?1:0,
                                          "param":tool_param,
-                                         "command":item2.tool.command,
+                                         "command":command,
                                          "vars":vars,
                                          "step_name":step_name,
                                          "is_skip":is_skip_line,

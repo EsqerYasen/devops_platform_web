@@ -394,6 +394,10 @@
                                 }
                             })
                             temp3['default_script_parameter'] = default_script_parameter;
+                            if(item2.tool_set_type == 4){
+                                temp3['command'] = item2.command;
+                                temp3['tool_type'] = 4;
+                            }
                             line2.push(temp3);
                         })
                         temp['lines'] = line2;
