@@ -24,7 +24,8 @@
       console.log('view inited');
       this.model = model;
       this.showMenu();
-      $('.cotainer').scroll(this.onScroll.bind(this));
+      // $('.cotainer').scroll(this.onScroll.bind(this));
+      $('.cotainer').scroll(_.debounce(this.onScroll.bind(this), 1000));
       window.YUMEVENTS.on("loadmore", this.loadMore.bind(this));
       window.YUMEVENTS.on("closeModal", this.closeModal.bind(this));
     },
