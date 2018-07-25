@@ -18,7 +18,7 @@
       this.userInfo = user;
       this.model = model;
       this.userId = userId;
-      $('.scrollable').scroll(this.onScroll.bind(this));
+      $('.scrollable').scroll(_.debounce(this.onScroll.bind(this), 1000));
       window.YUMEVENTS.on("loadmore", this.loadMore.bind(this));
       this.showList();
       // $('.dataTables_wrapper').height(window.innerHeight - 200);
@@ -39,7 +39,7 @@
         var model = this.model;
         //{1:'常用命令',2:'上传文件',3:'远程文件',4:'shell脚本',5:'自定义'}
         this.appendToGrid({
-          results: res.results
+          results: res
         });
       }.bind(this));
     },

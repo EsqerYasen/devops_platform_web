@@ -18,7 +18,8 @@
       this.userInfo = user;
       this.model = model;
       this.userId = userId;
-      $('.scrollable').scroll(this.onScroll.bind(this));
+      // $('.scrollable').scroll(this.onScroll.bind(this));
+      $('.scrollable').scroll(_.debounce(this.onScroll.bind(this), 1000));
       window.YUMEVENTS.on("loadmore", this.loadMore.bind(this));
       this.showJobList();
       // $('.job_list_container').height(window.innerHeight - 200);
