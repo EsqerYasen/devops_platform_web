@@ -53,9 +53,8 @@ def checkLogin(request):
             if username == 'admin':
                 bool = True
             else:
-                # if username and password:
-                #     bool = AdAuthenticate.authenricate(username,password)
-                bool = True
+                if username and password:
+                    bool = AdAuthenticate.authenricate(username,password)
         if bool:
             if username == 'admin':
                 user = auth.authenticate(username=username, password=password)
