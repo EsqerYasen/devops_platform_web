@@ -7,72 +7,77 @@
 
 {% block  list_search %}
     <div class="col-sm-7">
-        <table>
-            <tr>
-                <td width="60px">树节点</td>
-                <td><input type="text" id="node_name1" class="form-control" style="width: 100px" placeholder="kfc"></td>
-                <td><input type="text" id="node_name2" class="form-control" style="width: 100px" placeholder="preorder"></td>
-                <td><input type="text" id="node_name3" class="form-control" style="width: 100px" placeholder="nh"></td>
-                <td><input type="text" id="node_name4" class="form-control" style="width: 100px" placeholder="pilot"></td>
-                <td><input type="text" id="node_name5" class="form-control" style="width: 100px" placeholder="dmz"></td>
-                <td><input type="text" id="node_name6" class="form-control" style="width: 100px" placeholder="mwos"></td>
-            </tr>
-        </table>
-    </div>
-    <div class="col-sm-7" style="margin-top: 10px">
-        <table>
-            <tr>
-                <td width="60px">IP</td>
-                <td><input type="text" id="ip_1" class="form-control" style="width: 100px" placeholder="172"></td>
-                <td><input type="text" id="ip_2" class="form-control" style="width: 100px" placeholder="17"></td>
-                <td><input type="text" id="ip_3" class="form-control" style="width: 100px" placeholder="32"></td>
-                <td><input type="text" id="ip_4" class="form-control" style="width: 100px" placeholder="21"></td>
-            </tr>
-        </table>
-    </div>
-    <div class="col-sm-7" style="margin-top: 10px">
-        <table>
-            <tr>
-                <td width="60px">机器信息</td>
-                <td><input type="text" id="num_cpus" class="form-control" style="width: 100px" placeholder="CPU"></td>
-                <td><input type="text" id="mem_total" class="form-control" style="width: 100px" placeholder="MEM"></td>
-                <td><input type="text" id="os" class="form-control" style="width: 100px" placeholder="OS"></td>
-                <td>
-                    <select id="go_live" class="form-control">
-                        <option value="">资源环境</option>
-                        <option value="1">未分配</option>
-                        <option value="2">待上线</option>
-                        <option value="3">已上线</option>
-                    </select>
-                </td>
-                <td><input type="text" id="tag" class="form-control" style="width: 200px" placeholder="标签"></td>
-            </tr>
-        </table>
+        <div class="col-sm-12">
+            <table>
+                <tr>
+                    <td width="60px">树节点</td>
+                    <td><input type="text" id="node_name1" class="form-control" style="width: 100px" placeholder="kfc"></td>
+                    <td><input type="text" id="node_name2" class="form-control" style="width: 100px" placeholder="preorder"></td>
+                    <td><input type="text" id="node_name3" class="form-control" style="width: 100px" placeholder="nh"></td>
+                    <td><input type="text" id="node_name4" class="form-control" style="width: 100px" placeholder="pilot"></td>
+                    <td><input type="text" id="node_name5" class="form-control" style="width: 100px" placeholder="dmz"></td>
+                    <td><input type="text" id="node_name6" class="form-control" style="width: 100px" placeholder="mwos"></td>
+                </tr>
+            </table>
+        </div>
+        <div class="col-sm-12" style="margin-top: 10px">
+            <table>
+                <tr>
+                    <td width="60px">IP</td>
+                    <td><input type="text" id="ip_1" class="form-control" style="width: 100px" placeholder="172"></td>
+                    <td><input type="text" id="ip_2" class="form-control" style="width: 100px" placeholder="17"></td>
+                    <td><input type="text" id="ip_3" class="form-control" style="width: 100px" placeholder="32"></td>
+                    <td><input type="text" id="ip_4" class="form-control" style="width: 100px" placeholder="21"></td>
+                </tr>
+            </table>
+        </div>
+        <div class="col-sm-12" style="margin-top: 10px">
+            <table>
+                <tr>
+                    <td width="60px">机器信息</td>
+                    <td><input type="text" id="num_cpus" class="form-control" style="width: 100px" placeholder="CPU"></td>
+                    <td><input type="text" id="mem_total" class="form-control" style="width: 100px" placeholder="MEM"></td>
+                    <td><input type="text" id="os" class="form-control" style="width: 100px" placeholder="OS"></td>
+                    <td>
+                        <select id="go_live" class="form-control">
+                            <option value="">资源环境</option>
+                            <option value="1">未分配</option>
+                            <option value="2">待上线</option>
+                            <option value="3">已上线</option>
+                        </select>
+                    </td>
+                    <td><input type="text" id="tag" class="form-control" style="width: 200px" placeholder="标签"></td>
+                </tr>
+            </table>
+        </div>
     </div>
 {% endblock %}
 
 {% block list_filter %}
-    <div class="col-sm-1">
-        <button type="button" class="btn btn-sm btn-primary" style="margin-right: 10px" onclick="search()"><i class="fa fa-search"></i> 搜索</button>
-        <a href="javascript:void(0)" onclick="exportCsv()" class="btn btn-sm btn-success"><i class="fa fa-save"></i> 导出列表</a>
-    </div>
-    <div id="total_div" class="col-sm-4" style="display: none">
+    <div id="total_div" class="col-sm-5" style="display: none">
         <table class="table table-striped table-bordered table-hover dataTables-example dataTable accordion">
             <tr>
-                <td colspan="5"><label style="width: 50%;text-align: right">总: </label><label id="lab_total" style="width: 50%;text-align: left">0</label></td>
+                <td colspan="7"><label style="width: 50%;text-align: right">总: </label><label id="lab_total" style="width: 50%;text-align: left">0</label></td>
             </tr>
             <tr>
                 <td rowspan="2"><label style="width: 50%;text-align: right">未知: </label><label id="lab_unkonw" style="width: 50%;text-align: left">0</label></td>
                 <td colspan="2"><label style="width: 50%;text-align: right">NH: </label><label id="lab_nh_total" style="width: 50%;text-align: left">0</label></td>
                 <td colspan="2"><label style="width: 50%;text-align: right">ZR: </label><label id="lab_zr_total" style="width: 50%;text-align: left">0</label></td>
+                <td colspan="2"><label style="width: 50%;text-align: right">KS: </label><label id="lab_ks_total" style="width: 50%;text-align: left">0</label></td>
             </tr>
             <tr>
                 <td><label style="width: 50%;text-align: right">DMZ: </label><label id="lab_nh_dmz" style="width: 50%;text-align: left">0</label></td>
                 <td><label style="width: 50%;text-align: right">IDC: </label><label id="lab_nh_idc" style="width: 50%;text-align: left">0</label></td>
                 <td><label style="width: 50%;text-align: right">DMZ: </label><label id="lab_zr_dmz" style="width: 50%;text-align: left">0</label></td>
                 <td><label style="width: 50%;text-align: right">IDC: </label><label id="lab_zr_idc" style="width: 50%;text-align: left">0</label></td>
+                <td><label style="width: 50%;text-align: right">DMZ: </label><label id="lab_ks_dmz" style="width: 50%;text-align: left">0</label></td>
+                <td><label style="width: 50%;text-align: right">IDC: </label><label id="lab_ks_idc" style="width: 50%;text-align: left">0</label></td>
             </tr>
         </table>
+    </div>
+    <div class="col-sm-7" style="float: right;margin: 10px 0px 5px 0px">
+        <button type="button" class="btn btn-sm btn-primary" style="margin-right: 20px" onclick="search()"><i class="fa fa-search"></i> 搜索</button>
+        <a href="javascript:void(0)" onclick="exportCsv()" class="btn btn-sm btn-success"><i class="fa fa-save"></i> 导出列表</a>
     </div>
 {% endblock %}
 
@@ -129,6 +134,9 @@
             var lab_zr_total = $("#lab_zr_total");
             var lab_zr_dmz = $("#lab_zr_dmz");
             var lab_zr_idc = $("#lab_zr_idc");
+            var lab_ks_total = $("#lab_ks_total");
+            var lab_ks_dmz = $("#lab_ks_dmz");
+            var lab_ks_idc = $("#lab_ks_idc");
             var lab_unkonw = $("#lab_unkonw");
             lab_total.text("0");
             lab_unkonw.text("0");
@@ -138,6 +146,9 @@
             lab_zr_total.text("0");
             lab_zr_dmz.text("0");
             lab_zr_idc.text("0");
+            lab_ks_total.text("0");
+            lab_ks_dmz.text("0");
+            lab_ks_idc.text("0");
 
             total_div.css('display','none');
             results = getSearchInfo();
@@ -155,10 +166,13 @@
                        var total = data.data.length;
                        var nh = 0;
                        var zr = 0;
+                       var ks = 0;
                        var nh_dmz = 0;
                        var nh_idc = 0;
                        var zr_dmz = 0;
                        var zr_idc = 0;
+                       var ks_dmz = 0;
+                       var ks_idc = 0;
                        var unkonw = 0;
                        $(data.data).each(function(i,host){
                            var node_name = host.node_name.toLowerCase();
@@ -170,11 +184,18 @@
                                     nh_idc += 1;
                                }
                            }else if(node_name.indexOf('zr') > 0){
-                                zr += 1;
+                               zr += 1;
                                if(node_name.indexOf('dmz') > 0){
                                     zr_dmz += 1;
                                }else if(node_name.indexOf('idc') > 0){
                                     zr_idc += 1;
+                               }
+                           }else if(node_name.indexOf('ks') > 0){
+                               ks += 1;
+                               if(node_name.indexOf('dmz') > 0){
+                                    ks_dmz += 1;
+                               }else if(node_name.indexOf('idc') > 0){
+                                    ks_idc += 1;
                                }
                            }else{
                                unkonw += 1;
@@ -216,6 +237,9 @@
                         lab_zr_total.text(zr);
                         lab_zr_dmz.text(zr_dmz);
                         lab_zr_idc.text(zr_idc);
+                        lab_ks_total.text(ks)
+                        lab_ks_dmz.text(ks_dmz);
+                        lab_ks_idc.text(ks_idc);
                         total_div.css('display','block');
                     }
                 },

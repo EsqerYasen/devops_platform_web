@@ -73,6 +73,17 @@ function createPie(data,initConfig) {
       textStyle:{
         color:'rgba(0,0,0,1)',
         fontSize:13
+      },
+      formatter:  function(name){
+          var total = 0;
+          var target;
+          for (var i = 0, l = data.length; i < l; i++) {
+          total += data[i].value;
+          if (data[i].name == name) {
+              target = data[i].value;
+              }
+          }
+          return name +' '+target+ '(' + ((target/total)*100).toFixed(2) + '%)';
       }
     },
     series: [

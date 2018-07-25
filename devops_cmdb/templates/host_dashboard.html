@@ -59,29 +59,29 @@
             }
         }
 
-        function createHtmlMsg (data,id){
-            var val = data.value;
-            var total=0;
-            var html = '';
-            var list = '';
-            $("#"+id).append('');
-            for(var i in data){
-
-                list += "<div class=\"row\">\n"+
-                        "<div class=\"col-sm-6\">"+data[i].value+"</div>\n"+
-                        "<div class=\"col-sm-6\">"+transbfb(data,i)+"%</div>\n" +
-                "</div>\n"
-            }
-             html = "<div class=\"othermsg\" style='left:62%'>\n" +
-                        "<div class=\"warps\">\n" +
-                            "<div class=\"row\">\n" +
-                                "<div class=\"col-sm-6\">值</div>\n" +
-                                "<div class=\"col-sm-6\">占比</div>\n" +
-                            "</div>\n" +list+
-                        "</div>\n" +
-                    "</div>";
-            $("#"+id).append(html);
-        }
+{#        function createHtmlMsg (data,id){#}
+{#            var val = data.value;#}
+{#            var total=0;#}
+{#            var html = '';#}
+{#            var list = '';#}
+{#            $("#"+id).append('');#}
+{#            for(var i in data){#}
+{##}
+{#                list += "<div class=\"row\">\n"+#}
+{#                        "<div class=\"col-sm-6\">"+data[i].value+"</div>\n"+#}
+{#                        "<div class=\"col-sm-6\">"+transbfb(data,i)+"%</div>\n" +#}
+{#                "</div>\n"#}
+{#            }#}
+{#             html = "<div class=\"othermsg\" style='left:62%'>\n" +#}
+{#                        "<div class=\"warps\">\n" +#}
+{#                            "<div class=\"row\">\n" +#}
+{#                                "<div class=\"col-sm-6\">值</div>\n" +#}
+{#                                "<div class=\"col-sm-6\">占比</div>\n" +#}
+{#                            "</div>\n" +list+#}
+{#                        "</div>\n" +#}
+{#                    "</div>";#}
+{#            $("#"+id).append(html);#}
+{#        }#}
 
 
 
@@ -114,7 +114,7 @@
                             title:"机房"
                         }
                     );
-                   createHtmlMsg(data.data,'physicalIdcChar')
+                   //createHtmlMsg(data.data,'physicalIdcChar')
 
                 }
             });
@@ -135,7 +135,7 @@
                             title:"区域(DMZ)"
                         }
                     );
-                   createHtmlMsg(data.data,'dmz')
+                   //createHtmlMsg(data.data,'dmz')
 
                 }
             });
@@ -156,7 +156,7 @@
                             title:"区域(IDC)"
                         }
                     );
-                   createHtmlMsg(data.data,'idc')
+                   //createHtmlMsg(data.data,'idc')
 
                 }
             });
@@ -188,7 +188,7 @@
                                 title:k.toUpperCase()
                             }
                         );
-                        createHtmlMsg(data_list,char_id)
+                        //createHtmlMsg(data_list,char_id)
                     }
                     init_brand_environment();
                 }
@@ -217,7 +217,7 @@
                                     title:k
                                 }
                             );
-                            createHtmlMsg(data_dict[k],char_id)
+                            //createHtmlMsg(data_dict[k],char_id)
                         }
                     }
                 }
