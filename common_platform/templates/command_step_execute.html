@@ -354,7 +354,7 @@
                              if(is_skip_line == 0){
                                  if(temp_list[index]){
                                      command = item2.tool.command;
-                                     if(item2.tool_set_type == 4){
+                                     if(item2.tool_set_type && item2.tool_set_type == 4 || item2.tool && item2.tool.tool_type == 4){
                                         command = item2.command;
                                      }
                                      temp_list[index].push({
@@ -385,7 +385,7 @@
                                         tool_param = JSON.parse(item2.default_script_parameter.replace(/'/g,'"'));
                                      }
                                      command = item2.tool.command;
-                                     if(item2.tool_set_type == 4){
+                                     if(item2.tool_set_type && item2.tool_set_type == 4 || item2.tool && item2.tool.tool_type == 4){
                                         command = item2.command;
                                      }
                                      temp_list.push([{

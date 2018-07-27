@@ -391,11 +391,11 @@
                                 })
                                 temp3['default_script_parameter'] = default_script_parameter;
                             }else{
-                                temp3['default_script_parameter'] = JSON.parse(item2.default_script_parameter.replace(/'/g,'"'));
+                                temp3['default_script_parameter'] = item2.default_script_parameter ? JSON.parse(item2.default_script_parameter.replace(/'/g,'"')) : [] ;
                                 temp3['command_tool_id'] = item2['command_tool_id'];
                                 temp3['command_tool_version'] = item2['command_tool_version'];
                             }
-                            if(item2.tool_set_type == 4){
+                            if(item2.tool_set_type && item2.tool_set_type == 4 || item2.tool && item2.tool.tool_type == 4){
                                 temp3['command'] = item2.command;
                                 temp3['tool_type'] = 4;
                                 temp3['script_path'] = item2.script_path;
