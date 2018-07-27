@@ -137,7 +137,7 @@ Vue.component('task-info', {
                             });
                             editor.setSize('auto', '250px');
                         }
-                        window.editor.setValue(cmd.command.replace(/\n/g,'<br/>'));
+                        window.editor.setValue(cmd.command); //.replace(/\n/g,'<br/>')
                     },500)
                 }
             }
