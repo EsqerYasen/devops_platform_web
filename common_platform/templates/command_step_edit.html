@@ -378,8 +378,16 @@
                         $(line1).each(function(i2,item2){
                             var temp3 = {};
                             temp3['sub_seq_no'] = item2['sub_seq_no'];
-                            temp3['command_tool_id'] = item2['tool_id'];
-                            temp3['command_tool_version'] = item2['currentVersion'];
+                            var command_tool_id = item2['command_tool_id'];
+                            if(!command_tool_id){
+                                command_tool_id = item2['tool_id'];
+                            }
+                            var command_tool_version = item2['command_tool_id'];
+                            if(!command_tool_version){
+                                command_tool_version = item2['currentVersion'];
+                            }
+                            temp3['command_tool_id'] = command_tool_id;
+                            temp3['command_tool_version'] = command_tool_version;
                             temp3['is_error_continue'] = item2['ignoreData']?1:0;
                             var parma = item2['param'];
                             if(parma){

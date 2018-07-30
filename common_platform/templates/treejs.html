@@ -1,20 +1,34 @@
 <script>
 	$(function(){
         var hostGroupTreeList = {{ hostGroup_list|safe }};
-        readHostGroupTreeNext(hostGroupTreeList,0);
+{#        readHostGroupTreeNext(hostGroupTreeList,0);#}
+{#        zHostGroupTreeInit();#}
+        initTreeData(hostGroupTreeList);
         zHostGroupTreeInit();
     });
 	var zHostGroupNodes = [];
 
-    function readHostGroupTreeNext(list,pid){
+{#    function readHostGroupTreeNext(list,pid){#}
+{#        $(list).each(function(i,item){#}
+{#            var ids = item.id;#}
+{#            var nodeData = {id:ids,pId:pid,name:item.name,nodeId:ids,open:true,hasIp:item.has_ip};#}
+{#            zHostGroupNodes.push(nodeData);#}
+{#            if(item.childs){#}
+{#                readHostGroupTreeNext(item.childs,ids);#}
+{#            }#}
+{#        });#}
+{#    }#}
+
+    var zHostGroupNodes = [];
+    var middleware = {"memcached":1,"nginx":1,"rabbitmq":1,"haproxy":1,"mongodb":1,"redis":1}
+    function initTreeData(list){
         $(list).each(function(i,item){
-            var ids = item.id;
-            var nodeData = {id:ids,pId:pid,name:item.name,nodeId:ids,open:true,hasIp:item.has_ip};
-            zHostGroupNodes.push(nodeData);
-            if(item.childs){
-                readHostGroupTreeNext(item.childs,ids);
+            item['nocheck'] = false;
+            if(middleware[item.name]){
+                item['iconSkin'] ="middleware";
             }
-        });
+            zHostGroupNodes.push(item);
+        })
     }
 
     function zHostGroupTreeInit(){
@@ -24,7 +38,7 @@
             },
             check: {
                 enable: true,
-                chkboxType:  { "Y": "", "N": "" }
+                chkboxType:  { "Y": "s", "N": "s" }
             },
             data: {
                 simpleData: {
@@ -45,7 +59,7 @@
         var values = getSelectHostFromModal();
         if(!$.isEmptyObject(values)){
             var obj = {};
-            obj = {'target_group_ids':values['id']}
+            obj = {'target_group_ids':values['target_group_ids']}
             var target_type = 1;
             if(ips.length > 0){
                 values['target_host_list']= ips;
@@ -73,7 +87,7 @@
                     layer.closeAll('loading');
                 },
                 success: function (data) {
-                    createSelectHostIpTable(data.host_list.data);
+                    createSelectHostIpTable(data.host_list);
                     layer.closeAll('loading');
                 }
             });
@@ -89,12 +103,14 @@
         var nodes = host_group_tree.getCheckedNodes(true);
         var groupIds = "";
         $(nodes).each(function(i,item){
-            groupIds += item.nodeId+",";
+            if(item.check_Child_State <0){
+                groupIds += item.id+",";
+            }
         });
         if(groupIds){
             groupIds = groupIds.substring(0,groupIds.length-1);
         }
-        result['group_id'] = groupIds;
+        result['target_group_ids'] = groupIds;
 
         if(!$.isEmptyObject(result)){
             result['go_live'] = $("#host_go_live").val();
@@ -114,9 +130,9 @@
 
                 var htmlStr =  htmlStr = "<tr>" +
                     "   <td>" +
-                    "       <input type='checkbox' class='i-checks icheck' hostip='"+item+"' name='trCheckbox'>" +
+                    "       <input type='checkbox' class='i-checks icheck' hostip='"+item.host_ip+"' name='trCheckbox'>" +
                     "   </td>" +
-                    "   <td>" + item +"</td>"+
+                    "   <td>" + item.host_ip +"</td>"+
                     "</tr>";
                 hostIpTb.append(htmlStr);
             });
