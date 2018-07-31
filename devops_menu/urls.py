@@ -10,5 +10,6 @@ urlpatterns = [
   url(r'^rest/', include([
         url(r'^menuItems/$', rest_views.MenuItemsView.as_view()),
         url(r'^menu/$', rest_views.MenuView.as_view()),
+        url(r'^menuItems/changeOrder/$', rest_views.MenuItemsOrder.as_view()),
     ]))
 ]

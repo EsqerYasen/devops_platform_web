@@ -100,7 +100,7 @@ class MenuView(LoginRequiredMixin, APIView):
                     LEFT OUTER JOIN (select * from {1}.devops_auth_module_groups_users where user_id = {0} and is_enabled<>0 ) mgu ON mgu.group_id = mgs.group_id
                     LEFT OUTER JOIN (select group_id,user_id from {1}.auth_user_groups where user_id = {0}) ug ON (ug.group_id = ugp.group_id )
                     where (mgu.user_id={0} or mgu.user_id={0} or mp.user_id={0} or ug.user_id={0})
-                    group by m.open_db, m.open_table, m.open_id order by dmm.update_time desc
+                    group by m.open_db, m.open_table, m.open_id order by dmm.order_index desc
             """.format(self.request.user.id, settings.DB_NAME['WEB_DB'], settings.DB_NAME['WEB_DB'], 'devops_menu_menuitem')
             data = DBUtils.query(sql)
             if self.request.user.is_superuser:
@@ -133,7 +133,7 @@ class MenuItemsView(LoginRequiredMixin, APIView):
                 condition = "has_sub_menu =1 "
             else:
                 condition = 1
-            sql = "SELECT id, name, menu, parent_id, has_sub_menu FROM  devops_menu_menuitem where {0} and is_enabled = 1".format(condition)
+            sql = "SELECT id, name, menu, parent_id, has_sub_menu, order_index  FROM  devops_menu_menuitem where {0} and is_enabled = 1 order by order_index desc".format(condition)
             data = DBUtils.query(sql)
             result['info'] = (data)
         except Exception as e:
@@ -180,7 +180,10 @@ class MenuItemsView(LoginRequiredMixin, APIView):
                     if error:
                         return HttpResponseBadRequest(error)
 
-                    m = Menu(name=name,menu=menu,parent_id=parentId,has_sub_menu=has_sub,created_by=request.user.username,updated_by=request.user.username)
+                    m = Menu(name=name,menu=menu,parent_id=parentId,has_sub_menu=has_sub,created_by=request.user.username,updated_by=request.user.username, order_index=1)
+                    m.save()
+                    m = Menu.objects.get(id=m.id)
+                    m.order_index=m.id
                     m.save()
                     result['status'] = 0
                     result['msg'] = "保存成功"
@@ -193,4 +196,32 @@ class MenuItemsView(LoginRequiredMixin, APIView):
                 return HttpResponseBadRequest(result['msg'])
         return HttpResponse(json.dumps(result),content_type='application/json')
 
-
+class MenuItemsOrder(LoginRequiredMixin, APIView):
+    def post(self, request):
+        result = {}
+        hu = HttpUtils(self.request)
+        input_dict = hu.getRequestParam()
+        print(input_dict)
+        print (request.POST.get('from', '{}'))
+        _f = request.POST.get('from', '{}')
+        print (request.POST.get('to', '{}'))
+        _t = request.POST.get('to', '{}')
+        _from = json.loads(_f)
+        _to = json.loads(_t)
+        m1 = None
+        m2 = None
+        print(_from, _to)
+        if _from and _from['id']:
+            m1 = Menu.objects.get(id=_from['id'])
+        if _to and _to['id']:
+            m2 = Menu.objects.get(id=_to['id'])
+        print (m1.order_index, m1)
+        print (m2.order_index, m2)
+        tempOrderIdx = None
+        if m1 and m2:
+            tempOrderIdx = m1.order_index
+            m1.order_index = m2.order_index;
+            m1.save()
+            m2.order_index = tempOrderIdx;
+            m2.save()
+        return HttpResponse(json.dumps(result),content_type='application/json')

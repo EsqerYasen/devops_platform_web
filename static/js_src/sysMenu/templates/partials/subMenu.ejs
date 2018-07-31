@@ -1,7 +1,7 @@
 <%console.log(locals);%>
 <%if(locals.item && locals.item.submenu && locals.item.submenu.length) {%>
     <ul class="nav nav-second-level">
-    <%$.each(locals.item.submenu, function(i, item){%>
+    <%$.each(locals.item.submenu.sort(function(a,b){return a.order_index<b.order_index}), function(i, item){%>
         <li>
             <%-item.menu%>
         </li>

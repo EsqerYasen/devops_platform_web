@@ -1,11 +1,24 @@
 <%if(locals.item) {%>
-<tr class="menu_list">
-    <td class="idx"><%=locals.idx%></td>
-    <td class="name"><%=locals.item.name%></td>
-    <!--<td class="menu"><%=locals.item.menu%></td>-->
-    <td class="oper" data-item="<%=JSON.stringify(locals.item)%>" data-id="<%=locals.item.id%>">
-        <button class="remove" data-action="remove">删除</button>
-        <button class="edit" data-action="edit">编辑</button>
-    </td>
-</tr>
+    <div class="menu_section can_drag " draggable="true" id="menu_section_<%= locals.idx%>" data-id="<%=locals.item.id%>" data-type="parent">
+        <div class="menu_list menu_row  menu_header flex">
+            <div class="idx idx_col"><%=locals.idx%></div>
+            <div class="name name_col"><%=locals.item.name%></div>
+            <div class="oper oper_col" data-item="<%=JSON.stringify(locals.item)%>" data-id="<%=locals.item.id%>">
+                <button class="remove" data-action="remove">删除</button>
+                <button class="edit" data-action="edit">编辑</button>
+            </div>
+        </div>
+        <% if (locals.item.subMenu && locals.item.subMenu.length) {%>
+            <% $.each(locals.item.subMenu.sort(function(a,b){return a.order_index<b.order_index}), function(_i, _item){%>
+                <div class="flex menu_sub_list menu_row can_drag <%= (_i)%2===1 ? "even": "odd" %>" draggable="true"  id="menu_sub_list_<%=_item.id%>" data-id="<%=_item.id%>" data-type="sub_menu" data-parent="<%=locals.item.id%>">
+                    <div class="idx idx_col">&nbsp;</div>
+                    <div class="name name_col"><%=_item.name%></div>
+                    <div class="oper oper_col" data-item="<%=JSON.stringify(_item)%>" data-id="<%=_item.id%>">
+                        <button class="remove" data-action="remove">删除</button>
+                        <button class="edit" data-action="edit">编辑</button>
+                    </div>
+                </div>
+            <%})%>
+        <%}%>
+    </div>
 <%}%>

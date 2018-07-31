@@ -11,6 +11,7 @@ class MenuItem(models.Model):
     menu        = models.TextField(verbose_name='菜单', default="")
     parent_id   = models.IntegerField(verbose_name="parent ID", null=False)
     has_sub_menu = models.NullBooleanField(verbose_name='含有子菜单', default=False, null=False, blank=False)
+    order_index = models.IntegerField(verbose_name="order index", null=False)
 
     def __str__(self):
         return self.name

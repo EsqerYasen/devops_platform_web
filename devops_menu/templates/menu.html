@@ -9,6 +9,8 @@
 {% block script_include %}
 <link href="/static/hplus/css/bootstrap.min14ed.css?v=3.3.6" rel="stylesheet">
 <link href="/static/styles/styles.css" media="screen" rel="stylesheet" type="text/css" />
+<link href="/static/styles/deploy.css" rel="stylesheet" type="text/css" />
+
 <script src="/static/hplus/js/jquery.min.js?v=2.1.4"></script>
 <script src="/static/hplus/js/bootstrap.min.js?v=3.3.6"></script>
 {% endblock %}
@@ -71,27 +73,14 @@
             <label class="pull-right "> <button class="addMenu">添加菜单项</button> </label>
         </div>
         <div class="cotainer  col-xs-12 col-md-12 scrollAble">
-            <table class="table-striped table-bordered table-hover col-xs-12 col-md-12">
-                <thead>
-                    <th>
-                        #
-                    </th>
-                     <th>
-                        菜单名
-                    </th>
-                    <!--
-                    <th>
-                        Menu
-                    </th>
-                    -->
-                     <th>
-                        操作
-                    </th>
-                </thead>
-                <tbody class="data-grid ">
-
-                </tbody>
+            <div class="menu_list menu_row  flex">
+                <div class="idx idx_col">#</div>
+                <div class="name name_col">菜单名</div>
+                <div class="oper oper_col">
+                    操作
+                </div>
             </div>
+            <div class="data-grid"/>
         </div>
     </div>
     <div id="yumModal" class="yumModal modal fade" role="dialog">

@@ -11,3 +11,11 @@ CREATE TABLE `devops_menu_menuitem`(
     `update_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
     PRIMARY KEY(`id`)
 ) ENGINE = InnoDB COMMENT = '系统菜单';
+
+
+--patch--
+
+ALTER TABLE `devops_menu_menuitem`
+ADD COLUMN `order_index` INT(11) NOT NULL DEFAULT 1;
+
+update devops_menu_menuitem set order_index = id where 1  limit 1000;

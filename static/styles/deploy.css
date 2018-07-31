@@ -14,3 +14,54 @@ div.scrollable{
   overflow: auto;
   height: 650px;
 }
+.menu_section{
+    border: 1px dotted #aaa;
+    overflow: hidden;
+}
+.menu_header{
+    background-color: #aeaeae;
+}
+.menu_sub_list:nth-child(2n){
+    background-color: #efefef;
+}
+.menu_sub_list:nth-child(2n+1){
+    background-color: #dedede;
+}
+.menu_row{
+    height: 50px;
+}
+.menu_row>div {
+    line-height: 30px;
+    height: 30px;
+    margin-top: 10px;
+}
+.menu_row .oper button{
+    line-height: 30px;
+    height: 30px;
+}
+
+.overlap{
+    border: 4px dashed #ee33dd;
+}
+.drag{
+    border: 4px dotted #33ddee;
+}
+
+.draging{
+    border: 4px dotted #33ddee;
+}
+.flex{
+    display: flex;
+}
+.flex>div{
+    text-align: center;
+}
+.idx_col{
+    width: 50px;
+}
+.oper_col{
+    width: 100px;
+}
+.name_col{
+    width: 400px;
+}

@@ -1,5 +1,5 @@
 <%if(locals.items && locals.items.length) {%>
-    <%$.each(locals.items, function(i, item){%>
+    <%$.each(locals.items.sort(function(a,b){return a.order_index<b.order_index}), function(i, item){%>
         <li>
             <%-item.menu%>
             <%- require('./partials/subMenu.ejs')({item: item}) %>
