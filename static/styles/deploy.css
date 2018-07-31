@@ -57,11 +57,20 @@ div.scrollable{
     text-align: center;
 }
 .idx_col{
-    width: 50px;
+    min-width: 50px;
+    width: 10%;
 }
-.oper_col{
-    width: 100px;
+div.oper.oper_col{
+    min-width: 100px;
+    width: 20%;
+    text-align: right;
+    margin-right: 20px;
 }
 .name_col{
-    width: 400px;
+    min-width: 400px;
+    width: 70%;
+}
+.menu_section{
+    border: 1px solid #ccc;
+    margin-top: 5px;
 }
