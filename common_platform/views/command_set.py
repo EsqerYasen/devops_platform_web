@@ -277,7 +277,7 @@ class CommandStepExecLogView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseM
             deploy_id = req_p.get("exec_id", None)
             bind_type = req_p.get("bind_type", 1)
             exec_type = req_p.get("exec_type", 1)
-            log_key_index = int(req_p.get("log_key_index", None))
+            log_key_index = int(req_p.get("log_key_index", 0))
             log_index = int(req_p.get("log_index", 0))
             log_str = ""
             if deploy_id and bind_type:

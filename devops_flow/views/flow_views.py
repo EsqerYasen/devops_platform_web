@@ -289,27 +289,27 @@ class DevopsFlowOperationView(LoginRequiredMixin, JSONResponseMixin,AjaxResponse
             logger.error(e,exc_info=1)
         return HttpResponse(json.dumps(result),content_type='application/json')
 
-class DevopsFlowReportView(LoginRequiredMixin, JSONResponseMixin, AjaxResponseMixin, TemplateView):
-    template_name = "flow_report.html"
-    def get_context_data(self, **kwargs):
-        context = super(DevopsFlowReportView, self).get_context_data(**kwargs)
-        try:
-            hu = HttpUtils(self.request)
-            ec_grafana_graph_result = hu.get(serivceName="job", restName="/rest/deploy/ec_grafana_graph/", datas={})
-            result = ec_grafana_graph_result.get('data',[])
-            for item in result:
-                total = 0
-                for item2 in item['env']:
-                    total += int(item2['value'])
-                item['env_total'] = total
-                total = 0
-                for item2 in item['channel']:
-                    total += int(item2['value'])
-                item['channel_total'] = total
-            context['result']=result
-        except Exception as e:
-            logging.error(e)
-        return context
+# class DevopsFlowReportView(LoginRequiredMixin, JSONResponseMixin, AjaxResponseMixin, TemplateView):
+#     template_name = "flow_report.html"
+#     def get_context_data(self, **kwargs):
+#         context = super(DevopsFlowReportView, self).get_context_data(**kwargs)
+#         try:
+#             hu = HttpUtils(self.request)
+#             ec_grafana_graph_result = hu.get(serivceName="job", restName="/rest/deploy/ec_grafana_graph/", datas={})
+#             result = ec_grafana_graph_result.get('data',[])
+#             for item in result:
+#                 total = 0
+#                 for item2 in item['env']:
+#                     total += int(item2['value'])
+#                 item['env_total'] = total
+#                 total = 0
+#                 for item2 in item['channel']:
+#                     total += int(item2['value'])
+#                 item['channel_total'] = total
+#             context['result']=result
+#         except Exception as e:
+#             logging.error(e)
+#         return context
 
 # class DevopsFlowReportView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, TemplateView):
 #     template_name = "flow_report.html"

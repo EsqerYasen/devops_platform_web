@@ -234,7 +234,7 @@
 
 			        var _this = this;
                     var reqData = {}
-                    var group_id = this.post.tree.group_id;
+                    var group_id = this.post.tree.target_group_ids;
                     if(!group_id){
                         Alertwin.alert({message:"未勾选机器组或机器"});
                         return;

@@ -355,7 +355,7 @@
                                  if(temp_list[index]){
                                      command = item2.tool.command;
                                      if(item2.tool_set_type && item2.tool_set_type == 4 || item2.tool && item2.tool.tool_type == 4){
-                                        command = item2.command;
+                                        command = item2.script_path;
                                      }
                                      temp_list[index].push({
                                          "id":item2.command_tool_id,
@@ -386,7 +386,7 @@
                                      }
                                      command = item2.tool.command;
                                      if(item2.tool_set_type && item2.tool_set_type == 4 || item2.tool && item2.tool.tool_type == 4){
-                                        command = item2.command;
+                                        command = item2.script_path;
                                      }
                                      temp_list.push([{
                                          "id":item2.command_tool_id,

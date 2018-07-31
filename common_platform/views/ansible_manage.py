@@ -1,6 +1,7 @@
 from braces.views import *
 from django.views.generic import *
 from common.utils.HttpUtils import *
+from common.utils.redis_utils import *
 from django.http import HttpResponse
 from django.core.paginator import Paginator
 import logging,time,os
@@ -13,10 +14,11 @@ class AnsibleMgeView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, Te
     def get_context_data(self, **kwargs):
         context = {}
         try:
-            hu = HttpUtils(self.request)
-            getData = {'offset': 0, 'limit': 1000, 'is_enabled': 1}
-            hostgroupResult = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_tree/", datas=getData)
-            context['hostGroup_list'] = hostgroupResult.get("data", [])
+            #hu = HttpUtils(self.request)
+            #getData = {'offset': 0, 'limit': 1000, 'is_enabled': 1}
+            #hostgroupResult = hu.get(serivceName="cmdb", restName="/rest/hostgroup/list_tree/", datas=getData)
+            #context['hostGroup_list'] = hostgroupResult.get("data", [])
+            context['hostGroup_list'] = RedisBase.get("host_group_3", 2)
         except Exception as e:
             logger.error(e,exc_info=1)
         return context
@@ -30,9 +32,9 @@ class AnsibleMgeView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, Te
 
             if runJson:
                 run_data = json.loads(runJson)
-                runResult = hu.post(serivceName="job", restName="/rest/job/run_ansible/", datas=run_data)
+                runResult = hu.post(serivceName="p_job", restName="/rest/commandset/ansibleruncmd/", datas=run_data) #/rest/job/run_ansible/
                 runResult = runResult.json()
-                if runResult['status'] == "SUCCESS":
+                if runResult['status'] == 200:
                     result['data'] = runResult.get("data",[])
                 else:
                     result['status'] = 1
@@ -53,7 +55,7 @@ class AnsibleMgeLogsListView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseM
             req = self.request
             hu = HttpUtils(req)
             reqData = hu.getRequestParam()
-            logsListResult = hu.get(serivceName="job", restName="/rest/job/list_ansible_history/", datas=reqData)
+            logsListResult = hu.get(serivceName="p_job", restName="/rest/commandset/ansiblehistorylist/", datas=reqData) #/rest/job/list_ansible_history/
             list = logsListResult.get("results", [])
             paginator = Paginator(list, req.limit)
             count = logsListResult.get("count", 0)
@@ -71,7 +73,7 @@ class AnsibleMgeLogsListView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseM
         try:
             hu = HttpUtils(self.request)
             reqData = hu.getRequestParam()
-            logsListResult = hu.get(serivceName="job", restName="/rest/job/get_ansible_log_by_id/", datas={"id":reqData.get("id",0)})
+            logsListResult = hu.get(serivceName="p_job", restName="/rest/commandset/ansibleoutput/", datas={"id":reqData.get("id",0)}) #/rest/job/get_ansible_log_by_id/
             result['status'] = 0
             result['logs'] = logsListResult.get("data", [])
         except Exception as e:

@@ -247,8 +247,8 @@ class DevopsToolsYamlCheckView(LoginRequiredMixin,JSONResponseMixin, View):
             finally:
                 f.close()
             if fileName:
-                resultJson = hu.get(serivceName="job", restName="/rest/job/test_yaml/", datas={"file": fileName})
-                if resultJson['status'] == 'SUCCESS':
+                resultJson = hu.get(serivceName="p_job", restName="/rest/tool/syntaxcheckyaml/", datas={"file": fileName})
+                if resultJson['status'] == 200:
                     result['status'] = 0
                 else:
                     result['status'] = 1

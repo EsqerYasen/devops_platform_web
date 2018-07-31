@@ -103,10 +103,11 @@ Vue.component('task-info', {
                 }
                 Vue.set(this.curCmd, 'currentVersion', Number(this.curCmd.currentVersion ?this.curCmd.currentVersion : this.versions[0]).toFixed(1)); //默认选中第一个（最新使用版本）
                 // 根据id和版本号查找到对应的参数列表
-                this.getParamsByVersion(cmd.tool_id,this.curCmd.currentVersion, null);
+                this.getParamsByVersion(cmd.tool_id,this.curCmd.currentVersion, null,this.curCmd);
             }else if(cmd.command_tool_version){  //编辑
                 var _this = this;
                 this.tool = cmd.tool;
+                this.curCmd.currentVersion =  cmd.command_tool_version
                 if (cmd.tool.tool_type === 5) { // 自定义工具
                     $.get("/platform/toolset/list", function (result) {
                         result.data.filter(function (version, index) {
@@ -120,7 +121,7 @@ Vue.component('task-info', {
                         cmd.default_script_parameter = JSON.parse(cmd.default_script_parameter.replace(/'/g, '"'));
                     }
                     // 根据id和版本号查找到对应的参数列表
-                    this.getParamsByVersion(cmd.command_tool_id, cmd.command_tool_version, cmd.default_script_parameter);
+                    this.getParamsByVersion(cmd.command_tool_id, cmd.command_tool_version, cmd.default_script_parameter,this.curCmd);
                 }
                 if (cmd.tool.tool_type === 4) {  //默认 shell
                     console.log('----1',this.curCmd)
@@ -137,7 +138,7 @@ Vue.component('task-info', {
                             });
                             editor.setSize('auto', '250px');
                         }
-                        window.editor.setValue(cmd.command.replace(/\n/g,'<br/>'));
+                        window.editor.setValue(cmd.command);
                     },500)
                 }
             }
@@ -160,32 +161,40 @@ Vue.component('task-info', {
             //  },500)
 
         },
-        getParamsByVersion: function (tool_id, currentVersion, default_script_parameter) {
+        getParamsByVersion: function (tool_id, currentVersion, default_script_parameter,cmdObj) {
             var _this = this;
             $.get("/working/tools/infobytoolidandversion/?tool_id="+tool_id + "&tool_version=" + Number(currentVersion).toFixed(1),function(result){
                 var paramList = [];
-                var param = result.data.param;
-                var tool_type = result.data.tool_type;
-                if(param){
-                    var jsonObj =  JSON.parse(param);//转换为json对象
-                    for(var i=0;i<jsonObj.length;i++){
-                        paramList.push(jsonObj[i]);
+                if (result.data && result.data.param){
+                    var param = result.data.param;
+                    if(param && param !== '[]'){
+                        var jsonObj =  JSON.parse(param);//转换为json对象
+                        for(var i=0;i<jsonObj.length;i++){
+                            paramList.push(jsonObj[i]);
+                        }
                     }
                 }
+                var tool_type = result.data.tool_type;
                 if(tool_type==4){
                     console.log("********document.getElementById(\"code\")************", document.getElementById("code"))
-                    window.editor = null;
-                    $('.CodeMirror').remove();
-                    if (!window.editor) {
-                        window.editor = CodeMirror.fromTextArea(document.getElementById("code"), {
-                            lineNumbers: true,
-                            styleActiveLine: true,
-                            matchBrackets: true,
-                            theme: 'eclipse'
-                        });
-                        editor.setSize('auto', '250px');
-                    }
-                    window.editor.setValue(result.data.command);
+                    setTimeout(function() {
+                        window.editor = null;
+                        $('.CodeMirror').remove();
+                        if (!window.editor) {
+                            window.editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+                                lineNumbers: true,
+                                styleActiveLine: true,
+                                matchBrackets: true,
+                                theme: 'eclipse'
+                            });
+                            editor.setSize('auto', '250px');
+                        }
+                        if (cmdObj && cmdObj.command) {
+                            window.editor.setValue(cmdObj.command);  // 保存上一次编辑信息
+                        } else {
+                            window.editor.setValue(result.data.command);
+                        }
+                    },500)
                 }
                 // 显示上次更改记录
                 if(default_script_parameter) {
@@ -218,9 +227,9 @@ Vue.component('task-info', {
         },
         changeVersion: function (currentCmd,action) {
             if(action === 'edit'){
-                this.getParamsByVersion(currentCmd.command_tool_id, currentCmd.command_tool_version, null)
+                this.getParamsByVersion(currentCmd.command_tool_id, currentCmd.command_tool_version, null,null)
             }else if(action === 'add'){
-                this.getParamsByVersion(currentCmd.tool_id, currentCmd.currentVersion, null)
+                this.getParamsByVersion(currentCmd.tool_id, currentCmd.currentVersion, null,null)
             }
         },
         closeEdit:function(currentCmd){
