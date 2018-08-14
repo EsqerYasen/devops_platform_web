@@ -49,7 +49,8 @@ class PreSrbCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, 
             context['display'] = "block"
             context['type'] = 0
             user = self.request.user
-            result = {"applicant":user.username,"applicant_email":user.email}
+            #result = {"applicant":user.username,"applicant_email":user.email}
+            result = {"applicant": user.username}
             context['result'] = result
             is_auditor = 0
             if self.request.devopsgroup == DEVOPSGROUP:
@@ -104,7 +105,7 @@ class PreSrbUpdateView(LoginRequiredMixin, TemplateView):
         context["is_add"] = 1
         id = kwargs.get('pk', 0)
         type = self.request.GET.get("type",0)
-        context['type'] = type
+        context['type'] = int(type)
         readonly = ""
         display = "block"
         if int(type) > 0:

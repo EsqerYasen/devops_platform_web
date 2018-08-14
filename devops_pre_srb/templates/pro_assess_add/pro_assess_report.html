@@ -193,11 +193,11 @@
     function disagree(){
         $.ajax({
             type: "GET",
-            url: '/presrb/project/pro_change/',
+            url: '/presrb/project/projectupdatestatus/',
             data:{"p_id":{{result.id}},"status":1},
             error: function (request) {},
             success: function (data) {
-                if(data.status = "SUCCESS"){
+                if(data.status == 200){
                     Alertwin.alert({ message: "操作成功"});
                     window.location.href="../list/";
                 }else{

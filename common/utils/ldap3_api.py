@@ -50,6 +50,7 @@ class AdAuthenticate:
                     'dn':entry['dn'],
                     'cn':attr_dict['cn'],
                     'sn':attr_dict['sn'],
+                    'mail':attr_dict['mail'],
                     'displayName': attr_dict['displayName'],
                     'description': attr_dict['description'],
                 }
