@@ -73,23 +73,25 @@
                      {% endif %}
                 </td>
                 <td>
-                {% if is_auditor == 0 %}
-                    {% if o.status == 2 %}
-                    <a href="../{{ o.id }}/edit/?type=1" class="btn btn-sm btn-success"><i class="fa fa-search"></i> 查看</a>
-                    <a href="javascript:void(0);" onclick="project_change({{ o.id }},1)" class="btn btn-sm btn-success"><i class="fa fa-edit"></i> 撤回</a>
-                    {% elif o.status == 1 %}
-                    <a href="../{{ o.id }}/edit/?type=0" class="btn btn-sm btn-success"><i class="fa fa-edit"></i> 编辑</a>
-                    {% else %}
-                    <a href="../{{ o.id }}/edit/?type=1" class="btn btn-sm btn-success"><i class="fa fa-edit"></i> 查看</a>
-                    {% endif %}
-                {% else %}
+{#                {% if is_auditor == 0 %}#}
+{#                    {% if o.status == 2 %}#}
+{#                    <a href="../{{ o.id }}/edit/?type=1" class="btn btn-sm btn-success"><i class="fa fa-search"></i> 查看</a>#}
+{#                    <a href="javascript:void(0);" onclick="project_change({{ o.id }},1)" class="btn btn-sm btn-success"><i class="fa fa-edit"></i> 撤回</a>#}
+{#                    {% elif o.status == 1 %}#}
+{#                    <a href="../{{ o.id }}/edit/?type=0" class="btn btn-sm btn-success"><i class="fa fa-edit"></i> 编辑</a>#}
+{#                    {% else %}#}
+{#                    <a href="../{{ o.id }}/edit/?type=1" class="btn btn-sm btn-success"><i class="fa fa-edit"></i> 查看</a>#}
+{#                    {% endif %}#}
+{#                {% else %}#}
                     {% if o.status == 2 %}
                     <a href="../{{ o.id }}/edit/?&type=2" class="btn btn-sm btn-success"><i class="glyphicon glyphicon-eye-open"></i> 审核</a>
                     {% else %}
                     <a href="../{{ o.id }}/edit/?type=1" class="btn btn-sm btn-success"><i class="fa fa-search"></i> 查看</a>
                     {% endif %}
+                    {% if o.status > 2 %}
                     <a href="javascript:void(0);" onclick="project_change({{ o.id }},2)" class="btn btn-sm btn-success" title="重置到待审核状态"><i class="glyphicon glyphicon-repeat"></i> 重置</a>
-                {% endif %}
+                    {% endif %}
+{#                {% endif %}#}
                 </td>
             </tr>
         {% endfor %}

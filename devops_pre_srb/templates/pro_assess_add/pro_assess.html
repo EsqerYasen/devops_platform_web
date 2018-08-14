@@ -48,9 +48,10 @@
                             <ul class="pager wizard">
                                 <li id="previous" class="previous"><a href="#">上一页</a></li>
                                 <li id="next" class="next"><a href="#" title="点击下一页会触发本页数据保存">下一页</a></li>
-                                {% if is_auditor == 0 and type == 2 or type == 0%}
-                                <button id="submit2" type='button' class='btn btn-sm btn-success' style="float:right;display: none" onclick="submit()"><i class="fa fa-save"></i> 提交审核</button>
-                                {% elif is_auditor == 1 or is_auditor == '2' and type == 2%}
+{#                                {% if is_auditor == 0 and type == 2 or type == 0%}#}
+{#                                <button id="submit2" type='button' class='btn btn-sm btn-success' style="float:right;display: none" onclick="submit()"><i class="fa fa-save"></i> 提交审核</button>#}
+{#                                {% elif is_auditor == 1 or is_auditor == '2' and type == 2%}#}
+                                {% if is_auditor == 1 or is_auditor == '2' and type == 2%}
                                 <button id="agreebtn" type='button' class='btn btn-sm btn-success' style="float:right;display: none;margin-right: 10px" onclick="agreefun()"><i class="glyphicon glyphicon-ok"></i> 同意</button>
                                 <button id="disagreebtn" type='button' class='btn btn-sm btn-danger' style="float:right;display: none" onclick="disagreefun()"><i class="glyphicon glyphicon-remove"></i> 不同意</button>
                                 {% endif %}
@@ -94,7 +95,7 @@
             }
             tab4ReportView();
             $("#next").hide();
-            $("#submit2").css("display","block");
+{#            $("#submit2").css("display","block");#}
             {% if is_auditor == 1 or is_auditor == '2' and type == 2 or type == '2' %}
                 $("#agreebtn").css("display","block");
                 $("#disagreebtn").css("display","block");
@@ -113,14 +114,14 @@
     function onTabClickEvent(tab, navigation, currentIndex,d,g){
         if(d == 2){
             $("#next").hide();
-            $("#submit2").css("display","block");
+{#            $("#submit2").css("display","block");#}
             {% if is_auditor == 1 or is_auditor == '2' and type == 2 or type == '2' %}
                 $("#agreebtn").css("display","block");
                 $("#disagreebtn").css("display","block");
             {% endif %}
         }else{
             $("#next").show();
-            $("#submit2").css("display","none");
+{#            $("#submit2").css("display","none");#}
             {% if is_auditor == 1 or is_auditor == '2' and type == 2 or type == '2' %}
                 $("#agreebtn").css("display","none");
                 $("#disagreebtn").css("display","none");
@@ -135,14 +136,14 @@
         //$("#submit").css("display","none");
         if(index != 2){
             $("#next").show();
-            $("#submit2").css("display","none");
+{#            $("#submit2").css("display","none");#}
             {% if is_auditor == 1 or is_auditor == '2' and type == 2 or type == '2' %}
                 $("#agreebtn").css("display","none");
                 $("#disagreebtn").css("display","none");
             {% endif %}
         }else{
             $("#next").hide();
-            $("#submit2").css("display","block");
+{#            $("#submit2").css("display","block");#}
         }
     }
 
