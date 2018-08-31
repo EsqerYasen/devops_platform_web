@@ -21,7 +21,9 @@
     <div class="col-sm-6">
         <div class="input-group">
             <button type="submit" class="btn btn-sm btn-primary search" style="margin-right: 10px"><i class="fa fa-search"></i> 搜索</button>
+            {% if is_auditor == 0 or is_auditor == '0' %}
             <a href="../add/" class="btn btn-sm btn-success"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> 新增</a>
+            {% endif %}
         </div>
     </div>
 {% endblock %}
@@ -71,31 +73,46 @@
                      {% endif %}
                 </td>
                 <td>
-                {% if is_auditor == 0 %}
+{#                {% if is_auditor == 0 %}#}
+{#                    {% if o.status == 2 %}#}
+{#                    <a href="../{{ o.id }}/edit/?type=1" class="btn btn-sm btn-success"><i class="fa fa-search"></i> 查看</a>#}
+{#                    <a href="javascript:void(0);" onclick="project_change({{ o.id }},1)" class="btn btn-sm btn-success"><i class="fa fa-edit"></i> 撤回</a>#}
+{#                    {% elif o.status == 1 %}#}
+{#                    <a href="../{{ o.id }}/edit/?type=0" class="btn btn-sm btn-success"><i class="fa fa-edit"></i> 编辑</a>#}
+{#                    {% else %}#}
+{#                    <a href="../{{ o.id }}/edit/?type=1" class="btn btn-sm btn-success"><i class="fa fa-edit"></i> 查看</a>#}
+{#                    {% endif %}#}
+{#                {% else %}#}
                     {% if o.status == 2 %}
-                    <a href="../{{ o.id }}/edit/?type=1" class="btn btn-sm btn-success"><i class="fa fa-search"></i> 查看</a>
-                    <a href="javascript:void(0);" onclick="project_change({{ o.id }},1)" class="btn btn-sm btn-success"><i class="fa fa-edit"></i> 撤回</a>
-                    {% elif o.status == 1 %}
-                    <a href="../{{ o.id }}/edit/?type=0" class="btn btn-sm btn-success"><i class="fa fa-edit"></i> 编辑</a>
-                    {% else %}
-                    <a href="../{{ o.id }}/edit/?type=1" class="btn btn-sm btn-success"><i class="fa fa-edit"></i> 查看</a>
-                    {% endif %}
-                {% else %}
-                    {% if o.status == 2 %}
-                    <a href="../{{ o.id }}/edit/?&type=2" class="btn btn-sm btn-success"><i class="fa fa-edit"></i> 审核</a>
+                    <a href="../{{ o.id }}/edit/?&type=2" class="btn btn-sm btn-success"><i class="glyphicon glyphicon-eye-open"></i> 审核</a>
                     {% else %}
                     <a href="../{{ o.id }}/edit/?type=1" class="btn btn-sm btn-success"><i class="fa fa-search"></i> 查看</a>
                     {% endif %}
-                    <a href="javascript:void(0);" onclick="project_change({{ o.id }},2)" class="btn btn-sm btn-success"><i class="fa fa-edit"></i> 作废</a>
-                {% endif %}
+                    {% if o.status > 2 %}
+                    <a href="javascript:void(0);" onclick="project_change({{ o.id }},2)" class="btn btn-sm btn-success" title="重置到待审核状态"><i class="glyphicon glyphicon-repeat"></i> 重置</a>
+                    {% endif %}
+{#                {% endif %}#}
                 </td>
             </tr>
         {% endfor %}
         </tbody>
     </table>
     <script>
-        function project_change(id,type){
-
+        function project_change(id,status){
+            $.ajax({
+                type: "GET",
+                url: '/presrb/project/projectupdatestatus/',
+                data:{"p_id":id,"status":status},
+                error: function (request) {},
+                success: function (data) {
+                    if(data.status == 200){
+                        window.location.reload();
+                        Alertwin.alert({ message: "提交成功"});
+                    }else{
+                        Alertwin.alert({ message: "提交失败"});
+                    }
+                }
+            })
         }
     </script>
 {% endblock %}

@@ -1,5 +1,6 @@
 #-*- coding: UTF-8 -*-
 from django.contrib import auth
+from django.contrib.auth.models import User,Group
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.views.generic import TemplateView
@@ -35,6 +36,7 @@ def checkLogin(request):
         password = ""
         if method == "GET":
             code = request.GET.get('code',None)
+            username = request.GET.get('user',None)
             if code:
                 tokendata = settings.TOKEN_DATA
                 tokendata['code'] = code
@@ -47,6 +49,31 @@ def checkLogin(request):
                     userinfo = userinfo_result.json()
                     username = userinfo['yumADAccount'].lower()
                     bool = True
+            elif username:
+                ad_user = AdAuthenticate.getUserInfo(username)
+                if ad_user:
+                    user = User.objects.filter(username=username)
+                    if len(user) == 1:
+                        user = auth.authenticate(username=username, password=settings.USER_DEFAULT_PWD)
+                        bool = True
+                    else:
+                        cn = ad_user['cn'].split(',')
+                        user = User(
+                            username=username,
+                            password=settings.USER_DEFAULT_PWD,
+                            is_superuser=0,
+                            first_name=cn[0],
+                            last_name=cn[1],
+                            email=ad_user['email'],
+                            is_staff=0,
+                            is_active=1
+                        )
+                        user.save()
+                        group = Group.objects.filter(name=settings.PRE_SRB_GROUP)
+                        if user.id:
+                            group.user_set().add(user)
+                            bool = True
+
         elif method == "POST":
             username = request.POST.get('username',None)
             password = request.POST.get('password',None)

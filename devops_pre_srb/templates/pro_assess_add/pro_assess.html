@@ -2,9 +2,7 @@
 
 {% block content %}
 
-
-
-	<link href="/static/hplus/css/fileinput.min.css" rel="stylesheet">
+<link href="/static/hplus/css/fileinput.min.css" rel="stylesheet">
 <link href="/static/hplus/css/bwizard/bwizard.min.css" rel="stylesheet">
 
 <link href="/static/hplus/css/datetimepicker/bootstrap-datetimepicker.min.css" rel="stylesheet">
@@ -21,8 +19,6 @@
 
 <script type="text/javascript" src="/static/hplus/js/works/vue.min.js"></script>
 <script type="text/javascript" src="/static/hplus/js/works/vuex.js"></script>
-
-
 
 
 {#    <link href="/static/hplus/css/chosen/amazeui.min.css" rel="stylesheet">#}
@@ -52,11 +48,12 @@
                             <ul class="pager wizard">
                                 <li id="previous" class="previous"><a href="#">上一页</a></li>
                                 <li id="next" class="next"><a href="#" title="点击下一页会触发本页数据保存">下一页</a></li>
-                                {% if is_auditor == 0 %}
-                                <button id="submit2" type='button' class='btn btn-sm btn-success' style="float:right;display: none" onclick="submit()"><i class="fa fa-save"></i> 提交审核</button>
-                                {% elif is_auditor == 1 and type == 2 %}
-                                <button id="agreebtn" type='button' class='btn btn-sm btn-success' style="float:right;display: none" onclick="agreefun()"><i class="fa fa-save"></i> 同意</button>
-                                <button id="disagreebtn" type='button' class='btn btn-sm btn-success' style="float:right;display: none" onclick="disagreefun()"><i class="fa fa-save"></i> 不同意</button>
+{#                                {% if is_auditor == 0 and type == 2 or type == 0%}#}
+{#                                <button id="submit2" type='button' class='btn btn-sm btn-success' style="float:right;display: none" onclick="submit()"><i class="fa fa-save"></i> 提交审核</button>#}
+{#                                {% elif is_auditor == 1 or is_auditor == '2' and type == 2%}#}
+                                {% if is_auditor == 1 or is_auditor == '2' and type == 2%}
+                                <button id="agreebtn" type='button' class='btn btn-sm btn-success' style="float:right;display: none;margin-right: 10px" onclick="agreefun()"><i class="glyphicon glyphicon-ok"></i> 同意</button>
+                                <button id="disagreebtn" type='button' class='btn btn-sm btn-danger' style="float:right;display: none" onclick="disagreefun()"><i class="glyphicon glyphicon-remove"></i> 不同意</button>
                                 {% endif %}
                             </ul>
                         </div>
@@ -98,8 +95,8 @@
             }
             tab4ReportView();
             $("#next").hide();
-            $("#submit2").css("display","block");
-            {% if is_auditor == 1 and type == 2 %}
+{#            $("#submit2").css("display","block");#}
+            {% if is_auditor == 1 or is_auditor == '2' and type == 2 or type == '2' %}
                 $("#agreebtn").css("display","block");
                 $("#disagreebtn").css("display","block");
             {% endif %}
@@ -114,14 +111,21 @@
 
     }
 
-    function onTabClickEvent(tab, navigation, index){
-        if(index == 2){
+    function onTabClickEvent(tab, navigation, currentIndex,d,g){
+        if(d == 2){
             $("#next").hide();
-            $("#submit2").css("display","block");
-
+{#            $("#submit2").css("display","block");#}
+            {% if is_auditor == 1 or is_auditor == '2' and type == 2 or type == '2' %}
+                $("#agreebtn").css("display","block");
+                $("#disagreebtn").css("display","block");
+            {% endif %}
         }else{
             $("#next").show();
-            $("#submit2").css("display","none");
+{#            $("#submit2").css("display","none");#}
+            {% if is_auditor == 1 or is_auditor == '2' and type == 2 or type == '2' %}
+                $("#agreebtn").css("display","none");
+                $("#disagreebtn").css("display","none");
+            {% endif %}
         }
 
         //return false;
@@ -132,14 +136,14 @@
         //$("#submit").css("display","none");
         if(index != 2){
             $("#next").show();
-            $("#submit2").css("display","none");
-            {% if is_auditor == 1 and type == 2 %}
+{#            $("#submit2").css("display","none");#}
+            {% if is_auditor == 1 or is_auditor == '2' and type == 2 or type == '2' %}
                 $("#agreebtn").css("display","none");
                 $("#disagreebtn").css("display","none");
             {% endif %}
         }else{
             $("#next").hide();
-            $("#submit2").css("display","block");
+{#            $("#submit2").css("display","block");#}
         }
     }
 
@@ -162,15 +166,15 @@
         }
         $.ajax({
             type: "GET",
-            url: '/presrb/project/pro_change/',
+            url: '/presrb/project/projectupdatestatus/',
             data:{"p_id":p_id,"status":2},
             error: function (request) {},
             success: function (data) {
-                if(data.status == "SUCCESS"){
+                if(data.status == 200){
                     bool = true;
                     Alertwin.alert({ message: "提交成功"});
                     //window.location.href="../pro_report_views/?id="+p_id;
-                    //window.location.href="../list/"
+                    window.location.href="/presrb/project/list/";
                 }else{
                     bool = false;
                     Alertwin.alert({ message: "提交失败"});
@@ -178,6 +182,55 @@
             }
         })
     }
+
+    function agreefun(){
+        var p_id = $("#project_id").val();
+        if(!p_id){
+            Alertwin.alert({ message: "请先保存项目"});
+            return false;
+        }
+        $.ajax({
+            type: "GET",
+            url: '/presrb/project/projectupdatestatus/',
+            data:{"p_id":p_id,"status":3},
+            error: function (request) {},
+            success: function (data) {
+                if(data.status == 200){
+                    bool = true;
+                    Alertwin.alert({ message: "提交成功"});
+                    window.location.href="/presrb/project/list/";
+                }else{
+                    bool = false;
+                    Alertwin.alert({ message: "提交失败"});
+                }
+            }
+        })
+    }
+
+    function disagreefun(){
+        var p_id = $("#project_id").val();
+        if(!p_id){
+            Alertwin.alert({ message: "请先保存项目"});
+            return false;
+        }
+        $.ajax({
+            type: "GET",
+            url: '/presrb/project/projectupdatestatus/',
+            data:{"p_id":p_id,"status":4},
+            error: function (request) {},
+            success: function (data) {
+                if(data.status == 200){
+                    bool = true;
+                    Alertwin.alert({ message: "提交成功"});
+                    window.location.href="/presrb/project/list/";
+                }else{
+                    bool = false;
+                    Alertwin.alert({ message: "提交失败"});
+                }
+            }
+        })
+    }
+
 </script>
 
 

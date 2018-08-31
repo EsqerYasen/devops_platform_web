@@ -25,7 +25,7 @@
 			typekey="additional"
 			:show_checkbox="True"
 			:show_add="True"
-			discribe="运维 = (生产 + 灾备) * 10%"
+			discribe="默认 运维 = 生产 * 10% （最小1台）"
 			title="运维">
 	</evn-component>
 	<level level="S"> S级 : 主站节点全部高可用 有备份机房全部高可用  5星</level>
@@ -169,7 +169,6 @@
 			},
 			getTotal:function(key,key1){
 		        var total = 0;
-		        var total2 = 0;
 		        var pre_srb_additional = {{ pre_srb_additional }};
 		        var pre_srb_additional_percent = {{ pre_srb_additional_percent }};
 		        var lists = this.$store.state.evns[key].data;
@@ -181,26 +180,12 @@
 		                total+= parseInt(lists[i][key1]);
                     }
 		        }
-		        if((key == "production" || key == "disaster_recovery") && key1 == "estimated_server_count"){
-		            var dict = {"production":"disaster_recovery","disaster_recovery":"production"}
-		            var key2 = dict[key];
-		            var data2 = this.$store.state.evns[key2].data;
-		            total2 = total;
-		            if(data2.length > 0){
-		                var value = data2[0][key1];
-                        if(value){
-                            total2+= parseInt(value);
-                        }
+		        if(key == "production" && key1 == "estimated_server_count"){
+		            var total2 = parseInt(total * 0.1);
+                    //this.$store.state.evns['additional'].data[0][key1] = 0;
+                    if(total2 <= 0){
+                        total2 = 1;
                     }
-
-                    this.$store.state.evns[key].server_count = total2;
-                    if(total2 < 2){
-                        total2 = pre_srb_additional;
-                    }else{
-                        total2 = Math.ceil(total2 * pre_srb_additional_percent);
-                    }
-
-                    this.$store.state.evns['additional'].data[0][key1] = 0;
                     this.$store.state.evns['additional'].data[0][key1] = total2;
                 }
 		        return parseInt(total);
@@ -330,7 +315,16 @@
                                             if(data.status == 0){
                                                 $("#is_save3").val(1);
                                                 bool = true;
-                                                Alertwin.alert({ message: "操作成功"});
+                                                $('#rootwizard').bootstrapWizard('show',2);
+                                                tab4ReportView();
+                                                $("#next").hide();
+                                                $("#submit2").css("display","block");
+                                                {% if is_auditor == 1 or is_auditor == '2' and type == 2 or type == '2' %}
+                                                    $("#agreebtn").css("display","block");
+                                                    $("#disagreebtn").css("display","block");
+                                                {% endif %}
+
+                                                //Alertwin.alert({ message: "操作成功"});
                                             }else{
                                                 bool = false;
                                                 Alertwin.alert({ message: "操作失败"});
@@ -355,7 +349,7 @@
                                     if(data.status == 0){
                                         $("#is_save3").val(1);
                                         bool = true;
-                                        Alertwin.alert({ message: "操作成功"});
+                                        //Alertwin.alert({ message: "操作成功"});
                                     }else{
                                         bool = false;
                                         Alertwin.alert({ message: "操作失败"});
@@ -364,8 +358,6 @@
                                 }
                          })
                      }
-
-
 
                  }else{
                       Alertwin.alert({ message: "请先保存项目"});

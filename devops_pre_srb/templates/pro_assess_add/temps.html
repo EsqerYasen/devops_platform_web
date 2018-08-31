@@ -6,7 +6,7 @@
 		'panel-warning':typekey=='additional'}">
         <div class="panel-heading">
             <div class="row">
-                <div class="col-md-1" style="position: relative;display: {{ display }}">
+                <div class="col-md-1" v-if="typekey!='additional'" style="position: relative;display: {{ display }}">
 	                <span v-html="title"></span>
 	                 <label v-if="show_checkbox" class="is_tru" style="position: absolute;top: 3px; left: 60px">
                         <input type="checkbox" value="1" v-model="$store.state.evns[typekey].selected" @change="resetData(typekey)">
@@ -18,7 +18,7 @@
                 <div class="col-md-9">
 	                <span v-html="discribe"></span>
                 </div>
-	            <div class="col-md-2 text-right" v-if="$store.state.evns[typekey].selected" style="display: {{ display }}">
+	            <div class="col-md-2 text-right" v-if="$store.state.evns[typekey].selected && typekey!='additional'" style="display: {{ display }}">
 		            <i class="yum-font icon-plus-bold" style="cursor: pointer" @click="onAddData(typekey)"></i>
 	            </div>
             </div>
@@ -41,8 +41,8 @@
 				          </div>
 				          <transition-group name="list" tag="div">
 					           <div class="evnsbox clear" v-for="(item,index) in $store.state.evns[typekey].data" :key="item">
-                                   <div class="devbox mb5" style="padding: 0px 5px">
-										<select class="selectself" v-model="item.app_category_item" {{ readonly }}>
+                                   <div class="devbox mb5" v-if="typekey!='additional'" style="padding: 0px 5px">
+										<select class="selectself" v-model="item.app_category_item"  {{ readonly }}>
                                             <option :value="it.id" v-for="it in categoryItem_list" v-html="it.name"></option>
                                         </select>
 									</div>
@@ -56,14 +56,16 @@
 						           <div class="devbox mb5">
 										<span class="fix">CPU</span>
 										<span class="content">
-											<input type="number"  v-model="item.estimated_singleton_CPU_core" class="smnu" min="0" max="99999" {{ readonly }}>
+											<input type="number" v-if="typekey!='additional'"  v-model="item.estimated_singleton_CPU_core" class="smnu" min="0" max="99999" {{ readonly }}>
+                                            <input type="number" v-if="typekey=='additional'"  v-model="item.estimated_singleton_CPU_core" class="smnu" min="0" max="99999" readonly>
 										</span>
 										<span class="fix">核</span>
 									</div>
 									<div class="devbox mb5">
 										<span class="fix">内存</span>
 										<span class="content">
-											<input type="number" v-model="item.estimated_singleton_memory_capacity"  class="smnu" min="0" max="99999" {{ readonly }}>
+											<input type="number" v-if="typekey!='additional'" v-model="item.estimated_singleton_memory_capacity" class="smnu" min="0" max="99999" {{ readonly }}>
+                                            <input type="number" v-if="typekey=='additional'" v-model="item.estimated_singleton_memory_capacity" class="smnu" min="0" max="99999" readonly>
 										</span>
 										<span class="fix">G</span>
 									</div>
@@ -71,7 +73,8 @@
 									<div class="devbox mb5">
 										 <span class="fix">磁盘</span>
 										 <span class="content">
-											 <input type="number"  v-model="item.estimated_singleton_disk_capacity" class="smnu" min="0" max="99999" {{ readonly }}>
+											 <input type="number" v-if="typekey!='additional'"  v-model="item.estimated_singleton_disk_capacity" class="smnu" min="0" max="99999" {{ readonly }}>
+                                             <input type="number" v-if="typekey=='additional'"  v-model="item.estimated_singleton_disk_capacity" class="smnu" min="0" max="99999" readonly>
 										 </span>
 										 <span class="fix">G</span>
 									</div>
@@ -96,7 +99,7 @@
 							           </span>
 						           </div>
 
-						           <div class="devbox mb5" style="display: {{ display }}">
+						           <div class="devbox mb5" v-if="typekey!='additional'" style="display: {{ display }}">
 							            <span class="fix" style="cursor: pointer" @click="onDeleteData([typekey,index])">删除</span>
 						           </div>
 					          </div>

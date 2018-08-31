@@ -81,7 +81,7 @@
                  Email
              </label>
              <div class="col-sm-7">
-                <input type="text" class="form-control" id="applicant_email" value="{{ result.applicant_email }}"  readonly />
+                <input type="text" class="form-control" id="applicant_email" value="{{ result.applicant_email }}"/>
              </div>
          </div>
     </div>
@@ -170,24 +170,6 @@
              </div>
          </div>
     </div>
-
-
-
-
-{#	    <div class="col-md-4">#}
-{#             <label class="col-sm-4 control-label" style="text-align: right">#}
-{#                审核人#}
-{#             </label>#}
-{#             <div class="col-sm-4" >#}
-{#                <select id="assignee" class="form-control" onchange="">#}
-{#                    <option value="">请选择</option>#}
-{#                    {% for auditor in auditor_list %}#}
-{#                        <option value="{{ auditor.id }}">{{ auditor.name }}</option>#}
-{#                    {% endfor %}#}
-{#                </select>#}
-{#             </div>#}
-{#         </div>#}
-
 
 
 </div>
@@ -337,7 +319,7 @@
                     if(data.status == 0){
                         bool = true;
                         $("#project_id").val(data.p_id);
-                        Alertwin.alert({ message: "操作成功"});
+                        //Alertwin.alert({ message: "操作成功"});
                     }else{
                          bool = false;
                         Alertwin.alert({ message: "操作失败"});
