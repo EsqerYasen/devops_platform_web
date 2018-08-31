@@ -9,7 +9,7 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('site/', views.site, name='site'),
     path('upstream/', views.upstream, name='upstream'),
-    path('deploy/deploy_task', views.task, name='deploy_task'),
+    path('deploy/deploy_task', views.deploy_task, name='deploy_task'),
     path('deploy/manage', views.deploy_manage, name='deploy_management'),
 
 

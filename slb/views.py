@@ -14,10 +14,10 @@ def upstream(request):
     return render(request, 'slb/upstream.html')
 
 def deploy_task(request):
-    return render(request, 'slb/task.html')
+    return render(request, 'slb/deploy_task.html')
 
 def deploy_manage(request):
-    return render(request, 'slb/manage.html')
+    return render(request, 'slb/deploy_manage.html')
 
 def trans_cluster_list(cluster_list):
     ret = []
