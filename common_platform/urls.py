@@ -6,6 +6,7 @@ from common_platform.views.file_manage import *
 from common_platform.views.soft_load import *
 from common_platform.views.ansible_manage import *
 
+app_name = 'platform'
 
 urlpatterns = [
     url(r'^command_set/', include([

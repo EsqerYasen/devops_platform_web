@@ -1,0 +1,188 @@
+{% extends 'slb/layout.html' %}
+{% block main %}
+{% load static %}
+{% verbatim myblock %}
+<el-container>
+    <el-aside width="200px">
+        <el-menu default-active="1" class="el-menu-demo" mode="vertical" @select="handleSiteSelect">
+            <el-menu-item v-for="site in sites" :index="site.id" :key="site.id">{{site.site_name}}</el-menu-item>
+            <!--<el-menu-item v-for="site in sites" index="1" :key="id">aaa</el-menu-item>-->
+        </el-menu>
+    </el-aside>
+    <el-main>
+        <el-row>
+            <el-col :span="5">
+                <div v-if="siteDetail.site_name"> 当前站点名称：{{siteDetail.site_name}} </div>
+            </el-col>
+            <el-col :span="5" :offset="14">
+                <el-button class="el-icon-circle-plus-outline" type="text" @click="addSite">新增站点</el-button>
+            </el-col>
+        </el-row>
+        <!--<div id="siteDetailDiv" v-if="siteDetailDivTriggle">-->
+        <el-row>
+            <el-col :span="12">
+            <el-button type="warning" size="mini" icon="el-icon-document" @click="previewConfigFile">预览</el-button>
+            <el-button type="success" size="mini" icon="el-icon-edit-outline" @click="createDist">创建</el-button>
+            <el-select size="mini" v-model="selectedVersion" placeholder="请选择">
+                <el-option v-for="version in siteVersions" :key="version.v" :label="version.k" :value="version.v"> 
+                    <span style="float: left">{{ version.k}}</span>
+                    <span style="float: right; color: #8492a6; font-size: 13px">{{ version.status }}</span>
+                </el-option>
+            </el-select>
+            <el-button type="primary" size="mini" icon="el-icon-upload"><a href="#">发布</a></el-button>
+            </el-col>
+        </el-row>
+        <el-row>
+            <el-col :span="1" :offset="22">
+                <!--<el-button v-show="siteDetailDivStatus == 'ro' " type="info" size="mini" icon="el-icon-edit" @click="editSiteDetail()">编辑</el-button>-->
+                <el-button type="primary" size="mini" @click="siteDetailFormSave">保存</el-button>
+            <!--<el-button v-show="siteDetailDivStatus == 'wr' "type="info" size="mini" >取消</el-button>-->
+            </el-col>
+        </el-row>
+        <el-row>
+            <div>
+            <el-tabs v-model="siteDetailActiveTabName" type="card" tab-position="left" @tab-click="handleSiteDetailActiveTabClick">
+                <el-tab-pane  label="基本配置" name="basicConfig">
+                    <el-form ref="form" :model="siteDetail" label-width="120px">
+                        <el-form-item label="状态控制">
+                            <el-radio-group v-model="siteDetail.state_control">
+                                <el-radio label="enable" value="enable"></el-radio>
+                                <el-radio label="disable" value="disable"></el-radio>
+                                <el-radio label="force_offline" value="force_offline"></el-radio>
+                            </el-radio-group>
+                        </el-form-item>
+                        <el-form-item label="Domain"><el-input v-model="siteDetail.domain_name"></el-input></el-form-item>
+                        <el-form-item label="Port"><el-input v-model="siteDetail.port"></el-input></el-form-item>
+                        <!--<el-form-item label="默认Pool名">-->
+                            <!--<el-select v-model="siteDetail.defaultPool" filterable placeholder="请选择">-->
+                                <!--<el-option v-for="pool in pools" :key="pool.id" :label="pool.name" :value="pool.name">-->
+                                <!--</el-option>-->
+                            <!--</el-select>-->
+                        <!--</el-form-item>-->
+                        <el-form-item label="目标Nginx集群">
+                            <el-select v-model="siteDetail.nginx_cluster_name" filterable placeholder="请选择">
+                                <el-option v-for="ngxC in nginxClusters" :key="ngxC.id" :label="ngxC.name" :value="ngxC.name">
+                                </el-option>
+                              </el-select>
+                        </el-form-item>
+                        <el-form-item label="使用HTTPS"><el-switch v-model="siteDetail.is_https"></el-switch></el-form-item>
+                        <!--<el-form-item label="proxy_set_hHost"><el-input v-model="siteDetail.proxy_set_hHost"></el-input></el-form-item>-->
+                        <!--<el-form-item label="root"><el-input v-model="siteDetail.root"></el-input></el-form-item>-->
+
+                    </el-form>
+                </el-tab-pane>
+                <el-tab-pane label="映射规则" name="mappingRule">
+                    <!--<el-col :span="2">规则列表</el-col>-->
+                    <el-col :span="2" :offset="20">
+                        <el-button class="el-icon-circle-plus-outline" type="text" @click="addMappingRule">添加规则</el-button>
+                    </el-col>
+                    <el-table border :data="siteMPRuleList">
+                        <el-table-column label="位置调整">
+                            <template slot-scope="scopeAttr">
+                                <el-button class="fa fa-angle-up" type="text" @click="jumpUp(scopeAttr.row)"></el-button>
+                                <el-button class="fa fa-angle-down" type="text" @click="jumpDown(scopeAttr.row)"></el-button>
+                                <el-button class="fa fa-angle-double-up" type="text" @click="jumpDoubleUp(scopeAttr.row)"></el-button>
+                                <el-button class="fa fa-angle-double-down" type="text" @click="jumpDoubleDown(scopeAttr.row)"></el-button>
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="id" label="序号"></el-table-column>
+                        <el-table-column prop="regular_expression" label="路径/正则表达式"></el-table-column>
+                        <el-table-column prop="matching_type" label="匹配类型"></el-table-column>
+                        <!--<el-table-column prop="case_sensitive" label="大小写敏感"></el-table-column>-->
+                        <el-table-column prop="https_type" label="HTTP类型"></el-table-column>
+                        <!--<el-table-column prop="cmdList.length" label="指令数量"></el-table-column>-->
+                        <el-table-column label="操作">
+                            <template slot-scope="scopeMp">
+                                <el-button type="primary" icon="el-icon-edit-outline" size="mini" circle @click="editMappingRule(scopeMp.row)"></el-button>
+                                <el-button type="danger" icon="el-icon-delete" size="mini" circle @click="delMappingRule(scopeMp.row)"></el-button>
+                            </template>
+              	        </el-table-column>
+                    </el-table>
+                </el-tab-pane>
+                <el-tab-pane label="公共规则" name="publicRule">公共规则</el-tab-pane>
+                <el-tab-pane label="版本对比" name="versionCompare">版本对比</el-tab-pane>
+            </el-tabs>
+            </div>
+        </el-row>
+        <!--</div>-->
+        <el-dialog :visible.sync="addMappingRuleDialogTriggle" title="添加新规则" width="60%">
+            此处填写基本的信息，详细规则的信息，可以在添加规则后，点击"编辑"进行详细补充。
+            <el-form ref="form" :model="newMappingRuleForm" label-width="120px">
+                <el-form-item label="匹配类型">
+                    <el-select v-model="newMappingRuleForm.matching_type">
+                        <el-option label="prefix" value="prefix"></el-option>
+                        <el-option label="regex" value="regex"></el-option>
+                        <el-option label="common" value="common"></el-option>
+                        <el-option label="exact" value="exact"></el-option>
+                      </el-select>
+                </el-form-item>
+                <el-form-item label="HTTPS类型">
+                    <el-select v-model="newMappingRuleForm.https_type">
+                        <el-option label="HTTP,HTTPS" value="all"></el-option>
+                        <el-option label="强制HTTP" value="http"></el-option>
+                        <el-option label="强制HTTPS" value="https"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="路径表达式"><el-input v-model="newMappingRuleForm.regular_expression"></el-input></el-form-item>
+                <el-form-item label="大小写敏感"><el-switch v-model="newMappingRuleForm.case_sensitive"></el-switch></el-form-item>
+                <el-col :span="2" :offset="20">
+                    <el-button class="el-icon-circle-plus-outline" type="text" @click="addCmd">添加新指令</el-button>
+                </el-col>
+                <el-table border :data="newMappingRuleForm.cmdList">
+                    <!--<el-table-column prop="id" label="序号"> </el-table-column>-->
+                    <el-table-column label="指令类型">
+                        <template slot-scope="scopeCmd">
+                            <el-select v-model="scopeCmd.row.command_type" @change="cmdTypeChange">
+                                <el-option label="access_log" value="access_log"></el-option>
+                                <el-option label="custom" value="custom"></el-option>
+                                <el-option label="ifelse" value="ifelse"></el-option>
+                                <el-option label="more_clear_headers" value="more_clear_headers"></el-option>
+                                <el-option label="more_set_headers" value="more_set_headers"></el-option>
+                                <el-option label="proxy_pass" value="proxy_pass"></el-option>
+                                <el-option label="return" value="return"></el-option>
+                                <el-option label="rewrite" value="rewrite"></el-option>
+                                <el-option label="static-resource" value="static-resource"></el-option>
+                            </el-select>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="指令详细数据">
+                        <template slot-scope="scopeCmd">
+                            <component :is="mydefine" :cmdarg="scopeCmd.row.command_param"></component>
+                            <!--<components :is="mydefine" ></components>-->
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="操作">
+                        <template slot-scope="scopeCmd">
+                            <!--<el-button type="primary" icon="el-icon-edit-outline" size="mini" circle ></el-button>-->
+                            <el-button type="danger" icon="el-icon-delete" size="mini" circle @click="delCmd(scopeCmd.row)"></el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+                <el-form-item><el-button type="primary" @click="submitNewMappingRule">保存</el-button></el-form-item>
+            </el-form>
+        </el-dialog>
+        <el-dialog :visible.sync="previewDialogTriggle" title="预览" width="80%">
+            <textarea id="previewTextArea">{{previewContent}}</textarea>
+        </el-dialog>
+        <el-dialog :visible.sync="siteNameDialogTriggle" title="预览" width="50%">
+            <el-form :model="siteDetail" label-width="120px">
+                <el-form-item label="站点名称"><el-input v-model="siteDetail.siteName"></el-input></el-form-item>
+                <el-form-item><el-button type="primary" @click="saveSiteName">保存</el-button></el-form-item>
+        </el-dialog>
+    </el-main>
+</el-container>
+{% endverbatim myblock %}
+<!--<el-dialog :visible.sync="newSiteDialogTriggle" title="New Site">-->
+    <!--<el-form :model="site">-->
+        <!--<el-form-item> <el-input type="textarea" :autosize="{ minRows: 8, maxRows: 50}" v-model="cmtFormInline.content" placeholder="comment">-->
+        <!--</el-form-item>-->
+        <!--<el-form-item><el-button type="primary" size="mini" @click="submitCmt">Save</el-button></el-form-item>-->
+    <!--</el-form>-->
+<!--</el-dialog>-->
+{% endblock %}
+
+{% block js %}
+    <script src="{% static 'slb/js/codemirror.js' %}"></script>
+    <script src="{% static 'slb/js/nginx.js' %}"></script>
+    <script src="{% static 'slb/js/site.js' %}"></script>
+{% endblock %}

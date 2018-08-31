@@ -1,6 +1,8 @@
 from django.conf.urls import include, url
 from devops_flow.views.flow_views import *
 
+app_name = 'flow'
+
 urlpatterns = [
     url(r'^control/', include([
         url(r'^list/', DevopsFlowListView.as_view(), name='list'),

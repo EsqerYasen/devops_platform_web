@@ -3,6 +3,8 @@ from rest_framework import routers
 from devops_auth.views.app_views import *
 from devops_auth.views import rest_views
 
+app_name = 'auth'
+
 router = routers.DefaultRouter()
 
 urlpatterns = [

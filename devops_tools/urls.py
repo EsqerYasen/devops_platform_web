@@ -1,6 +1,8 @@
 from django.conf.urls import include, url
 from devops_tools.views.devops_tools import *
 
+app_name = 'working'
+
 urlpatterns = [
     url(r'^tools/', include([
         url(r'^list/', DevopsToolsListView.as_view(), name='list'),

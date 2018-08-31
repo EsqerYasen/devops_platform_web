@@ -7,6 +7,8 @@ from devops_cmdb.views.host_group import *
 from devops_cmdb.views.vip import *
 from devops_cmdb.views.host_dashboard import *
 
+app_name = 'cmdb'
+
 urlpatterns = [
     url(r'^host/', include([
         url(r'^list1/$', List1View.as_view(), name='list1'),
@@ -35,6 +37,14 @@ urlpatterns = [
         url(r'^operationlog_list/$', HostOpertionLogListView.as_view(), name='operationlog_list'),
     ])),
     url(r'^business/', include([
+        url(r'^business_list/', business_list, name='business_list'),#add by robin
+        url(r'^rest/business/', rest_business, name='rest_business'),#add by robin
+        url(r'^(?P<pk>\d+)/attributes_manage/', Attributes_Manage_View.as_view(), name='attributes_manage'),#add by robin
+        url(r'^rest/attr/', rest_business_attr, name='rest_attr'),#add by robin
+        url(r'^rest/attrHistory/', rest_business_attr_history, name='rest_attr'),#add by robin
+        url(r'^rest/interface/', rest_business_int, name='rest_int'),#add by robin
+        url(r'^rest/interfaceHistory/', rest_business_int_history, name='rest_int'),#add by robin
+        url(r'^rest/cmt/', rest_business_cmt, name='rest_cmt'),#add by robin
         url(r'^attributes_view/', BusinesAttributessView.as_view(), name='attributes_view'),
         url(r'^attributes_create_view/', BusinesAttributessCreateAjaxView.as_view(), name='attributes_create_view'),
         url(r'^attributes_update_view/', BusinesAttributessUpdateAjaxView.as_view(), name='attributes_update_view'),
@@ -59,4 +69,5 @@ urlpatterns = [
         url(r'^bindIp/', VIPBindIPView.as_view(), name='bindIp'),
         url(r'^delete/', VIPDeleteView.as_view(), name='delete'),
     ]))
+    #url('attr_deom', )
 ]

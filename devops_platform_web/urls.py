@@ -47,4 +47,5 @@ urlpatterns = [
     url(r'^auth/',include('devops_auth.urls',namespace='auth')),
     url(r'^forward_to_service/',views.forward_to_service,name='forward_to_service'),
     url(r'^menu/',include('devops_menu.urls',namespace='menu')),
+    url(r'^slb/',include('slb.urls',namespace='slb')),
 ]

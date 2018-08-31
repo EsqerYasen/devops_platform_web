@@ -3,10 +3,80 @@ from django.views.generic import *
 from common.utils.HttpUtils import *
 from devops_platform_web.settings import PER_PAGE
 from django.core.paginator import Paginator
+from django.shortcuts import render
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 import logging
 
 logger = logging.getLogger('devops_platform_log')
 
+def business_list(request):
+    return render(request, 'business/business_list.html')
+
+class Attributes_Manage_View(LoginRequiredMixin, TemplateView):
+    template_name = "business/attributes_manage.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(Attributes_Manage_View, self).get_context_data(**kwargs)
+        context['business_id'] = kwargs.get('pk')
+        return context
+
+def __rest_business_resp(request, restName, serviceName):
+    restName=restName
+    serviceName=serviceName
+    if request.method=='GET':
+        business_id = request.GET.get('business_id', None)
+        data = dict(business_id=business_id) if business_id is not None else None
+        name = request.GET.get('name', None)
+        data = dict(business_id=business_id) if business_id is not None else None
+        if name:
+            data.update({'name':name})
+        hu = HttpUtils(request)
+        ret = hu.get(serivceName="cmdb", restName=restName, datas=data)
+        #print(ret)
+        return JsonResponse(data=ret)
+    elif request.method=='POST':
+        hu = HttpUtils(request)
+        data = json.loads(request.body)
+        ret = hu.post(serivceName="cmdb", restName=restName, datas=data)
+        #print(ret.json())
+        return JsonResponse(data=ret.json())
+
+@csrf_exempt
+def rest_business(request):
+    restName="/rest/business/attributes_manage/business/"
+    serviceName = "cmdb"
+    return __rest_business_resp(request, restName, serviceName)
+
+@csrf_exempt
+def rest_business_attr(request):
+    restName = "/rest/business/attributes_manage/attr/"
+    serviceName = "cmdb"
+    return __rest_business_resp(request, restName, serviceName)
+
+@csrf_exempt
+def rest_business_int(request):
+    restName = "/rest/business/attributes_manage/interface/"
+    serviceName = "cmdb"
+    return __rest_business_resp(request, restName, serviceName)
+
+@csrf_exempt
+def rest_business_cmt(request):
+    restName = "/rest/business/attributes_manage/cmt/"
+    serviceName = "cmdb"
+    return __rest_business_resp(request, restName, serviceName)
+
+@csrf_exempt
+def rest_business_attr_history(request):
+    restName = "/rest/business/attributes_manage/attrHistory/"
+    serviceName = "cmdb"
+    return __rest_business_resp(request, restName, serviceName)
+
+@csrf_exempt
+def rest_business_int_history(request):
+    restName = "/rest/business/attributes_manage/interfaceHistory/"
+    serviceName = "cmdb"
+    return __rest_business_resp(request, restName, serviceName)
 
 class BusinesAttributessView(LoginRequiredMixin, TemplateView):
     template_name = "business_attributes.html"

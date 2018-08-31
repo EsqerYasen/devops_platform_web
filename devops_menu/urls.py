@@ -3,6 +3,8 @@ from rest_framework import routers
 from devops_menu.views.app_views import *
 from devops_menu.views import rest_views
 
+app_name = 'menu'
+
 router = routers.DefaultRouter()
 
 urlpatterns = [

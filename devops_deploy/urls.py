@@ -3,6 +3,8 @@ from devops_deploy.views.deploy import *
 from devops_deploy.views.operation_log import *
 from devops_deploy.views.deploy_tool_views import *
 
+app_name = 'deploy'
+
 urlpatterns = [
     url(r'^list/',DeployListView.as_view(), name='list'),
     url(r'^add/',DeployCreateView.as_view(), name='add'),

@@ -1,6 +1,8 @@
 from django.conf.urls import include, url
 from devops_pre_srb.views.pre_srb import *
 
+app_name = 'presrb'
+
 urlpatterns = [
     url(r'^project/', include([
         url(r'^list/',PreSrbListView.as_view(), name='list'),
