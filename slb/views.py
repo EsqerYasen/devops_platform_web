@@ -323,7 +323,7 @@ def MngSiteCreateOrUpdate(request):
                 post_results = post_results.json()
                 if post_results['status'] == 200:
                     results['status'] = 200
-                    results['msg'] = "新增成功"
+                    results['msg'] = "修改成功"
                 else:
                     results['status'] = 500
                     results['msg'] = "新增失败"
