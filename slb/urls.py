@@ -26,10 +26,10 @@ urlpatterns = [
     url(r'^rest/getmappingruleslist/', views.mappingRuleList, name='rest_mappingrule'),
     url(r'^rest/getcmdlist/', views.cmdList, name='rest_mappingrule_info'),
 
-    url(r'^site/configpreview/', site_views.ConfigPreviewView.as_view(), name='configpreviewview'),
-    url(r'^site/nginxclusterhostbyid/', site_views.NginxClusterHostById.as_view(), name='nginxclusterhostbyid'),
-    url(r'^site/configversiondiff/', site_views.ConfigVersionDiff.as_view(), name='configpreviewview'),
-    url(r'^test/configversiondiffview/', site_views.ConfigVersionDiffView.as_view(), name='configversiondiffview'),
+    url(r'^rest/configpreview/', site_views.ConfigPreviewView.as_view(), name='configpreviewview'),
+    url(r'^rest/nginxclusterhostbyid/', site_views.NginxClusterHostById.as_view(), name='nginxclusterhostbyid'),
+    url(r'^rest/configversiondiff/', site_views.ConfigVersionDiff.as_view(), name='configpreviewview'),
+    url(r'^rest/configversiondiffview/', site_views.ConfigVersionDiffView.as_view(), name='configversiondiffview'),
 
-    url(r'^site/mngsitecreateorupdate/', site_views.MngSiteCreateOrUpdateView.as_view(), name='mngsitecreate'),
+    url(r'^rest/mngsitecreateorupdate/', site_views.MngSiteCreateOrUpdateView.as_view(), name='mngsitecreate'),
 ]
