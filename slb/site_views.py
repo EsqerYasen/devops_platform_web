@@ -95,7 +95,7 @@ class ConfigVersionDiffView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMi
 
 
 
-class MngSiteCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin,View):
+class MngSiteCreateOrUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin,View):
     def post_ajax(self, request, *args, **kwargs):
         """
         站点新增
@@ -108,16 +108,32 @@ class MngSiteCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin,
         try:
             input_param = results.POST
             if input_param:
+                optration = input_param['optration']
+                del optration['optration']
                 hu = HttpUtils(request)
-                post_results = hu.post(serivceName='p_job',restName='',datas=input_param)
-                post_results = post_results.json()
-                if post_results['status'] == 200:
-                    results['status'] = 200
-                    results['msg'] = "新增成功"
-                    results['id'] = post_results['id']
+                if optration == 'create':
+                    post_results = hu.post(serivceName='p_job',restName='/rest/slb/addMngSite/',datas=input_param)
+                    post_results = post_results.json()
+                    if post_results['status'] == 200:
+                        results['status'] = 200
+                        results['msg'] = "新增成功"
+                        results['id'] = post_results['id']
+                    else:
+                        results['status'] = 500
+                        results['msg'] = "新增失败"
+                elif optration == 'update':
+                    post_results = hu.post(serivceName='p_job', restName='/rest/slb/updateMngSite/', datas=input_param)
+                    post_results = post_results.json()
+                    if post_results['status'] == 200:
+                        results['status'] = 200
+                        results['msg'] = "新增成功"
+                        results['id'] = post_results['id']
+                    else:
+                        results['status'] = 500
+                        results['msg'] = "新增失败"
                 else:
                     results['status'] = 500
-                    results['msg'] = "新增失败"
+                    results['msg'] = "操作参数不合法"
             else:
                 results['status'] = 500
                 results['msg'] = "新增参数为空"
