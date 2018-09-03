@@ -112,7 +112,7 @@ class MngSiteCreateOrUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxRespon
                 del optration['optration']
                 hu = HttpUtils(request)
                 if optration == 'create':
-                    post_results = hu.post(serivceName='p_job',restName='/rest/slb/addMngSite/',datas=input_param)
+                    post_results = hu.post(serivceName='p_job',restName='/rest/slb/addMngSite/',datas=input_param['data'])
                     post_results = post_results.json()
                     if post_results['status'] == 200:
                         results['status'] = 200
@@ -122,7 +122,7 @@ class MngSiteCreateOrUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxRespon
                         results['status'] = 500
                         results['msg'] = "新增失败"
                 elif optration == 'update':
-                    post_results = hu.post(serivceName='p_job', restName='/rest/slb/updateMngSite/', datas=input_param)
+                    post_results = hu.post(serivceName='p_job', restName='/rest/slb/updateMngSite/', datas=input_param['data'])
                     post_results = post_results.json()
                     if post_results['status'] == 200:
                         results['status'] = 200
