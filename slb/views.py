@@ -178,7 +178,7 @@ def trans_siteInfo(site_info):
     is_https_dict = { 0: False, 1: True,'true':1,'false':0 }
     tmp_id = str(site_info['id'])
     tmp_is_https = is_https_dict[site_info['is_https']]
-    tmp_state_control = state_control_dict[site_info['is_https']]
+    tmp_state_control = state_control_dict[site_info['state_control']]
     tmp = {'id': tmp_id, 'is_https': tmp_is_https, 'state_control': tmp_state_control}
     site_info.update(tmp)
     return site_info
