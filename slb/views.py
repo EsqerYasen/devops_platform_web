@@ -174,8 +174,8 @@ def trans_siteList(siteList):
     return ret
 
 def trans_siteInfo(site_info):
-    state_control_dict = { 1:'enable', 0:'disable', 2:'forced_offline' }
-    is_https_dict = { 0: False, 1: True }
+    state_control_dict = { 1:'enable', 0:'disable', 2:'forced_offline','enable':1,'disable':0 ,'forced_offline':2}
+    is_https_dict = { 0: False, 1: True,'true':1,'false':0 }
     tmp_id = str(site_info['id'])
     tmp_is_https = is_https_dict[site_info['is_https']]
     tmp_state_control = state_control_dict[site_info['is_https']]
@@ -306,6 +306,7 @@ def MngSiteCreateOrUpdate(request):
         if input_param:
             id = input_param['id']
             hu = HttpUtils(request)
+            input_param = trans_siteInfo(input_param)
             if int(id) < 0:
                 del input_param['id']
                 post_results = hu.post(serivceName='p_job', restName='/rest/slb/addMngSite/', datas=input_param)
