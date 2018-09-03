@@ -326,12 +326,51 @@ def MngSiteCreateOrUpdate(request):
                     results['msg'] = "修改成功"
                 else:
                     results['status'] = 500
-                    results['msg'] = "新增失败"
+                    results['msg'] = "修改失败"
         else:
             results['status'] = 500
-            results['msg'] = "新增参数为空"
+            results['msg'] = "参数为空"
     except Exception as e:
         logger.error(e, exc_info=1)
         results['status'] = 500
-        results['msg'] = "新增异常"
+        results['msg'] = "新增或更新异常"
+    return JsonResponse(data=results)
+
+
+@csrf_exempt
+def MappingRulesCreateOrUpdate(request):
+    results = {}
+    try:
+        input_param = json.loads(request.body)
+        if input_param:
+            id = input_param['id']
+            hu = HttpUtils(request)
+            input_param = trans_siteInfo(input_param)
+            if int(id) < 0:
+                del input_param['id']
+                post_results = hu.post(serivceName='p_job', restName='/rest/slb/addMappingRules/', datas=input_param)
+                post_results = post_results.json()
+                if post_results['status'] == 200:
+                    results['status'] = 200
+                    results['msg'] = "新增成功"
+                    results['id'] = post_results['id']
+                else:
+                    results['status'] = 500
+                    results['msg'] = "新增失败"
+            elif int(id) > 0:
+                post_results = hu.post(serivceName='p_job', restName='/rest/slb/updateMappingRules/',datas=input_param)
+                post_results = post_results.json()
+                if post_results['status'] == 200:
+                    results['status'] = 200
+                    results['msg'] = "修改成功"
+                else:
+                    results['status'] = 500
+                    results['msg'] = "修改失败"
+        else:
+            results['status'] = 500
+            results['msg'] = "参数为空"
+    except Exception as e:
+        results['status'] = 500
+        results['msg'] = "新增或更新异常"
+        logger.error(e,exc_info=1)
     return JsonResponse(data=results)
