@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse, HttpResponseNotAllowed
 from common.utils.HttpUtils import *
+from common.utils.redis_utils import RedisBase
 from django.views.decorators.csrf import csrf_exempt
 import logging
 
@@ -373,4 +374,17 @@ def MappingRulesCreateOrUpdate(request):
         results['status'] = 500
         results['msg'] = "新增或更新异常"
         logger.error(e,exc_info=1)
+    return JsonResponse(data=results)
+
+
+def NginxClusterTree(request):
+    results = {}
+    try:
+        hostGroup_list = RedisBase.get("host_group_1", 2)
+        results['status'] = 200
+        results['data'] = hostGroup_list
+    except Exception as e:
+        logger.error(e,exc_info=1)
+        results['status'] = 500
+        results['msg'] = "查询异常"
     return JsonResponse(data=results)

@@ -33,4 +33,5 @@ urlpatterns = [
 
     url(r'^rest/mappingrulescreateorupdate/', views.MappingRulesCreateOrUpdate, name='mappingrulescreateorupdate'),
     url(r'^rest/mngsitecreateorupdate/', views.MngSiteCreateOrUpdate, name='mngsitecreate'),
+    url(r'^rest/nginxclustertree/', views.NginxClusterTree, name='nginxclustertree'),
 ]
