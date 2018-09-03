@@ -396,7 +396,7 @@ def GetHostListByGrupId(request):
         group_id = request.GET['group_id']
         if group_id:
             hu = HttpUtils(request)
-            setListResult = hu.get(serivceName="p_job", restName="/rest/slb/nginxclusterhostbyid/",datas={'group_id': group_id})
+            setListResult = hu.get(serivceName="cmdb", restName="/rest/slb/nginxclusterhostbyid/",datas={'group_id': group_id})
             results['status'] =  200
             results['data'] = setListResult
     except Exception as e:
