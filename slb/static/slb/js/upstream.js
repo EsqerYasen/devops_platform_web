@@ -27,7 +27,7 @@ vm = new Vue({
         upstreamDetail: defaultUpstreamDetail,
         editNodeDialogTriggle: false,
         nodeFormInline: {nodeName: '', ip: '', port: 80, weight: 1, maxFail: 3, timeout: 30, status: 'enable'},
-        postSuccessFlag: false
+        postSuccessFlag: false,
     },
     created: function(){
         this.getUpstreams();
@@ -89,6 +89,7 @@ vm = new Vue({
 
         addUpstream: function(){
             this.upstreamDetail = defaultUpstreamDetail;
+            this.nginxClusterDialogTriggle = true;
         },
 
         editNode: function(row){
@@ -129,8 +130,7 @@ vm = new Vue({
         afterGetUpstreamsDetail: function(resp){
             tmp = resp.data['ret'];
             this.upstreamDetail = tmp;
-        }
+        },
 
     }
 });
-
