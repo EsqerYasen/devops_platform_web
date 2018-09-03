@@ -324,7 +324,6 @@ def MngSiteCreateOrUpdate(request):
                 if post_results['status'] == 200:
                     results['status'] = 200
                     results['msg'] = "新增成功"
-                    results['id'] = post_results['id']
                 else:
                     results['status'] = 500
                     results['msg'] = "新增失败"
