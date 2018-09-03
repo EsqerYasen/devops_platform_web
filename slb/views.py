@@ -318,8 +318,7 @@ def MngSiteCreateOrUpdate(request):
                     results['status'] = 500
                     results['msg'] = "新增失败"
             elif int(id) > 0:
-                post_results = hu.post(serivceName='p_job', restName='/rest/slb/updateMngSite/',
-                                       datas=input_param['data'])
+                post_results = hu.post(serivceName='p_job', restName='/rest/slb/updateMngSite/',datas=input_param)
                 post_results = post_results.json()
                 if post_results['status'] == 200:
                     results['status'] = 200
