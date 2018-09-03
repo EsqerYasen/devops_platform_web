@@ -2,7 +2,9 @@ from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse, HttpResponseNotAllowed
 from common.utils.HttpUtils import *
 from django.views.decorators.csrf import csrf_exempt
+import logging
 
+logger = logging.getLogger('devops_platform_log')
 # Create your views here.
 def index(request):
     return render(request, 'slb/index.html')
@@ -295,3 +297,42 @@ def create_site_version(request):
     setListResult = hu.get(serivceName="p_job", restName="/rest/slb/deployversioncreateview/", datas={'site_id':id})
     #{'task_id': 5, 'msg': '创建版本成功', 'status': 200, 'version': 4, 'site_id': '1'}
     return JsonResponse(data={'ret':setListResult})
+
+@csrf_exempt
+def MngSiteCreateOrUpdate(request):
+    results = {}
+    try:
+        input_param = results.POST
+        if input_param:
+            id = input_param['id']
+            hu = HttpUtils(request)
+            if int(id) < 0:
+                del input_param['id']
+                post_results = hu.post(serivceName='p_job', restName='/rest/slb/addMngSite/', datas=input_param)
+                post_results = post_results.json()
+                if post_results['status'] == 200:
+                    results['status'] = 200
+                    results['msg'] = "新增成功"
+                    results['id'] = post_results['id']
+                else:
+                    results['status'] = 500
+                    results['msg'] = "新增失败"
+            elif int(id) > 0:
+                post_results = hu.post(serivceName='p_job', restName='/rest/slb/updateMngSite/',
+                                       datas=input_param['data'])
+                post_results = post_results.json()
+                if post_results['status'] == 200:
+                    results['status'] = 200
+                    results['msg'] = "新增成功"
+                    results['id'] = post_results['id']
+                else:
+                    results['status'] = 500
+                    results['msg'] = "新增失败"
+        else:
+            results['status'] = 500
+            results['msg'] = "新增参数为空"
+    except Exception as e:
+        logger.error(e, exc_info=1)
+        results['status'] = 500
+        results['msg'] = "新增异常"
+    return JsonResponse(data=results)
