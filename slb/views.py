@@ -302,7 +302,7 @@ def create_site_version(request):
 def MngSiteCreateOrUpdate(request):
     results = {}
     try:
-        input_param = results.POST
+        input_param = request.POST
         if input_param:
             id = input_param['id']
             hu = HttpUtils(request)
