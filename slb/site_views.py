@@ -92,3 +92,37 @@ class ConfigVersionDiffView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMi
     def get_context_data(self, **kwargs):
         context = super(ConfigVersionDiffView, self).get_context_data(**kwargs)
         return context
+
+
+
+class MngSiteCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin,View):
+    def post_ajax(self, request, *args, **kwargs):
+        """
+        站点新增
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        results = {}
+        try:
+            input_param = results.POST
+            if input_param:
+                hu = HttpUtils(request)
+                post_results = hu.post(serivceName='p_job',restName='',datas=input_param)
+                post_results = post_results.json()
+                if post_results['status'] == 200:
+                    results['status'] = 200
+                    results['msg'] = "新增成功"
+                    results['id'] = post_results['id']
+                else:
+                    results['status'] = 500
+                    results['msg'] = "新增失败"
+            else:
+                results['status'] = 500
+                results['msg'] = "新增参数为空"
+        except Exception as e:
+            logger.error(e,exc_info=1)
+            results['status'] = 500
+            results['msg'] = "新增异常"
+        return HttpResponse(json.dumps(results), content_type='application/json')
