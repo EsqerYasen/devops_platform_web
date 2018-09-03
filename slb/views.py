@@ -382,7 +382,7 @@ def NginxClusterTree(request):
     try:
         hostGroup_list = RedisBase.get("host_group_1", 2)
         results['status'] = 200
-        results['data'] = hostGroup_list
+        results['data'] = str(hostGroup_list,encoding='utf-8')
     except Exception as e:
         logger.error(e,exc_info=1)
         results['status'] = 500
