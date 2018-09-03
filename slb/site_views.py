@@ -108,11 +108,11 @@ class MngSiteCreateOrUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxRespon
         try:
             input_param = results.POST
             if input_param:
-                optration = input_param['optration']
-                del optration['optration']
+                id = input_param['id']
                 hu = HttpUtils(request)
-                if optration == 'create':
-                    post_results = hu.post(serivceName='p_job',restName='/rest/slb/addMngSite/',datas=input_param['data'])
+                if int(id) < 0:
+                    del input_param['id']
+                    post_results = hu.post(serivceName='p_job',restName='/rest/slb/addMngSite/',datas=input_param)
                     post_results = post_results.json()
                     if post_results['status'] == 200:
                         results['status'] = 200
@@ -121,7 +121,7 @@ class MngSiteCreateOrUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxRespon
                     else:
                         results['status'] = 500
                         results['msg'] = "新增失败"
-                elif optration == 'update':
+                elif int(id) > 0:
                     post_results = hu.post(serivceName='p_job', restName='/rest/slb/updateMngSite/', datas=input_param['data'])
                     post_results = post_results.json()
                     if post_results['status'] == 200:
@@ -131,9 +131,6 @@ class MngSiteCreateOrUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxRespon
                     else:
                         results['status'] = 500
                         results['msg'] = "新增失败"
-                else:
-                    results['status'] = 500
-                    results['msg'] = "操作参数不合法"
             else:
                 results['status'] = 500
                 results['msg'] = "新增参数为空"
