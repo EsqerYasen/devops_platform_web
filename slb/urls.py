@@ -29,7 +29,6 @@ urlpatterns = [
     url(r'^rest/configpreview/', site_views.ConfigPreviewView.as_view(), name='configpreviewview'),
     url(r'^rest/nginxclusterhostbyid/', site_views.NginxClusterHostById.as_view(), name='nginxclusterhostbyid'),
     url(r'^rest/configversiondiff/', site_views.ConfigVersionDiff.as_view(), name='configpreviewview'),
-    url(r'^rest/configversiondiffview/', site_views.ConfigVersionDiffView.as_view(), name='configversiondiffview'),
 
     url(r'^rest/mappingrulescreateorupdate/', views.MappingRulesCreateOrUpdate, name='mappingrulescreateorupdate'),
     url(r'^rest/mngsitecreateorupdate/', views.MngSiteCreateOrUpdate, name='mngsitecreate'),

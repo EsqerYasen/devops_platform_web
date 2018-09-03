@@ -85,16 +85,6 @@ class ConfigVersionDiff(LoginRequiredMixin,JSONResponseMixin,AjaxResponseMixin,V
             logger.error(e,exc_info=1)
         return HttpResponse(json.dumps(results), content_type='application/json')
 
-
-class ConfigVersionDiffView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, TemplateView):
-    template_name = "slb/configVersionDiff.html"
-
-    def get_context_data(self, **kwargs):
-        context = super(ConfigVersionDiffView, self).get_context_data(**kwargs)
-        return context
-
-
-
 class MngSiteCreateOrUpdateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin,View):
     def post_ajax(self, request, *args, **kwargs):
         """
