@@ -31,5 +31,6 @@ urlpatterns = [
     url(r'^rest/configversiondiff/', site_views.ConfigVersionDiff.as_view(), name='configpreviewview'),
     url(r'^rest/configversiondiffview/', site_views.ConfigVersionDiffView.as_view(), name='configversiondiffview'),
 
-    url(r'^rest/mngsitecreateorupdate/', site_views.MngSiteCreateOrUpdateView.as_view(), name='mngsitecreate'),
+    #url(r'^rest/mngsitecreateorupdate/', site_views.MngSiteCreateOrUpdateView.as_view(), name='mngsitecreate'),
+    url(r'^rest/mngsitecreateorupdate/', views.MngSiteCreateOrUpdate, name='mngsitecreate'),
 ]
