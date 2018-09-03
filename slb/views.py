@@ -388,3 +388,19 @@ def NginxClusterTree(request):
         results['status'] = 500
         results['msg'] = "查询异常"
     return JsonResponse(data=results)
+
+
+def GetHostListByGrupId(request):
+    results = {}
+    try:
+        group_id = request.GET['group_id']
+        if group_id:
+            hu = HttpUtils(request)
+            setListResult = hu.get(serivceName="p_job", restName="/rest/slb/nginxclusterhostbyid/",datas={'group_id': group_id})
+            results['status'] =  200
+            results['data'] = setListResult
+    except Exception as e:
+        logger.error(e,exc_info=1)
+        results['status'] = 500
+        results['msg'] = "查询异常"
+    return JsonResponse(data=results)
