@@ -377,7 +377,7 @@ def MappingRulesCreateOrUpdate(request):
         logger.error(e,exc_info=1)
     return JsonResponse(data=results)
 
-
+@csrf_exempt
 def NginxClusterTree(request):
     results = {}
     try:
@@ -390,7 +390,7 @@ def NginxClusterTree(request):
         results['msg'] = "查询异常"
     return JsonResponse(data=results)
 
-
+@csrf_exempt
 def GetHostListByGrupId(request):
     results = {}
     try:
@@ -406,6 +406,7 @@ def GetHostListByGrupId(request):
         results['msg'] = "查询异常"
     return JsonResponse(data=results)
 
+@csrf_exempt
 def NginxClusterHostById(request):
     """
     发布 获取nginx 机器
@@ -432,4 +433,4 @@ def NginxClusterHostById(request):
         logger.error(e, exc_info=1)
         results['status'] = 500
         results['msg'] = "查询异常"
-    return HttpResponse(json.dumps(results), content_type='application/json')
+    return JsonResponse(json.dumps(results), content_type='application/json')
