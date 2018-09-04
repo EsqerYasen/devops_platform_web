@@ -27,7 +27,7 @@ urlpatterns = [
     url(r'^rest/getcmdlist/', views.cmdList, name='rest_mappingrule_info'),
 
     url(r'^rest/configpreview/', site_views.ConfigPreviewView.as_view(), name='configpreviewview'),
-    url(r'^rest/nginxclusterhostbyid/', site_views.NginxClusterHostById.as_view(), name='nginxclusterhostbyid'),
+    url(r'^rest/nginxclusterhostbyid/', views.NginxClusterHostById, name='nginxclusterhostbyid'),
     url(r'^rest/configversiondiff/', site_views.ConfigVersionDiff.as_view(), name='configpreviewview'),
 
     url(r'^rest/mappingrulescreateorupdate/', views.MappingRulesCreateOrUpdate, name='mappingrulescreateorupdate'),

@@ -405,3 +405,31 @@ def GetHostListByGrupId(request):
         results['status'] = 500
         results['msg'] = "查询异常"
     return JsonResponse(data=results)
+
+def NginxClusterHostById(request):
+    """
+    发布 获取nginx 机器
+    :param request:
+    :return:
+    """
+    results = {}
+    try:
+        group_id = request.GET.get("id", None)
+        vs = request.GET.get("vs", None)
+        if group_id and vs:
+            hu = HttpUtils(request)
+            result = hu.get(serivceName='p_job', restName='/rest/slb/nginxclusterhostbyid', datas={"id": id, "vs": vs})
+            if result['status'] == 200:
+                results['status'] = 200
+                results['data'] = result['data']
+            else:
+                results['status'] = 500
+                results['msg'] = "查询失败"
+        else:
+            results['status'] = 500
+            results['msg'] = "查询参数为空"
+    except Exception as e:
+        logger.error(e, exc_info=1)
+        results['status'] = 500
+        results['msg'] = "查询异常"
+    return HttpResponse(json.dumps(results), content_type='application/json')
