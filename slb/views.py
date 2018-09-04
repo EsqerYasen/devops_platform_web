@@ -428,7 +428,7 @@ def NginxClusterHostById(request):
         vs = request.GET.get("vs", None)
         if group_id and vs:
             hu = HttpUtils(request)
-            result = hu.get(serivceName='p_job', restName='/rest/slb/nginxclusterhostbyid', datas={"id": id, "vs": vs})
+            result = hu.get(serivceName='p_job', restName='/rest/slb/nginxclusterhostbyid', datas={"id": group_id, "vs": vs})
             if result['status'] == 200:
                 results['status'] = 200
                 results['data'] = result['data']
