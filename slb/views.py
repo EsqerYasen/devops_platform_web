@@ -442,4 +442,4 @@ def NginxClusterHostById(request):
         logger.error(e, exc_info=1)
         results['status'] = 500
         results['msg'] = "查询异常"
-    return JsonResponse(json.dumps(results), content_type='application/json')
+    return JsonResponse(data=results)
