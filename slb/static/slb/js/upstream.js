@@ -1,19 +1,108 @@
 defaultUpstreamDetail = {
-    upstreamName: "",
-    policy: "round-robin",
-    longConnectionCount: 20,
-    healthCheck: "TCP",
-    timeout: 3000,
-    interval: 3000,
-    //degradeRatio:
-    //degrade:
-    nodes: []
+    cluster_name: "",
+    load_balancin_strategy: "round-robin",
+    keep_alive: 20,
+    check_up_type: "TCP",
+    check_up_timeout: 3000,
+    check_up_space: 3000,
+    cluster_nodes: []
 };
 
 function showMsg(boolFlag, msg){
     if(boolFlag){ vm.$message({ message:msg, type: 'success', center: true });}
     else{ vm.$message.error(msg);}
 };
+
+var ztree = Vue.component('ztree', {
+    data: function(){
+        return {
+            setting:{
+              check: {  
+                    enable: true,  
+                    nocheckInherit: false,
+                    chkboxType: { "Y": "p", "N": "p" },
+                    chkStyle: "radio"
+                },  
+                data: {  
+                    simpleData: {  
+                        enable: true  
+                    }  
+                },
+                callback: {
+                    beforeClick: this.beforeClick,
+                    onClick: this.zTreeOnClick,
+                    onCheck: this.zTreeOnCheck,
+                },
+                view: {
+                    selectedMulti: false,
+                },
+            },
+            zNodes: [],
+        }
+    },
+    template: '<div id="areaTree"> <div class="box-title"> <a href="#">列表<i class="fa  fa-refresh" @click="freshArea">点击</i></a> </div> <div class="tree-box"> <div class="zTreeDemoBackground left"> <ul id="treeDemo" class="ztree"></ul> </div> </div> </div>',
+    methods:{
+        getData: function(url, params, func){
+            obj = this;
+            axios({
+                method:'GET',
+                url: url,
+                params: params
+            }).then(function(resp){
+                func(resp);
+                //tmp = resp.data['ret'];
+                //obj[target] = tmp;
+            }).catch(function(resp){
+                console.log(resp);
+                console.log('Fail:'+resp.status+','+resp.statusText);
+            });
+        },
+
+        initTree: function(){
+            this.getData('../rest/nginxclustertree/', {}, this.afterInitTree);
+        },
+
+        afterInitTree: function(resp){
+            if(resp.data.status==200){
+                var tmp = JSON.parse(resp.data.data);
+                for(i=0; i<tmp.length;i++){
+                    item = tmp[i];
+                    item['nocheck'] = true;
+                    if(item.node_name1 && item.node_name2 && item.node_name3 && item.node_name4 && item.node_name5 && item.node_name6 && item.node_name6!='nginx'){
+                        item['nocheck'] =false;
+                    }
+                }
+                this.zNodes = tmp; 
+                console.log(this.zNodes);
+            }
+        },
+
+        freshArea: function(){
+            $.fn.zTree.init($("#treeDemo"), this.setting, this.zNodes);
+        },
+        zTreeOnClick: function(event, treeId, treeNode) {
+            //console.log(treeNode.tId + ", " + treeNode.name);
+        },
+        zTreeOnCheck: function(event, treeId, treeNode) {
+            if (treeNode.checked){
+                vm.treeNodeID = treeNode.id;
+                var tmp = treeNode.node_name1 +'_'+ treeNode.node_name2 +'_'+ treeNode.node_name3 +'_'+ treeNode.node_name4 +'_'+ treeNode.node_name5 +'_'+ treeNode.node_name6;
+                vm.cluster_name = tmp;
+            }
+            else{
+                vm.treeNodeID = '';
+                vm.cluster_name = '';
+            }
+        },
+      },
+      created: function(){
+          this.initTree();
+      },
+      mounted(){
+          $.fn.zTree.init($("#treeDemo"), this.setting, this.zNodes).expandAll(true);
+          this.freshArea();
+      }
+});
 
 vm = new Vue({
     el: "#app",
@@ -24,10 +113,11 @@ vm = new Vue({
         navIndex: "2",
         activeIndex: "1",
         upstreams: [],
-        upstreamDetail: defaultUpstreamDetail,
+        upstreamDetail: {},
         editNodeDialogTriggle: false,
         nodeFormInline: {nodeName: '', ip: '', port: 80, weight: 1, maxFail: 3, timeout: 30, status: 'enable'},
-        postSuccessFlag: false,
+        selectTreeDialogTriggle: false,
+        treeNodeID: ''
     },
     created: function(){
         this.getUpstreams();
@@ -66,7 +156,7 @@ vm = new Vue({
 
         handleUpstreamSelect: function(key, keyPath){
             console.log(key);
-            this.getUpstreamDetail(1);
+            this.getUpstreamDetail(key);
             //this.upstreamDetail.load_balancin_strategy = this.upstreamDetail.load_balancin_strategy.toString();
         },
 
@@ -88,8 +178,8 @@ vm = new Vue({
         },
 
         addUpstream: function(){
-            this.upstreamDetail = defaultUpstreamDetail;
-            this.nginxClusterDialogTriggle = true;
+            this.upstreamDetail = JSON.parse(JSON.stringify(defaultUpstreamDetail));
+            this.selectTreeDialogTriggle = true;
         },
 
         editNode: function(row){
@@ -131,6 +221,41 @@ vm = new Vue({
             tmp = resp.data['ret'];
             this.upstreamDetail = tmp;
         },
+
+        selectTreeNode: function(){
+            if(this.treeNodeID){
+                this.selectTreeDialogTriggle = false;
+                this.getHosts(this.treeNodeID);
+            }
+            //else{
+            //}
+        },
+
+        getHosts: function(treeNodeID){
+            this.getData('/slb/rest/gethostlistbygrupid/', {group_id: treeNodeID}, this.afterGetHosts);
+        },
+
+        afterGetHosts: function(resp){
+            if(resp.data.status==200){
+                ret_data = resp.data.data;
+                console.log(ret_data);
+                ret = [];
+                for(i=0;i<ret_data.length;i++){
+                    var tmp = {};
+                    tmp['host_ip'] = ret_data[i].host_ip;
+                    tmp['host_id'] = ret_data[i].host_id;
+                    tmp['port'] = '80';
+                    tmp['weight'] = '1';
+                    tmp['max_fails'] = '3';
+                    tmp['fail_timeout'] = '2';
+                    tmp['state'] = 'enable';
+                    ret.push(tmp);
+                }
+                console.log(ret);
+                //this.upstreamDetail['cluster_nodes']= [{host_ip: '1.1.11.1', port:'80'}];
+                this.upstreamDetail['cluster_nodes'] = ret;
+            }
+        }
 
     }
 });

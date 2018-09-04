@@ -108,7 +108,8 @@ def trans_cluster_detail(cluster_detail, reverser=False):
     cluster_detail.update({'cluster_nodes':tmp_nodes})
     if reverser:
         for key in pop_list:
-            cluster_detail.pop(key)
+            if key in cluster_detail:
+                cluster_detail.pop(key)
     return cluster_detail 
 
 @csrf_exempt
@@ -150,16 +151,16 @@ def serviceClusterByID(request):
         data = json.loads(request.body)
         operation = data['operation']
         cluster_data = data['data']
+        try:
+            assert operation in ['create', 'update']
+        except AssertionError:
+            return JsonResponse(data=dict(status=500, msg="unsupported operation orz"))
         if operation == 'create':
             restName = "/rest/slb/serviceclustercreate/"
             cluster_data = trans_cluster_detail(cluster_data, reverser=True)
         elif operation == 'update':
             restName = "/rest/slb/serviceclusterupdate/"
         #print('cluster_data: %s'%cluster_data)
-        try:
-            assert operation in ['create', 'update']
-        except AssertionError:
-            return JsonResponse(data=dict(status=500, msg="unsupported operation orz"))
         setListResult = hu.post(serivceName="p_job", restName=restName, datas=cluster_data)
         #print(json.loads(setListResult.content))
         #{'service_cluster_id': 12, 'status': 200, 'msg': '新增成功'}

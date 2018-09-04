@@ -28,17 +28,17 @@
                     <el-form-item label="集群名称"><el-input v-model="upstreamDetail.cluster_name"></el-input></el-form-item>
                     <el-form-item label="负载均衡策略">
                         <el-select v-model="upstreamDetail.load_balancin_strategy" placeholder="请选择">
-                            <el-option label="ip-hash" value="0"></el-option>
-                            <el-option label="round-robin" value="1"></el-option> 
-                            <el-option label="consistent_hash_rid" value=2></el-option> 
-                            <el-option label="consistent_hash_arg_requestId" value=3></el-option> 
+                            <el-option label="ip-hash" value="ip-hash"></el-option>
+                            <el-option label="round-robin" value="round-robin"></el-option> 
+                            <el-option label="consistent_hash_rid" value="consistent_hash_rid"></el-option> 
+                            <el-option label="consistent_hash_arg_requestId" value="consistent_hash_arg_requestId"></el-option> 
                         </el-select>
                     </el-form-item>
                     <el-form-item label="长连接连接数"><el-input v-model="upstreamDetail.keep_alive"></el-input></el-form-item>
                     <el-form-item label="健康检查类型">
                         <el-select v-model="upstreamDetail.check_up_type" placeholder="请选择">
-                            <el-option label="TCP" value="1"></el-option>
-                            <el-option label="HTTP" value="2"></el-option> 
+                            <el-option label="TCP" value="TCP"></el-option>
+                            <el-option label="HTTP" value="HTTP"></el-option> 
                         </el-select>
                     </el-form-item>
                 </el-form>
@@ -85,10 +85,18 @@
                 <el-form-item ><el-button type="primary" @click="submitNode">保存</el-button></el-form-item>
             </el-form>
     </el-main>
+    <el-dialog :visible.sync="selectTreeDialogTriggle" title="选择集群节点" width="80%">
+        <ztree></ztree>
+        <el-button class="el-icon-circle-plus-outline" type="text" @click="selectTreeNode">确定</el-button>
+    </el-dialog>
 </el-container>
 {% endverbatim myblock %}
 {% endblock %}
 
 {% block js %}
     <script src="{% static 'slb/js/upstream.js' %}"></script>
+    <script src="/static/hplus/js/jquery.min.js?v=2.1.4"></script>
+    <script type="text/javascript" src="/static/hplus/js/zTree/jquery.ztree.core.js"></script>
+    <script type="text/javascript" src="/static/hplus/js/zTree/jquery.ztree.excheck.js"></script>
+    <script type="text/javascript" src="/static/hplus/js/zTree/jquery.ztree.exedit.js"></script>
 {% endblock %}

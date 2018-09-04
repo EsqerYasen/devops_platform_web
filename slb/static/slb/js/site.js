@@ -5,7 +5,17 @@ Vue.component('my_access_log',{
 
 Vue.component('my_proxy_pass',{
     props: ['cmdarg'],
-    template: '<div>pool_name: <el-input v-model="cmdarg"></el-input></div>'
+    computed:{
+        innerarg: {
+            get: function(){
+                return this.cmdarg;
+            },
+            set: function(newvalue){
+                this.cmdarg = newvalue;
+            }
+        }
+    },
+    template: '<div>pool_name: </div>'
 });
 
 Vue.component('my_more_clear_headers',{
@@ -38,29 +48,210 @@ Vue.component('my_static_resource',{
     template: '<div>expires: <el-input ></el-input></br>root-doc: <el-input></el-input></div>'
 });
 
+var ztree = Vue.component('ztree', {
+    data: function(){
+        return {
+            setting:{
+              check: {  
+                    enable: true,  
+                    nocheckInherit: false ,
+                    chkboxType: { "Y": "p", "N": "p" },
+                    chkStyle: "radio"
+                },  
+                data: {  
+                    simpleData: {  
+                        enable: true  
+                    }  
+                },
+                callback: {
+                    beforeClick: this.beforeClick,
+                    onClick: this.zTreeOnClick,
+                    onCheck: this.zTreeOnCheck,
+                },
+                view: {
+                    selectedMulti: false,
+                },
+            },
+            zNodes: [],
+              //[
+              //{ id:1,pid:0,name:"大良造菜单",open:true,nocheck:false,
+                //children: [
+                    //{ id:11,pid:1,name:"当前项目"},
+                    //{ id:12,pid:1,name:"工程管理",open:true,
+                        //children: [
+                            //{ id:121,pid:12,name:"我的工程"},
+                            //{ id:122,pid:12,name:"施工调度"},
+                            //{ id:1211,pid:12,name:"材料竞价"}
+                        //]
+                    //},
+                    //{ id:13,pid:1,name:"录入管理",open:true,
+                        //children: [
+                            //{ id:131,pid:13,name:"用工录入"},
+                            //{ id:132,pid:13,name:"商家录入"},
+                            //{ id:1314,pid:13,name:"机构列表"}
+                        //]
+                    //},
+                    //{ id:14,pid:1,name:"审核管理",open:true,
+                        //children: [
+                            //{ id:141,pid:14,name:"用工审核"},
+                            //{ id:142,pid:14,name:"商家审核"},
+                            //{ id:145,pid:14,name:"机构审核"}
+                        //]
+                    //},
+                    //{ id:15,pid:1,name:"公司管理",open:true,
+                        //children: [
+                            //{ id:1517,pid:15,name:"我的工程案例"},
+                            //{ id:1518,pid:15,name:"联系人设置"},
+                            //{ id:1519,pid:15,name:"广告设置"}
+                        //]
+                    //},
+                    //{ id:16,pid:1,name:"业务管理",open:true,
+                        //children: [
+                            //{ id:164,pid:16,name:"合同范本"},
+                            //{ id:165,pid:16,name:"合同列表"},
+                            //{ id:166,pid:16,name:"需求调度"}
+                        //]
+                    //},
+                    //{ id:17,pid:1,name:"订单管理",open:true,
+                        //children: [
+                            //{ id:171,pid:17,name:"商品订单"},
+                            //{ id:172,pid:17,name:"用工订单"},
+                            //{ id:175,pid:17,name:"供应菜单"}
+                        //]
+                    //},
+                    //{ id:18,pid:1,name:"我的功能",open:true,
+                        //children: [
+                            //{ id:181,pid:18,name:"免费设计"},
+                            //{ id:182,pid:18,name:"装修报价"},
+                            //{ id:1817,pid:18,name:"项目用工"}
+                        //]
+                    //},
+                    //{ id:19,pid:1,name:"分润管理",open:true,
+                        //children: [
+                            //{ id:191,pid:19,name:"分润列表"}
+                        //]
+                    //},
+                    //{ id:110,pid:1,name:"运营管理",open:true,
+                        //children: [
+                            //{ id:1101,pid:110,name:"代理列表"},
+                            //{ id:1102,pid:110,name:"代售商品"}
+                        //]
+                    //},
+                //]
+              //}
+            //]
+        }
+    },
+    template: '<div id="areaTree"> <div class="box-title"> <a href="#">列表<i class="fa  fa-refresh" @click="freshArea">点击</i></a> </div> <div class="tree-box"> <div class="zTreeDemoBackground left"> <ul id="treeDemo" class="ztree"></ul> </div> </div> </div>',
+    methods:{
+        getData: function(url, params, func){
+            obj = this;
+            axios({
+                method:'GET',
+                url: url,
+                params: params
+            }).then(function(resp){
+                func(resp);
+                //tmp = resp.data['ret'];
+                //obj[target] = tmp;
+            }).catch(function(resp){
+                console.log(resp);
+                console.log('Fail:'+resp.status+','+resp.statusText);
+            });
+        },
+
+        initTree: function(){
+            this.getData('../rest/nginxclustertree/', {}, this.afterInitTree);
+        },
+
+        afterInitTree: function(resp){
+            if(resp.data.status==200){
+                var tmp = JSON.parse(resp.data.data);
+                for(i=0; i<tmp.length;i++){
+                    item = tmp[i];
+                    item['nocheck'] = true;
+                    if(item.node_name1 && item.node_name2 && item.node_name3 && item.node_name4 && item.node_name5 && item.node_name6=='nginx'){
+                        item['nocheck'] = false;
+                    }
+                }
+                this.zNodes = tmp; 
+
+                console.log(this.zNodes);
+            }
+        },
+
+        freshArea: function(){
+            $.fn.zTree.init($("#treeDemo"), this.setting, this.zNodes);
+        },
+        zTreeOnClick: function(event, treeId, treeNode) {
+            //console.log(treeNode.tId + ", " + treeNode.name);
+        },
+        zTreeOnCheck: function(event, treeId, treeNode) {
+            if (treeNode.checked){
+                vm.siteDetail['nginx_cluster_id'] = treeNode.id;
+                var tmp = treeNode.node_name1 +'_'+ treeNode.node_name2 +'_'+ treeNode.node_name3 +'_'+ treeNode.node_name4 +'_'+ treeNode.node_name5 +'_'+ treeNode.node_name6;
+                vm.siteDetail['nginx_cluster_name'] = tmp;
+            }
+            else{
+                vm.nginx_cluster_name = '';
+                vm.nginx_cluster_id = -1;
+            }
+        },
+        //beforeClick: function(treeId, treeNode) {
+          //var zTree = $.fn.zTree.getZTreeObj("treeDemo");
+          //// zTree.checkNode(treeNode, !treeNode.checked, null, true);
+          //zTree.checkNode(treeNode, !treeNode.checked, true, true); //第二个参数!treeNode.checked和"",省略此参数效果等同，则根据对此节点的勾选状态进行 toggle 切换，第三个参数设置为true时候进行父子节点的勾选联动操作 ，第四个参数true 表示执行此方法时触发 beforeCheck & onCheck 事件回调函数；false 表示执行此方法时不触发事件回调函数
+          //return false;
+        //}
+      },
+      created: function(){
+          this.initTree();
+      },
+      mounted(){
+          $.fn.zTree.init($("#treeDemo"), this.setting, this.zNodes).expandAll(true);
+          this.freshArea();
+      }
+});
+
 function showMsg(boolFlag, msg){
     if(boolFlag){ vm.$message({ message:msg, type: 'success', center: true });}
     else{ vm.$message.error(msg);}
 };
 
 var defaultSiteDetail = {
-        //basicConfig
-        site_name: "abc",
-        status: "ENABLE",
-        domainName: "",
-        port: 80,
-        defaultPool: "",
-        targetNginx: "",
-        group: "default-grp",
-        httpsFlag: false,
-        //mappingRule
-        mappingRules: [
-            {id: 1, path:'/root', matchType: 'prefix', caseSensitive: 'Y', httpType: ['http', 'https'], cmdList: [{cmdType: 'proxy_pass', cmdArg: 'proxy_pass'}]},
-            {id: 2, path:'/root/a', matchType: 'common', caseSensitive: 'Y', httpType: ['http'], cmdList: [{cmdType: 'access_log', cmdArg: 'access_log'}]},
-            {id: 3, path:'/root/b', matchType: 'regex', caseSensitive: 'N', httpType: ['http', 'https'], cmdList: [{cmdType: 'more_clear_headers', cmdArg: 'clear_headers'}]},
-            {id: 4, path:'/root/c', matchType: 'excat', caseSensitive: 'Y', httpType: ['http'], cmdList: [{cmdType: 'more_set_headers', cmdArg: 'set_header'}]}
-        ],
-    };
+    //basicConfig
+    id: -1,
+    site_name: "",
+    state_control: "enable",
+    domain_name: "",
+    port: 80,
+    //defaultPool: "",
+    //nginx_cluster_name: "",
+    //nginx_cluster_id: "",
+    //group: "default-grp",
+    is_https: false,
+    //mappingRule
+    siteMPRuleList: [
+    ],
+};
+
+var defaultMPRule = {
+    id: "1", 
+    regular_expression:"",
+    matching_type: "",
+    caseSensitive: "",
+    https_type: "",
+    //cmdList: [{command_type: "proxy_pass", command_param: ""}]
+};
+
+var defaultCmdList = [{command_type: "proxy_pass", command_param: ""}];
+
+var testMPRule = [
+    {id: "1", regular_expression:"/root", matching_type: "prefix", case_sensitive: true, https_type: "all", cmdList: [{command_type: "proxy_pass", command_param: "test_proxy_pass"}, {command_type: "access_log", command_param: "test_access_log"}]},
+    {id: "2", regular_expression:"/root/a", matching_type: "common", case_sensitive: true, https_type: "http", cmdList: [{command_type: "access_log", command_param: "access_log"}]},
+    {id: "3", regular_expression:"/root/b", matching_type: "regex", case_sensitive: false, https_type: "all", cmdList: [{command_type: "more_clear_headers", command_param: "clear_headers"}]},
+    {id: "4", regular_expression:"/root/c", matching_type: "excat", case_sensitive: true, https_type: "https", cmdList: [{command_type: "more_set_headers", command_param: "set_header"}]}
+];
 
 editor = CodeMirror.fromTextArea(document.getElementById("previewTextArea"), {
     mode: 'nginx',
@@ -82,14 +273,16 @@ vm = new Vue({
         tabIndex: "2",
         siteNameDialogTriggle: false,
         siteDetailActiveTabName: "basicConfig",
-        siteDetail: defaultSiteDetail,
+        siteDetail: JSON.parse(JSON.stringify(defaultSiteDetail)),
         siteMPRuleList: [],
         siteVersions: [],
         selectedVersion: '',
         addMappingRuleDialogTriggle: false,
-        newMappingRuleForm:{id: -1, path: '', matchType: '', caseSensitive:'Y', httpType: ['http', 'https'], cmdList: [{cmdType: 'proxy_pass', cmdArg: 'abc'}] },
-        //cmdArgDiv: my_access_log, 
+        //newMappingRuleForm:{id: -1, path: '', matchType: '', caseSensitive:'Y', httpType: ['http', 'https'], cmdList: [{cmdType: 'proxy_pass', cmdArg: 'abc'}] },
+        mappingRule: {id: "1", regular_expression: '', matching_type: '', caseSensitive:'Y', https_type: ['all'], cmdList: [{command_type: 'proxy_pass', command_parm: 'abc'}] },
+        cmdList: [],
         pools: [],
+        clusterTreeDialogTriggle: false,
         previewDialogTriggle: false,
         previewContent: '',
         editor: '',
@@ -120,6 +313,7 @@ vm = new Vue({
             axios({
                 method:'POST',
                 url: url,
+                data: data
             }).then(function(resp){
                 func(resp);
             }).catch(resp => {
@@ -143,8 +337,8 @@ vm = new Vue({
             if(this.sites.length>0){
                 this.getSiteDetail(1);
             }
-            this.getPools();
-            this.getNginxClusters();
+            //this.getPools();
+            //this.getNginxClusters();
         },
 
         getSiteDetail: function(id){
@@ -162,6 +356,7 @@ vm = new Vue({
                     //current_version: "0",
                     //group: "default-grp",
                     //is_https: true,
+                    //siteMPRuleList: testMPRule 
                 //},
                 //{
                     ////basicConfig
@@ -206,7 +401,9 @@ vm = new Vue({
                     //is_https: false,
                 //},
             //]
-            //return siteDetails[id-1];
+            ////console.log(id);
+            //console.log(siteDetails[id-1]);
+            //this.siteDetail = siteDetails[id-1];
             this.getData('../rest/getmngsiteinfo/', {'id': id}, this.afterGetSiteDetail);
         },
 
@@ -310,6 +507,15 @@ vm = new Vue({
             //console.log(tmp);
             this.siteDetail = tmp;
         },
+
+        onchange_nginx_cluster: function(val){
+            //for(i=0; i<this.nginxClusters.length; i++){
+                //if(this.nginxClusters[i].name==val){
+                    //this.siteDetail['nginx_id'] == this
+                //}
+            //}
+            this.siteDetail['nginx_cluster_id'] = '100';
+        },
         
         handleNavSelect: function(key, keyPath){
         },
@@ -317,17 +523,17 @@ vm = new Vue({
         handleSiteSelect: function(key, keyPath){
             //console.log(key);
             this.activeIndex = key;
-            this.siteDetail = this.getSiteDetail(key);
+            this.getSiteDetail(key);
             this.siteDetailActiveTabName = "basicConfig";
         },
 
-        handleSiteDetailActiveTabClick: function(tab){
+        handleTabChange: function(tab){
             //console.log(tab);
             //this.tabName = "basicConfig";
         },
 
         addSite: function(){
-            this.siteDetail = defaultSiteDetail;
+            this.siteDetail = JSON.parse(JSON.stringify(defaultSiteDetail));
             this.siteDetailActiveTabName = "basicConfig";
             this.siteNameDialogTriggle = true;
         },
@@ -340,12 +546,12 @@ vm = new Vue({
             this.siteDetailDivStatus = 'wr';
         },
 
-        siteDetailFormSave: function(){
-            this.postData('../', this.siteDetail, this.afterPostSiteDetail);
+        siteDetailFormSave: function(operation){
+            this.postData('../rest/mngsitecreateorupdate/', this.siteDetail, this.afterPostSiteDetail);
         },
 
         afterPostSiteDetail: function(resp){
-            tmp = resp.data['ret']
+            tmp = resp.data;
             if(tmp.status==200){
                 showMsg(true, tmp.msg);
             }
@@ -357,68 +563,64 @@ vm = new Vue({
             if(row.id==1){return;}
             id = row.id-1;
             previousId = id-1;
-            tmpCurrent = this.siteDetail.mappingRule[id];
+            tmpCurrent = this.siteMPRuleList[id];
             tmpCurrent.id = previousId+1;
-            tmpPrevious = this.siteDetail.mappingRule[previousId];
+            tmpPrevious = this.siteMPRuleList[previousId];
             tmpPrevious.id = id+1;
-            this.siteDetail.mappingRule.splice(previousId, 2, tmpCurrent, tmpPrevious);
+            this.siteMPRuleList.splice(previousId, 2, tmpCurrent, tmpPrevious);
         },
 
         jumpDown: function(row) {
             //console.log(row.id);
-            if(row.id==this.siteDetail.mappingRule.length){return;}
+            if(row.id==this.siteMPRuleList.length){return;}
             id = row.id-1; //align wiht array
             laterId = id+1;
-            tmpCurrent = this.siteDetail.mappingRule[id];
+            tmpCurrent = this.siteMPRuleList[id];
             tmpCurrent.id = laterId+1;
-            tmpLater = this.siteDetail.mappingRule[laterId];
+            tmpLater = this.siteMPRuleList[laterId];
             tmpLater.id = id+1;
-            this.siteDetail.mappingRule.splice(id, 2, tmpLater, tmpCurrent);
+            this.siteMPRuleList.splice(id, 2, tmpLater, tmpCurrent);
         },
 
         jumpDoubleUp: function(row){
             id = row.id-1;
-            tmp = this.siteDetail.mappingRule[id];
+            tmp = this.siteMPRuleList[id];
             tmp.id=1;
             for(i=0; i<id; i++){
-                this.siteDetail.mappingRule[i].id = this.siteDetail.mappingRule[i].id+1;
+                this.siteMPRuleList[i].id = this.siteMPRuleList[i].id+1;
             }
-            this.siteDetail.mappingRule.splice(id, 1);
-            this.siteDetail.mappingRule.unshift(tmp);
+            this.siteMPRuleList.splice(id, 1);
+            this.siteMPRuleList.unshift(tmp);
         },
 
         jumpDoubleDown: function(row){
             id = row.id-1;
-            tmp = this.siteDetail.mappingRule[id];
-            tmp.id = this.siteDetail.mappingRule.length;
+            tmp = this.siteMPRuleList[id];
+            tmp.id = this.siteMPRuleList.length;
             for(i=id+1; i<tmp.id; i++){
-                this.siteDetail.mappingRule[i].id = this.siteDetail.mappingRule[i].id-1;
+                this.siteMPRuleList[i].id = this.siteMPRuleList[i].id-1;
             }
-            this.siteDetail.mappingRule.splice(id, 1);
-            this.siteDetail.mappingRule.push(tmp);
+            this.siteMPRuleList.splice(id, 1);
+            this.siteMPRuleList.push(tmp);
         },
 
         addMappingRule: function(){
             this.addMappingRuleDialogTriggle = true;
-            //this.newMappingRuleForm.httpType = "ALL";
-            //this.newMappingRuleForm.matchType = "prefix";
-            //this.newMappingRuleForm.caseSensitive = true;
-            //this.newMappingRuleForm.cmdList.push({id: -1, cmdType: 'proxy_pass', cmdArg: 'abc'});
+            this.mappingRule = JSON.parse(JSON.stringify(defaultMPRule));
+            this.cmdList = JSON.parse(JSON.stringify(defaultCmdList));
         },
         
-        submitNewMappingRule: function(){
-            //console.log(this.newMappingRuleForm);
-            this.newMappingRuleForm.id = this.siteDetail.mappingRules.length+1;
-            this.siteDetail.mappingRules.push(this.newMappingRuleForm);
-            this.addMappingRuleDialogTriggle = false;
-        },
-
         editMappingRule: function(row){
             this.addMappingRuleDialogTriggle = true;
-            //console.log(row);
-            this.newMappingRuleForm = row;
-            this.getCmdList(row.id);
+            this.mappingRule = row;
+            console.log(row);
+            this.cmdList = row.cmdList;
         },
+
+        saveMappingRule: function(){
+            this.mappingRule = this.cmdList;
+        },
+
 
         delMappingRule: function(row){
             //console.log(row);
@@ -468,9 +670,9 @@ vm = new Vue({
 
         previewConfigFile: function(){
             this.previewDialogTriggle = true;
-            this.siteDetail['cmd_list'] = this.cmdList;
+            //this.siteDetail['cmd_list'] = this.cmdList;
             //console.log(siteDetail);
-            this.postData('../rest/configfile', {'siteConfig':siteDetail}, afterPreviewConfigFile);
+            //this.postData('../rest/configfile', {'siteConfig':siteDetail}, afterPreviewConfigFile);
             this.previewContent = this.getConfig();
             //this.editor = CodeMirror.fromTextArea(document.getElementById("previewTextArea"), {});
             this.editor = editor;
@@ -486,6 +688,10 @@ vm = new Vue({
             tmp = resp.data['ret'];
             if(tmp.status==200){ showMsg(true, tmp.msg);}
             else{ showMsg(false, tmp.msg);}
+        },
+
+        selectCluster: function(){
+            this.clusterTreeDialogTriggle = true;
         }
     }
 });

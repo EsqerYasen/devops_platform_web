@@ -18,32 +18,29 @@
                 <el-button class="el-icon-circle-plus-outline" type="text" @click="addSite">新增站点</el-button>
             </el-col>
         </el-row>
+        <hr style="height:1px;border:none;border-top:1px solid #e5e5e5;" />
         <!--<div id="siteDetailDiv" v-if="siteDetailDivTriggle">-->
         <el-row>
             <el-col :span="12">
             <el-button type="warning" size="mini" icon="el-icon-document" @click="previewConfigFile">预览</el-button>
+            <el-button type="primary" size="mini" icon="el-icon-success" @click="siteDetailFormSave">保存</el-button>
             <el-button type="success" size="mini" icon="el-icon-edit-outline" @click="createDist">创建</el-button>
-            <el-select size="mini" v-model="selectedVersion" placeholder="请选择">
-                <el-option v-for="version in siteVersions" :key="version.v" :label="version.k" :value="version.v"> 
-                    <span style="float: left">{{ version.k}}</span>
-                    <span style="float: right; color: #8492a6; font-size: 13px">{{ version.status }}</span>
-                </el-option>
-            </el-select>
+            <!--<el-select size="mini" v-model="selectedVersion" placeholder="请选择">-->
+                <!--<el-option v-for="version in siteVersions" :key="version.v" :label="version.k" :value="version.v"> -->
+                    <!--<span style="float: left">{{ version.k}}</span>-->
+                    <!--<span style="float: right; color: #8492a6; font-size: 13px">{{ version.status }}</span>-->
+                <!--</el-option>-->
+            <!--</el-select>-->
+            <el-button type="info" size="mini" icon="el-icon-d-arrow-left"><a href="#">回滚</a></el-button>
             <el-button type="primary" size="mini" icon="el-icon-upload"><a href="../deploy/deploy_task">发布</a></el-button>
             </el-col>
         </el-row>
         <el-row>
-            <el-col :span="1" :offset="22">
-                <!--<el-button v-show="siteDetailDivStatus == 'ro' " type="info" size="mini" icon="el-icon-edit" @click="editSiteDetail()">编辑</el-button>-->
-                <el-button type="primary" size="mini" @click="siteDetailFormSave">保存</el-button>
-            <!--<el-button v-show="siteDetailDivStatus == 'wr' "type="info" size="mini" >取消</el-button>-->
-            </el-col>
-        </el-row>
-        <el-row>
             <div>
-            <el-tabs v-model="siteDetailActiveTabName" type="card" tab-position="left" @tab-click="handleSiteDetailActiveTabClick">
+            <el-tabs v-model="siteDetailActiveTabName" type="card" tab-position="left" @tab-click="handleTabChange">
                 <el-tab-pane  label="基本配置" name="basicConfig">
                     <el-form ref="form" :model="siteDetail" label-width="120px">
+                        <!--<el-row>-->
                         <el-form-item label="状态控制">
                             <el-radio-group v-model="siteDetail.state_control">
                                 <el-radio label="enable" value="enable"></el-radio>
@@ -51,21 +48,36 @@
                                 <el-radio label="force_offline" value="force_offline"></el-radio>
                             </el-radio-group>
                         </el-form-item>
+                        <!--</el-row>-->
+                        <!--<el-row>-->
+                            <!--<el-col :span="9">-->
                         <el-form-item label="Domain"><el-input v-model="siteDetail.domain_name"></el-input></el-form-item>
+                        <!--</el-col>-->
+                            <!--<el-col :span="9" :offset="1">-->
                         <el-form-item label="Port"><el-input v-model="siteDetail.port"></el-input></el-form-item>
+                        <!--</el-col>-->
+                        <!--</el-row>-->
                         <!--<el-form-item label="默认Pool名">-->
                             <!--<el-select v-model="siteDetail.defaultPool" filterable placeholder="请选择">-->
                                 <!--<el-option v-for="pool in pools" :key="pool.id" :label="pool.name" :value="pool.name">-->
                                 <!--</el-option>-->
                             <!--</el-select>-->
                         <!--</el-form-item>-->
+                        <!--<el-row>-->
+                            <!--<el-col :span="9">-->
                         <el-form-item label="目标Nginx集群">
-                            <el-select v-model="siteDetail.nginx_cluster_name" filterable placeholder="请选择">
-                                <el-option v-for="ngxC in nginxClusters" :key="ngxC.id" :label="ngxC.name" :value="ngxC.name">
-                                </el-option>
-                              </el-select>
+                            
+                            <el-button class="el-icon-circle-plus-outline" type="text" @click="selectCluster">选择集群节点</el-button>
+                            <!--<el-select v-model="siteDetail.nginx_cluster_name" filterable placeholder="请选择" @change="onchange_nginx_cluster">-->
+                                <!--<el-option v-for="ngxC in nginxClusters" :key="ngxC.id" :label="ngxC.name" :value="ngxC.name">-->
+                                <!--</el-option>-->
+                              <!--</el-select>-->
                         </el-form-item>
+                        <!--</el-col>-->
+                            <!--<el-col :span="9">-->
                         <el-form-item label="使用HTTPS"><el-switch v-model="siteDetail.is_https"></el-switch></el-form-item>
+                        </el-col>
+                        </el-row>
                         <!--<el-form-item label="proxy_set_hHost"><el-input v-model="siteDetail.proxy_set_hHost"></el-input></el-form-item>-->
                         <!--<el-form-item label="root"><el-input v-model="siteDetail.root"></el-input></el-form-item>-->
 
@@ -105,11 +117,11 @@
             </div>
         </el-row>
         <!--</div>-->
-        <el-dialog :visible.sync="addMappingRuleDialogTriggle" title="添加新规则" width="60%">
+        <el-dialog :visible.sync="addMappingRuleDialogTriggle" title="编辑规则" width="60%">
             此处填写基本的信息，详细规则的信息，可以在添加规则后，点击"编辑"进行详细补充。
-            <el-form ref="form" :model="newMappingRuleForm" label-width="120px">
+            <el-form ref="form" :model="mappingRule" label-width="120px">
                 <el-form-item label="匹配类型">
-                    <el-select v-model="newMappingRuleForm.matching_type">
+                    <el-select v-model="mappingRule.matching_type">
                         <el-option label="prefix" value="prefix"></el-option>
                         <el-option label="regex" value="regex"></el-option>
                         <el-option label="common" value="common"></el-option>
@@ -117,18 +129,21 @@
                       </el-select>
                 </el-form-item>
                 <el-form-item label="HTTPS类型">
-                    <el-select v-model="newMappingRuleForm.https_type">
+                    <el-select v-model="mappingRule.https_type">
                         <el-option label="HTTP,HTTPS" value="all"></el-option>
                         <el-option label="强制HTTP" value="http"></el-option>
                         <el-option label="强制HTTPS" value="https"></el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="路径表达式"><el-input v-model="newMappingRuleForm.regular_expression"></el-input></el-form-item>
-                <el-form-item label="大小写敏感"><el-switch v-model="newMappingRuleForm.case_sensitive"></el-switch></el-form-item>
-                <el-col :span="2" :offset="20">
+                <el-form-item label="路径表达式"><el-input v-model="mappingRule.regular_expression"></el-input></el-form-item>
+                <el-form-item label="大小写敏感"><el-switch v-model="mappingRule.case_sensitive"></el-switch></el-form-item>
+                <el-col :span="2" >
                     <el-button class="el-icon-circle-plus-outline" type="text" @click="addCmd">添加新指令</el-button>
                 </el-col>
-                <el-table border :data="newMappingRuleForm.cmdList">
+                <el-col :span="2" :offset="20">
+                    <el-button type="text" size="mini" class="fa fa-check" @click="saveMappingRule">保存</el-button>
+                </el-col>
+                <el-table border :data="cmdList">
                     <!--<el-table-column prop="id" label="序号"> </el-table-column>-->
                     <el-table-column label="指令类型">
                         <template slot-scope="scopeCmd">
@@ -147,8 +162,8 @@
                     </el-table-column>
                     <el-table-column label="指令详细数据">
                         <template slot-scope="scopeCmd">
-                            <component :is="mydefine" :cmdarg="scopeCmd.row.command_param"></component>
-                            <!--<components :is="mydefine" ></components>-->
+                            <!--<component :is="mydefine" :cmdarg="scopeCmd.row.command_param"></component>-->
+                            <component :is="'my_'+scopeCmd.row.command_type" :cmdarg="scopeCmd.row.command_param"></component>
                         </template>
                     </el-table-column>
                     <el-table-column label="操作">
@@ -158,16 +173,18 @@
                         </template>
                     </el-table-column>
                 </el-table>
-                <el-form-item><el-button type="primary" @click="submitNewMappingRule">保存</el-button></el-form-item>
             </el-form>
         </el-dialog>
         <el-dialog :visible.sync="previewDialogTriggle" title="预览" width="80%">
             <textarea id="previewTextArea">{{previewContent}}</textarea>
         </el-dialog>
-        <el-dialog :visible.sync="siteNameDialogTriggle" title="预览" width="50%">
+        <el-dialog :visible.sync="siteNameDialogTriggle" title="新建站点" width="50%">
             <el-form :model="siteDetail" label-width="120px">
-                <el-form-item label="站点名称"><el-input v-model="siteDetail.siteName"></el-input></el-form-item>
-                <el-form-item><el-button type="primary" @click="saveSiteName">保存</el-button></el-form-item>
+                <el-form-item label="站点名称"><el-input v-model="siteDetail.site_name" placeholder="请输入站点名称"></el-input></el-form-item>
+                <el-form-item><el-button type="primary" size="mini" icon="el-icon-success" @click="saveSiteName">确认</el-button></el-form-item>
+        </el-dialog>
+        <el-dialog :visible.sync="clusterTreeDialogTriggle" title="选择集群节点" width="80%">
+            <ztree></ztree>
         </el-dialog>
     </el-main>
 </el-container>
@@ -185,4 +202,8 @@
     <script src="{% static 'slb/js/codemirror.js' %}"></script>
     <script src="{% static 'slb/js/nginx.js' %}"></script>
     <script src="{% static 'slb/js/site.js' %}"></script>
+    <script src="/static/hplus/js/jquery.min.js?v=2.1.4"></script>
+    <script type="text/javascript" src="/static/hplus/js/zTree/jquery.ztree.core.js"></script>
+    <script type="text/javascript" src="/static/hplus/js/zTree/jquery.ztree.excheck.js"></script>
+    <script type="text/javascript" src="/static/hplus/js/zTree/jquery.ztree.exedit.js"></script>
 {% endblock %}
