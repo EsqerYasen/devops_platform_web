@@ -70,11 +70,11 @@
         <el-dialog :visible.sync="editNodeDialogTriggle" title="编辑Node" width="60%">
             <el-form :model="nodeFormInline" label-width="120px">
                 <!--<el-form-item label="节点名称"><el-input disable v-model="nodeFormInline.nodeName"></el-input></el-form-item>-->
-                <el-form-item label="IP"><el-input disable v-model="nodeFormInline.host_ip"></el-input></el-form-item>
-                <el-form-item label="端口"><el-input disable v-model="nodeFormInline.port"></el-input></el-form-item>
-                <el-form-item label="权重"><el-input disable v-model="nodeFormInline.weight"></el-input></el-form-item>
-                <el-form-item label="最大失败次数"><el-input disable v-model="nodeFormInline.max_fails"></el-input></el-form-item>
-                <el-form-item label="失败超时时间"><el-input disable v-model="nodeFormInline.fail_timeout"></el-input></el-form-item>
+                <el-form-item label="IP"><el-input disabled v-model="nodeFormInline.host_ip"></el-input></el-form-item>
+                <el-form-item label="端口"><el-input  v-model="nodeFormInline.port"></el-input></el-form-item>
+                <el-form-item label="权重"><el-input  v-model="nodeFormInline.weight"></el-input></el-form-item>
+                <el-form-item label="最大失败次数"><el-input  v-model="nodeFormInline.max_fails"></el-input></el-form-item>
+                <el-form-item label="失败超时时间"><el-input  v-model="nodeFormInline.fail_timeout"></el-input></el-form-item>
                 <el-form-item label="状态控制">
                     <el-radio-group v-model="nodeFormInline.state">
                         <el-radio label="enable" value="enable"></el-radio>
