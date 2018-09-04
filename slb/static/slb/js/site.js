@@ -708,8 +708,9 @@ vm = new Vue({
             }
         },
 
-        deploy_url: function(){
-            //url = "/slb/deploy/deploy_task?site_name="+this.siteDetail.site_name+"&nginx_cluster_id="+this.siteDetail.nginx_cluster_id+"&version=";
+        deploy_url: function(i){
+            url = "/slb/deploy/deploy_task?site_name="+this.siteDetail.site_name+"&nginx_cluster_id="+this.siteDetail.nginx_cluster_id+"&version="+this.siteVersions[i].version+"&task_id="+this.siteVersions[i].task_id;
+            return url;
         },
 
         rollback: function(){
@@ -718,13 +719,21 @@ vm = new Vue({
             }
             else{
                 //goto deploy page
-                window.navigate();
+                //console.log(this.deploy_url(1));
+                window.location= this.deploy_url(1);
             }
         },
 
         deploy: function(){
+            if(this.siteVersions.length==0){
+                showMsg(false, '请先创建版本后再发布');
+            }
+            else{
+                //goto deploy page
+                //console.log(this.deploy_url(0));
+                window.location=this.deploy_url(0);
+            }
         }
-
     }
 });
 
