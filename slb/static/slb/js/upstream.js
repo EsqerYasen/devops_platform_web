@@ -1,4 +1,5 @@
 defaultUpstreamDetail = {
+    id: "-1",
     cluster_name: "",
     load_balancin_strategy: "round-robin",
     keep_alive: 20,
@@ -162,8 +163,7 @@ vm = new Vue({
 
         upstreamDetailFormSave: function(){
             //console.log(this.upstreamDetail);
-            data = {data: this.upstreamDetail, operation: 'create'};
-            this.postData('../rest/serviceclusterbyid/', data, this.afterUpstreamDetailFormSave);
+            this.postData('../rest/serviceclusterbyid/', this.upstreamDetail, this.afterUpstreamDetailFormSave);
         },
 
         afterUpstreamDetailFormSave: function(resp){

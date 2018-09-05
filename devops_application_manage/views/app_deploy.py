@@ -4,9 +4,16 @@ from common.utils.HttpUtils import *
 from django.http import HttpResponse
 from django.core.paginator import Paginator
 from common.utils.common_utils import *
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
 import logging,time,os
 
 logger = logging.getLogger('devops_platform_log')
+
+###add by Robin
+def detail(request):
+    return render(request, 'application_detail.html')
+#######
 
 class DevopsAppMgeListView(LoginRequiredMixin, OrderableListMixin, ListView):
     template_name = "app_deploy_list.html"

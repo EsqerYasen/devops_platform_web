@@ -155,7 +155,7 @@ var ztree = Vue.component('ztree', {
                 //tmp = resp.data['ret'];
                 //obj[target] = tmp;
             }).catch(function(resp){
-                console.log(resp);
+                //console.log(resp);
                 console.log('Fail:'+resp.status+','+resp.statusText);
             });
         },
@@ -191,6 +191,7 @@ var ztree = Vue.component('ztree', {
                 vm.siteDetail['nginx_cluster_id'] = treeNode.id;
                 var tmp = treeNode.node_name1 +'_'+ treeNode.node_name2 +'_'+ treeNode.node_name3 +'_'+ treeNode.node_name4 +'_'+ treeNode.node_name5 +'_'+ treeNode.node_name6;
                 vm.siteDetail['nginx_cluster_name'] = tmp;
+                vm.clusterTreeDialogTriggle = false;
             }
             else{
                 vm.nginx_cluster_name = '';
@@ -230,13 +231,12 @@ var defaultSiteDetail = {
     //nginx_cluster_id: "",
     //group: "default-grp",
     is_https: false,
-    //mappingRule
     siteMPRuleList: [
     ],
 };
 
 var defaultMPRule = {
-    id: "1", 
+    id: "-1", 
     regular_expression:"",
     matching_type: "",
     caseSensitive: "",
@@ -289,7 +289,16 @@ vm = new Vue({
         mydefine: "my_access_log"
     },
     created: function(){
-        this.getSites();
+        //this.getSites();
+        window_url = window.location.href;
+        site_id = parseInt(window_url.split("=")[1]);
+        if(site_id){
+            //console.log(site_id);
+            this.getSiteDetail(site_id);
+        }
+        else{
+            this.siteNameDialogTriggle = true;
+        }
     },
     methods:{
         getData: function(url, params, func){
@@ -335,7 +344,7 @@ vm = new Vue({
             tmp = resp.data['ret'];
             this.sites = tmp;
             if(this.sites.length>0){
-                this.getSiteDetail(1);
+                this.getSiteDetail(this.sites[0].id);
             }
             //this.getPools();
             //this.getNginxClusters();
@@ -447,8 +456,6 @@ vm = new Vue({
             tmp = resp.data['ret'];
             //console.log(tmp);
             this.cmdList = tmp.cmd_list;
-            id = tmp.id;
-            this.insert_cmdList(id, this.cmdList);
         },
 
         insert_cmdList: function(index, cmd_list){
@@ -606,19 +613,19 @@ vm = new Vue({
 
         addMappingRule: function(){
             this.addMappingRuleDialogTriggle = true;
-            this.mappingRule = JSON.parse(JSON.stringify(defaultMPRule));
+            //this.mappingRule = JSON.parse(JSON.stringify(defaultMPRule));
             this.cmdList = JSON.parse(JSON.stringify(defaultCmdList));
         },
         
         editMappingRule: function(row){
-            this.addMappingRuleDialogTriggle = true;
-            this.mappingRule = row;
             console.log(row);
-            this.cmdList = row.cmdList;
+            this.getCmdList(row.id);
+            this.mappingRule = this.siteMPRuleList[row.id];
+            this.addMappingRuleDialogTriggle = true;
         },
 
         saveMappingRule: function(){
-            this.mappingRule = this.cmdList;
+            //this.mappingRule = this.cmdList;
         },
 
 
@@ -692,6 +699,40 @@ vm = new Vue({
 
         selectCluster: function(){
             this.clusterTreeDialogTriggle = true;
+        },
+
+        handleCloseSiteName: function(){
+            if(this.siteDetail.site_name.length==0){
+                showMsg(false, '请输入站点名称');
+                this.siteNameDialogTriggle = true;
+            }
+        },
+
+        deploy_url: function(i){
+            url = "/slb/deploy/deploy_task?site_name="+this.siteDetail.site_name+"&nginx_cluster_id="+this.siteDetail.nginx_cluster_id+"&version="+this.siteVersions[i].version+"&task_id="+this.siteVersions[i].task_id;
+            return url;
+        },
+
+        rollback: function(){
+            if(this.siteVersions.length<=1){
+                showMsg(false, '无历史版本，无法执行回滚');
+            }
+            else{
+                //goto deploy page
+                //console.log(this.deploy_url(1));
+                window.location= this.deploy_url(1);
+            }
+        },
+
+        deploy: function(){
+            if(this.siteVersions.length==0){
+                showMsg(false, '请先创建版本后再发布');
+            }
+            else{
+                //goto deploy page
+                //console.log(this.deploy_url(0));
+                window.location=this.deploy_url(0);
+            }
         }
     }
 });

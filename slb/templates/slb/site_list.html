@@ -1,0 +1,30 @@
+{% extends 'slb/layout.html' %}
+{% block main %}
+{% load static %}
+{% verbatim myblock %}
+<el-row>
+    <el-col :span="2" :offset="22">
+        <el-button class="el-icon-circle-plus-outline" type="text"><a href="../site/">新增站点</a></el-button>
+    </el-col>
+</el-row>
+<el-table :data="sites" style="width: 100%">
+    <el-table-column prop="id" label="ID" width="180"> </el-table-column>
+    <el-table-column prop="site_name" label="站点名称" width="180"> </el-table-column>
+    <el-table-column prop="current_version" label="当前版本" width="180"> </el-table-column>
+    <el-table-column prop="created_by" label="创建人"> </el-table-column>
+    <el-table-column prop="create_time" label="创建时间"> </el-table-column>
+    <el-table-column prop="updated_by" label="修改人"> </el-table-column>
+    <el-table-column prop="update_time" label="修改时间"> </el-table-column>
+    <el-table-column label="操作">
+        <template slot-scope="siteScope">
+            <a :href="'../site?id='+siteScope.row.id"><el-button type="primary" icon="el-icon-edit" size="mini" circle ></el-button></a>
+            <el-button type="danger" icon="el-icon-delete" size="mini" circle @click="delSite(siteScope.row)"></el-button>
+        </template>
+    </el-table-column>
+</el-table>
+{% endverbatim myblock %}
+{% endblock %}
+
+{% block js %}
+    <script src="{% static 'slb/js/site_list.js' %}"></script>
+{% endblock %}

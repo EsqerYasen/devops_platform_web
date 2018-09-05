@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <!-- import CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+  {% load static %}
+</head>
+<body>
+  <div id="el-app">
+    {% verbatim myblock %}
+    <el-checkbox v-for="(b, index) in business_cata" :key="b.index" v-model="b.checked">{{b.cataName}}</el-checkbox>
+    <el-row>
+    <el-col :span="10">
+    <div>Total:<el-tag size="mini">{{Total}}</el-tag></div>
+    </el-col>
+    {% endverbatim myblock %}
+    <el-col :span="8" :offset="4">
+        <el-input size="mini" placeholder="filter" v-model="filter" prefix-icon="el-icon-search"></el-input>
+    </el-col>
+    <el-col :span="1" :offset="1">
+    <div><el-button class="el-icon-circle-plus-outline" type="text" @click="triggleNew()"></el-button></div>
+    </el-col>
+    </el-row>
+    <el-table border :data="businessData | cataFilter(business_cata) | pagination(CurrentPage, Pagesize) | contentFilter(filter)" style="width: 100%">
+    <el-table-column prop="id" label="id" width="180"></el-table-column>
+    <el-table-column prop="business_name" label="Business" width="180"></el-table-column>
+    <el-table-column prop="department" label="Department" width="180"></el-table-column>
+    <el-table-column prop="catalog" label="Catalog" width="180"></el-table-column>
+    <el-table-column prop="owner" label="Owner" width="180"></el-table-column>
+    <el-table-column prop="description" label="Description" width="180"></el-table-column>
+    <el-table-column prop="creator" label="Creator" width="180"></el-table-column>
+    <el-table-column prop="create_time" label="Create Time" width="180"></el-table-column>
+    <el-table-column prop="updator" label="Updated By" width="180"></el-table-column>
+    <el-table-column prop="update_time" label="Update Time" width="180"></el-table-column>
+    <el-table-column label="Button">
+      <template slot-scope="scopeBusiness">
+        <a :href="'../'+scopeBusiness.row.id+'/attributes_manage/'"><el-button type="primary" icon="el-icon-document" size="mini" circle></el-button></a>
+        <el-button type="danger" icon="el-icon-delete" size="mini" circle @click="delRecord(scopeBusiness.row)"> </el-button>
+      </template>
+	</el-table-column>
+    </el-table>
+	<el-pagination
+      @size-change="HandleSizeChange"
+      @current-change="HandleCurrentChange"
+      :current-page.sync="CurrentPage"
+      :page-sizes="[2, 3, 4]"
+      :page-size="Pagesize"
+      layout="sizes, prev, pager, next"
+      :total="Total">
+    </el-pagination>
+    <el-dialog :visible.sync="editTriggle" :title="editMethod">
+      <el-form label-width="80px" ref="form" v-if="editTriggle" :model="formInline">
+      <el-form-item label="Business">
+        <el-input v-model="formInline.business_name"></el-input>
+      </el-form-item>
+       <el-form-item label="Department">
+         <el-select v-model="formInline.department" placeholder="department">
+          <el-option label="ec" value="ec"></el-option>
+          <el-option label="brand" value="brand"></el-option>
+          <el-option label="store" value="store"></el-option>
+          <el-option label="enterprise" value="enterprise"></el-option>
+          <el-option label="helpdesk" value="helpdesk"></el-option>
+          <el-option label="devops" value="devops"></el-option>
+         </el-select>
+      </el-form-item>
+      <el-form-item label="Owner">
+        <el-input v-model="formInline.owner"></el-input>
+      </el-form-item>
+      <el-form-item label="Contact">
+        <el-input v-model="formInline.contact"></el-input>
+      </el-form-item>
+      <el-form-item label="Catalog">
+        <el-input v-model="formInline.catalog"></el-input>
+      </el-form-item>
+      <el-form-item label="Description">
+        <el-input type="textarea" :autosize="{ minRows: 2, maxRows: 4}" placeholder="description" v-model="formInline.description"></el-input>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" @click="onSubmit(formInline)">Save</el-button>
+      </el-form-item>
+      </el-form>
+    </el-dialog>
+  </div>
+</body>
+  <script src="https://unpkg.com/vue/dist/vue.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <!-- import JavaScript -->
+  <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+  <script src="{% static '/js/business_list.js' %}"></script>
+</html>

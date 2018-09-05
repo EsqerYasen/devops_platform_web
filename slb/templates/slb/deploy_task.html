@@ -1,0 +1,42 @@
+{% extends 'slb/layout.html' %}
+{% block main %}
+{% load static %}
+{% verbatim myblock %}
+    <!--<el-row>-->
+        <!--[><el-col :span="20"><]-->
+        <!--[></el-col><]-->
+        <!--[><el-col :span="1" ><]-->
+            <!--[><el-button class="fa fa-play">启动</el-button><]-->
+        <!--[></el-col><]-->
+    <!--</el-row>-->
+    <el-row>
+        <el-col :span="20">
+            <el-card class="box-card">
+                <div slot="header" class="clearfix">
+                    <span>任务ID: {{task_id}} 任务状态: {{task_status}} 站点名称{{site_name}} 版本名称:{{site_name}}-{{version}}</span>
+                    <el-button v-if="loading" icon="el-icon-loading"></el-button>
+                    <el-button style="float: right; padding: 3px 0" type="text" @click="start_publish">开始发布</el-button>
+                </div>
+                <el-table ref="multipleTable" border :data="host_list" tooltip-effect="dark" style="width: 100%" @selection-change="handleSelectionChange">
+                    <el-table-column type="selection" width="55"> </el-table-column>
+                    <el-table-column prop="host_id" label="序号" width="100"> </el-table-column>
+                    <el-table-column prop="host_ip" label="IP"> </el-table-column>
+                    <el-table-column prop="version" label="版本"> </el-table-column>
+                    <!--<el-table-column prop="time" label="修改时间" > </el-table-column>-->
+                </el-table>
+            </el-card>
+        </el-col>
+        <!--<el-col :span="12">-->
+        <!--</el-col>-->
+    </el-row>
+    <el-row>
+        <hr style="height:1px;border:none;border-top:1px solid #e5e5e5;" />
+        <i class="fa fa-link" id="log" aria-hidden="true"></i><span >发布日志</span>
+        <el-input v-model="log" type="textarea" readonly  :autosize="{ minRows: 50, maxRows: 50}"></el-input>
+        <!--<textarea readonly style="background-color: black" width></textarea>-->
+    </el-row>
+{% endverbatim myblock %}
+{% endblock %}
+{% block js %}
+    <script src="{% static 'slb/js/deploy_task.js' %}"></script>
+{% endblock %}
