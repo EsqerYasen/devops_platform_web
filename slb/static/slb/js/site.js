@@ -1,24 +1,6 @@
 Vue.component('my_access_log',{
-    props: ['cmdarg', 'row', 'cmd'],
-    template: `<el-input v-model="cmdcmdarg" @change="argUpdated($event, row)"></el-input>`,
-    methods: {
-        argUpdated: function(w, r){
-            this.$emit('updatecmdarg', {v:w, row:r});
-        },
-    },
-
-    computed: {
-        cmdcmdarg: {
-            get: function(){
-                return this.cmdarg;
-            },
-            set: function(v){
-
-            }
-        },
-    },
-
-
+    props: ['cmdarg'],
+    template: '<el-input v-model="cmdarg"></el-input>'
 });
 
 Vue.component('my_proxy_pass',{
@@ -70,16 +52,16 @@ var ztree = Vue.component('ztree', {
     data: function(){
         return {
             setting:{
-              check: {
-                    enable: true,
+              check: {  
+                    enable: true,  
                     nocheckInherit: false ,
                     chkboxType: { "Y": "p", "N": "p" },
                     chkStyle: "radio"
-                },
-                data: {
-                    simpleData: {
-                        enable: true
-                    }
+                },  
+                data: {  
+                    simpleData: {  
+                        enable: true  
+                    }  
                 },
                 callback: {
                     beforeClick: this.beforeClick,
@@ -192,7 +174,7 @@ var ztree = Vue.component('ztree', {
                         item['nocheck'] = false;
                     }
                 }
-                this.zNodes = tmp;
+                this.zNodes = tmp; 
 
                 console.log(this.zNodes);
             }
@@ -254,7 +236,7 @@ var defaultSiteDetail = {
 };
 
 var defaultMPRule = {
-    id: "1",
+    id: "1", 
     regular_expression:"",
     matching_type: "",
     caseSensitive: "",
@@ -296,7 +278,6 @@ vm = new Vue({
         siteVersions: [],
         selectedVersion: '',
         addMappingRuleDialogTriggle: false,
-        newMappingRuleForm: {},
         //newMappingRuleForm:{id: -1, path: '', matchType: '', caseSensitive:'Y', httpType: ['http', 'https'], cmdList: [{cmdType: 'proxy_pass', cmdArg: 'abc'}] },
         mappingRule: {id: "1", regular_expression: '', matching_type: '', caseSensitive:'Y', https_type: ['all'], cmdList: [{command_type: 'proxy_pass', command_parm: 'abc'}] },
         cmdList: [],
@@ -309,7 +290,6 @@ vm = new Vue({
     },
     created: function(){
         this.getSites();
-        console.log("mappingRule created", this.mappingRule);
     },
     methods:{
         getData: function(url, params, func){
@@ -362,7 +342,7 @@ vm = new Vue({
         },
 
         getSiteDetail: function(id){
-            //siteDetails = [
+            //siteDetails = [ 
                 //{
                     ////basicConfig
                     //id: "1",
@@ -376,7 +356,7 @@ vm = new Vue({
                     //current_version: "0",
                     //group: "default-grp",
                     //is_https: true,
-                    //siteMPRuleList: testMPRule
+                    //siteMPRuleList: testMPRule 
                 //},
                 //{
                     ////basicConfig
@@ -454,17 +434,8 @@ vm = new Vue({
         },
 
         afterGetMPRule: function(resp){
-            tmp = resp.data['ret'];
-
-            var _temp;
-
-            $(tmp).each(function(idx, item){
-
-                if (!tmp[idx].cmdList) {
-                    console.warn('!!!!!Warning as API not provide cmdList, using this debug command list', tmp[idx]);
-                    tmp[idx].cmdList = [{"id":123,"command_type":"access_log","command_param":"abc"}];
-                }
-            })
+            tmp = resp.data['ret']
+            //console.log(tmp);
             this.siteMPRuleList = tmp;
         },
 
@@ -481,7 +452,6 @@ vm = new Vue({
         },
 
         insert_cmdList: function(index, cmd_list){
-            console.log(this.siteMPRuleList);
             //console.log(this.siteMPRuleList[0].id);
             //console.log(index);
             for(i=0; i<this.siteMPRuleList.length; i++){
@@ -546,18 +516,10 @@ vm = new Vue({
             //}
             this.siteDetail['nginx_cluster_id'] = '100';
         },
-
+        
         handleNavSelect: function(key, keyPath){
         },
-        handleCmdargChange: function(event){
-            if (this.mappingRule && this.mappingRule.cmdList && this.mappingRule.cmdList.length>0) {
-                $.each(this.mappingRule.cmdList, function(idx, cmd){
-                    if (cmd.id === event.row.id) {
-                        cmd.command_param = event.v;
-                    }
-                })
-            }
-        },
+
         handleSiteSelect: function(key, keyPath){
             //console.log(key);
             this.activeIndex = key;
@@ -645,16 +607,14 @@ vm = new Vue({
         addMappingRule: function(){
             this.addMappingRuleDialogTriggle = true;
             this.mappingRule = JSON.parse(JSON.stringify(defaultMPRule));
-            if (!this.cmdList) {
-                this.cmdList = JSON.parse(JSON.stringify(defaultCmdList));
-            }
+            this.cmdList = JSON.parse(JSON.stringify(defaultCmdList));
         },
-
-        editMappingRule: function(mapRow){
+        
+        editMappingRule: function(row){
             this.addMappingRuleDialogTriggle = true;
-            console.log(JSON.stringify(mapRow), JSON.stringify(this.mappingRule));
-            this.mappingRule = mapRow;
-            this.cmdList = mapRow.cmdList;
+            this.mappingRule = row;
+            console.log(row);
+            this.cmdList = row.cmdList;
         },
 
         saveMappingRule: function(){

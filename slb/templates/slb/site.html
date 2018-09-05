@@ -66,7 +66,7 @@
                         <!--<el-row>-->
                             <!--<el-col :span="9">-->
                         <el-form-item label="目标Nginx集群">
-
+                            
                             <el-button class="el-icon-circle-plus-outline" type="text" @click="selectCluster">选择集群节点</el-button>
                             <!--<el-select v-model="siteDetail.nginx_cluster_name" filterable placeholder="请选择" @change="onchange_nginx_cluster">-->
                                 <!--<el-option v-for="ngxC in nginxClusters" :key="ngxC.id" :label="ngxC.name" :value="ngxC.name">-->
@@ -163,12 +163,7 @@
                     <el-table-column label="指令详细数据">
                         <template slot-scope="scopeCmd">
                             <!--<component :is="mydefine" :cmdarg="scopeCmd.row.command_param"></component>-->
-                            <component :is="'my_'+scopeCmd.row.command_type"
-                                :row="scopeCmd.row"
-                                :cmd="scopeCmd"
-                                :cmdarg="scopeCmd.row.command_param"
-                                v-on:updatecmdarg="handleCmdargChange">
-                            </component>
+                            <component :is="'my_'+scopeCmd.row.command_type" :cmdarg="scopeCmd.row.command_param"></component>
                         </template>
                     </el-table-column>
                     <el-table-column label="操作">
