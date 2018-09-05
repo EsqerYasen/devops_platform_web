@@ -146,6 +146,7 @@
                 </el-col>
                 <el-table border :data="mappingRule.cmdList">
                     <!--<el-table-column prop="id" label="序号"> </el-table-column>-->
+                    <el-table-column type="index" prop="id" label="ID"></el-table-column>
                     <el-table-column label="指令类型">
                         <template slot-scope="scopeCmd">
                             <el-select v-model="scopeCmd.row.command_type" @change="cmdTypeChange">
@@ -165,11 +166,7 @@
                         <template slot-scope="scopeCmd">
                             <!--<component :is="mydefine" :cmdarg="scopeCmd.row.command_param"></component>-->
                             <!--<component :is="'my_'+scopeCmd.row.command_type" :cmdarg="scopeCmd.row.command_param"></component>-->
-                            <component :is="'my_'+scopeCmd.row.command_type"
-                                :row="scopeCmd.row"
-                                :cmd="scopeCmd"
-                                :cmdarg="scopeCmd.row.command_param"
-                                  v-on:updatecmdarg="handleCmdargChange">
+                            <component :is="'my_'+scopeCmd.row.command_type" :row="scopeCmd" :cmd="scopeCmd" :cmdarg="scopeCmd.row.command_param" v-on:updatecmdarg="handleCmdargChange">
                             </component>
                         </template>
                     </el-table-column>

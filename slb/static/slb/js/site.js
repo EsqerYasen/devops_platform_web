@@ -1,73 +1,129 @@
-//Vue.component('my_access_log',{
-    //props: ['cmdarg'],
-    //template: '<el-input v-model="cmdarg"></el-input>'
-//});
 Vue.component('my_access_log',{
-    props: ['cmdarg', 'row', 'cmd'],
     template: '<el-input v-model="cmdcmdarg" @change="argUpdated($event, row)"></el-input>',
+    props: ['cmdarg', 'row', 'cmd'],
     methods: {
         argUpdated: function(w, r){
-            this.$emit('updatecmdarg', {v:w, row:r});
+            this.$emit('updatecmdarg', {v:w, s:r});
         },
     },
-
     computed: {
         cmdcmdarg: {
-            get: function(){
-                return this.cmdarg;
-            },
-            set: function(v){
-
-            }
+            get: function(){return this.cmdarg;},
+            set: function(v){}
         },
     },
-
-
 });
 
 Vue.component('my_proxy_pass',{
-    props: ['cmdarg'],
+    template: '<div>pool_name: <el-input v-model="cmdcmdarg" @change="argUpdated($event, row)"></el-input></div>',
+    props: ['cmdarg', 'row', 'cmd'],
     computed:{
-        innerarg: {
-            get: function(){
-                return this.cmdarg;
-            },
-            set: function(newvalue){
-                this.cmdarg = newvalue;
-            }
+        cmdcmdarg: {
+            get: function(){ return this.cmdarg; },
+            set: function(v){}
         }
     },
-    template: '<div>pool_name: </div>'
+    methods: {
+        argUpdated: function(w, r){
+            this.$emit('updatecmdarg', {v:w, s:r});
+        },
+    }
 });
 
 Vue.component('my_more_clear_headers',{
-    props: ['cmdarg'],
-    template: '<el-input v-model="cmdarg"></el-input>'
+    template: '<el-input v-model="cmdcmdarg" @change="argUpdated($event, row)"></el-input>',
+    props: ['cmdarg', 'row', 'cmd'],
+    methods: {
+        argUpdated: function(w, r){
+            this.$emit('updatecmdarg', {v:w, s:r});
+        },
+    },
+    computed: {
+        cmdcmdarg: {
+            get: function(){return this.cmdarg;},
+            set: function(v){}
+        },
+    },
 });
 
 Vue.component('my_more_set_headers',{
-    props: ['cmdarg'],
-    template: '<el-input v-model="cmdarg"></el-input>'
+    template: '<el-input v-model="cmdcmdarg" @change="argUpdated($event, row)"></el-input>',
+    props: ['cmdarg', 'row', 'cmd'],
+    methods: {
+        argUpdated: function(w, r){
+            this.$emit('updatecmdarg', {v:w, s:r});
+        },
+    },
+    computed: {
+        cmdcmdarg: {
+            get: function(){return this.cmdarg;},
+            set: function(v){}
+        },
+    },
 });
 
 Vue.component('my_ifelse',{
-    props: ['cmdarg'],
-    template: '<div>if-condition:<el-input ></el-input></br>if-statement: <el-input></el-input></div>'
+    template: '<el-input v-model="cmdcmdarg" @change="argUpdated($event, row)"></el-input>',
+    props: ['cmdarg', 'row', 'cmd'],
+    methods: {
+        argUpdated: function(w, r){
+            this.$emit('updatecmdarg', {v:w, s:r});
+        },
+    },
+    computed: {
+        cmdcmdarg: {
+            get: function(){return this.cmdarg;},
+            set: function(v){}
+        },
+    },
 });
 
 Vue.component('my_return',{
-    props: ['cmdarg'],
-    template: '<div>response-code: <el-input ></el-input></br>response-content: <el-input></el-input></div>'
+    template: '<el-input v-model="cmdcmdarg" @change="argUpdated($event, row)"></el-input>',
+    props: ['cmdarg', 'row', 'cmd'],
+    methods: {
+        argUpdated: function(w, r){
+            this.$emit('updatecmdarg', {v:w, s:r});
+        },
+    },
+    computed: {
+        cmdcmdarg: {
+            get: function(){return this.cmdarg;},
+            set: function(v){}
+        },
+    },
 });
 
 Vue.component('my_rewrite',{
-    props: ['cmdarg'],
-    template: '<div>flag: <el-input ></el-input></br>matches: <el-input></el-input></br>target-pattern: <el-input></el-input></div>'
+    template: '<el-input v-model="cmdcmdarg" @change="argUpdated($event, row)"></el-input>',
+    props: ['cmdarg', 'row', 'cmd'],
+    methods: {
+        argUpdated: function(w, r){
+            this.$emit('updatecmdarg', {v:w, s:r});
+        },
+    },
+    computed: {
+        cmdcmdarg: {
+            get: function(){return this.cmdarg;},
+            set: function(v){}
+        },
+    },
 });
 
 Vue.component('my_static_resource',{
-    props: ['cmdarg'],
-    template: '<div>expires: <el-input ></el-input></br>root-doc: <el-input></el-input></div>'
+    template: '<el-input v-model="cmdcmdarg" @change="argUpdated($event, row)"></el-input>',
+    props: ['cmdarg', 'row', 'cmd'],
+    methods: {
+        argUpdated: function(w, r){
+            this.$emit('updatecmdarg', {v:w, s:r});
+        },
+    },
+    computed: {
+        cmdcmdarg: {
+            get: function(){return this.cmdarg;},
+            set: function(v){}
+        },
+    },
 });
 
 var ztree = Vue.component('ztree', {
@@ -193,7 +249,7 @@ var defaultMPRule = {
     matching_type: "",
     caseSensitive: "",
     https_type: "",
-    cmdList: [{command_type: "access_log", command_param: ""}]
+    cmdList: [{command_type: "access_log", command_param: "access_log"}]
 };
 
 var defaultCmdList = [{command_type: "access_log", command_param: ""}];
@@ -511,6 +567,7 @@ vm = new Vue({
             tmp = resp.data;
             if(tmp.status==200){
                 showMsg(true, tmp.msg);
+                this.siteDetail.id=tmp.id;
             }
             else{ showMsg(false, tmp.msg);}
         },
@@ -562,10 +619,9 @@ vm = new Vue({
         },
 
         handleCmdargChange: function(val){
-            //val.vs = content
-            //console.log(val);
-            this.mappingRule
-        }
+            //val is dict: {input-content, scope} 
+            this.mappingRule.cmdList[val.s.$index].command_param = val.v;
+        },
 
         addMappingRule: function(){
             this.addMappingRuleDialogTriggle = true;
@@ -584,7 +640,6 @@ vm = new Vue({
         saveMappingRule: function(){
             //this.mappingRule = this.cmdList;
         },
-
 
         delMappingRule: function(row){
             //console.log(row);
