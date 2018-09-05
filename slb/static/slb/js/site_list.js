@@ -61,8 +61,8 @@ vm = new Vue({
             //this.getNginxClusters();
         },
 
-        delSite: function(row){
-            this.getData('../rest/delsite', {id: row.id}, this.afterDelSite);
+        delSite: function(siteID){
+            this.getData('../rest/delsite', {id: siteID}, this.afterDelSite);
         },
 
         afterDelSite: function(resp){

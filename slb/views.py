@@ -19,6 +19,9 @@ def site(request):
 def upstream(request):
     return render(request, 'slb/upstream.html')
 
+def upstream_list(request):
+    return render(request, 'slb/upstream_list.html')
+
 def deploy_task(request):
     return render(request, 'slb/deploy_task.html')
 
@@ -26,10 +29,30 @@ def deploy_manage(request):
     return render(request, 'slb/deploy_manage.html')
 
 def trans_cluster_list(cluster_list):
+    load_balancin_strategy_dict = {
+        1: 'ip-hash',
+        2: 'round-robin',
+        3: 'consistent_hash_rid',
+        4: 'consistent_hash_arg_requestId',
+        'ip-hash': 1,
+        'round-robin': 2,
+        'consistent_hash_rid': 3,
+        'consistent_hash_arg_requestId': 4
+    }
+    check_up_type_dict = {
+        1: 'TCP',
+        2: 'HTTP',
+        'TCP': 1,
+        'HTTP': 2,
+    }
     ret = []
     for cluster in cluster_list:
         tmp = str(cluster['id'])
         cluster.update({'id': tmp})
+        tmp = check_up_type_dict[cluster['check_up_type']]
+        cluster.update({'check_up_type': tmp})
+        tmp = load_balancin_strategy_dict[cluster['load_balancin_strategy']]
+        cluster.update({'load_balancin_strategy': tmp})
         ret.append(cluster)
     return ret
 
@@ -102,7 +125,9 @@ def trans_cluster_detail(cluster_detail, reverser=False):
     cluster_detail.update({'load_balancin_strategy':tmp})
     tmp = check_up_type_dict[cluster_detail['check_up_type']]
     cluster_detail.update({'check_up_type':tmp})
-    nodes = cluster_detail['cluster_nodes'] 
+    tmp = int(cluster_detail['id'])
+    cluster_detail.update({'id':tmp})
+    nodes = cluster_detail['cluster_nodes']
     tmp_nodes = []
     for n in nodes:
         tmp = node_state_dict[n['state']]
@@ -167,6 +192,13 @@ def serviceClusterByID(request):
         #{'service_cluster_id': 12, 'status': 200, 'msg': '新增成功'}
         ret = json.loads(setListResult.content)
         return JsonResponse(data=ret)
+
+def del_servicecluster(request):
+    upstream_id = int(request.GET.get('id'))
+    setListResult = hu.get(serivceName="p_job", restName="/rest/slb/serviceclusterbyid/", datas={'id': upstream_id})
+    #print(setListResult)
+    data = trans_cluster_detail(setListResult)
+    return JsonResponse(data=dict(ret=data))
 
 def trans_siteList(siteList):
     ret = []
@@ -442,4 +474,10 @@ def NginxClusterHostById(request):
         logger.error(e, exc_info=1)
         results['status'] = 500
         results['msg'] = "查询异常"
+    return JsonResponse(data=results)
+
+def deploy_agent(request):
+    hu = HttpUtils(request)
+    result = hu.post(serivceName='p_job', restName='/rest/slb/deployagent', datas={"id": group_id, "vs": vs})
+    print(result)
     return JsonResponse(data=results)

@@ -86,9 +86,13 @@ vm = new Vue({
         },
 
         start_publish: function(){
-            console.log()
-            this.postData('')
+            data = {id: this.task_id, hosts: this.host_list, version: this.version}
+            this.postData('/slb/rest/slb/deployagent/', data, this.afterStartPublish)
         },
+
+        afterStartPublish: function(resp){
+            console.log(resp.data);
+        }
     }
 });
 

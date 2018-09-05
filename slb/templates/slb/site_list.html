@@ -18,7 +18,7 @@
     <el-table-column label="操作">
         <template slot-scope="siteScope">
             <a :href="'../site?id='+siteScope.row.id"><el-button type="primary" icon="el-icon-edit" size="mini" circle ></el-button></a>
-            <el-button type="danger" icon="el-icon-delete" size="mini" circle @click="delSite(siteScope.row)"></el-button>
+            <el-button type="danger" icon="el-icon-delete" size="mini" circle @click="delSite(siteScope.row.id)"></el-button>
         </template>
     </el-table-column>
 </el-table>

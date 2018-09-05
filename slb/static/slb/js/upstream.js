@@ -114,14 +114,23 @@ vm = new Vue({
         navIndex: "2",
         activeIndex: "1",
         upstreams: [],
-        upstreamDetail: {},
+        upstreamDetail: JSON.parse(JSON.stringify(defaultUpstreamDetail)),
         editNodeDialogTriggle: false,
         nodeFormInline: {nodeName: '', ip: '', port: 80, weight: 1, maxFail: 3, timeout: 30, status: 'enable'},
-        selectTreeDialogTriggle: false,
+        clusterTreeDialogTriggle: false,
+        upstreamNameDialogTriggle: false,
         treeNodeID: ''
     },
     created: function(){
-        this.getUpstreams();
+        //this.getUpstreams();
+        window_url = window.location.href;
+        upstream_id = parseInt(window_url.split("=")[1]);
+        if(upstream_id){
+            this.getUpstreamDetail(upstream_id);
+        }
+        else{
+            this.upstreamNameDialogTriggle = true;
+        }
     },
     methods:{
         getData: function(url, params, func){
@@ -152,14 +161,14 @@ vm = new Vue({
             });
         },
         
-        handleNavSelect: function(key, keyPath){
-        },
+        //handleNavSelect: function(key, keyPath){
+        //},
 
-        handleUpstreamSelect: function(key, keyPath){
-            console.log(key);
-            this.getUpstreamDetail(key);
-            //this.upstreamDetail.load_balancin_strategy = this.upstreamDetail.load_balancin_strategy.toString();
-        },
+        //handleUpstreamSelect: function(key, keyPath){
+            //console.log(key);
+            //this.getUpstreamDetail(key);
+            ////this.upstreamDetail.load_balancin_strategy = this.upstreamDetail.load_balancin_strategy.toString();
+        //},
 
         upstreamDetailFormSave: function(){
             //console.log(this.upstreamDetail);
@@ -214,21 +223,12 @@ vm = new Vue({
 
         getUpstreamDetail: function(upstreamID){
             params = {id: upstreamID}
-            this.getData('../rest/serviceclusterbyid', params, this.afterGetUpstreamsDetail);
+            this.getData('/slb/rest/serviceclusterbyid', params, this.afterGetUpstreamsDetail);
         },
 
         afterGetUpstreamsDetail: function(resp){
             tmp = resp.data['ret'];
             this.upstreamDetail = tmp;
-        },
-
-        selectTreeNode: function(){
-            if(this.treeNodeID){
-                this.selectTreeDialogTriggle = false;
-                this.getHosts(this.treeNodeID);
-            }
-            //else{
-            //}
         },
 
         getHosts: function(treeNodeID){
@@ -255,7 +255,18 @@ vm = new Vue({
                 //this.upstreamDetail['cluster_nodes']= [{host_ip: '1.1.11.1', port:'80'}];
                 this.upstreamDetail['cluster_nodes'] = ret;
             }
-        }
+        },
 
+        handleCloseUpstreamName: function(){
+            if(this.cluster_name.length==0){
+                showMsg(false, '请输入集群名称');
+                this.upstreamNameDialogTriggle = true;
+            }
+            else{
+                this.upstreamDetail.cluster_name = this.cluster_name;
+                this.selectTreeDialogTriggle = false;
+                this.getHosts(this.treeNodeID);
+            }
+        },
     }
 });
