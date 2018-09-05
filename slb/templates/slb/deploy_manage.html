@@ -1,0 +1,28 @@
+{% extends 'slb/layout.html' %}
+{% block main %}
+{% load static %}
+{% verbatim myblock %}
+<el-row>
+    <el-col :span="2" :offset="22">
+        <el-button class="el-icon-circle-plus-outline" type="text"><a href="#">创建任务</a></el-button>
+    </el-col>
+</el-row>
+<el-table :data="tasks" style="width: 100%">
+    <el-table-column prop="task_id" label="任务ID" width="80"> </el-table-column>
+    <el-table-column prop="task_name" label="任务名称" width="300"> </el-table-column>
+    <el-table-column prop="status" label="状态"> </el-table-column>
+    <el-table-column prop="created_by" label="创建人"> </el-table-column>
+    <el-table-column prop="create_time" label="创建时间"> </el-table-column>
+    <el-table-column label="操作">
+        <template slot-scope="taskScope">
+            <el-button type="primary" icon="el-icon-edit" size="mini" circle >查看</el-button>
+            <el-button type="danger" icon="el-icon-delete" size="mini" circle @click="delTask(taskScope.row.id)"></el-button>
+        </template>
+    </el-table-column>
+</el-table>
+{% endverbatim myblock %}
+{% endblock %}
+
+{% block js %}
+    <script src="{% static 'slb/js/deploy_manage.js' %}"></script>
+{% endblock %}

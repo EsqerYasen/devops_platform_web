@@ -1,6 +1,28 @@
+//Vue.component('my_access_log',{
+    //props: ['cmdarg'],
+    //template: '<el-input v-model="cmdarg"></el-input>'
+//});
 Vue.component('my_access_log',{
-    props: ['cmdarg'],
-    template: '<el-input v-model="cmdarg"></el-input>'
+    props: ['cmdarg', 'row', 'cmd'],
+    template: '<el-input v-model="cmdcmdarg" @change="argUpdated($event, row)"></el-input>',
+    methods: {
+        argUpdated: function(w, r){
+            this.$emit('updatecmdarg', {v:w, row:r});
+        },
+    },
+
+    computed: {
+        cmdcmdarg: {
+            get: function(){
+                return this.cmdarg;
+            },
+            set: function(v){
+
+            }
+        },
+    },
+
+
 });
 
 Vue.component('my_proxy_pass',{
@@ -73,73 +95,6 @@ var ztree = Vue.component('ztree', {
                 },
             },
             zNodes: [],
-              //[
-              //{ id:1,pid:0,name:"大良造菜单",open:true,nocheck:false,
-                //children: [
-                    //{ id:11,pid:1,name:"当前项目"},
-                    //{ id:12,pid:1,name:"工程管理",open:true,
-                        //children: [
-                            //{ id:121,pid:12,name:"我的工程"},
-                            //{ id:122,pid:12,name:"施工调度"},
-                            //{ id:1211,pid:12,name:"材料竞价"}
-                        //]
-                    //},
-                    //{ id:13,pid:1,name:"录入管理",open:true,
-                        //children: [
-                            //{ id:131,pid:13,name:"用工录入"},
-                            //{ id:132,pid:13,name:"商家录入"},
-                            //{ id:1314,pid:13,name:"机构列表"}
-                        //]
-                    //},
-                    //{ id:14,pid:1,name:"审核管理",open:true,
-                        //children: [
-                            //{ id:141,pid:14,name:"用工审核"},
-                            //{ id:142,pid:14,name:"商家审核"},
-                            //{ id:145,pid:14,name:"机构审核"}
-                        //]
-                    //},
-                    //{ id:15,pid:1,name:"公司管理",open:true,
-                        //children: [
-                            //{ id:1517,pid:15,name:"我的工程案例"},
-                            //{ id:1518,pid:15,name:"联系人设置"},
-                            //{ id:1519,pid:15,name:"广告设置"}
-                        //]
-                    //},
-                    //{ id:16,pid:1,name:"业务管理",open:true,
-                        //children: [
-                            //{ id:164,pid:16,name:"合同范本"},
-                            //{ id:165,pid:16,name:"合同列表"},
-                            //{ id:166,pid:16,name:"需求调度"}
-                        //]
-                    //},
-                    //{ id:17,pid:1,name:"订单管理",open:true,
-                        //children: [
-                            //{ id:171,pid:17,name:"商品订单"},
-                            //{ id:172,pid:17,name:"用工订单"},
-                            //{ id:175,pid:17,name:"供应菜单"}
-                        //]
-                    //},
-                    //{ id:18,pid:1,name:"我的功能",open:true,
-                        //children: [
-                            //{ id:181,pid:18,name:"免费设计"},
-                            //{ id:182,pid:18,name:"装修报价"},
-                            //{ id:1817,pid:18,name:"项目用工"}
-                        //]
-                    //},
-                    //{ id:19,pid:1,name:"分润管理",open:true,
-                        //children: [
-                            //{ id:191,pid:19,name:"分润列表"}
-                        //]
-                    //},
-                    //{ id:110,pid:1,name:"运营管理",open:true,
-                        //children: [
-                            //{ id:1101,pid:110,name:"代理列表"},
-                            //{ id:1102,pid:110,name:"代售商品"}
-                        //]
-                    //},
-                //]
-              //}
-            //]
         }
     },
     template: '<div id="areaTree"> <div class="box-title"> <a href="#">列表<i class="fa  fa-refresh" @click="freshArea">点击</i></a> </div> <div class="tree-box"> <div class="zTreeDemoBackground left"> <ul id="treeDemo" class="ztree"></ul> </div> </div> </div>',
@@ -152,10 +107,7 @@ var ztree = Vue.component('ztree', {
                 params: params
             }).then(function(resp){
                 func(resp);
-                //tmp = resp.data['ret'];
-                //obj[target] = tmp;
             }).catch(function(resp){
-                //console.log(resp);
                 console.log('Fail:'+resp.status+','+resp.statusText);
             });
         },
@@ -241,10 +193,10 @@ var defaultMPRule = {
     matching_type: "",
     caseSensitive: "",
     https_type: "",
-    //cmdList: [{command_type: "proxy_pass", command_param: ""}]
+    cmdList: [{command_type: "access_log", command_param: ""}]
 };
 
-var defaultCmdList = [{command_type: "proxy_pass", command_param: ""}];
+var defaultCmdList = [{command_type: "access_log", command_param: ""}];
 
 var testMPRule = [
     {id: "1", regular_expression:"/root", matching_type: "prefix", case_sensitive: true, https_type: "all", cmdList: [{command_type: "proxy_pass", command_param: "test_proxy_pass"}, {command_type: "access_log", command_param: "test_access_log"}]},
@@ -262,9 +214,6 @@ editor = CodeMirror.fromTextArea(document.getElementById("previewTextArea"), {
 
 vm = new Vue({
     el: "#app",
-    //components:{
-        //"access_log": access_log
-    //},
     data: {
         navIndex: "1",
         activeIndex: "1",
@@ -456,6 +405,7 @@ vm = new Vue({
             tmp = resp.data['ret'];
             //console.log(tmp);
             this.cmdList = tmp.cmd_list;
+            this.siteMPRuleList['cmdList'] = tmp.cmd_list;
         },
 
         insert_cmdList: function(index, cmd_list){
@@ -611,16 +561,23 @@ vm = new Vue({
             this.siteMPRuleList.push(tmp);
         },
 
+        handleCmdargChange: function(val){
+            //val.vs = content
+            //console.log(val);
+            this.mappingRule
+        }
+
         addMappingRule: function(){
             this.addMappingRuleDialogTriggle = true;
-            //this.mappingRule = JSON.parse(JSON.stringify(defaultMPRule));
-            this.cmdList = JSON.parse(JSON.stringify(defaultCmdList));
+            this.mappingRule = JSON.parse(JSON.stringify(defaultMPRule));
+            //this.cmdList = JSON.parse(JSON.stringify(defaultCmdList));
         },
         
         editMappingRule: function(row){
             console.log(row);
             this.getCmdList(row.id);
-            this.mappingRule = this.siteMPRuleList[row.id];
+            //this.mappingRule = this.siteMPRuleList[row.id];
+            this.mappingRule = this.siteMPRuleList[0];
             this.addMappingRuleDialogTriggle = true;
         },
 
@@ -638,7 +595,7 @@ vm = new Vue({
             //this.infoMappingRuleForm.matchType = 'prefix';
         //},
         addCmd: function(){
-            this.newMappingRuleForm.cmdList.push({});
+            this.mappingRule.cmdList.push(JSON.parse(JSON.stringify(defaultCmdList)));
         },
 
         delCmd: function(row){
@@ -733,7 +690,8 @@ vm = new Vue({
                 //console.log(this.deploy_url(0));
                 window.location=this.deploy_url(0);
             }
-        }
+        },
+
     }
 });
 

@@ -9,6 +9,13 @@ defaultUpstreamDetail = {
     cluster_nodes: []
 };
 
+defaultMultiForm = {
+    port: '',
+    max_fails: '',
+    fail_timeout: '',
+    weight: ''
+}
+
 function showMsg(boolFlag, msg){
     if(boolFlag){ vm.$message({ message:msg, type: 'success', center: true });}
     else{ vm.$message.error(msg);}
@@ -119,7 +126,9 @@ vm = new Vue({
         nodeFormInline: {nodeName: '', ip: '', port: 80, weight: 1, maxFail: 3, timeout: 30, status: 'enable'},
         clusterTreeDialogTriggle: false,
         upstreamNameDialogTriggle: false,
-        treeNodeID: ''
+        treeNodeID: '',
+        multiForm: JSON.parse(JSON.stringify(defaultMultiForm)),
+        multiModifyTriggle: false,
     },
     created: function(){
         //this.getUpstreams();
@@ -268,5 +277,26 @@ vm = new Vue({
                 this.getHosts(this.treeNodeID);
             }
         },
+
+        multiModify: function(){
+            this.multiModifyTriggle = !this.multiModifyTriggle;
+            this.multiForm = JSON.parse(JSON.stringify(defaultMultiForm)); 
+        },
+
+        syn2nodes: function(key){
+            for(i=0;i<this.selected.length;i++){
+                id = this.selected[i]-1
+                //console.log(this.upstreamDetail.cluster_nodes[id][key]);
+                this.upstreamDetail.cluster_nodes[id][key] = this.multiForm[key];
+            }
+        },
+
+        handleSelectionChange: function(val){
+            ret = [];
+            for(i=0;i<val.length;i++){
+                ret.push(val[i].id);
+            }
+            this.selected = ret;
+        }
     }
 });

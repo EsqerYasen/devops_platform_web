@@ -43,25 +43,67 @@
                 </el-form>
             </el-col>
             <el-col :span="10" :offset="2">
-                <el-form ref="form" :model="upstreamDetail" label-width="150px">
+                <el-form :model="upstreamDetail" label-width="150px">
                     <el-form-item label="健康检查的超时时间"><el-input v-model="upstreamDetail.check_up_timeout"></el-input></el-form-item>
                     <el-form-item label="健康检查间隔"><el-input v-model="upstreamDetail.check_up_space"></el-input></el-form-item>
                 </el-form>
             </el-col>
         </el-row>
         <el-row>
-            <el-table border :data="upstreamDetail.cluster_nodes">
+            <el-button v-if="multiModifyTriggle" size="mini" type="text" class="fa fa-minus-square-o fa-lg" @click="multiModify"></el-button>
+            <el-button v-else="multiModifyTriggle" size="mini" type="text" class="fa fa-plus-square-o fa-lg" @click="multiModify"></el-button>
+        </el-row>
+        <el-row>
+            <el-form v-if="multiModifyTriggle" :model="multiForm" label-width="150px">
+                <el-row>
+                    <el-col :span="6">
+                        <el-form-item label="端口"><el-input v-model="multiForm.port" @change="syn2nodes('port')"></el-input></el-form-item>
+                    </el-col>
+                    <el-col :span="6">
+                        <el-form-item label="权重"><el-input v-model="multiForm.weight" @change="syn2nodes('weight')"></el-input></el-form-item>
+                    </el-col>
+                    <el-col :span="6">
+                        <el-form-item label="最大失败次数"><el-input v-model="multiForm.max_fails" @change="syn2nodes('max_fails')"></el-input></el-form-item>
+                    </el-col>
+                    <el-col :span="6">
+                        <el-form-item label="失败超时时间"><el-input v-model="multiForm.fail_timeout" @change="syn2nodes('fail_timeout')"></el-input></el-form-item>
+                    </el-col>
+                </el-row>
+            </el-form>
+        </el-row>
+        <el-row>
+            <el-table border :data="upstreamDetail.cluster_nodes" @selection-change="handleSelectionChange">
                 <!--<el-table-column prop="host_name" label="节点名称"></el-table-column>-->
+                <el-table-column v-if="multiModifyTriggle" type="selection" width="55"> </el-table-column>
+                <el-table-column type="index" label="ID"></el-table-column>
                 <el-table-column prop="host_ip" label="IP"></el-table-column>
-                <el-table-column prop="port" label="端口"></el-table-column>
-                <el-table-column prop="weight" label="权重"></el-table-column>
-                <el-table-column prop="max_fails" label="最大失败次数"></el-table-column>
-                <el-table-column prop="fail_timeout" label="失败超时时间"></el-table-column>
-                <el-table-column prop="state" label="状态控制"></el-table-column>
+                <!--<el-table-column prop="port" label="端口"></el-table-column>-->
+                <el-table-column prop="port" label="端口">
+                    <template slot-scope="clusterNodesScope">
+                        <el-input v-model="clusterNodesScope.row.port"></el-input>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="weight" label="权重">
+                    <template slot-scope="clusterNodesScope">
+                        <el-input v-model="clusterNodesScope.row.weight"></el-input>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="max_fails" label="最大失败次数">
+                    <template slot-scope="clusterNodesScope">
+                        <el-input v-model="clusterNodesScope.row.max_fails"></el-input>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="fail_timeout" label="失败超时时间">
+                    <template slot-scope="clusterNodesScope">
+                        <el-input v-model="clusterNodesScope.row.fail_timeout"></el-input>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="state" label="状态控制">
+                </el-table-column>
                 <el-table-column label="操作">
-                    <template slot-scope="scopeUpstreamDeatail">
-                        <el-button type="primary" icon="el-icon-edit-outline" size="mini" circle @click="editNode(scopeUpstreamDeatail.row)"></el-button>
-                        <el-button type="danger" icon="el-icon-delete" size="mini" circle @click="delNode(scopeUpstreamDeatail.row)"></el-button>
+                    <template slot-scope="clusterNodesScope">
+                        <el-button type="primary" icon="el-icon-edit-outline" size="mini" circle @click="editNode(clusterNodesScope.row)"></el-button>
+                        <el-button type="danger" icon="el-icon-delete" size="mini" circle @click="delNode(clusterNodesScope.row)"></el-button>
                     </template>
                 </el-table-column>
             </el-table>
