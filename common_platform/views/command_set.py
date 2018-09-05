@@ -221,7 +221,7 @@ class GetCommandExecuteLogView(LoginRequiredMixin,JSONResponseMixin, AjaxRespons
                         #result_json['tool_list'] = json.loads(tool_list)
                         log_f = open(path+"exec.log","r")
                         for line in log_f.readlines():
-                            log_str += line
+                            log_str += line.replace('<','&lt;').replace('>','&gt;')
                         result_json['log_str'] = log_str
                         result_json['status'] = 500
                     else:

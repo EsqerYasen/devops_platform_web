@@ -10,6 +10,9 @@ logger = logging.getLogger('devops_platform_log')
 def index(request):
     return render(request, 'slb/index.html')
 
+def site_list(request):
+    return render(request, 'slb/site_list.html')
+
 def site(request):
     return render(request, 'slb/site.html')
 
@@ -92,7 +95,7 @@ def trans_cluster_detail(cluster_detail, reverser=False):
         'down': 4,
         'backup': 5
     }
-    pop_list = ['id', 'created_by', 'updated_by']
+    pop_list = ['created_by', 'updated_by']
     #print(type(cluster_detail['load_balancin_strategy']))
 
     tmp = load_balancin_strategy_dict[cluster_detail['load_balancin_strategy']]
@@ -149,16 +152,14 @@ def serviceClusterByID(request):
     elif request.method == 'POST':
         #print('request.body: %s' % request.body)
         data = json.loads(request.body)
-        operation = data['operation']
-        cluster_data = data['data']
-        try:
-            assert operation in ['create', 'update']
-        except AssertionError:
-            return JsonResponse(data=dict(status=500, msg="unsupported operation orz"))
-        if operation == 'create':
+        #try:
+            #assert operation in ['create', 'update']
+        #except AssertionError:
+            #return JsonResponse(data=dict(status=500, msg="unsupported operation orz"))
+        cluster_data = trans_cluster_detail(data, reverser=True)
+        if data['id'] < 0:
             restName = "/rest/slb/serviceclustercreate/"
-            cluster_data = trans_cluster_detail(cluster_data, reverser=True)
-        elif operation == 'update':
+        else:
             restName = "/rest/slb/serviceclusterupdate/"
         #print('cluster_data: %s'%cluster_data)
         setListResult = hu.post(serivceName="p_job", restName=restName, datas=cluster_data)
@@ -202,6 +203,14 @@ def siteInfo(request):
         ret = setListResult.get("results", {})
         data = trans_siteInfo(ret)
         return JsonResponse(data=dict(ret=data))
+
+@csrf_exempt
+def del_site(request):
+    site_id = int(request.GET.get('id'))
+    print(site_id)
+    hu = HttpUtils(request)
+    setListResult = hu.get(serivceName="p_job", restName="/rest/slb/deleteMngSite/", datas={'id':site_id})
+    return JsonResponse(data=dict(ret=setListResult))
 
 def trans_mappingRuleList(mprulelist):
     case_sensitive_dict = {1: True, 0: False}
@@ -377,7 +386,7 @@ def MappingRulesCreateOrUpdate(request):
         logger.error(e,exc_info=1)
     return JsonResponse(data=results)
 
-
+@csrf_exempt
 def NginxClusterTree(request):
     results = {}
     try:
@@ -390,7 +399,7 @@ def NginxClusterTree(request):
         results['msg'] = "查询异常"
     return JsonResponse(data=results)
 
-
+@csrf_exempt
 def GetHostListByGrupId(request):
     results = {}
     try:
@@ -402,6 +411,35 @@ def GetHostListByGrupId(request):
             results['data'] = setListResult
     except Exception as e:
         logger.error(e,exc_info=1)
+        results['status'] = 500
+        results['msg'] = "查询异常"
+    return JsonResponse(data=results)
+
+@csrf_exempt
+def NginxClusterHostById(request):
+    """
+    发布 获取nginx 机器
+    :param request:
+    :return:
+    """
+    results = {}
+    try:
+        group_id = request.GET.get("id", None)
+        vs = request.GET.get("vs", None)
+        if group_id and vs:
+            hu = HttpUtils(request)
+            result = hu.get(serivceName='p_job', restName='/rest/slb/nginxclusterhostbyid', datas={"id": group_id, "vs": vs})
+            if result['status'] == 200:
+                results['status'] = 200
+                results['data'] = result['data']
+            else:
+                results['status'] = 500
+                results['msg'] = "查询失败"
+        else:
+            results['status'] = 500
+            results['msg'] = "查询参数为空"
+    except Exception as e:
+        logger.error(e, exc_info=1)
         results['status'] = 500
         results['msg'] = "查询异常"
     return JsonResponse(data=results)
