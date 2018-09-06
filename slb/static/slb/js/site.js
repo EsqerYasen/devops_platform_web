@@ -247,18 +247,19 @@ var defaultMPRule = {
     id: "-1", 
     regular_expression:"",
     matching_type: "",
-    caseSensitive: "",
+    case_sensitive: "",
     https_type: "",
-    cmdList: [{command_type: "access_log", command_param: "access_log"}]
+    seq_no: "-1",
+    cmd_list: [{command_type: "access_log", command_param: "access_log"}]
 };
 
-var defaultCmdList = [{command_type: "access_log", command_param: ""}];
+var defaultCmdList = {command_type: "access_log", command_param: ""};
 
 var testMPRule = [
-    {id: "1", regular_expression:"/root", matching_type: "prefix", case_sensitive: true, https_type: "all", cmdList: [{command_type: "proxy_pass", command_param: "test_proxy_pass"}, {command_type: "access_log", command_param: "test_access_log"}]},
-    {id: "2", regular_expression:"/root/a", matching_type: "common", case_sensitive: true, https_type: "http", cmdList: [{command_type: "access_log", command_param: "access_log"}]},
-    {id: "3", regular_expression:"/root/b", matching_type: "regex", case_sensitive: false, https_type: "all", cmdList: [{command_type: "more_clear_headers", command_param: "clear_headers"}]},
-    {id: "4", regular_expression:"/root/c", matching_type: "excat", case_sensitive: true, https_type: "https", cmdList: [{command_type: "more_set_headers", command_param: "set_header"}]}
+    {id: "1", regular_expression:"/root", matching_type: "prefix", case_sensitive: true, https_type: "all", cmd_list: [{command_type: "proxy_pass", command_param: "test_proxy_pass"}, {command_type: "access_log", command_param: "test_access_log"}]},
+    {id: "2", regular_expression:"/root/a", matching_type: "common", case_sensitive: true, https_type: "http", cmd_list: [{command_type: "access_log", command_param: "access_log"}]},
+    {id: "3", regular_expression:"/root/b", matching_type: "regex", case_sensitive: false, https_type: "all", cmd_list: [{command_type: "more_clear_headers", command_param: "clear_headers"}]},
+    {id: "4", regular_expression:"/root/c", matching_type: "excat", case_sensitive: true, https_type: "https", cmd_list: [{command_type: "more_set_headers", command_param: "set_header"}]}
 ];
 
 editor = CodeMirror.fromTextArea(document.getElementById("previewTextArea"), {
@@ -283,9 +284,8 @@ vm = new Vue({
         siteVersions: [],
         selectedVersion: '',
         addMappingRuleDialogTriggle: false,
-        //newMappingRuleForm:{id: -1, path: '', matchType: '', caseSensitive:'Y', httpType: ['http', 'https'], cmdList: [{cmdType: 'proxy_pass', cmdArg: 'abc'}] },
-        mappingRule: {id: "1", regular_expression: '', matching_type: '', caseSensitive:'Y', https_type: ['all'], cmdList: [{command_type: 'proxy_pass', command_parm: 'abc'}] },
-        cmdList: [],
+        mappingRule: {id: "1", regular_expression: '', matching_type: '', case_sensitive:'Y', https_type: ['all'], cmd_list: [{command_type: 'proxy_pass', command_parm: 'abc'}] },
+        cmd_list: [],
         pools: [],
         clusterTreeDialogTriggle: false,
         previewDialogTriggle: false,
@@ -304,16 +304,17 @@ vm = new Vue({
         else{
             this.siteNameDialogTriggle = true;
         }
+        
     },
     methods:{
-        getData: function(url, params, func){
+        getData: function(url, params, func, args){
             obj = this;
             axios({
                 method:'GET',
                 url: url,
                 params: params
             }).then(function(resp){
-                func(resp);
+                func(resp, args);
                 //tmp = resp.data['ret'];
                 //obj[target] = tmp;
             }).catch(function(resp){
@@ -351,73 +352,9 @@ vm = new Vue({
             if(this.sites.length>0){
                 this.getSiteDetail(this.sites[0].id);
             }
-            //this.getPools();
-            //this.getNginxClusters();
         },
 
         getSiteDetail: function(id){
-            //siteDetails = [ 
-                //{
-                    ////basicConfig
-                    //id: "1",
-                    //site_name: "site-1",
-                    //state_control: "enable",
-                    //domain_name: "kfc.com",
-                    //port: 80,
-                    //defaultPool: "Pool-1",
-                    //nginx_cluster_id: "1",
-                    //nginx_cluster_name: "Nginx-1",
-                    //current_version: "0",
-                    //group: "default-grp",
-                    //is_https: true,
-                    //siteMPRuleList: testMPRule 
-                //},
-                //{
-                    ////basicConfig
-                    //id: "2",
-                    //site_name: "site-2",
-                    //state_control: "enable",
-                    //domain_name: "taco.com",
-                    //port: 80,
-                    //defaultPool: "Pool-2",
-                    //nginx_cluster_id: "1",
-                    //nginx_cluster_name: "Nginx-2",
-                    //current_version: "0",
-                    //group: "default-grp",
-                    //is_https: false,
-                //},
-                //{
-                    ////basicConfig
-                    //id: "3",
-                    //site_name: "site-3",
-                    //state_control: "force_offline",
-                    //domain_name: "daojia.com",
-                    //port: 80,
-                    //defaultPool: "Pool-3",
-                    //nginx_cluster_id: "1",
-                    //nginx_cluster_name: "Nginx-3",
-                    //current_version: "0",
-                    //group: "default-grp",
-                    //is_https: false,
-                //},
-                //{
-                    ////basicConfig
-                    //id: "4",
-                    //site_name: "site-4",
-                    //state_control: "disable",
-                    //domain_name: "pizza.com",
-                    //port: 80,
-                    //defaultPool: "Pool-4",
-                    //nginx_cluster_id: "1",
-                    //nginx_cluster_name: "Nginx-4",
-                    //current_version: "0",
-                    //group: "default-grp",
-                    //is_https: false,
-                //},
-            //]
-            ////console.log(id);
-            //console.log(siteDetails[id-1]);
-            //this.siteDetail = siteDetails[id-1];
             this.getData('../rest/getmngsiteinfo/', {'id': id}, this.afterGetSiteDetail);
         },
 
@@ -425,8 +362,8 @@ vm = new Vue({
             tmp = resp.data['ret'];
             //console.log(tmp);
             this.siteDetail = tmp;
-            this.getMPRuleList(this.siteDetail.id);
             this.getSiteVersion(this.siteDetail.id);
+            this.getMPRuleList(this.siteDetail.id);
         },
 
         getSiteVersion: function(id){
@@ -441,27 +378,30 @@ vm = new Vue({
         },
 
         getMPRuleList: function(nginx_site_id){
-            //test_mpRules = [
-            //];
-            //this.siteMPRuleList = test_mpRules[nginx_site_id-1]
-            this.getData('../rest/getmappingruleslist', {'nginx_site_id': nginx_site_id}, this.afterGetMPRule);
+            this.getData('../rest/getmappingruleslist', {'nginx_site_id': nginx_site_id}, this.afterGetMPRuleList);
         },
 
-        afterGetMPRule: function(resp){
+        afterGetMPRuleList: function(resp){
             tmp = resp.data['ret']
-            //console.log(tmp);
+            console.log(tmp);
             this.siteMPRuleList = tmp;
+            for(i=0;i<this.siteMPRuleList.length;i++){
+                this.getCmdList(this.siteMPRuleList[i].id, i);
+            }
         },
 
-        getCmdList: function(rule_id){
-            this.getData('../rest/getcmdlist', {'id': rule_id}, this.afterGetCmdList);
+        getCmdList: function(rule_id, mp_index){
+            //console.log(mp_index);
+            this.getData('../rest/getcmdlist', {'id': rule_id}, this.afterGetCmdList, [mp_index]);
         },
 
-        afterGetCmdList: function(resp){
+        afterGetCmdList: function(resp, args){
             tmp = resp.data['ret'];
             //console.log(tmp);
-            this.cmdList = tmp.cmd_list;
-            this.siteMPRuleList['cmdList'] = tmp.cmd_list;
+            this.cmd_list = tmp.cmd_list;
+            mp_index = args[0];
+            this.siteMPRuleList[mp_index].cmd_list = tmp.cmd_list;
+            this.mappingRule = this.siteMPRuleList[mp_index];
         },
 
         insert_cmdList: function(index, cmd_list){
@@ -470,7 +410,7 @@ vm = new Vue({
             for(i=0; i<this.siteMPRuleList.length; i++){
                 if(this.siteMPRuleList[i].id == index){
                     //console.log('get')
-                    this.siteMPRuleList[i].cmdList= cmd_list;
+                    this.siteMPRuleList[i].cmd_list= cmd_list;
                     break;
                 }
             }
@@ -572,77 +512,132 @@ vm = new Vue({
             else{ showMsg(false, tmp.msg);}
         },
 
-        jumpUp: function(row) {
+        jumpUp: function(index) {
             //console.log(row.id);
-            if(row.id==1){return;}
-            id = row.id-1;
-            previousId = id-1;
-            tmpCurrent = this.siteMPRuleList[id];
-            tmpCurrent.id = previousId+1;
+            if(index==0){return;}
+            previousId = index-1;
+            tmpCurrent = this.siteMPRuleList[index];
+            tmpCurrent.seq_no = tmpCurrent.seq_no-1;
             tmpPrevious = this.siteMPRuleList[previousId];
-            tmpPrevious.id = id+1;
+            tmpPrevious.seq_no = tmpPrevious.seq_no+1;
             this.siteMPRuleList.splice(previousId, 2, tmpCurrent, tmpPrevious);
         },
 
-        jumpDown: function(row) {
-            //console.log(row.id);
-            if(row.id==this.siteMPRuleList.length){return;}
-            id = row.id-1; //align wiht array
-            laterId = id+1;
-            tmpCurrent = this.siteMPRuleList[id];
-            tmpCurrent.id = laterId+1;
+        jumpDown: function(index) {
+            if(index==this.siteMPRuleList.length-1){return;}
+            laterId = index+1;
+            tmpCurrent = this.siteMPRuleList[index];
+            tmpCurrent.seq_no = tmpCurrent.seq_no+1;
             tmpLater = this.siteMPRuleList[laterId];
-            tmpLater.id = id+1;
-            this.siteMPRuleList.splice(id, 2, tmpLater, tmpCurrent);
+            tmpLater.seq_no = tmpLater.seq_no-1;
+            this.siteMPRuleList.splice(index, 2, tmpLater, tmpCurrent);
         },
 
-        jumpDoubleUp: function(row){
-            id = row.id-1;
-            tmp = this.siteMPRuleList[id];
-            tmp.id=1;
-            for(i=0; i<id; i++){
-                this.siteMPRuleList[i].id = this.siteMPRuleList[i].id+1;
+        jumpDoubleUp: function(index){
+            if(index==0){return;}
+            tmp = this.siteMPRuleList[index];
+            tmp.seq_no=1;
+            for(i=0; i<index; i++){
+                this.siteMPRuleList[i].seq_no = this.siteMPRuleList[i].seq_no+1;
             }
-            this.siteMPRuleList.splice(id, 1);
+            this.siteMPRuleList.splice(index, 1);
             this.siteMPRuleList.unshift(tmp);
         },
 
-        jumpDoubleDown: function(row){
-            id = row.id-1;
-            tmp = this.siteMPRuleList[id];
-            tmp.id = this.siteMPRuleList.length;
-            for(i=id+1; i<tmp.id; i++){
-                this.siteMPRuleList[i].id = this.siteMPRuleList[i].id-1;
+        jumpDoubleDown: function(index){
+            if(index==this.siteMPRuleList.length-1){return;}
+            tmp = this.siteMPRuleList[index];
+            tmp.seq_no = this.siteMPRuleList.length;
+            for(i=index+1; i<this.siteMPRuleList.length; i++){
+                this.siteMPRuleList[i].seq_no = this.siteMPRuleList[i].seq_no-1;
             }
-            this.siteMPRuleList.splice(id, 1);
+            this.siteMPRuleList.splice(index, 1);
             this.siteMPRuleList.push(tmp);
         },
 
         handleCmdargChange: function(val){
             //val is dict: {input-content, scope} 
-            this.mappingRule.cmdList[val.s.$index].command_param = val.v;
+            this.mappingRule.cmd_list[val.s.$index].command_param = val.v;
+        },
+
+        saveMappingRuleList: function(){
+            data = {id: 0, mapping_rules_list: this.siteMPRuleList, nginx_site_id: this.siteDetail.id}
+            this.postData('../rest/mappingrulescreateorupdate/', data, this.afterSaveMappingRuleList);
+        },
+
+        afterSaveMappingRuleList: function(resp){
+            if(resp.data.status==200){
+                this.getMPRuleList(this.siteDetail.id);
+                showMsg(true, resp.data.msg);
+            }
+            else{
+                showMsg(false, resp.data.msg);
+            }
         },
 
         addMappingRule: function(){
             this.addMappingRuleDialogTriggle = true;
             this.mappingRule = JSON.parse(JSON.stringify(defaultMPRule));
-            //this.cmdList = JSON.parse(JSON.stringify(defaultCmdList));
         },
         
-        editMappingRule: function(row){
-            console.log(row);
-            this.getCmdList(row.id);
+        editMappingRule: function(row, row_index){
+            //console.log(row_index);
+            this.getCmdList(row.id, row_index);
             //this.mappingRule = this.siteMPRuleList[row.id];
-            this.mappingRule = this.siteMPRuleList[0];
+            //this.mappingRule = this.siteMPRuleList[0];
             this.addMappingRuleDialogTriggle = true;
         },
 
         saveMappingRule: function(){
-            //this.mappingRule = this.cmdList;
+            this.mappingRule.nginx_site_id = this.siteDetail.id;
+            if(this.mappingRule.seq_no<=0){
+                this.mappingRule.seq_no = this.siteMPRuleList.length + 1;
+                data = this.mappingRule;
+            }
+            else{
+                data = {id: 0, mapping_rules_list: this.siteMPRuleList, nginx_site_id: this.siteDetail.id};
+            }
+            console.log(this.mappingRule);
+            this.postData('../rest/mappingrulescreateorupdate/', data, this.afterSaveMappingRule);
+            this.addMappingRuleDialogTriggle = false;
         },
 
-        delMappingRule: function(row){
+        afterSaveMappingRule: function(resp){
+            if(resp.data.status==200){
+                showMsg(true, resp.data.msg);
+                this.mappingRule.id = resp.data.id;
+                this.siteMPRuleList.push(this.mappingRule);
+            }
+            else{
+                showMsg(false, resp.data.msg);
+            }
+
+        },
+
+        reseqMP: function(row_index){
+            //row_index will be removed
+            //this.siteMPRuleList.splice(row_index, 1);
+            for(i=row_index+1;i<this.siteMPRuleList.length;i++){
+                this.siteMPRuleList[i].seq_no = this.siteMPRuleList[i].seq_no-1;
+            }
+            this.siteMPRuleList[row_index].is_enabled = 0;
+        },
+
+        delMappingRule: function(row, row_index){
             //console.log(row);
+            this.reseqMP(row_index);
+            data = {id: 0, mapping_rules_list: this.siteMPRuleList, nginx_site_id: this.siteDetail.id}
+            this.postData('../rest/mappingrulescreateorupdate/', data, this.afterDelMappingRule);
+        },
+
+        afterDelMappingRule: function(resp){
+            if(resp.data.status==200){
+                this.getMPRuleList(this.siteDetail.id);
+                showMsg(true, resp.data.msg);
+            }
+            else{
+                showMsg(false, resp.data.msg);
+            }
         },
 
         //infoMappingRule: function(row){
@@ -650,7 +645,7 @@ vm = new Vue({
             //this.infoMappingRuleForm.matchType = 'prefix';
         //},
         addCmd: function(){
-            this.mappingRule.cmdList.push(JSON.parse(JSON.stringify(defaultCmdList)));
+            this.mappingRule.cmd_list.push(JSON.parse(JSON.stringify(defaultCmdList)));
         },
 
         delCmd: function(row){

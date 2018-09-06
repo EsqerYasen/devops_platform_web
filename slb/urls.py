@@ -29,6 +29,7 @@ urlpatterns = [
     url(r'^rest/getmappingruleslist/', views.mappingRuleList, name='rest_mappingrule'),
     url(r'^rest/getcmdlist/', views.cmdList, name='rest_mappingrule_info'),
     url(r'^rest/mappingrulescreateorupdate/', views.MappingRulesCreateOrUpdate, name='mappingrulescreateorupdate'),
+    url(r'^rest/deletemappingrule/', views.del_mappingrule, name='mappingrulescreateorupdate'),
 
     #upstream
     url(r'^rest/serviceclusterlist/', views.serviceClusterList, name='rest_clusters'),

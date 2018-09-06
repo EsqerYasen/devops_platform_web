@@ -239,10 +239,29 @@ def siteInfo(request):
 @csrf_exempt
 def del_site(request):
     site_id = int(request.GET.get('id'))
-    print(site_id)
+    #print(site_id)
     hu = HttpUtils(request)
     setListResult = hu.get(serivceName="p_job", restName="/rest/slb/deleteMngSite/", datas={'id':site_id})
     return JsonResponse(data=dict(ret=setListResult))
+
+def trans_mappingRule(mpr):
+    case_sensitive_dict = {1: True, 0: False, True: 1, False: 0}
+    https_type_dict = { 1: 'all', 2: 'http', 3: 'https', 'all': 1, 'http': 2, 'https': 3}
+    matching_type_dict = { 1: 'prefix', 2: 'regex', 3:'common', 4:'exact', 'prefix':1, 'regex': 2, 'common': 3, 'exact':4 }
+
+    tmp_case_sensitive = case_sensitive_dict[mpr['case_sensitive']]
+    tmp_https_type = https_type_dict[mpr['https_type']]
+    tmp_matching_type = matching_type_dict[mpr['matching_type']]
+    mpr.update(
+        {
+            'case_sensitive': tmp_case_sensitive,
+            'matching_type': tmp_matching_type,
+            'https_type': tmp_https_type
+        }
+    )
+    cmd_list = trans_cmdList(mpr['cmd_list'])
+    mpr.update({'cmd_list': cmd_list})
+    return mpr
 
 def trans_mappingRuleList(mprulelist):
     case_sensitive_dict = {1: True, 0: False}
@@ -265,6 +284,8 @@ def trans_mappingRuleList(mprulelist):
                 'https_type': tmp_https_type
             }
         )
+        #cmd_list = trans_cmdList(mpr['cmd_list'])
+        #mpr.update({'cmd_list': cmd_list})
         ret.append(mpr)
     return ret
 
@@ -275,8 +296,20 @@ def mappingRuleList(request):
         hu = HttpUtils(request)
         setListResult = hu.get(serivceName="p_job", restName="/rest/slb/getMappingRulesList/", datas={'nginx_site_id':nginx_site_id})
         ret = setListResult.get("results", [])
+        #print(ret)
         data = trans_mappingRuleList(ret)
         return JsonResponse(data=dict(ret=data))
+
+@csrf_exempt
+def del_mappingrule(request):
+    if request.method == 'GET':
+        #nginx_site_id = int(request.GET.get('nginx_site_id'))
+        mid = int(request.GET.get('id'))
+        #print('id :%s' % mid)
+        hu = HttpUtils(request)
+        setListResult = hu.get(serivceName="p_job", restName="/rest/slb/deleteMappingRules/", datas={'id': mid})
+        print(setListResult)
+        return JsonResponse(data=dict(ret=setListResult))
     
 def trans_cmdList(cmd_list):
     command_type_dict = {
@@ -288,7 +321,16 @@ def trans_cmdList(cmd_list):
         6: 'proxy_pass',
         7: 'return',
         8: 'rewrite',
-        9: 'static-resource'
+        9: 'static-resource',
+        'access_log': 1, 
+        'custom': 2,
+        'ifelse': 3, 
+        'more_clear_headers': 4, 
+        'more_set_headers': 5, 
+        'proxy_pass': 6,
+        'return': 7,
+        'rewrite': 8,
+        'static-resource': 9
     }
     ret = []
     for cmd in cmd_list:
@@ -388,8 +430,8 @@ def MappingRulesCreateOrUpdate(request):
         if input_param:
             id = input_param['id']
             hu = HttpUtils(request)
-            input_param = trans_siteInfo(input_param)
             if int(id) < 0:
+                input_param = trans_mappingRule(input_param)
                 del input_param['id']
                 post_results = hu.post(serivceName='p_job', restName='/rest/slb/addMappingRules/', datas=input_param)
                 post_results = post_results.json()
@@ -400,7 +442,14 @@ def MappingRulesCreateOrUpdate(request):
                 else:
                     results['status'] = 500
                     results['msg'] = "新增失败"
-            elif int(id) > 0:
+            else:
+                mapping_rules_list = input_param['mapping_rules_list']
+                new_mapping_rules_list = []
+                for mapping_rule in mapping_rules_list:
+                    tmp = trans_mappingRule(mapping_rule)
+                    new_mapping_rules_list.append(tmp)
+                input_param.update({'mapping_rules_list': new_mapping_rules_list})
+                print(input_param)
                 post_results = hu.post(serivceName='p_job', restName='/rest/slb/updateMappingRules/',datas=input_param)
                 post_results = post_results.json()
                 if post_results['status'] == 200:
@@ -479,5 +528,5 @@ def NginxClusterHostById(request):
 def deploy_agent(request):
     hu = HttpUtils(request)
     result = hu.post(serivceName='p_job', restName='/rest/slb/deployagent', datas={"id": group_id, "vs": vs})
-    print(result)
+    #print(result)
     return JsonResponse(data=results)
