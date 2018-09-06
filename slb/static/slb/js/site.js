@@ -1,5 +1,5 @@
 Vue.component('my_access_log',{
-    template: '<el-input v-model="cmdcmdarg" @change="argUpdated($event, row)"></el-input>',
+    template: '<el-input v-model="cmdcmdarg" @change="argUpdated($event, row)"></el-input></div>',
     props: ['cmdarg', 'row', 'cmd'],
     methods: {
         argUpdated: function(w, r){
@@ -15,8 +15,14 @@ Vue.component('my_access_log',{
 });
 
 Vue.component('my_proxy_pass',{
-    template: '<div>pool_name: <el-input v-model="cmdcmdarg" @change="argUpdated($event, row)"></el-input></div>',
+    template: '<div>pool_name: <el-select v-model="initValue" placeholder="请选择" @change="argUpdated($event, row)"> <el-option v-for="item in upstreams" :key="item.id" :label="item.cluster_name" :value="item.id"> </el-option> </el-select></div>',
     props: ['cmdarg', 'row', 'cmd'],
+    data: function(){
+        return {
+            upstreams: vm.upstreams,
+            initValue: ''
+        }
+    },
     computed:{
         cmdcmdarg: {
             get: function(){ return this.cmdarg; },
@@ -63,7 +69,7 @@ Vue.component('my_more_set_headers',{
 });
 
 Vue.component('my_ifelse',{
-    template: '<el-input v-model="cmdcmdarg" @change="argUpdated($event, row)"></el-input>',
+    template: '<div><el-input v-model="cmdcmdarg" @change="argUpdated($event, row)"></el-input></div>',
     props: ['cmdarg', 'row', 'cmd'],
     methods: {
         argUpdated: function(w, r){
@@ -184,7 +190,7 @@ var ztree = Vue.component('ztree', {
                 }
                 this.zNodes = tmp; 
 
-                console.log(this.zNodes);
+                //console.log(this.zNodes);
             }
         },
 
@@ -247,13 +253,13 @@ var defaultMPRule = {
     id: "-1", 
     regular_expression:"",
     matching_type: "",
-    case_sensitive: "",
+    case_sensitive: true,
     https_type: "",
     seq_no: "-1",
     cmd_list: [{command_type: "access_log", command_param: "access_log"}]
 };
 
-var defaultCmdList = {command_type: "access_log", command_param: ""};
+var defaultCmdList = {command_type: "access_log", command_param: "access_log"};
 
 var testMPRule = [
     {id: "1", regular_expression:"/root", matching_type: "prefix", case_sensitive: true, https_type: "all", cmd_list: [{command_type: "proxy_pass", command_param: "test_proxy_pass"}, {command_type: "access_log", command_param: "test_access_log"}]},
@@ -291,12 +297,14 @@ vm = new Vue({
         previewDialogTriggle: false,
         previewContent: '',
         editor: '',
-        mydefine: "my_access_log"
+        mydefine: "my_access_log",
+        upstreams: []
     },
     created: function(){
         //this.getSites();
         window_url = window.location.href;
         site_id = parseInt(window_url.split("=")[1]);
+        this.getClusters();
         if(site_id){
             //console.log(site_id);
             this.getSiteDetail(site_id);
@@ -318,7 +326,7 @@ vm = new Vue({
                 //tmp = resp.data['ret'];
                 //obj[target] = tmp;
             }).catch(function(resp){
-                console.log(resp);
+                //console.log(resp);
                 console.log('Fail:'+resp.status+','+resp.statusText);
             });
         },
@@ -371,7 +379,7 @@ vm = new Vue({
         },
 
         afterGetSiteVersion: function(resp){
-            tmp = resp.data['ret'];
+            var tmp = resp.data['ret'];
             //console.log(tmp);
             this.siteVersions = tmp;
             this.selectedVersion = tmp[0].k;
@@ -383,7 +391,7 @@ vm = new Vue({
 
         afterGetMPRuleList: function(resp){
             tmp = resp.data['ret']
-            console.log(tmp);
+            //console.log(tmp);
             this.siteMPRuleList = tmp;
             for(i=0;i<this.siteMPRuleList.length;i++){
                 this.getCmdList(this.siteMPRuleList[i].id, i);
@@ -444,15 +452,16 @@ vm = new Vue({
             this.siteDetail = tmp;
         },
 
-        getNginxClusters: function(){
-            tmp = [
-                {id: 1, name:"Nginx-1"},
-                {id: 2, name:"Nginx-2"},
-                {id: 3, name:"Nginx-3"},
-                {id: 4, name:"Nginx-4"}
-            ];
-            this.nginxClusters = tmp;
-            //this.getData('../rest/', {'id': id}, this.afterGetNginxClusters);
+        getClusters: function(){
+            this.getData('../rest/serviceclusterlist', {}, this.afterGetUpstreams);
+        },
+
+        afterGetUpstreams: function(resp){
+            tmp = resp.data['ret'];
+            this.upstreams = tmp;
+            if(this.upstreams.length>0){
+                this.getUpstreamDetail(1);
+            }
         },
 
         afterGetNginxClusters: function(resp){
@@ -480,9 +489,16 @@ vm = new Vue({
             this.siteDetailActiveTabName = "basicConfig";
         },
 
+        checkTabChange: function(){
+
+            if(this.siteDetail.id <= 0){
+                showMsg(false, "站点未创建，请先保存站点信息");
+                return false;
+            }
+            else{return true;}
+        },
+
         handleTabChange: function(tab){
-            //console.log(tab);
-            //this.tabName = "basicConfig";
         },
 
         addSite: function(){
@@ -557,10 +573,15 @@ vm = new Vue({
 
         handleCmdargChange: function(val){
             //val is dict: {input-content, scope} 
+            //console.log(val);
             this.mappingRule.cmd_list[val.s.$index].command_param = val.v;
         },
 
         saveMappingRuleList: function(){
+            if(this.siteDetail.id<0){
+                this.siteDetailFormSave();
+            }
+            while(this.siteDetail.id<0){}
             data = {id: 0, mapping_rules_list: this.siteMPRuleList, nginx_site_id: this.siteDetail.id}
             this.postData('../rest/mappingrulescreateorupdate/', data, this.afterSaveMappingRuleList);
         },
@@ -588,16 +609,42 @@ vm = new Vue({
             this.addMappingRuleDialogTriggle = true;
         },
 
+        getUpstreamName: function(cmd_param){
+            for(var i=0;i<this.upstreams.length;i++){
+                if(cmd_param==this.upstreams[i].id){
+                    return this.upstreams[i].cluster_name;
+                }
+            }
+        },
+
+        fillProxyPass: function(mpList){
+            for(var i=0;i<mpList.cmd_list.length;i++){
+                if(mpList.cmd_list[i].command_type=="proxy_pass"){
+                    command_param = mpList.cmd_list[i].command_param;
+                    cluster_name = this.getUpstreamName(command_param);
+                    var tmp = mpList.cmd_list[i];
+                    tmp['service_cluster_name'] = cluster_name;
+                    mpList.cmd_list[i] = tmp;
+                }
+            }
+        },
+
         saveMappingRule: function(){
             this.mappingRule.nginx_site_id = this.siteDetail.id;
+            this.fillProxyPass(this.mappingRule);
+            //console.log(this.mappingRule);
             if(this.mappingRule.seq_no<=0){
                 this.mappingRule.seq_no = this.siteMPRuleList.length + 1;
-                data = this.mappingRule;
+                var data = this.mappingRule;
             }
             else{
-                data = {id: 0, mapping_rules_list: this.siteMPRuleList, nginx_site_id: this.siteDetail.id};
+                for(var i=0;i<this.siteMPRuleList.length;i++){
+                    this.fillProxyPass(this.siteMPRuleList[i])
+                }
+                console.log(this.siteMPRuleList);
+                var data = {id: 0, mapping_rules_list: this.siteMPRuleList, nginx_site_id: this.siteDetail.id};
             }
-            console.log(this.mappingRule);
+            //console.log(this.mappingRule);
             this.postData('../rest/mappingrulescreateorupdate/', data, this.afterSaveMappingRule);
             this.addMappingRuleDialogTriggle = false;
         },
@@ -605,8 +652,7 @@ vm = new Vue({
         afterSaveMappingRule: function(resp){
             if(resp.data.status==200){
                 showMsg(true, resp.data.msg);
-                this.mappingRule.id = resp.data.id;
-                this.siteMPRuleList.push(this.mappingRule);
+                this.getMPRuleList(this.siteDetail.id);
             }
             else{
                 showMsg(false, resp.data.msg);
@@ -648,24 +694,15 @@ vm = new Vue({
             this.mappingRule.cmd_list.push(JSON.parse(JSON.stringify(defaultCmdList)));
         },
 
-        delCmd: function(row){
-            //console.log(row);
-            for(i=0; i<this.siteMPRuleList.length; i++){
-                if(this.siteMPRuleList[i].id==row.mapping_rules_id){
-                    for(j=0; j<this.siteMPRuleList[i].cmdList.length; j++){
-                        if(this.siteMPRuleList[i].cmdList[j].id==row.id){
-                            this.siteMPRuleList[i].cmdList.splice(j, 1);
-                        }
-                    }
-                }
-            }
-            //this.newMappingRuleForm.cmdList.splice();
+        delCmd: function(index){
+            this.mappingRule.cmd_list.splice(index,1);
         },
 
         cmdTypeChange: function(cmdType){
             //console.log(a);
             if(cmdType=='access_log'){
-                this.mydefine = 'my_access_log'; }
+                this.mydefine = 'my_access_log'; 
+            }
             else if(cmdType=='proxy_pass'){
                 this.mydefine = 'my_proxy_pass'; }
             else if(cmdType=='more_clear_headers'){

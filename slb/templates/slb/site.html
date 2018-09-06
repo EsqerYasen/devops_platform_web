@@ -36,7 +36,7 @@
         </el-row>
         <el-row>
             <div>
-            <el-tabs v-model="siteDetailActiveTabName" type="card" tab-position="left" @tab-click="handleTabChange">
+                <el-tabs v-model="siteDetailActiveTabName" type="card" tab-position="left" :before-leave="checkTabChange" @tab-click="handleTabChange">
                 <el-tab-pane  label="基本配置" name="basicConfig">
                     <el-row>
                         <el-col :span="2" :offset="22">
@@ -171,7 +171,7 @@
                     <el-table-column label="操作">
                         <template slot-scope="scopeCmd">
                             <!--<el-button type="primary" icon="el-icon-edit-outline" size="mini" circle ></el-button>-->
-                            <el-button type="danger" icon="el-icon-delete" size="mini" circle @click="delCmd(scopeCmd.row)"></el-button>
+                            <el-button type="danger" icon="el-icon-delete" size="mini" circle @click="delCmd(scopeCmd.$index)"></el-button>
                         </template>
                     </el-table-column>
                 </el-table>
