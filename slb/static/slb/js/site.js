@@ -247,6 +247,7 @@ var defaultSiteDetail = {
     is_https: false,
     siteMPRuleList: [
     ],
+    dynamicAttributes: []
 };
 
 var defaultMPRule = {
@@ -312,15 +313,22 @@ vm = new Vue({
         mydefine: "my_access_log",
         upstreams: [],
         coption:"选择自定义参数",
-        custom_options: [
-            {label: "access_log", value: "access_log", active: false}, 
-            {label: "error_log", value: "error_log", active: false},
-            {label: "error_page_400", value: "error_page_400", active: false},
-            {label: "error_page_404", value: "error_page_404", active: false},
-            {label: "root", value: "root", active: false},
+        free_options: [],
+        freeOptionDialog: false,
+        dynamicAttributes: [
+            //{param_key: "access_log", param_value: "", active: false, is_inner: 1}, 
+            //{param_key: "error_log", param_value: "", active: false, is_inner: 1},
+            //{param_key: "error_page_400", param_value: "", active: false, is_inner: 1},
+            //{param_key: "error_page_404", param_value: "", active: false, is_inner: 1},
+            //{param_key: "root", param_value: "", active: false, is_inner: 1},
+            {param_key: "access_log", param_value: "", is_inner: 1}, 
+            {param_key: "error_log", param_value: "", is_inner: 1},
+            {param_key: "error_page_400", param_value: "", is_inner: 1},
+            {param_key: "error_page_404", param_value: "", is_inner: 1},
+            {param_key: "root", param_value: "", is_inner: 1},
+            {param_key: "custom", param_value: "", is_inner: 0}
         ],
-        free_option: []
-
+        freeOptionKV: {param_key: "", param_value: "", active: true, is_inner: 0}
     },
     created: function(){
         //this.getSites();
@@ -388,10 +396,24 @@ vm = new Vue({
             this.getData('../rest/getmngsiteinfo/', {'id': id}, this.afterGetSiteDetail);
         },
 
+        mergeDynamicAttr: function(){
+            var param_keys = [];
+            for(var i=0; i<this.siteDetail.dynamicAttributes.length; i++){
+                param_keys.push(this.siteDetail.dynamicAttributes[i].param_key);
+                this.siteDetail.dynamicAttributes[i].active = true;
+            }
+            //for(var i=0; i<this.dynamicAttributes.length; i++){
+                //if(param_keys.indexOf(this.dynamicAttributes[i].param_key)<0){
+                    //this.siteDetail.dynamicAttributes.push(this.dynamicAttributes[i]);
+                //}
+            //}
+        },
+
         afterGetSiteDetail: function(resp){
             tmp = resp.data['ret'];
             //console.log(tmp);
             this.siteDetail = tmp;
+            this.mergeDynamicAttr();
             this.getSiteVersion(this.siteDetail.id);
             this.getMPRuleList(this.siteDetail.id);
         },
@@ -798,34 +820,34 @@ vm = new Vue({
             }
         },
 
-        is_dup_option: function(){
-            showMsg(false, '无法添加重复参数');
-            return false;
-        },
-
         handleCommand: function(command){
             console.log(command);
-            var options = {access_log: 0, error_log: 1, error_page_400:2, error_page_404: 3, root: 4}
-            index = options[command]
-            this.custom_options[index].active = true;
-            //if(command=="access_log"){
-                //this.access_log_form = true;
-            //}
-            //else if(command="error_log"){
-                //this.error_log_form= true;
-            //}
-            //else if(command="error_page_400"){
-                //this.error_400_form= true;
-            //}
-            //else if(command="error_page_404"){
-                //this.error_404_form= true;
-            //}
-            //else if(command="root"){
-                //this.root_form= true;
-            //}
-            //else if(command="custom"){
+            var options = {access_log: 0, error_log: 1, error_page_400:2, error_page_404: 3, root: 4, custom: 5}
+            index = options[command];
+            this.siteDetail.dynamicAttributes.push(JSON.parse(JSON.stringify(this.dynamicAttributes[index])));
+            if(index!=5){ this.dynamicAttributes[index].active = true;}
+        },
 
-            //}
+        freeOptionDialogSubmit: function(){
+            this.freeOptionDialog = false;
+            this.siteDetail.dynamicAttributes.push(JSON.parse(JSON.stringify(this.freeOptionKV)));
+        },
+
+        cancelFreeOptionDialog: function(){
+            this.freeOptionDialog = false;
+            this.freeOptionKV = {}
+        },
+
+        delFreeOption: function(option_name){
+            //var option_name_dict = {0: "access_log", 1: "error_log", 2: "error_page_400", 3: "error_page_404", 4: "root"}
+            //console.log(option_name);
+            for(var i=0; i<this.siteDetail.dynamicAttributes.length;i++){
+                if(this.siteDetail.dynamicAttributes[i].param_key == option_name){
+                    break;
+                }
+            }
+            this.siteDetail.dynamicAttributes.splice(i, 1);
+            this.dynamicAttributes[i].active = false;
         }
 
     }

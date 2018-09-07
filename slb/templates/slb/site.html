@@ -29,10 +29,10 @@
                     <el-row>
                         <el-col :span="4" :offset="20">
                             <el-dropdown @command="handleCommand">
-                                <span class="el-dropdown-link">自定义参数<i class="el-icon-arrow-down el-icon--right"></i> </span>
+                                <span class="el-dropdown-link">添加参数<i class="el-icon-arrow-down el-icon--right"></i> </span>
                                 <el-dropdown-menu slot="dropdown">
-                                    <el-dropdown-item v-for="item in custom_options" :key="item.label" :command="item.label" :disabled="item.active">{{item.label}}</el-dropdown-item>
-                                    <el-dropdown-item divided command="custom">自定义</el-dropdown-item>
+                                    <el-dropdown-item v-for="item in dynamicAttributes" :key="item.param_key" :command="item.param_key" :disabled="item.active">{{item.param_key}}</el-dropdown-item>
+                                    <!--<el-dropdown-item divided command="custom">自定义参数</el-dropdown-item>-->
                                 </el-dropdown-menu>
                             </el-dropdown>
                             <el-button type="primary" size="mini" icon="el-icon-success" @click="siteDetailFormSave">保存</el-button>
@@ -40,7 +40,7 @@
                     </el-row>
                         <el-form ref="form" :model="siteDetail" label-width="120px">
                             <el-row>
-                            <el-col :span="12" >
+                            <el-col :span="10" >
                                 <el-form-item label="状态控制">
                                     <el-radio-group v-model="siteDetail.state_control">
                                         <el-radio label="enable" value="enable"></el-radio>
@@ -57,12 +57,32 @@
                                 </el-form-item>
                                 <el-form-item label="使用HTTPS"><el-switch v-model="siteDetail.is_https"></el-switch></el-form-item>
                             </el-col>
-                            <el-col :span=12>
-                                <el-form-item v-if="custom_options[0].active" label="access_log"><el-input v-model="siteDetail.access_log"></el-input></el-form-item>
-                                <el-form-item v-if="custom_options[1].active" label="error_log"><el-input v-model="siteDetail.error_log"></el-input></el-form-item>
-                                <el-form-item v-if="custom_options[2].active" label="error_page_400"><el-input v-model="siteDetail.error_page_400"></el-input></el-form-item>
-                                <el-form-item v-if="custom_options[3].active" label="error_page_404"><el-input v-model="siteDetail.error_page_404"></el-input></el-form-item>
-                                <el-form-item v-if="custom_options[4].active" label="root"><el-input v-model="siteDetail.root"></el-input></el-form-item>
+                            <el-col :span="14">
+                                <!--<el-form-item v-if="custom_options[0].active" label="access_log">-->
+                                    <!--<el-input v-model="siteDetail.access_log"></el-input>-->
+                                    <!--<el-button class="el-icon-close" type="text" @click="delCustomOption(0)"></el-button>-->
+                                <!--</el-form-item>-->
+                                <!--<el-form-item v-if="custom_options[1].active" label="error_log">-->
+                                    <!--<el-input v-model="siteDetail.error_log"></el-input>-->
+                                    <!--<el-button class="el-icon-close" type="text" @click="delCustomOption(1)"></el-button>-->
+                                <!--</el-form-item>-->
+                                <!--<el-form-item v-if="custom_options[2].active" label="error_page_400">-->
+                                    <!--<el-input v-model="siteDetail.error_page_400"></el-input>-->
+                                    <!--<el-button class="el-icon-close" type="text" @click="delCustomOption(2)"></el-button>-->
+                                <!--</el-form-item>-->
+                                <!--<el-form-item v-if="custom_options[3].active" label="error_page_404">-->
+                                    <!--<el-input v-model="siteDetail.error_page_404"></el-input>-->
+                                    <!--<el-button class="el-icon-close" type="text" @click="delCustomOption(3)"></el-button>-->
+                                <!--</el-form-item>-->
+                                <!--<el-form-item v-if="custom_options[4].active" label="root">-->
+                                    <!--<el-input v-model="siteDetail.root"></el-input>-->
+                                    <!--<el-button class="el-icon-close" type="text" @click="delCustomOption(4)"></el-button>-->
+                                <!--</el-form-item>-->
+                                <el-form-item v-for="item in siteDetail.dynamicAttributes" :key="item.param_key" :label="item.param_key">
+                                    <el-input v-if="item.is_inner==1" v-model="item.param_value"></el-input>
+                                    <el-input v-else type="textarea" v-model="item.param_value"></el-input>
+                                    <el-button class="el-icon-close" type="text" @click="delFreeOption(item.param_key)"></el-button>
+                                </el-form-item>
                             </el-col>
                             </el-row>
                         </el-form>
@@ -102,9 +122,19 @@
             </div>
         </el-row>
         <!--</div>-->
+        <el-dialog :visible.sync="freeOptionDialog" title="自定义参数" width="50%">
+            <el-form :model="freeOptionKV" label-width="120px">
+                <el-form-item label="参数名"><el-input v-model="freeOptionKV.param_key"></el-input></el-form-item>
+                <el-form-item label="参数值"><el-input v-model="freeOptionKV.param_value"></el-input></el-form-item>
+                <el-form-item>
+                    <el-button type="primary" @click="freeOptionDialogSubmit">创建</el-button>
+                    <el-button @click="cancelFreeOptionDialog">取消</el-button>
+                </el-form-item>
+            </el-form>
+        </el-dialog>
         <el-dialog :visible.sync="addMappingRuleDialogTriggle" title="编辑规则" width="60%">
             此处填写基本的信息，详细规则的信息，可以在添加规则后，点击"编辑"进行详细补充。
-            <el-form ref="form" :model="mappingRule" label-width="120px">
+            <el-form :model="mappingRule" label-width="120px">
                 <el-form-item label="匹配类型">
                     <el-select v-model="mappingRule.matching_type">
                         <el-option label="prefix" value="prefix"></el-option>
