@@ -319,6 +319,7 @@ vm = new Vue({
             {label: "error_page_404", value: "error_page_404", active: false},
             {label: "root", value: "root", active: false},
         ],
+        free_option: []
 
     },
     created: function(){
@@ -804,27 +805,27 @@ vm = new Vue({
 
         handleCommand: function(command){
             console.log(command);
-            var options = {access_log: 0, error_log: 1, error_page_400:3, error_page_404: 4, root: 5}
+            var options = {access_log: 0, error_log: 1, error_page_400:2, error_page_404: 3, root: 4}
             index = options[command]
             this.custom_options[index].active = true;
-            if(command=="access_log"){
-                this.access_log_form = true;
-            }
-            else if(command="error_log"){
-                this.error_log_form= true;
-            }
-            else if(command="error_page_400"){
-                this.error_400_form= true;
-            }
-            else if(command="error_page_404"){
-                this.error_404_form= true;
-            }
-            else if(command="root"){
-                this.root_form= true;
-            }
-            else if(command="custom"){
+            //if(command=="access_log"){
+                //this.access_log_form = true;
+            //}
+            //else if(command="error_log"){
+                //this.error_log_form= true;
+            //}
+            //else if(command="error_page_400"){
+                //this.error_400_form= true;
+            //}
+            //else if(command="error_page_404"){
+                //this.error_404_form= true;
+            //}
+            //else if(command="root"){
+                //this.root_form= true;
+            //}
+            //else if(command="custom"){
 
-            }
+            //}
         }
 
     }
