@@ -290,7 +290,19 @@ vm = new Vue({
         siteVersions: [],
         selectedVersion: '',
         addMappingRuleDialogTriggle: false,
-        mappingRule: {id: "1", regular_expression: '', matching_type: '', case_sensitive:'Y', https_type: ['all'], cmd_list: [{command_type: 'proxy_pass', command_parm: 'abc'}] },
+        mappingRule: {
+            id: "1", 
+            regular_expression: '',
+            matching_type: '',
+            case_sensitive:'Y',
+            https_type: ['all'],
+            access_log: "",
+            error_log: "",
+            error_page_400: "",
+            error_page_404: "",
+            root: "",
+            cmd_list: [{command_type: 'proxy_pass', command_parm: 'abc'}]
+        },
         cmd_list: [],
         pools: [],
         clusterTreeDialogTriggle: false,
@@ -301,14 +313,13 @@ vm = new Vue({
         upstreams: [],
         coption:"选择自定义参数",
         custom_options: [
-            {label: "access_log", value: "access_log"}, 
-            {label: "error_log", value: "error_log"},
-            {label: "error_page_400", value: "error_page_400"},
-            {label: "error_page_404", value: "error_page_404"},
-            {label: "root", value: "root"},
-            {label: "自定义", value: "custom"}
+            {label: "access_log", value: "access_log", active: false}, 
+            {label: "error_log", value: "error_log", active: false},
+            {label: "error_page_400", value: "error_page_400", active: false},
+            {label: "error_page_404", value: "error_page_404", active: false},
+            {label: "root", value: "root", active: false},
         ],
-        coption_flag: {access_log: false, error_log: false, error_page_404: false, error_page_400: false, root: false}
+
     },
     created: function(){
         //this.getSites();
@@ -791,10 +802,29 @@ vm = new Vue({
             return false;
         },
 
-        handleCOptionChange: function(val){
-            if(val=="access_log"){
+        handleCommand: function(command){
+            console.log(command);
+            var options = {access_log: 0, error_log: 1, error_page_400:3, error_page_404: 4, root: 5}
+            index = options[command]
+            this.custom_options[index].active = true;
+            if(command=="access_log"){
+                this.access_log_form = true;
             }
-            else if(val="error_log"){}
+            else if(command="error_log"){
+                this.error_log_form= true;
+            }
+            else if(command="error_page_400"){
+                this.error_400_form= true;
+            }
+            else if(command="error_page_404"){
+                this.error_404_form= true;
+            }
+            else if(command="root"){
+                this.root_form= true;
+            }
+            else if(command="custom"){
+
+            }
         }
 
     }
