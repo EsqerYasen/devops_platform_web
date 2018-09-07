@@ -43,5 +43,5 @@ urlpatterns = [
     url(r'^rest/gethostlistbygrupid/', views.GetHostListByGrupId, name='gethostlistbygrupid'),
 
     #deploy
-    url(r'^rest/slb/deployagent', views.deploy_agent, name='deploy_agent'),
+    url(r'^rest/deployagent', views.deploy_agent, name='deploy_agent'),
 ]

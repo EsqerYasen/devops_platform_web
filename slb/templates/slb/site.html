@@ -3,11 +3,6 @@
 {% load static %}
 {% verbatim myblock %}
 <el-container>
-    <!--<el-aside width="200px">-->
-        <!--<el-menu default-active="1" class="el-menu-demo" mode="vertical" @select="handleSiteSelect">-->
-            <!--<el-menu-item v-for="site in sites" :index="site.id" :key="site.id">{{site.site_name}}</el-menu-item>-->
-        <!--</el-menu>-->
-    <!--</el-aside>-->
     <el-main>
         <el-row>
             <el-col :span="5">
@@ -18,17 +13,10 @@
             </el-col>
         </el-row>
         <hr style="height:1px;border:none;border-top:1px solid #e5e5e5;" />
-        <!--<div id="siteDetailDiv" v-if="siteDetailDivTriggle">-->
         <el-row>
             <el-col :span="12">
             <el-button type="warning" size="mini" icon="el-icon-document" @click="previewConfigFile">预览</el-button>
             <el-button type="success" size="mini" icon="el-icon-edit-outline" @click="createDist">创建</el-button>
-            <!--<el-select size="mini" v-model="selectedVersion" placeholder="请选择">-->
-                <!--<el-option v-for="version in siteVersions" :key="version.v" :label="version.k" :value="version.v"> -->
-                    <!--<span style="float: left">{{ version.k}}</span>-->
-                    <!--<span style="float: right; color: #8492a6; font-size: 13px">{{ version.status }}</span>-->
-                <!--</el-option>-->
-            <!--</el-select>-->
             <el-button type="info" size="mini" icon="el-icon-d-arrow-left" @click="rollback">回滚</el-button>
             <!--<el-button type="primary" size="mini" icon="el-icon-upload"><a :href="'/slb/deploy/deploy_task?site_name='+siteDetail.site_name+'&nginx_cluster_id='+siteDetail.nginx_cluster_id">发布</a></el-button>-->
             <el-button type="primary" size="mini" icon="el-icon-upload" @click="deploy">发布</el-button>
@@ -39,13 +27,13 @@
                 <el-tabs v-model="siteDetailActiveTabName" type="card" tab-position="left" :before-leave="checkTabChange" @tab-click="handleTabChange">
                 <el-tab-pane  label="基本配置" name="basicConfig">
                     <el-row>
-                        <el-col :span="2" :offset="22">
+                        <el-col :span="8" :offset="16">
+                            <el-select v-model="coption" @change="handleCOptionChange"><el-option v-for="item in custom_options" :key="item.value" :label="item.label" :value="item.value"></el-option></el-select>
                             <el-button type="primary" size="mini" icon="el-icon-success" @click="siteDetailFormSave">保存</el-button>
                         </el-col>
                     </el-row>
                     <el-row>
                         <el-form ref="form" :model="siteDetail" label-width="120px">
-                            <!--<el-row>-->
                             <el-form-item label="状态控制">
                                 <el-radio-group v-model="siteDetail.state_control">
                                     <el-radio label="enable" value="enable"></el-radio>
@@ -53,42 +41,21 @@
                                     <el-radio label="force_offline" value="force_offline"></el-radio>
                                 </el-radio-group>
                             </el-form-item>
-                            <!--</el-row>-->
-                            <!--<el-row>-->
-                                <!--<el-col :span="9">-->
                             <el-form-item label="Domain"><el-input v-model="siteDetail.domain_name"></el-input></el-form-item>
-                            <!--</el-col>-->
-                                <!--<el-col :span="9" :offset="1">-->
                             <el-form-item label="Port"><el-input v-model="siteDetail.port"></el-input></el-form-item>
-                            <!--</el-col>-->
-                            <!--</el-row>-->
-                            <!--<el-form-item label="默认Pool名">-->
-                                <!--<el-select v-model="siteDetail.defaultPool" filterable placeholder="请选择">-->
-                                    <!--<el-option v-for="pool in pools" :key="pool.id" :label="pool.name" :value="pool.name">-->
-                                    <!--</el-option>-->
-                                <!--</el-select>-->
-                            <!--</el-form-item>-->
-                            <!--<el-row>-->
-                                <!--<el-col :span="9">-->
                             <el-form-item label="目标Nginx集群">
                                 
                                 {{siteDetail.nginx_cluster_name}} <el-button v-if="siteDetail.nginx_cluster_id" class="el-icon-circle-plus-outline" type="text" @click="selectCluster">重新选择集群节点</el-button>
                                 <el-button v-else class="el-icon-circle-plus-outline" type="text" @click="selectCluster">选择集群节点</el-button>
-                                <!--<el-select v-model="siteDetail.nginx_cluster_name" filterable placeholder="请选择" @change="onchange_nginx_cluster">-->
-                                    <!--<el-option v-for="ngxC in nginxClusters" :key="ngxC.id" :label="ngxC.name" :value="ngxC.name">-->
-                                    <!--</el-option>-->
-                                  <!--</el-select>-->
                             </el-form-item>
-                            <!--</el-col>-->
-                                <!--<el-col :span="9">-->
                             <el-form-item label="使用HTTPS"><el-switch v-model="siteDetail.is_https"></el-switch></el-form-item>
+                            <el-form-item v-if="" label="使用HTTPS"><el-switch v-model="siteDetail.is_https"></el-switch></el-form-item>
                             </el-col>
                             </el-row>
                         </el-form>
                     </el-row>
                 </el-tab-pane>
                 <el-tab-pane label="映射规则" name="mappingRule">
-                    <!--<el-col :span="2">规则列表</el-col>-->
                     <el-col :span="4" :offset="20">
                         <el-button class="el-icon-circle-plus-outline" type="text" @click="addMappingRule">添加规则</el-button>
                         <el-button type="primary" size="mini" icon="el-icon-success" @click="saveMappingRuleList">保存</el-button>
@@ -170,7 +137,6 @@
                     </el-table-column>
                     <el-table-column label="操作">
                         <template slot-scope="scopeCmd">
-                            <!--<el-button type="primary" icon="el-icon-edit-outline" size="mini" circle ></el-button>-->
                             <el-button type="danger" icon="el-icon-delete" size="mini" circle @click="delCmd(scopeCmd.$index)"></el-button>
                         </template>
                     </el-table-column>

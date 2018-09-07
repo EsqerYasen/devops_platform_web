@@ -15,7 +15,7 @@ Vue.component('my_access_log',{
 });
 
 Vue.component('my_proxy_pass',{
-    template: '<div>pool_name: <el-select v-model="initValue" placeholder="请选择" @change="argUpdated($event, row)"> <el-option v-for="item in upstreams" :key="item.id" :label="item.cluster_name" :value="item.id"> </el-option> </el-select></div>',
+    template: '<div>pool_name: <el-select v-model="cmdcmdarg" placeholder="请选择" @change="argUpdated($event, row)"> <el-option v-for="item in upstreams" :key="item.id" :label="item.cluster_name" :value="item.id"> </el-option> </el-select></div>',
     props: ['cmdarg', 'row', 'cmd'],
     data: function(){
         return {
@@ -298,7 +298,17 @@ vm = new Vue({
         previewContent: '',
         editor: '',
         mydefine: "my_access_log",
-        upstreams: []
+        upstreams: [],
+        coption:"选择自定义参数",
+        custom_options: [
+            {label: "access_log", value: "access_log"}, 
+            {label: "error_log", value: "error_log"},
+            {label: "error_page_400", value: "error_page_400"},
+            {label: "error_page_404", value: "error_page_404"},
+            {label: "root", value: "root"},
+            {label: "自定义", value: "custom"}
+        ],
+        coption_flag: {access_log: false, error_log: false, error_page_404: false, error_page_400: false, root: false}
     },
     created: function(){
         //this.getSites();
@@ -459,9 +469,6 @@ vm = new Vue({
         afterGetUpstreams: function(resp){
             tmp = resp.data['ret'];
             this.upstreams = tmp;
-            if(this.upstreams.length>0){
-                this.getUpstreamDetail(1);
-            }
         },
 
         afterGetNginxClusters: function(resp){
@@ -523,7 +530,7 @@ vm = new Vue({
             tmp = resp.data;
             if(tmp.status==200){
                 showMsg(true, tmp.msg);
-                this.siteDetail.id=tmp.id;
+                if(this.siteDetail.id<0){ this.siteDetail.id=tmp.id;}
             }
             else{ showMsg(false, tmp.msg);}
         },
@@ -644,7 +651,7 @@ vm = new Vue({
                 console.log(this.siteMPRuleList);
                 var data = {id: 0, mapping_rules_list: this.siteMPRuleList, nginx_site_id: this.siteDetail.id};
             }
-            //console.log(this.mappingRule);
+            console.log(this.mappingRule);
             this.postData('../rest/mappingrulescreateorupdate/', data, this.afterSaveMappingRule);
             this.addMappingRuleDialogTriggle = false;
         },
@@ -778,6 +785,17 @@ vm = new Vue({
                 window.location=this.deploy_url(0);
             }
         },
+
+        is_dup_option: function(){
+            showMsg(false, '无法添加重复参数');
+            return false;
+        },
+
+        handleCOptionChange: function(val){
+            if(val=="access_log"){
+            }
+            else if(val="error_log"){}
+        }
 
     }
 });

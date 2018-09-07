@@ -317,25 +317,35 @@ def trans_cmdList(cmd_list):
         2: 'custom',
         3: 'ifelse', 
         4: 'more_clear_headers', 
-        5: 'more_set_headers', 
-        6: 'proxy_pass',
-        7: 'return',
-        8: 'rewrite',
-        9: 'static-resource',
+        5: 'proxy_pass', 
+        6: 'return',
+        7: 'rewrite',
+        8: 'static-resource',
+        9: 'include',
+        10: 'more_set_headers',
         'access_log': 1, 
         'custom': 2,
         'ifelse': 3, 
         'more_clear_headers': 4, 
-        'more_set_headers': 5, 
-        'proxy_pass': 6,
-        'return': 7,
-        'rewrite': 8,
-        'static-resource': 9
+        'proxy_pass': 5, 
+        'return': 6,
+        'rewrite': 7,
+        'static-resource': 8,
+        'include': 9,
+        'more_set_headers': 10
+    }
+    to_json_dict = {
+            1: 'value',
+            4: 'value',
+            10: 'value'
     }
     ret = []
     for cmd in cmd_list:
         tmp_command_type = command_type_dict[cmd['command_type']]
         cmd.update({'command_type': tmp_command_type})
+        if cmd['command_type']!=5 and type(cmd['command_type']) is int:
+            key = to_json_dict[cmd['command_type']]
+            cmd.update({'command_param':json.dumps({key:cmd['command_param']})})
         ret.append(cmd)
     return ret
 
@@ -525,8 +535,13 @@ def NginxClusterHostById(request):
         results['msg'] = "查询异常"
     return JsonResponse(data=results)
 
+@csrf_exempt
 def deploy_agent(request):
-    hu = HttpUtils(request)
-    result = hu.post(serivceName='p_job', restName='/rest/slb/deployagent', datas={"id": group_id, "vs": vs})
-    #print(result)
-    return JsonResponse(data=results)
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        task_id = data['id']
+        host_list = data['hosts']
+        version = data['version']
+        hu = HttpUtils(request)
+        result = hu.post(serivceName='p_job', restName='/rest/slb/deployagent/', datas={"id": task_id, "version": version, 'hosts':host_list})
+        return JsonResponse(data=result)
