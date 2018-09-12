@@ -7,7 +7,8 @@
     <!-- Bootstrap -->
     <!--<link rel="stylesheet" type="text/css" href="{% static 'slb/css/bootstrap.min.css' %}" />-->
     <!-- ElementUI -->
-    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css" />
+    <!--<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css" />-->
+    <link rel="stylesheet" href="{% static 'slb/css/elementui_index.css' %}" />
     <!-- FontAwesome -->
     <link rel="stylesheet" href="{% static 'slb/css/font-awesome.min.css' %}"/>
     <!--<link href="/static/hplus/css/bootstrap.min14ed.css?v=3.3.6" rel="stylesheet">-->
@@ -33,10 +34,13 @@
 <!-- import Vue before Element -->
 <script src="/static/hplus/js/jquery.min.js?v=2.1.4"></script>
 <!--<script src="/static/hplus/js/bootstrap.min.js?v=3.3.6"></script>-->
-<script src="https://unpkg.com/vue/dist/vue.js"></script>
-<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<!--<script src="https://unpkg.com/vue/dist/vue.js"></script>-->
+<script src="{% static 'slb/js/vue.min.js' %}"></script>
+<!--<script src="https://unpkg.com/axios/dist/axios.min.js"></script>-->
+<script src="{% static 'slb/js/axios.min.js' %}"></script>
 <!-- import JavaScript -->
-<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+<!--<script src="https://unpkg.com/element-ui/lib/index.js"></script>-->
+<script src="{% static 'slb/js/elementui_index.js' %}"></script>
 <!-- import self-defined JavaScript -->
 {% block js %}{% endblock %}
 </html>
