@@ -49,10 +49,12 @@ def trans_cluster_list(cluster_list):
     for cluster in cluster_list:
         tmp = str(cluster['id'])
         cluster.update({'id': tmp})
-        tmp = check_up_type_dict[cluster['check_up_type']]
-        cluster.update({'check_up_type': tmp})
-        tmp = load_balancin_strategy_dict[cluster['load_balancin_strategy']]
-        cluster.update({'load_balancin_strategy': tmp})
+        if cluster['check_up_type']:
+            tmp = check_up_type_dict[cluster['check_up_type']]
+            cluster.update({'check_up_type': tmp})
+        if cluster['load_balancin_strategy']:
+            tmp = load_balancin_strategy_dict[cluster['load_balancin_strategy']]
+            cluster.update({'load_balancin_strategy': tmp})
         ret.append(cluster)
     return ret
 
@@ -107,8 +109,14 @@ def trans_cluster_detail(cluster_detail, reverser=False):
     check_up_type_dict = {
         1: 'TCP',
         2: 'HTTP',
+        3:'ssl_hello',
+        4:'mysql',
+        5:'ajp',
         'TCP': 1,
         'HTTP': 2,
+        'ssl_hello': 3,
+        'mysql': 4,
+        'ajp': 5
     }
     node_state_dict = {
         1: 'enable',
@@ -121,10 +129,12 @@ def trans_cluster_detail(cluster_detail, reverser=False):
     pop_list = ['created_by', 'updated_by']
     #print(type(cluster_detail['load_balancin_strategy']))
 
-    tmp = load_balancin_strategy_dict[cluster_detail['load_balancin_strategy']]
-    cluster_detail.update({'load_balancin_strategy':tmp})
-    tmp = check_up_type_dict[cluster_detail['check_up_type']]
-    cluster_detail.update({'check_up_type':tmp})
+    if cluster_detail['load_balancin_strategy']: 
+        tmp = load_balancin_strategy_dict[cluster_detail['load_balancin_strategy']]
+        cluster_detail.update({'load_balancin_strategy':tmp})
+    if cluster_detail['check_up_type']:
+        tmp = check_up_type_dict[cluster_detail['check_up_type']]
+        cluster_detail.update({'check_up_type':tmp})
     tmp = int(cluster_detail['id'])
     cluster_detail.update({'id':tmp})
     nodes = cluster_detail['cluster_nodes']
@@ -209,7 +219,7 @@ def trans_siteList(siteList):
     return ret
 
 def trans_siteInfo(site_info):
-    state_control_dict = { 1:'enable', 0:'disable', 2:'forced_offline','enable':1,'disable':0 ,'forced_offline':2}
+    state_control_dict = { 1:'enable', 0:'disable', 2:'force_offline','enable':1,'disable':0 ,'force_offline':2}
     is_https_dict = { 0: False, 1: True,'true':1,'false':0 }
     tmp_id = str(site_info['id'])
     tmp_is_https = is_https_dict[site_info['is_https']]
@@ -264,9 +274,18 @@ def trans_mappingRule(mpr):
     return mpr
 
 def trans_mappingRuleList(mprulelist):
-    case_sensitive_dict = {1: True, 0: False}
-    https_type_dict = { 1: 'all', 2: 'http', 3: 'https' }
-    matching_type_dict = { 1: 'prefix', 2: 'regex', 3:'common', 4:'exact' }
+    case_sensitive_dict = {1: True, 0: False, True: 1, False: 0}
+    https_type_dict = { 1: 'all', 2: 'http', 3: 'https', 'all': 1, 'http': 2, 'https': 3 }
+    matching_type_dict = {
+        1: 'prefix',
+        2: 'regex',
+        3:'common',
+        4:'exact',
+        'prefix': 1,
+        'regex': 2,
+        'common': 3,
+        'exact': 4
+    }
     ret = []
     for mpr in mprulelist:
         tmp_id = str(mpr['id'])
@@ -334,18 +353,10 @@ def trans_cmdList(cmd_list):
         'include': 9,
         'more_set_headers': 10
     }
-    to_json_dict = {
-            1: 'value',
-            4: 'value',
-            10: 'value'
-    }
     ret = []
     for cmd in cmd_list:
         tmp_command_type = command_type_dict[cmd['command_type']]
         cmd.update({'command_type': tmp_command_type})
-        if cmd['command_type']!=5 and type(cmd['command_type']) is int:
-            key = to_json_dict[cmd['command_type']]
-            cmd.update({'command_param':json.dumps({key:cmd['command_param']})})
         ret.append(cmd)
     return ret
 
@@ -545,3 +556,26 @@ def deploy_agent(request):
         hu = HttpUtils(request)
         result = hu.post(serivceName='p_job', restName='/rest/slb/deployagent/', datas={"id": task_id, "version": version, 'hosts':host_list})
         return JsonResponse(data=result)
+
+def trans4configpreview(config_data):
+    new_dy = {}
+    dynamicAttrs = config_data['dynamicAttributes']
+    for dy in dynamicAttrs:
+        new_dy.update({dy['param_key']: dy['param_value']})
+    config_data.update({'dynamicAttributes': new_dy})
+    return config_data
+
+@csrf_exempt
+def config_preview(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        siteDetail = data['siteDetail']
+        siteDetail = trans_siteInfo(siteDetail)
+        siteDetail = trans4configpreview(siteDetail)
+        mplist = data['mplist']
+        mplist = trans_mappingRuleList(mplist)
+        hu = HttpUtils(request)
+        siteDetail.update({'locations': mplist})
+        result = hu.post(serivceName='p_job',restName='/rest/slb/configpreview/', datas=siteDetail)
+        result = json.loads(result.content)
+        return JsonResponse(data=dict(ret=result))

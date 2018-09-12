@@ -1,3 +1,10 @@
+//editor = CodeMirror.fromTextArea(document.getElementById("previewTextArea"), {
+    ////mode: 'shell',
+    //lineNumbers: true,
+    //readOnly: false,
+    //lineSeparator: "\r\n"
+    ////theme: "eclipse"
+//});
 Vue.component('my_access_log',{
     template: '<el-input v-model="cmdcmdarg" @change="argUpdated($event, row)"></el-input></div>',
     props: ['cmdarg', 'row', 'cmd'],
@@ -16,7 +23,40 @@ Vue.component('my_access_log',{
 
 Vue.component('my_proxy_pass',{
     template: '<div>pool_name: <el-select v-model="cmdcmdarg" placeholder="请选择" @change="argUpdated($event, row)"> <el-option v-for="item in upstreams" :key="item.id" :label="item.cluster_name" :value="item.id"> </el-option> </el-select></div>',
-    props: ['cmdarg', 'row', 'cmd'],
+    props: ['cmdarg', 'row'],
+    data: function(){
+        return {
+            upstreams: vm.upstreams,
+            initValue: ''
+        }
+    },
+    computed:{
+        cmdcmdarg: {
+            get: function(){
+                return this.cmdarg; 
+            },
+            set: function(v){}
+        }
+    },
+    methods: {
+        argUpdated: function(w, r){
+            console.log(w);
+            this.$emit('updatecmdarg', {v:w, s:r});
+        },
+    }
+});
+
+Vue.component('action_proxy_pass',{
+    template: `
+    <div>
+        <el-form-item label="pool name">
+            <el-select v-model="cmdcmdarg" placeholder="请选择" @change="argUpdated($event)">
+                <el-option v-for="item in upstreams" :key="item.id" :label="item.cluster_name" :value="item.id"> </el-option> 
+            </el-select>
+        </el-form-item>
+    </div>
+    `,
+    props: ['cmdarg', 'index'],
     data: function(){
         return {
             upstreams: vm.upstreams,
@@ -26,14 +66,93 @@ Vue.component('my_proxy_pass',{
     computed:{
         cmdcmdarg: {
             get: function(){ return this.cmdarg; },
-            set: function(v){}
+            set: function(v){
+            }
         }
     },
     methods: {
-        argUpdated: function(w, r){
-            this.$emit('updatecmdarg', {v:w, s:r});
+        argUpdated: function(w){
+            //console.log(w);
+            //console.log(this.cmdarg);
+            //console.log(this.index);
+            this.$emit('innerUpdateAction', {v:w, index: this.index});
         },
     }
+});
+
+Vue.component('action_custom',{
+    template:`
+    <div>
+        <el-form-item label="custom">
+            <el-input v-model="cmdcmdarg" v-on:input="argUpdated($event)"> </el-input>
+        </el-form-item>
+    </div>
+    `,
+    props: ['cmdarg', 'index'],
+    computed: {
+        cmdcmdarg: {
+            get: function(){return this.cmdarg;},
+            set: function(v){}
+        },
+    },
+    methods: {
+        argUpdated: function(val){
+            //console.log(val);
+            //console.log(this.row);
+            this.$emit('innerUpdateAction', {v:val, index: this.index});
+        },
+    },
+});
+
+Vue.component('my_ifelse',{
+    template: `
+    <div>
+        condition: 
+        <el-input v-model="cmdcmdarg.condition" v-on:input="argUpdated($event, row)">
+            <el-dropdown slot="append" @command="addAction">
+                <span class="el-dropdown-link"> <i class="el-icon-plus el-icon--right"></i></span>
+                <el-dropdown-menu slot="dropdown">
+                  <el-dropdown-item v-for="item,index in stateOptions" :command="item" :key="index">{{item}}</el-dropdown-item>
+                </el-dropdown-menu>
+              </el-dropdown>
+        </el-input>
+        statements:
+        <component v-for="action,index in cmdcmdarg.actions" v-on:innerUpdateAction="handleUpdateActions" :index="index" :is="'action_'+action.cmdType" :cmdarg="action.cmdArg" :key="index"></component>
+    </div>
+    `,
+    props: ['cmdarg', 'row', 'cmd'],
+    data: function(){
+        return {
+            statementType: "aaa",
+            stateOptions: ["proxy_pass", "custom"],
+            statementType: "proxy_pass"
+        }
+    },
+    computed: {
+        cmdcmdarg: {
+            get: function(){ return this.cmdarg; },
+            set: function(v){
+            }
+        },
+    },
+    methods: {
+        argUpdated: function(w, r){
+            //console.log('condition');
+            //console.log(w);
+            this.cmdcmdarg.condition = w;
+            this.$emit('updatecmdarg', {v:this.cmdcmdarg, s:r});
+        },
+        handleUpdateActions: function(v){
+            index = v['index'];
+            val = v['v'];
+            this.cmdcmdarg.actions[index].cmdArg = val;
+            console.log(this.cmdcmdarg);
+            this.$emit('updatecmdarg', {v:this.cmdcmdarg, s:this.row});
+        },
+        addAction: function(val){
+            this.cmdcmdarg.actions.push({cmdType: val, cmdArg: ""});
+        }
+    },
 });
 
 Vue.component('my_more_clear_headers',{
@@ -54,22 +173,6 @@ Vue.component('my_more_clear_headers',{
 
 Vue.component('my_more_set_headers',{
     template: '<el-input v-model="cmdcmdarg" @change="argUpdated($event, row)"></el-input>',
-    props: ['cmdarg', 'row', 'cmd'],
-    methods: {
-        argUpdated: function(w, r){
-            this.$emit('updatecmdarg', {v:w, s:r});
-        },
-    },
-    computed: {
-        cmdcmdarg: {
-            get: function(){return this.cmdarg;},
-            set: function(v){}
-        },
-    },
-});
-
-Vue.component('my_ifelse',{
-    template: '<div><el-input v-model="cmdcmdarg" @change="argUpdated($event, row)"></el-input></div>',
     props: ['cmdarg', 'row', 'cmd'],
     methods: {
         argUpdated: function(w, r){
@@ -116,7 +219,7 @@ Vue.component('my_rewrite',{
     },
 });
 
-Vue.component('my_static_resource',{
+Vue.component('my_static-resource',{
     template: '<el-input v-model="cmdcmdarg" @change="argUpdated($event, row)"></el-input>',
     props: ['cmdarg', 'row', 'cmd'],
     methods: {
@@ -257,10 +360,10 @@ var defaultMPRule = {
     case_sensitive: true,
     https_type: "",
     seq_no: "-1",
-    cmd_list: [{command_type: "access_log", command_param: "access_log"}]
+    cmd_list: [{command_type: "access_log", command_param: ""}]
 };
 
-var defaultCmdList = {command_type: "access_log", command_param: "access_log"};
+var defaultCmdList = {command_type: "access_log", command_param: ""};
 
 var testMPRule = [
     {id: "1", regular_expression:"/root", matching_type: "prefix", case_sensitive: true, https_type: "all", cmd_list: [{command_type: "proxy_pass", command_param: "test_proxy_pass"}, {command_type: "access_log", command_param: "test_access_log"}]},
@@ -268,13 +371,6 @@ var testMPRule = [
     {id: "3", regular_expression:"/root/b", matching_type: "regex", case_sensitive: false, https_type: "all", cmd_list: [{command_type: "more_clear_headers", command_param: "clear_headers"}]},
     {id: "4", regular_expression:"/root/c", matching_type: "excat", case_sensitive: true, https_type: "https", cmd_list: [{command_type: "more_set_headers", command_param: "set_header"}]}
 ];
-
-editor = CodeMirror.fromTextArea(document.getElementById("previewTextArea"), {
-    mode: 'nginx',
-    lineNumbers: true,
-    readOnly: false,
-    lineSeparator: "\r\n"
-});
 
 vm = new Vue({
     el: "#app",
@@ -302,14 +398,14 @@ vm = new Vue({
             error_page_400: "",
             error_page_404: "",
             root: "",
-            cmd_list: [{command_type: 'proxy_pass', command_parm: 'abc'}]
+            cmd_list: [{command_type: 'proxy_pass', command_param: 'abc'}]
         },
         cmd_list: [],
         pools: [],
         clusterTreeDialogTriggle: false,
         previewDialogTriggle: false,
         previewContent: '',
-        editor: '',
+        //editor: editor,
         mydefine: "my_access_log",
         upstreams: [],
         coption:"选择自定义参数",
@@ -326,9 +422,10 @@ vm = new Vue({
             {param_key: "error_page_400", param_value: "", is_inner: 1},
             {param_key: "error_page_404", param_value: "", is_inner: 1},
             {param_key: "root", param_value: "", is_inner: 1},
+            {param_key: "include", param_value: "", is_inner: 1},
             {param_key: "custom", param_value: "", is_inner: 0}
         ],
-        freeOptionKV: {param_key: "", param_value: "", active: true, is_inner: 0}
+        freeOptionKV: {param_key: "", param_value: "", is_inner: 0}
     },
     created: function(){
         //this.getSites();
@@ -397,16 +494,14 @@ vm = new Vue({
         },
 
         mergeDynamicAttr: function(){
-            var param_keys = [];
             for(var i=0; i<this.siteDetail.dynamicAttributes.length; i++){
-                param_keys.push(this.siteDetail.dynamicAttributes[i].param_key);
-                this.siteDetail.dynamicAttributes[i].active = true;
+                var tmp_key = this.siteDetail.dynamicAttributes[i].param_key;
+                for(var j=0; j<this.dynamicAttributes.length; j++){
+                    if(tmp_key==this.dynamicAttributes[j].param_key){
+                        this.dynamicAttributes[j]['active'] = true; //disable this key
+                    }
+                }
             }
-            //for(var i=0; i<this.dynamicAttributes.length; i++){
-                //if(param_keys.indexOf(this.dynamicAttributes[i].param_key)<0){
-                    //this.siteDetail.dynamicAttributes.push(this.dynamicAttributes[i]);
-                //}
-            //}
         },
 
         afterGetSiteDetail: function(resp){
@@ -614,7 +709,7 @@ vm = new Vue({
 
         handleCmdargChange: function(val){
             //val is dict: {input-content, scope} 
-            //console.log(val);
+            console.log(val);
             this.mappingRule.cmd_list[val.s.$index].command_param = val.v;
         },
 
@@ -658,14 +753,25 @@ vm = new Vue({
             }
         },
 
-        fillProxyPass: function(mpList){
-            for(var i=0;i<mpList.cmd_list.length;i++){
-                if(mpList.cmd_list[i].command_type=="proxy_pass"){
-                    command_param = mpList.cmd_list[i].command_param;
+        fillProxyPass: function(mpRule){
+            var cluster_name = "";
+            for(var i=0;i<mpRule.cmd_list.length;i++){
+                if(mpRule.cmd_list[i].command_type=="proxy_pass"){
+                    command_param = mpRule.cmd_list[i].command_param;
                     cluster_name = this.getUpstreamName(command_param);
-                    var tmp = mpList.cmd_list[i];
+                    var tmp = mpRule.cmd_list[i];
                     tmp['service_cluster_name'] = cluster_name;
-                    mpList.cmd_list[i] = tmp;
+                    mpRule.cmd_list[i] = tmp;
+                }
+                else if(mpRule.cmd_list[i].command_type=="ifelse"){
+                    for(var j=0;j<mpRule.cmd_list[i].command_param.actions.length;j++){
+                        var statementType = mpRule.cmd_list[i].command_param.actions[j].cmdType;
+                        if(statementType=='proxy_pass'){
+                            var cluster_id = mpRule.cmd_list[i].command_param.actions[j].cmdArg;
+                            cluster_name = this.getUpstreamName(cluster_id);
+                            mpRule.cmd_list[i].command_param.actions[j]['service_cluster_name'] = cluster_name;
+                        }
+                    }
                 }
             }
         },
@@ -739,36 +845,74 @@ vm = new Vue({
             this.mappingRule.cmd_list.splice(index,1);
         },
 
-        cmdTypeChange: function(cmdType){
-            //console.log(a);
+        cmdTypeChange: function(cmdType, index){
+            //console.log(cmdType);
+            //console.log(index);
             if(cmdType=='access_log'){
                 this.mydefine = 'my_access_log'; 
+                this.mappingRule.cmd_list[index].command_param = "";
             }
             else if(cmdType=='proxy_pass'){
-                this.mydefine = 'my_proxy_pass'; }
+                this.mydefine = 'my_proxy_pass';
+                this.mappingRule.cmd_list[index].command_param = "";
+            }
             else if(cmdType=='more_clear_headers'){
-                this.mydefine = 'my_more_clear_headers'; }
+                this.mydefine = 'my_more_clear_headers'; 
+                this.mappingRule.cmd_list[index].command_param = "";
+            }
             else if(cmdType=='more_set_headers'){
-                this.mydefine = 'my_more_set_headers'; }
+                this.mydefine = 'my_more_set_headers'; 
+                this.mappingRule.cmd_list[index].command_param = "";
+            }
             else if(cmdType=='static-resource'){
-                this.mydefine = 'my_static_resource'; }
+                this.mydefine = 'my_static_resource'; 
+                this.mappingRule.cmd_list[index].command_param = "";
+            }
             else if(cmdType=='rewrite'){
-                this.mydefine = 'my_rewrite'; }
+                this.mydefine = 'my_rewrite'; 
+                this.mappingRule.cmd_list[index].command_param = "";
+            }
             else if(cmdType=='return'){
-                this.mydefine = 'my_return'; }
+                this.mydefine = 'my_return'; 
+                this.mappingRule.cmd_list[index].command_param = "";
+            }
             else if(cmdType=='ifelse'){
-                this.mydefine = 'my_ifelse'; }
+                this.mydefine = 'my_ifelse'; 
+                this.mappingRule.cmd_list[index].command_param = {condition: "", actions:[]};
+            }
         },
 
         previewConfigFile: function(){
             this.previewDialogTriggle = true;
-            //this.siteDetail['cmd_list'] = this.cmdList;
-            //console.log(siteDetail);
-            //this.postData('../rest/configfile', {'siteConfig':siteDetail}, afterPreviewConfigFile);
-            this.previewContent = this.getConfig();
-            //this.editor = CodeMirror.fromTextArea(document.getElementById("previewTextArea"), {});
-            this.editor = editor;
+            var data = {siteDetail: this.siteDetail, mplist: this.siteMPRuleList}
+            this.postData('../rest/configpreview/', data, this.afterPreviewConfigFile);
         },
+
+        afterPreviewConfigFile: function(resp){
+            if (resp.data['ret'].status==200){
+                this.previewContent = resp.data['ret'].config;
+                this.editor = CodeMirror.fromTextArea(document.getElementById("previewTextArea"), {
+                    //mode:'/static/slb/mode/nginx',
+                    lineNumbers: true,
+                    readOnly: false,
+                    lineSeparator: "\n",
+                    //theme: ''
+                });
+                this.editor.setValue(this.previewContent);
+            }
+            else{
+                showMsg(false, resp.data['ret'].msg);
+            }
+        },
+
+        //previewShow: function(){
+            //this.editor = CodeMirror.fromTextArea(document.getElementById("previewTextArea"), {
+                //lineNumbers: true,
+                //readOnly: false,
+                //lineSeparator: "\r\n",
+            //});
+            //this.editor.setValue('aaa');
+        //},
 
         createDist: function(){
             //console.log(this.siteDetail);
@@ -821,11 +965,11 @@ vm = new Vue({
         },
 
         handleCommand: function(command){
-            console.log(command);
-            var options = {access_log: 0, error_log: 1, error_page_400:2, error_page_404: 3, root: 4, custom: 5}
+            //console.log(command);
+            var options = {access_log: 0, error_log: 1, error_page_400:2, error_page_404: 3, root: 4, include: 5, custom: 6}
             index = options[command];
             this.siteDetail.dynamicAttributes.push(JSON.parse(JSON.stringify(this.dynamicAttributes[index])));
-            if(index!=5){ this.dynamicAttributes[index].active = true;}
+            this.dynamicAttributes[index].active = true;
         },
 
         freeOptionDialogSubmit: function(){
@@ -843,13 +987,49 @@ vm = new Vue({
             //console.log(option_name);
             for(var i=0; i<this.siteDetail.dynamicAttributes.length;i++){
                 if(this.siteDetail.dynamicAttributes[i].param_key == option_name){
+                    this.siteDetail.dynamicAttributes.splice(i, 1);
+                }
+            }
+            for(var i=0; i<this.dynamicAttributes.length;i++){
+                if(this.dynamicAttributes[i].param_key == option_name){
                     break;
                 }
             }
-            this.siteDetail.dynamicAttributes.splice(i, 1);
-            this.dynamicAttributes[i].active = false;
+            var tmp_dynamicAttr = this.dynamicAttributes[i];
+            tmp_dynamicAttr['active'] = false;
+            Vue.set(this.dynamicAttributes, i, tmp_dynamicAttr);
         }
 
     }
 });
+
+//cmd_list = [
+    //{
+        //command_type: 5, proxy_pass
+        //command_param: "12",
+        //service_cluster_name : "kfc_preorder_nh_pilot_idc_ng"
+    //},
+
+    //{
+        //command_type: 1, access_log
+        //command_param: "example_access",
+    //},
+    //{
+        //command_type: 3, ifelse
+        //command_param: {
+            //condition: "example_condition",
+            //actions: [
+                //{
+                    //cmdType: "proxy_pass",
+                    //cmdArg: "12",
+                    //service_cluster_name: "kfc_preorder_nh_pilot_idc_ng"
+                //},
+                //{
+                    //cmdType: "custom",
+                    //cmdArg: "example_custom"
+                //}
+            //]
+        //},
+    //},
+//]
 

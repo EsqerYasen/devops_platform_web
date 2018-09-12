@@ -10,10 +10,10 @@
     <!--</el-aside>-->
     <el-main>
         <el-row>
-            <el-col :span="5">
+            <el-col :span="10">
                 <div v-if="upstreamDetail.cluster_name"> 当前集群名称：{{upstreamDetail.cluster_name}}</div>
             </el-col>
-            <el-col :span="2" :offset="15">
+            <el-col :span="2" :offset="10">
                 <el-button type="primary" size="mini" @click="upstreamDetailFormSave">保存</el-button>
             </el-col>
             <el-col :span="2">
@@ -24,20 +24,23 @@
         <el-row>
             <el-col :span="10">
                 <el-form ref="form" :model="upstreamDetail" label-width="120px">
-                    <el-form-item label="集群名称"><el-input v-model="upstreamDetail.cluster_name"></el-input></el-form-item>
+                    <!--<el-form-item label="集群名称">{{upstreamDetail.cluster_name}}</el-input></el-form-item>-->
                     <el-form-item label="负载均衡策略">
-                        <el-select v-model="upstreamDetail.load_balancin_strategy" placeholder="请选择">
+                        <el-select v-model="upstreamDetail.load_balancin_strategy" clearable placeholder="请选择">
                             <el-option label="ip-hash" value="ip-hash"></el-option>
-                            <el-option label="round-robin" value="round-robin"></el-option> 
-                            <el-option label="consistent_hash_rid" value="consistent_hash_rid"></el-option> 
-                            <el-option label="consistent_hash_arg_requestId" value="consistent_hash_arg_requestId"></el-option> 
+                            <!--<el-option label="round-robin" value="round-robin"></el-option> -->
+                            <!--<el-option label="consistent_hash_rid" value="consistent_hash_rid"></el-option> -->
+                            <!--<el-option label="consistent_hash_arg_requestId" value="consistent_hash_arg_requestId"></el-option> -->
                         </el-select>
                     </el-form-item>
                     <el-form-item label="长连接连接数"><el-input v-model="upstreamDetail.keep_alive"></el-input></el-form-item>
                     <el-form-item label="健康检查类型">
-                        <el-select v-model="upstreamDetail.check_up_type" placeholder="请选择">
+                        <el-select v-model="upstreamDetail.check_up_type" clearable placeholder="请选择">
                             <el-option label="TCP" value="TCP"></el-option>
                             <el-option label="HTTP" value="HTTP"></el-option> 
+                            <el-option label="SSL_HELLO" value="SSL_HELLO"></el-option>
+                            <el-option label="MySQL" value="MySQL"></el-option>
+                            <el-option label="ajp" value="ajp"></el-option>
                         </el-select>
                     </el-form-item>
                 </el-form>
@@ -78,32 +81,15 @@
                 <el-table-column type="index" label="ID"></el-table-column>
                 <el-table-column prop="host_ip" label="IP"></el-table-column>
                 <!--<el-table-column prop="port" label="端口"></el-table-column>-->
-                <el-table-column prop="port" label="端口">
-                    <template slot-scope="clusterNodesScope">
-                        <el-input v-model="clusterNodesScope.row.port"></el-input>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="weight" label="权重">
-                    <template slot-scope="clusterNodesScope">
-                        <el-input v-model="clusterNodesScope.row.weight"></el-input>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="max_fails" label="最大失败次数">
-                    <template slot-scope="clusterNodesScope">
-                        <el-input v-model="clusterNodesScope.row.max_fails"></el-input>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="fail_timeout" label="失败超时时间">
-                    <template slot-scope="clusterNodesScope">
-                        <el-input v-model="clusterNodesScope.row.fail_timeout"></el-input>
-                    </template>
-                </el-table-column>
-                <el-table-column prop="state" label="状态控制">
-                </el-table-column>
+                <el-table-column prop="port" label="端口"> </el-table-column>
+                <el-table-column prop="weight" label="权重"> </el-table-column>
+                <el-table-column prop="max_fails" label="最大失败次数"> </el-table-column>
+                <el-table-column prop="fail_timeout" label="失败超时时间(s)"> </el-table-column>
+                <el-table-column prop="state" label="状态控制"> </el-table-column>
                 <el-table-column label="操作">
                     <template slot-scope="clusterNodesScope">
                         <el-button type="primary" icon="el-icon-edit-outline" size="mini" circle @click="editNode(clusterNodesScope.row)"></el-button>
-                        <el-button type="danger" icon="el-icon-delete" size="mini" circle @click="delNode(clusterNodesScope.row)"></el-button>
+                        <!--<el-button type="danger" icon="el-icon-delete" size="mini" circle @click="delNode(clusterNodesScope.row)"></el-button>-->
                     </template>
                 </el-table-column>
             </el-table>

@@ -1,11 +1,11 @@
 defaultUpstreamDetail = {
     id: "-1",
     cluster_name: "",
-    load_balancin_strategy: "round-robin",
-    keep_alive: 20,
-    check_up_type: "TCP",
-    check_up_timeout: 3000,
-    check_up_space: 3000,
+    load_balancin_strategy: "",
+    keep_alive: "",
+    check_up_type: "",
+    check_up_timeout: "",
+    check_up_space: "",
     cluster_nodes: []
 };
 
@@ -96,6 +96,7 @@ var ztree = Vue.component('ztree', {
                 vm.treeNodeID = treeNode.id;
                 var tmp = treeNode.node_name1 +'_'+ treeNode.node_name2 +'_'+ treeNode.node_name3 +'_'+ treeNode.node_name4 +'_'+ treeNode.node_name5 +'_'+ treeNode.node_name6;
                 vm.cluster_name = tmp;
+                vm.upstreamNameDialogTriggle = false;
             }
             else{
                 vm.treeNodeID = '';
@@ -129,6 +130,7 @@ vm = new Vue({
         treeNodeID: '',
         multiForm: JSON.parse(JSON.stringify(defaultMultiForm)),
         multiModifyTriggle: false,
+        selected: []
     },
     created: function(){
         //this.getUpstreams();
@@ -205,11 +207,11 @@ vm = new Vue({
             this.nodeFormInline = row;
         },
 
-        delNode: function(row){
-            //console.log(row);
-            id = row.id - 1;
-            this.upstreamDetail.nodes.splice(id, 1);
-        },
+        //delNode: function(row){
+            ////console.log(row);
+            //id = row.id - 1;
+            //this.upstreamDetail.nodes.splice(id, 1);
+        //},
 
         submitNode: function(){
             this.editNodeDialogTriggle = false;
@@ -284,10 +286,15 @@ vm = new Vue({
         },
 
         syn2nodes: function(key){
-            for(i=0;i<this.selected.length;i++){
-                id = this.selected[i]-1
+            for(var i=0;i<this.selected.length;i++){
+                var id = this.selected[i];
                 //console.log(this.upstreamDetail.cluster_nodes[id][key]);
-                this.upstreamDetail.cluster_nodes[id][key] = this.multiForm[key];
+                for(var j=0; j<this.upstreamDetail.cluster_nodes.length; j++){
+                    if(this.upstreamDetail.cluster_nodes[j].id == id){
+                        this.upstreamDetail.cluster_nodes[j][key]=this.multiForm[key];
+                        break;
+                    }
+                }
             }
         },
 

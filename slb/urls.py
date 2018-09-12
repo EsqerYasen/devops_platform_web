@@ -24,7 +24,7 @@ urlpatterns = [
     url(r'^rest/deployversioncreateview/', views.create_site_version, name='rest_create_site_verison'),
     url(r'^rest/mngsitecreateorupdate/', views.MngSiteCreateOrUpdate, name='mngsitecreate'),
     #preview
-    url(r'^rest/configpreview/', site_views.ConfigPreviewView.as_view(), name='configpreviewview'),
+    url(r'^rest/configpreview/', views.config_preview, name='configpreviewview'),
     #mappingrule
     url(r'^rest/getmappingruleslist/', views.mappingRuleList, name='rest_mappingrule'),
     url(r'^rest/getcmdlist/', views.cmdList, name='rest_mappingrule_info'),
