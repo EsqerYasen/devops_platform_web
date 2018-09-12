@@ -1,6 +1,11 @@
 {% extends 'slb/layout.html' %}
-{% block main %}
 {% load static %}
+{% block link %}
+    <link rel="stylesheet" href="{% static 'slb/css/codemirror.css' %}"/>
+    <link rel="stylesheet" href="/static/hplus/codemirror/merge/merge.css">
+    <!--<link rel="stylesheet" href="/static/hplus/codemirror/doc/docs.css">-->
+{% endblock %}
+{% block main %}
 {% verbatim myblock %}
 <el-container>
     <el-main>
@@ -18,7 +23,6 @@
             <el-button type="warning" size="mini" icon="el-icon-document" @click="previewConfigFile">预览</el-button>
             <el-button type="success" size="mini" icon="el-icon-edit-outline" @click="createDist">创建</el-button>
             <el-button type="info" size="mini" icon="el-icon-d-arrow-left" @click="rollback">回滚</el-button>
-            <!--<el-button type="primary" size="mini" icon="el-icon-upload"><a :href="'/slb/deploy/deploy_task?site_name='+siteDetail.site_name+'&nginx_cluster_id='+siteDetail.nginx_cluster_id">发布</a></el-button>-->
             <el-button type="primary" size="mini" icon="el-icon-upload" @click="deploy">发布</el-button>
             </el-col>
         </el-row>
@@ -101,7 +105,26 @@
                     </el-table>
                 </el-tab-pane>
                 <el-tab-pane label="公共规则" name="publicRule">公共规则</el-tab-pane>
-                <el-tab-pane label="版本对比" name="versionCompare">版本对比</el-tab-pane>
+                <el-tab-pane label="版本对比" name="versionCompare">
+                    <el-row>
+                        <!--<el-col :span="4">-->
+                            <el-select v-model="versionA" placeholder="请选择" @change="handleVa">
+                                <el-option v-for="item in siteVersions" :key="item.version" :label="'version: '+ item.version" :value="item.version"> </el-option>
+                            </el-select>
+                        <!--</el-col>-->
+                        <!--<el-col :span="4" :offset="2">-->
+                            <el-select v-model="versionB" placeholder="请选择" @change="handleVb">
+                                <el-option v-for="item in siteVersions" :key="item.version" :label="'version: '+ item.version" :value="item.version"> </el-option>
+                            </el-select>
+                        <!--</el-col>-->
+                        <!--<el-col >-->
+                            <el-button type="primary" @click="startCompare">比较</el-button>
+                        <!--</el-col>-->
+                    </el-row>
+                    <el-row>
+                        <div id="compare"></div>
+                    </el-row>
+                </el-tab-pane>
             </el-tabs>
             </div>
         </el-row>
@@ -198,25 +221,25 @@
         </el-dialog>
         <el-dialog :visible.sync="clusterTreeDialogTriggle" title="选择集群节点" width="80%">
             <ztree></ztree>
-            <!--<el-button v-if="siteDetail.nginx_cluster_name" type="primary" size="mini" icon="el-icon-success" @click="siteDetailFormSave">确定</el-button>-->
         </el-dialog>
     </el-main>
 </el-container>
 {% endverbatim myblock %}
-<!--<el-dialog :visible.sync="newSiteDialogTriggle" title="New Site">-->
-    <!--<el-form :model="site">-->
-        <!--<el-form-item> <el-input type="textarea" :autosize="{ minRows: 8, maxRows: 50}" v-model="cmtFormInline.content" placeholder="comment">-->
-        <!--</el-form-item>-->
-        <!--<el-form-item><el-button type="primary" size="mini" @click="submitCmt">Save</el-button></el-form-item>-->
-    <!--</el-form>-->
-<!--</el-dialog>-->
 {% endblock %}
 
 {% block js %}
+    <script src="{% static 'slb/js/codemirror.js' %}"></script>
+    <script src="{% static 'slb/js/nginx.js' %}"></script>
     <script src="/static/hplus/codemirror/active-line.js"></script>
     <script src="/static/hplus/codemirror/shell.js"></script>
     <script src="{% static 'slb/js/site.js' %}"></script>
     <script type="text/javascript" src="/static/hplus/js/zTree/jquery.ztree.core.js"></script>
     <script type="text/javascript" src="/static/hplus/js/zTree/jquery.ztree.excheck.js"></script>
     <script type="text/javascript" src="/static/hplus/js/zTree/jquery.ztree.exedit.js"></script>
+    <script src="/static/hplus/codemirror/mode/xml/xml.js"></script>
+    <script src="/static/hplus/codemirror/mode/css/css.js"></script>
+    <script src="/static/hplus/codemirror/mode/javascript/javascript.js"></script>
+    <script src="/static/hplus/codemirror/mode/htmlmixed/htmlmixed.js"></script>
+    <script src="/static/hplus/codemirror/diff_match_patch.js"></script>
+    <script src="/static/hplus/codemirror/merge/merge.js"></script>
 {% endblock %}

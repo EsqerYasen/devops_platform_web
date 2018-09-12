@@ -405,18 +405,14 @@ vm = new Vue({
         clusterTreeDialogTriggle: false,
         previewDialogTriggle: false,
         previewContent: '',
-        //editor: editor,
+        editor: null,
+        compareEditor: null,
         mydefine: "my_access_log",
         upstreams: [],
         coption:"选择自定义参数",
         free_options: [],
         freeOptionDialog: false,
         dynamicAttributes: [
-            //{param_key: "access_log", param_value: "", active: false, is_inner: 1}, 
-            //{param_key: "error_log", param_value: "", active: false, is_inner: 1},
-            //{param_key: "error_page_400", param_value: "", active: false, is_inner: 1},
-            //{param_key: "error_page_404", param_value: "", active: false, is_inner: 1},
-            //{param_key: "root", param_value: "", active: false, is_inner: 1},
             {param_key: "access_log", param_value: "", is_inner: 1}, 
             {param_key: "error_log", param_value: "", is_inner: 1},
             {param_key: "error_page_400", param_value: "", is_inner: 1},
@@ -425,7 +421,11 @@ vm = new Vue({
             {param_key: "include", param_value: "", is_inner: 1},
             {param_key: "custom", param_value: "", is_inner: 0}
         ],
-        freeOptionKV: {param_key: "", param_value: "", is_inner: 0}
+        freeOptionKV: {param_key: "", param_value: "", is_inner: 0},
+        //VersionCompare
+        versionA: '',
+        versionB: '',
+        versionContent: {}
     },
     created: function(){
         //this.getSites();
@@ -891,13 +891,15 @@ vm = new Vue({
         afterPreviewConfigFile: function(resp){
             if (resp.data['ret'].status==200){
                 this.previewContent = resp.data['ret'].config;
-                this.editor = CodeMirror.fromTextArea(document.getElementById("previewTextArea"), {
-                    //mode:'/static/slb/mode/nginx',
-                    lineNumbers: true,
-                    readOnly: false,
-                    lineSeparator: "\n",
-                    //theme: ''
-                });
+                if(this.editor == null){
+                    this.editor = CodeMirror.fromTextArea(document.getElementById("previewTextArea"), {
+                        mode:'nginx',
+                        lineNumbers: true,
+                        readOnly: false,
+                        lineSeparator: "\n",
+                        //theme: ''
+                    });
+                }
                 this.editor.setValue(this.previewContent);
             }
             else{
@@ -922,7 +924,15 @@ vm = new Vue({
 
         afterCreateDist: function(resp){
             tmp = resp.data['ret'];
-            if(tmp.status==200){ showMsg(true, tmp.msg);}
+            if(tmp.status==200){
+                showMsg(true, tmp.msg);
+                var task_id = tmp['task_id'];
+                var version = tmp['version'];
+                var data = {version: version, task_id: task_id, name: this.siteDetail.site_name};
+                if(this.siteVersions[0]['version']<version){
+                    this.siteVersions.unshift(data);
+                }
+            }
             else{ showMsg(false, tmp.msg);}
         },
 
@@ -998,6 +1008,61 @@ vm = new Vue({
             var tmp_dynamicAttr = this.dynamicAttributes[i];
             tmp_dynamicAttr['active'] = false;
             Vue.set(this.dynamicAttributes, i, tmp_dynamicAttr);
+        },
+
+        handleVa: function(va){
+        },
+
+        startCompare: function(){
+            if(this.versionA.length!=0 && this.versionB.length!=0){
+                //if(!(this.versionA in this.versionContent) || !(this.versionB in this.versionContent)){
+                    var data = {id: this.siteDetail.id, v1: this.versionA, v2: this.versionB}
+                    this.getData('../rest/configversiondiff/', data, this.afterStartCompare);
+                //}
+                //else{
+                    //this.doCompare(this.versionContent[this.versionA], this.versionContent[this.versionB]);
+                //}
+            }
+            else{
+                showMsg(false, "请选择版本");
+            }
+        },
+
+        doCompare: function(data1, data2){
+            if(this.compareEditor == null){
+                this.compareEditor = CodeMirror.MergeView(document.getElementById('compare'), {
+                    value: data1,
+                    origLeft: null,
+                    orig: data2,
+                    lineNumbers: true, 
+                    mode: "nginx",
+                    styleActiveLine: true,
+                    matchBrackets: true,
+                    highlightDifferences: true,
+                    connect: null,
+                    collapseIdentical: false,
+                    revertButtons:false,
+                });
+            }
+            else{
+                this.compareEditor.orig=data1;
+                this.compareEditor.orig=data2;
+            }
+        },
+
+        afterStartCompare: function(resp){
+            var tmp = resp.data;
+            if(tmp.status==200){
+                this.versionContent[this.versionA] = tmp.data[this.versionA];
+                this.versionContent[this.versionB] = tmp.data[this.versionB];
+                this.doCompare(this.versionContent[this.versionA], this.versionContent[this.versionB]);
+            }
+            else{showMsg(false, tmp.msg)}
+        },
+
+        handleVb: function(va){
+            console.log(va);
+            console.log(this.versionA);
         }
 
     }

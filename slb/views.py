@@ -273,7 +273,7 @@ def trans_mappingRule(mpr):
     mpr.update({'cmd_list': cmd_list})
     return mpr
 
-def trans_mappingRuleList(mprulelist):
+def trans_mappingRuleList(mprulelist, cmd_list_flag=False):
     case_sensitive_dict = {1: True, 0: False, True: 1, False: 0}
     https_type_dict = { 1: 'all', 2: 'http', 3: 'https', 'all': 1, 'http': 2, 'https': 3 }
     matching_type_dict = {
@@ -303,8 +303,9 @@ def trans_mappingRuleList(mprulelist):
                 'https_type': tmp_https_type
             }
         )
-        #cmd_list = trans_cmdList(mpr['cmd_list'])
-        #mpr.update({'cmd_list': cmd_list})
+        if cmd_list_flag:
+            cmd_list = trans_cmdList(mpr['cmd_list'])
+            mpr.update({'cmd_list': cmd_list})
         ret.append(mpr)
     return ret
 
@@ -375,10 +376,10 @@ def cmdList(request):
 
 def trans_versions(versions):
     status_dict = {
-        0:"新版本未发布",
-        1:"成功",
-        2:"失败",
-        3:"部分失败"
+        '0':"新版本未发布",
+        '1':"成功",
+        '2':"失败",
+        '3':"部分失败"
     }
     ret = []
     for v in versions:
@@ -555,7 +556,7 @@ def deploy_agent(request):
         version = data['version']
         hu = HttpUtils(request)
         result = hu.post(serivceName='p_job', restName='/rest/slb/deployagent/', datas={"id": task_id, "version": version, 'hosts':host_list})
-        return JsonResponse(data=result)
+        return JsonResponse(data=result.json())
 
 def trans4configpreview(config_data):
     new_dy = {}
@@ -573,9 +574,29 @@ def config_preview(request):
         siteDetail = trans_siteInfo(siteDetail)
         siteDetail = trans4configpreview(siteDetail)
         mplist = data['mplist']
-        mplist = trans_mappingRuleList(mplist)
+        mplist = trans_mappingRuleList(mplist, cmd_list_flag=True)
         hu = HttpUtils(request)
         siteDetail.update({'locations': mplist})
         result = hu.post(serivceName='p_job',restName='/rest/slb/configpreview/', datas=siteDetail)
         result = json.loads(result.content)
         return JsonResponse(data=dict(ret=result))
+
+def config_version_diff(request):
+        results = {}
+        try:
+            req_get = request.GET
+            id = req_get.get("id", None)
+            v1 = req_get.get("v1", None)
+            v2 = req_get.get("v2", None)
+            if id and v1 and v2:
+                hu = HttpUtils(request)
+                result = hu.get(serivceName='p_job', restName='/rest/slb/configversiondiff',datas={"id": id, "v1": v1,"v2":v2})
+                if result['status'] == 200:
+                    results['status'] = 200
+                    results['data'] =  result['data']
+                else:
+                    results['status'] = 500
+                    results['msg'] = "查询失败"
+        except Exception as e:
+            logger.error(e,exc_info=1)
+        return JsonResponse(data=results)
