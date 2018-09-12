@@ -1,6 +1,7 @@
 from django.conf.urls import include, url
 from devops_pre_srb.views.pre_srb import *
 from devops_pre_srb.views.upload_download import *
+from devops_pre_srb.views.utils import *
 
 app_name = 'presrb'
 
@@ -15,6 +16,8 @@ urlpatterns = [
         url(r'^project_item_list/$', ProjectItemListView.as_view(), name='project_item_list'),
 
         url(r'^upload/$',UploadFile.as_view(),name='upload'),
+        url(r'^download/$',DownloadFile.as_view(),name='download'),
+        url(r'^filelist/$',GetFileList.as_view(),name='download'),
 
 
     ]))
