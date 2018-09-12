@@ -579,7 +579,7 @@ def config_preview(request):
         hu = HttpUtils(request)
         siteDetail.update({'locations': mplist})
         result = hu.post(serivceName='p_job',restName='/rest/slb/configpreview/', datas=siteDetail)
-        result = json.loads(result.content)
+        result = result.json()
         return JsonResponse(data=dict(ret=result))
 
 def config_version_diff(request):
