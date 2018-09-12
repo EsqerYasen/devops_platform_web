@@ -24,6 +24,8 @@
             {% if is_auditor == 0 or is_auditor == '0' %}
             <a href="../add/" class="btn btn-sm btn-success"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> 新增</a>
             {% endif %}
+            <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='#import_host_modal' style="margin-right: 10px"><i class="glyphicon glyphicon-import"></i> 文档上传</button>
+
         </div>
     </div>
 {% endblock %}
@@ -113,6 +115,177 @@
                     }
                 }
             })
+        }
+    </script>
+{% endblock %}
+
+
+{% block modal_div %}
+    <div class="modal fade" id="import_host_modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content" style="width: 600px">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">文档上传</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body" style="max-height: 500px;overflow:auto">
+
+                    <div class="col-sm-12">
+                        <input id="import_host_file" type="file">
+                        <input id="index" type="hidden" value="0" />
+                    </div>
+
+{#                    {% for filename in file_list %}#}
+{#                         <div class="col-sm-5" style="margin-top: 20px;">#}
+{#                            <a href="/presrb/project/download/?filename={{ filename }}" class="link-popover" style="font-size: large">{{ filename }}</a>#}
+{#                         </div>#}
+{#                    {% endfor %}#}
+{#                    <div class="col-sm-5" style="margin-top: 20px;">#}
+{#                        <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='#import_info_modal' style="margin-right: 10px"><i class="glyphicon glyphicon-search"></i> 查看后台任务</button>#}
+{#                    </div>#}
+                     <div id="import_info_div" class="col-sm-12" style="display: none; margin-top:10px">
+{#                         <div class="row">#}
+{#                             <div class="col-sm-4">#}
+{#                                <label class="col-sm-1 control-label" style="width: 40px">总:</label><label id="import_info_total" class="col-sm-1 control-label" style="width: 100px"></label>#}
+{#                            </div>#}
+{#                            <div class="col-sm-4">#}
+{#                                <label class="col-sm-1 control-label" style="width: 70px">成功:</label><label id="import_info_success" class="col-sm-1 control-label" style="width: 70px"></label>#}
+{#                            </div>#}
+{#                             <div class="col-sm-4">#}
+{#                                <label class="col-sm-1 control-label" style="width: 70px">失败:</label><label id="import_info_fail" class="col-sm-1 control-label" style="width: 70px"></label>#}
+{#                            </div>#}
+{#                         </div>#}
+                         <div class="row">
+                             <div id="import_pro" style="width: 100%;height:32px;margin: 5px auto;"></div>
+                         </div>
+                         <div class="row">
+{#                             <table id="import_info_tb" class="table table-striped table-bordered table-hover dataTables-example dataTable">#}
+{#                                 <thead>#}
+{#                                    <th style="width: 10%;">#}
+{#                                        IP#}
+{#                                    </th>#}
+{#                                    <th style="width: 90%;">#}
+{#                                        失败信息#}
+{#                                    </th>#}
+{#                                </thead>#}
+{#                                <tbody></tbody>#}
+{#                             </table>#}
+                         </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="importHostInfoBtn" class="btn btn-primary" title="确定导入" onclick="importHostInfo()">确定</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        var host1_sh = null;
+        var pro = null;
+        function initImportModal(){
+            $("#import_host_modal").on('hide.bs.modal',function(event){
+                $("#import_info_div").css("display","none");
+                $("#import_info_total").text(0);
+                $("#import_info_success").text(0);
+                $("#import_info_fail").text(0);
+                $("#import_info_tb tbody").empty();
+                $("#importHostInfoBtn").attr("disabled",false);
+                clearInterval(host1_sh);
+                host1_sh = null;
+                window.location.reload();
+            });
+
+            pro = new progress({
+                width : 532,//进度条宽度
+                height: 30,//进度条高度
+                bgColor : "#3E4E5E",//背景颜色
+                proColor : "#009988",//前景颜色
+                fontColor : "#FFFFFF",//显示字体颜色
+                val : 0,//默认值
+                text:"当前进度为#*val*#%",//显示文字信息
+                showPresent : true,
+                completeCallback:function(val){},
+                changeCallback:function(val){}
+            });
+            $("#import_pro").append(pro.getBody());
+        }
+
+        function importHostInfo(){
+            $("#importHostInfoBtn").attr("disabled","disabled");
+            var files = $("#import_host_file")[0].files[0];
+            if(files){
+                layer.load();
+                var formData = new FormData();
+                formData.append("csrfmiddlewaretoken",'{{ csrf_token }}')
+                formData.append('files',files);
+                $.ajax({
+                    url: '/presrb/project/upload/',
+                    type: 'POST',
+                    processData: false,
+                    contentType: false,
+                    data:formData,
+                    beforeSend:function(){
+                        //Alertwin.alert({ message:"正在进行，请稍候"});
+                    },
+                    success:function(responseStr) {
+                        layer.closeAll('loading');
+                        if(responseStr.status===200){
+                            $("#import_info_div").css("display","block");
+                            getImportStatus();
+                            clearInterval(host1_sh);
+                            host1_sh = null;
+                            host1_sh = setInterval(getImportStatus,3000);
+                        }else{
+                            Alertwin.alert({message:responseStr.msg});
+                            $("#importHostInfoBtn").attr("disabled",false);
+                        }
+                    },
+                    error:function(responseStr) {
+                        layer.closeAll('loading');
+                        $("#importHostInfoBtn").attr("disabled",false);
+                        console.log(responseStr);
+                    }
+                });
+            }else{
+
+            }
+        }
+
+
+
+        function getImportStatus(){
+            var index = $("#index").val();
+            $.ajax({
+                type: "get",
+                url: '../getImportInfo/',
+                data:{"index":index},
+                error: function (request) {
+                    clearInterval(host1_sh);
+                    host1_sh = null;
+                },
+                success: function (result) {
+                    {#$("#index").val(result.run_index);#}
+                    {#$("#import_info_total").text(result.total);#}
+                    {#$("#import_info_success").text(result.success_count);#}
+                    {#$("#import_info_fail").text(result.fail_count);#}
+                    {#pro.update(Math.round((result.run_index/result.total)*100))#}
+                    var tb = $("#import_info_tb tbody");
+                    $(result.data).each(function(i,item){
+                        var htmlStr = "<tr><td>"+item.host_ip+"</td><td>"+item.msg+"</td></tr>";
+                        tb.append(htmlStr);
+                    });
+                    if(result.status == 500 || result.is_run == 0){
+                        clearInterval(host1_sh);
+                        host1_sh = null;
+                    }
+                }
+            });
         }
     </script>
 {% endblock %}
