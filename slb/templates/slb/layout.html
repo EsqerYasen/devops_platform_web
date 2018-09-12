@@ -9,9 +9,14 @@
     <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css" />
     <link rel="stylesheet" href="{% static 'slb/css/font-awesome.min.css' %}"/>
     <link rel="stylesheet" href="{% static 'slb/css/codemirror.css' %}"/>
+    <link href="/static/hplus/css/bootstrap.min14ed.css?v=3.3.6" rel="stylesheet">
     <link href="/static/hplus/css/zTree/bootstrapStyle.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/hplus/codemirror/eclipse.css">
+    <!--<style>-->
+        <!--.el-textarea__inner { background-color: black; }-->
+        <!--[v-cloak] {display: none;} [>delay vue loading<]-->
+    <!--</style>-->
     <style>
-        .el-textarea__inner { background-color: black; } 
         [v-cloak] {display: none;} <!--delay vue loading-->
     </style>
 </head>
@@ -24,6 +29,10 @@
     </div>
 </body>
 <!-- import Vue before Element -->
+<script src="/static/hplus/js/jquery.min.js?v=2.1.4"></script>
+<script src="{% static 'slb/js/codemirror.js' %}"></script>
+<script src="/static/hplus/js/bootstrap.min.js?v=3.3.6"></script>
+<script src="{% static 'slb/js/nginx.js' %}"></script>
 <script src="https://unpkg.com/vue/dist/vue.js"></script>
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <!-- import JavaScript -->

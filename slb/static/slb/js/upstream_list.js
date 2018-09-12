@@ -6,10 +6,10 @@ function showMsg(boolFlag, msg){
 vm = new Vue({
     el: "#app",
     data: {
-        sites: []
+        upstreams: []
     },
     created: function(){
-        this.getSites();
+        this.getUpstreams();
     },
     methods:{
         getData: function(url, params, func){
@@ -20,8 +20,6 @@ vm = new Vue({
                 params: params
             }).then(function(resp){
                 func(resp);
-                //tmp = resp.data['ret'];
-                //obj[target] = tmp;
             }).catch(function(resp){
                 console.log(resp);
                 console.log('Fail:'+resp.status+','+resp.statusText);
@@ -41,36 +39,31 @@ vm = new Vue({
             //});
         //},
 
-        getSites: function(){
+        getUpstreams: function(){
             //this.sites =  [
                 //{id: "1", site_name: "site-1"},
                 //{id: "2", site_name: "site-2"},
                 //{id: "3", site_name: "site-3"},
                 //{id: "4", site_name: "site-4"}
             //];
-            this.getData('../rest/getmngsitelist/', {}, this.afterGetSites);
+            this.getData('../rest/serviceclusterlist', {}, this.afterGetUpstreams);
         },
 
-        afterGetSites: function(resp){
+        afterGetUpstreams: function(resp){
             tmp = resp.data['ret'];
-            this.sites = tmp;
-            //if(this.sites.length>0){
-                //this.getSiteDetail(1);
-            //}
-            //this.getPools();
-            //this.getNginxClusters();
+            this.upstreams = tmp;
         },
 
-        delSite: function(siteID){
-            this.getData('../rest/delsite', {id: siteID}, this.afterDelSite);
+        delUpstream: function(upstreamID){
+            params = {id: upstreamID}
+            this.getData('/slb/rest/serviceclusterdel/', params, this.afterDelUpstream);
         },
 
-        afterDelSite: function(resp){
+        afterDelUpstream: function(resp){
             data = resp.data['ret'];
-            console.log(data.status);
             if(data.status==200){
                 showMsg(true, data.msg);
-                this.getSites();
+                this.getUpstreams();
             }
             else{
                 showMsg(false, data.msg);

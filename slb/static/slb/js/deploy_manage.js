@@ -6,10 +6,16 @@ function showMsg(boolFlag, msg){
 vm = new Vue({
     el: "#app",
     data: {
-        sites: []
+        tasks: [
+            {task_id:"1", task_name:"test1", status:"新建", created_by: "robin", create_time:"2018 09-01"},
+            {task_id:"2", task_name:"test2", status:"完成", created_by: "Go", create_time:"2018 09-02"},
+            {task_id:"3", task_name:"test3", status:"新建", created_by: "python", create_time:"2018 09-03"},
+            {task_id:"4", task_name:"test4", status:"新建", created_by: "perl", create_time:"2018 09-05"},
+            {task_id:"5", task_name:"test5", status:"新建", created_by: "ruby", create_time:"2018 09-05"}
+        ]
     },
     created: function(){
-        this.getSites();
+        this.getTasks();
     },
     methods:{
         getData: function(url, params, func){
@@ -20,8 +26,6 @@ vm = new Vue({
                 params: params
             }).then(function(resp){
                 func(resp);
-                //tmp = resp.data['ret'];
-                //obj[target] = tmp;
             }).catch(function(resp){
                 console.log(resp);
                 console.log('Fail:'+resp.status+','+resp.statusText);
@@ -41,36 +45,25 @@ vm = new Vue({
             //});
         //},
 
-        getSites: function(){
-            //this.sites =  [
-                //{id: "1", site_name: "site-1"},
-                //{id: "2", site_name: "site-2"},
-                //{id: "3", site_name: "site-3"},
-                //{id: "4", site_name: "site-4"}
-            //];
-            this.getData('../rest/getmngsitelist/', {}, this.afterGetSites);
+        getTasks: function(){
+            //this.getData('', {}, this.afterGetTasks);
         },
 
-        afterGetSites: function(resp){
+        afterGetTasks: function(resp){
             tmp = resp.data['ret'];
-            this.sites = tmp;
-            //if(this.sites.length>0){
-                //this.getSiteDetail(1);
-            //}
-            //this.getPools();
-            //this.getNginxClusters();
+            this.tasks= tmp;
         },
 
-        delSite: function(siteID){
-            this.getData('../rest/delsite', {id: siteID}, this.afterDelSite);
+        delTask: function(task_id){
+            params = {id:task_id}
+            this.getData('', params, this.afterDelTask);
         },
 
-        afterDelSite: function(resp){
+        afterDelTask: function(resp){
             data = resp.data['ret'];
-            console.log(data.status);
             if(data.status==200){
                 showMsg(true, data.msg);
-                this.getSites();
+                this.getTasks();
             }
             else{
                 showMsg(false, data.msg);

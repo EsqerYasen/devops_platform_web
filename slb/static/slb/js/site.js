@@ -1,51 +1,238 @@
+//editor = CodeMirror.fromTextArea(document.getElementById("previewTextArea"), {
+    ////mode: 'shell',
+    //lineNumbers: true,
+    //readOnly: false,
+    //lineSeparator: "\r\n"
+    ////theme: "eclipse"
+//});
 Vue.component('my_access_log',{
-    props: ['cmdarg'],
-    template: '<el-input v-model="cmdarg"></el-input>'
+    template: '<el-input v-model="cmdcmdarg" @change="argUpdated($event, row)"></el-input></div>',
+    props: ['cmdarg', 'row', 'cmd'],
+    methods: {
+        argUpdated: function(w, r){
+            this.$emit('updatecmdarg', {v:w, s:r});
+        },
+    },
+    computed: {
+        cmdcmdarg: {
+            get: function(){return this.cmdarg;},
+            set: function(v){}
+        },
+    },
 });
 
 Vue.component('my_proxy_pass',{
-    props: ['cmdarg'],
+    template: '<div>pool_name: <el-select v-model="cmdcmdarg" placeholder="请选择" @change="argUpdated($event, row)"> <el-option v-for="item in upstreams" :key="item.id" :label="item.cluster_name" :value="item.id"> </el-option> </el-select></div>',
+    props: ['cmdarg', 'row'],
+    data: function(){
+        return {
+            upstreams: vm.upstreams,
+            initValue: ''
+        }
+    },
     computed:{
-        innerarg: {
+        cmdcmdarg: {
             get: function(){
-                return this.cmdarg;
+                return this.cmdarg; 
             },
-            set: function(newvalue){
-                this.cmdarg = newvalue;
+            set: function(v){}
+        }
+    },
+    methods: {
+        argUpdated: function(w, r){
+            console.log(w);
+            this.$emit('updatecmdarg', {v:w, s:r});
+        },
+    }
+});
+
+Vue.component('action_proxy_pass',{
+    template: `
+    <div>
+        <el-form-item label="pool name">
+            <el-select v-model="cmdcmdarg" placeholder="请选择" @change="argUpdated($event)">
+                <el-option v-for="item in upstreams" :key="item.id" :label="item.cluster_name" :value="item.id"> </el-option> 
+            </el-select>
+        </el-form-item>
+    </div>
+    `,
+    props: ['cmdarg', 'index'],
+    data: function(){
+        return {
+            upstreams: vm.upstreams,
+            initValue: ''
+        }
+    },
+    computed:{
+        cmdcmdarg: {
+            get: function(){ return this.cmdarg; },
+            set: function(v){
             }
         }
     },
-    template: '<div>pool_name: </div>'
+    methods: {
+        argUpdated: function(w){
+            //console.log(w);
+            //console.log(this.cmdarg);
+            //console.log(this.index);
+            this.$emit('innerUpdateAction', {v:w, index: this.index});
+        },
+    }
 });
 
-Vue.component('my_more_clear_headers',{
-    props: ['cmdarg'],
-    template: '<el-input v-model="cmdarg"></el-input>'
-});
-
-Vue.component('my_more_set_headers',{
-    props: ['cmdarg'],
-    template: '<el-input v-model="cmdarg"></el-input>'
+Vue.component('action_custom',{
+    template:`
+    <div>
+        <el-form-item label="custom">
+            <el-input v-model="cmdcmdarg" v-on:input="argUpdated($event)"> </el-input>
+        </el-form-item>
+    </div>
+    `,
+    props: ['cmdarg', 'index'],
+    computed: {
+        cmdcmdarg: {
+            get: function(){return this.cmdarg;},
+            set: function(v){}
+        },
+    },
+    methods: {
+        argUpdated: function(val){
+            //console.log(val);
+            //console.log(this.row);
+            this.$emit('innerUpdateAction', {v:val, index: this.index});
+        },
+    },
 });
 
 Vue.component('my_ifelse',{
-    props: ['cmdarg'],
-    template: '<div>if-condition:<el-input ></el-input></br>if-statement: <el-input></el-input></div>'
+    template: `
+    <div>
+        condition: 
+        <el-input v-model="cmdcmdarg.condition" v-on:input="argUpdated($event, row)">
+            <el-dropdown slot="append" @command="addAction">
+                <span class="el-dropdown-link"> <i class="el-icon-plus el-icon--right"></i></span>
+                <el-dropdown-menu slot="dropdown">
+                  <el-dropdown-item v-for="item,index in stateOptions" :command="item" :key="index">{{item}}</el-dropdown-item>
+                </el-dropdown-menu>
+              </el-dropdown>
+        </el-input>
+        statements:
+        <component v-for="action,index in cmdcmdarg.actions" v-on:innerUpdateAction="handleUpdateActions" :index="index" :is="'action_'+action.cmdType" :cmdarg="action.cmdArg" :key="index"></component>
+    </div>
+    `,
+    props: ['cmdarg', 'row', 'cmd'],
+    data: function(){
+        return {
+            statementType: "aaa",
+            stateOptions: ["proxy_pass", "custom"],
+            statementType: "proxy_pass"
+        }
+    },
+    computed: {
+        cmdcmdarg: {
+            get: function(){ return this.cmdarg; },
+            set: function(v){
+            }
+        },
+    },
+    methods: {
+        argUpdated: function(w, r){
+            //console.log('condition');
+            //console.log(w);
+            this.cmdcmdarg.condition = w;
+            this.$emit('updatecmdarg', {v:this.cmdcmdarg, s:r});
+        },
+        handleUpdateActions: function(v){
+            index = v['index'];
+            val = v['v'];
+            this.cmdcmdarg.actions[index].cmdArg = val;
+            console.log(this.cmdcmdarg);
+            this.$emit('updatecmdarg', {v:this.cmdcmdarg, s:this.row});
+        },
+        addAction: function(val){
+            this.cmdcmdarg.actions.push({cmdType: val, cmdArg: ""});
+        }
+    },
+});
+
+Vue.component('my_more_clear_headers',{
+    template: '<el-input v-model="cmdcmdarg" @change="argUpdated($event, row)"></el-input>',
+    props: ['cmdarg', 'row', 'cmd'],
+    methods: {
+        argUpdated: function(w, r){
+            this.$emit('updatecmdarg', {v:w, s:r});
+        },
+    },
+    computed: {
+        cmdcmdarg: {
+            get: function(){return this.cmdarg;},
+            set: function(v){}
+        },
+    },
+});
+
+Vue.component('my_more_set_headers',{
+    template: '<el-input v-model="cmdcmdarg" @change="argUpdated($event, row)"></el-input>',
+    props: ['cmdarg', 'row', 'cmd'],
+    methods: {
+        argUpdated: function(w, r){
+            this.$emit('updatecmdarg', {v:w, s:r});
+        },
+    },
+    computed: {
+        cmdcmdarg: {
+            get: function(){return this.cmdarg;},
+            set: function(v){}
+        },
+    },
 });
 
 Vue.component('my_return',{
-    props: ['cmdarg'],
-    template: '<div>response-code: <el-input ></el-input></br>response-content: <el-input></el-input></div>'
+    template: '<el-input v-model="cmdcmdarg" @change="argUpdated($event, row)"></el-input>',
+    props: ['cmdarg', 'row', 'cmd'],
+    methods: {
+        argUpdated: function(w, r){
+            this.$emit('updatecmdarg', {v:w, s:r});
+        },
+    },
+    computed: {
+        cmdcmdarg: {
+            get: function(){return this.cmdarg;},
+            set: function(v){}
+        },
+    },
 });
 
 Vue.component('my_rewrite',{
-    props: ['cmdarg'],
-    template: '<div>flag: <el-input ></el-input></br>matches: <el-input></el-input></br>target-pattern: <el-input></el-input></div>'
+    template: '<el-input v-model="cmdcmdarg" @change="argUpdated($event, row)"></el-input>',
+    props: ['cmdarg', 'row', 'cmd'],
+    methods: {
+        argUpdated: function(w, r){
+            this.$emit('updatecmdarg', {v:w, s:r});
+        },
+    },
+    computed: {
+        cmdcmdarg: {
+            get: function(){return this.cmdarg;},
+            set: function(v){}
+        },
+    },
 });
 
-Vue.component('my_static_resource',{
-    props: ['cmdarg'],
-    template: '<div>expires: <el-input ></el-input></br>root-doc: <el-input></el-input></div>'
+Vue.component('my_static-resource',{
+    template: '<el-input v-model="cmdcmdarg" @change="argUpdated($event, row)"></el-input>',
+    props: ['cmdarg', 'row', 'cmd'],
+    methods: {
+        argUpdated: function(w, r){
+            this.$emit('updatecmdarg', {v:w, s:r});
+        },
+    },
+    computed: {
+        cmdcmdarg: {
+            get: function(){return this.cmdarg;},
+            set: function(v){}
+        },
+    },
 });
 
 var ztree = Vue.component('ztree', {
@@ -73,73 +260,6 @@ var ztree = Vue.component('ztree', {
                 },
             },
             zNodes: [],
-              //[
-              //{ id:1,pid:0,name:"大良造菜单",open:true,nocheck:false,
-                //children: [
-                    //{ id:11,pid:1,name:"当前项目"},
-                    //{ id:12,pid:1,name:"工程管理",open:true,
-                        //children: [
-                            //{ id:121,pid:12,name:"我的工程"},
-                            //{ id:122,pid:12,name:"施工调度"},
-                            //{ id:1211,pid:12,name:"材料竞价"}
-                        //]
-                    //},
-                    //{ id:13,pid:1,name:"录入管理",open:true,
-                        //children: [
-                            //{ id:131,pid:13,name:"用工录入"},
-                            //{ id:132,pid:13,name:"商家录入"},
-                            //{ id:1314,pid:13,name:"机构列表"}
-                        //]
-                    //},
-                    //{ id:14,pid:1,name:"审核管理",open:true,
-                        //children: [
-                            //{ id:141,pid:14,name:"用工审核"},
-                            //{ id:142,pid:14,name:"商家审核"},
-                            //{ id:145,pid:14,name:"机构审核"}
-                        //]
-                    //},
-                    //{ id:15,pid:1,name:"公司管理",open:true,
-                        //children: [
-                            //{ id:1517,pid:15,name:"我的工程案例"},
-                            //{ id:1518,pid:15,name:"联系人设置"},
-                            //{ id:1519,pid:15,name:"广告设置"}
-                        //]
-                    //},
-                    //{ id:16,pid:1,name:"业务管理",open:true,
-                        //children: [
-                            //{ id:164,pid:16,name:"合同范本"},
-                            //{ id:165,pid:16,name:"合同列表"},
-                            //{ id:166,pid:16,name:"需求调度"}
-                        //]
-                    //},
-                    //{ id:17,pid:1,name:"订单管理",open:true,
-                        //children: [
-                            //{ id:171,pid:17,name:"商品订单"},
-                            //{ id:172,pid:17,name:"用工订单"},
-                            //{ id:175,pid:17,name:"供应菜单"}
-                        //]
-                    //},
-                    //{ id:18,pid:1,name:"我的功能",open:true,
-                        //children: [
-                            //{ id:181,pid:18,name:"免费设计"},
-                            //{ id:182,pid:18,name:"装修报价"},
-                            //{ id:1817,pid:18,name:"项目用工"}
-                        //]
-                    //},
-                    //{ id:19,pid:1,name:"分润管理",open:true,
-                        //children: [
-                            //{ id:191,pid:19,name:"分润列表"}
-                        //]
-                    //},
-                    //{ id:110,pid:1,name:"运营管理",open:true,
-                        //children: [
-                            //{ id:1101,pid:110,name:"代理列表"},
-                            //{ id:1102,pid:110,name:"代售商品"}
-                        //]
-                    //},
-                //]
-              //}
-            //]
         }
     },
     template: '<div id="areaTree"> <div class="box-title"> <a href="#">列表<i class="fa  fa-refresh" @click="freshArea">点击</i></a> </div> <div class="tree-box"> <div class="zTreeDemoBackground left"> <ul id="treeDemo" class="ztree"></ul> </div> </div> </div>',
@@ -152,10 +272,7 @@ var ztree = Vue.component('ztree', {
                 params: params
             }).then(function(resp){
                 func(resp);
-                //tmp = resp.data['ret'];
-                //obj[target] = tmp;
             }).catch(function(resp){
-                //console.log(resp);
                 console.log('Fail:'+resp.status+','+resp.statusText);
             });
         },
@@ -176,7 +293,7 @@ var ztree = Vue.component('ztree', {
                 }
                 this.zNodes = tmp; 
 
-                console.log(this.zNodes);
+                //console.log(this.zNodes);
             }
         },
 
@@ -233,38 +350,30 @@ var defaultSiteDetail = {
     is_https: false,
     siteMPRuleList: [
     ],
+    dynamicAttributes: []
 };
 
 var defaultMPRule = {
     id: "-1", 
     regular_expression:"",
     matching_type: "",
-    caseSensitive: "",
+    case_sensitive: true,
     https_type: "",
-    //cmdList: [{command_type: "proxy_pass", command_param: ""}]
+    seq_no: "-1",
+    cmd_list: [{command_type: "access_log", command_param: ""}]
 };
 
-var defaultCmdList = [{command_type: "proxy_pass", command_param: ""}];
+var defaultCmdList = {command_type: "access_log", command_param: ""};
 
 var testMPRule = [
-    {id: "1", regular_expression:"/root", matching_type: "prefix", case_sensitive: true, https_type: "all", cmdList: [{command_type: "proxy_pass", command_param: "test_proxy_pass"}, {command_type: "access_log", command_param: "test_access_log"}]},
-    {id: "2", regular_expression:"/root/a", matching_type: "common", case_sensitive: true, https_type: "http", cmdList: [{command_type: "access_log", command_param: "access_log"}]},
-    {id: "3", regular_expression:"/root/b", matching_type: "regex", case_sensitive: false, https_type: "all", cmdList: [{command_type: "more_clear_headers", command_param: "clear_headers"}]},
-    {id: "4", regular_expression:"/root/c", matching_type: "excat", case_sensitive: true, https_type: "https", cmdList: [{command_type: "more_set_headers", command_param: "set_header"}]}
+    {id: "1", regular_expression:"/root", matching_type: "prefix", case_sensitive: true, https_type: "all", cmd_list: [{command_type: "proxy_pass", command_param: "test_proxy_pass"}, {command_type: "access_log", command_param: "test_access_log"}]},
+    {id: "2", regular_expression:"/root/a", matching_type: "common", case_sensitive: true, https_type: "http", cmd_list: [{command_type: "access_log", command_param: "access_log"}]},
+    {id: "3", regular_expression:"/root/b", matching_type: "regex", case_sensitive: false, https_type: "all", cmd_list: [{command_type: "more_clear_headers", command_param: "clear_headers"}]},
+    {id: "4", regular_expression:"/root/c", matching_type: "excat", case_sensitive: true, https_type: "https", cmd_list: [{command_type: "more_set_headers", command_param: "set_header"}]}
 ];
-
-editor = CodeMirror.fromTextArea(document.getElementById("previewTextArea"), {
-    mode: 'nginx',
-    lineNumbers: true,
-    readOnly: false,
-    lineSeparator: "\r\n"
-});
 
 vm = new Vue({
     el: "#app",
-    //components:{
-        //"access_log": access_log
-    //},
     data: {
         navIndex: "1",
         activeIndex: "1",
@@ -278,20 +387,51 @@ vm = new Vue({
         siteVersions: [],
         selectedVersion: '',
         addMappingRuleDialogTriggle: false,
-        //newMappingRuleForm:{id: -1, path: '', matchType: '', caseSensitive:'Y', httpType: ['http', 'https'], cmdList: [{cmdType: 'proxy_pass', cmdArg: 'abc'}] },
-        mappingRule: {id: "1", regular_expression: '', matching_type: '', caseSensitive:'Y', https_type: ['all'], cmdList: [{command_type: 'proxy_pass', command_parm: 'abc'}] },
-        cmdList: [],
+        mappingRule: {
+            id: "1", 
+            regular_expression: '',
+            matching_type: '',
+            case_sensitive:'Y',
+            https_type: ['all'],
+            access_log: "",
+            error_log: "",
+            error_page_400: "",
+            error_page_404: "",
+            root: "",
+            cmd_list: [{command_type: 'proxy_pass', command_param: 'abc'}]
+        },
+        cmd_list: [],
         pools: [],
         clusterTreeDialogTriggle: false,
         previewDialogTriggle: false,
         previewContent: '',
-        editor: '',
-        mydefine: "my_access_log"
+        //editor: editor,
+        mydefine: "my_access_log",
+        upstreams: [],
+        coption:"选择自定义参数",
+        free_options: [],
+        freeOptionDialog: false,
+        dynamicAttributes: [
+            //{param_key: "access_log", param_value: "", active: false, is_inner: 1}, 
+            //{param_key: "error_log", param_value: "", active: false, is_inner: 1},
+            //{param_key: "error_page_400", param_value: "", active: false, is_inner: 1},
+            //{param_key: "error_page_404", param_value: "", active: false, is_inner: 1},
+            //{param_key: "root", param_value: "", active: false, is_inner: 1},
+            {param_key: "access_log", param_value: "", is_inner: 1}, 
+            {param_key: "error_log", param_value: "", is_inner: 1},
+            {param_key: "error_page_400", param_value: "", is_inner: 1},
+            {param_key: "error_page_404", param_value: "", is_inner: 1},
+            {param_key: "root", param_value: "", is_inner: 1},
+            {param_key: "include", param_value: "", is_inner: 1},
+            {param_key: "custom", param_value: "", is_inner: 0}
+        ],
+        freeOptionKV: {param_key: "", param_value: "", is_inner: 0}
     },
     created: function(){
         //this.getSites();
         window_url = window.location.href;
         site_id = parseInt(window_url.split("=")[1]);
+        this.getClusters();
         if(site_id){
             //console.log(site_id);
             this.getSiteDetail(site_id);
@@ -299,20 +439,21 @@ vm = new Vue({
         else{
             this.siteNameDialogTriggle = true;
         }
+        
     },
     methods:{
-        getData: function(url, params, func){
+        getData: function(url, params, func, args){
             obj = this;
             axios({
                 method:'GET',
                 url: url,
                 params: params
             }).then(function(resp){
-                func(resp);
+                func(resp, args);
                 //tmp = resp.data['ret'];
                 //obj[target] = tmp;
             }).catch(function(resp){
-                console.log(resp);
+                //console.log(resp);
                 console.log('Fail:'+resp.status+','+resp.statusText);
             });
         },
@@ -346,82 +487,30 @@ vm = new Vue({
             if(this.sites.length>0){
                 this.getSiteDetail(this.sites[0].id);
             }
-            //this.getPools();
-            //this.getNginxClusters();
         },
 
         getSiteDetail: function(id){
-            //siteDetails = [ 
-                //{
-                    ////basicConfig
-                    //id: "1",
-                    //site_name: "site-1",
-                    //state_control: "enable",
-                    //domain_name: "kfc.com",
-                    //port: 80,
-                    //defaultPool: "Pool-1",
-                    //nginx_cluster_id: "1",
-                    //nginx_cluster_name: "Nginx-1",
-                    //current_version: "0",
-                    //group: "default-grp",
-                    //is_https: true,
-                    //siteMPRuleList: testMPRule 
-                //},
-                //{
-                    ////basicConfig
-                    //id: "2",
-                    //site_name: "site-2",
-                    //state_control: "enable",
-                    //domain_name: "taco.com",
-                    //port: 80,
-                    //defaultPool: "Pool-2",
-                    //nginx_cluster_id: "1",
-                    //nginx_cluster_name: "Nginx-2",
-                    //current_version: "0",
-                    //group: "default-grp",
-                    //is_https: false,
-                //},
-                //{
-                    ////basicConfig
-                    //id: "3",
-                    //site_name: "site-3",
-                    //state_control: "force_offline",
-                    //domain_name: "daojia.com",
-                    //port: 80,
-                    //defaultPool: "Pool-3",
-                    //nginx_cluster_id: "1",
-                    //nginx_cluster_name: "Nginx-3",
-                    //current_version: "0",
-                    //group: "default-grp",
-                    //is_https: false,
-                //},
-                //{
-                    ////basicConfig
-                    //id: "4",
-                    //site_name: "site-4",
-                    //state_control: "disable",
-                    //domain_name: "pizza.com",
-                    //port: 80,
-                    //defaultPool: "Pool-4",
-                    //nginx_cluster_id: "1",
-                    //nginx_cluster_name: "Nginx-4",
-                    //current_version: "0",
-                    //group: "default-grp",
-                    //is_https: false,
-                //},
-            //]
-            ////console.log(id);
-            //console.log(siteDetails[id-1]);
-            //this.siteDetail = siteDetails[id-1];
             this.getData('../rest/getmngsiteinfo/', {'id': id}, this.afterGetSiteDetail);
+        },
+
+        mergeDynamicAttr: function(){
+            for(var i=0; i<this.siteDetail.dynamicAttributes.length; i++){
+                var tmp_key = this.siteDetail.dynamicAttributes[i].param_key;
+                for(var j=0; j<this.dynamicAttributes.length; j++){
+                    if(tmp_key==this.dynamicAttributes[j].param_key){
+                        this.dynamicAttributes[j]['active'] = true; //disable this key
+                    }
+                }
+            }
         },
 
         afterGetSiteDetail: function(resp){
             tmp = resp.data['ret'];
             //console.log(tmp);
             this.siteDetail = tmp;
-            this.getMPRuleList(this.siteDetail.id);
+            this.mergeDynamicAttr();
             this.getSiteVersion(this.siteDetail.id);
+            this.getMPRuleList(this.siteDetail.id);
         },
 
         getSiteVersion: function(id){
@@ -429,33 +518,37 @@ vm = new Vue({
         },
 
         afterGetSiteVersion: function(resp){
-            tmp = resp.data['ret'];
+            var tmp = resp.data['ret'];
             //console.log(tmp);
             this.siteVersions = tmp;
             this.selectedVersion = tmp[0].k;
         },
 
         getMPRuleList: function(nginx_site_id){
-            //test_mpRules = [
-            //];
-            //this.siteMPRuleList = test_mpRules[nginx_site_id-1]
-            this.getData('../rest/getmappingruleslist', {'nginx_site_id': nginx_site_id}, this.afterGetMPRule);
+            this.getData('../rest/getmappingruleslist', {'nginx_site_id': nginx_site_id}, this.afterGetMPRuleList);
         },
 
-        afterGetMPRule: function(resp){
+        afterGetMPRuleList: function(resp){
             tmp = resp.data['ret']
             //console.log(tmp);
             this.siteMPRuleList = tmp;
+            for(i=0;i<this.siteMPRuleList.length;i++){
+                this.getCmdList(this.siteMPRuleList[i].id, i);
+            }
         },
 
-        getCmdList: function(rule_id){
-            this.getData('../rest/getcmdlist', {'id': rule_id}, this.afterGetCmdList);
+        getCmdList: function(rule_id, mp_index){
+            //console.log(mp_index);
+            this.getData('../rest/getcmdlist', {'id': rule_id}, this.afterGetCmdList, [mp_index]);
         },
 
-        afterGetCmdList: function(resp){
+        afterGetCmdList: function(resp, args){
             tmp = resp.data['ret'];
             //console.log(tmp);
-            this.cmdList = tmp.cmd_list;
+            this.cmd_list = tmp.cmd_list;
+            mp_index = args[0];
+            this.siteMPRuleList[mp_index].cmd_list = tmp.cmd_list;
+            this.mappingRule = this.siteMPRuleList[mp_index];
         },
 
         insert_cmdList: function(index, cmd_list){
@@ -464,7 +557,7 @@ vm = new Vue({
             for(i=0; i<this.siteMPRuleList.length; i++){
                 if(this.siteMPRuleList[i].id == index){
                     //console.log('get')
-                    this.siteMPRuleList[i].cmdList= cmd_list;
+                    this.siteMPRuleList[i].cmd_list= cmd_list;
                     break;
                 }
             }
@@ -498,15 +591,13 @@ vm = new Vue({
             this.siteDetail = tmp;
         },
 
-        getNginxClusters: function(){
-            tmp = [
-                {id: 1, name:"Nginx-1"},
-                {id: 2, name:"Nginx-2"},
-                {id: 3, name:"Nginx-3"},
-                {id: 4, name:"Nginx-4"}
-            ];
-            this.nginxClusters = tmp;
-            //this.getData('../rest/', {'id': id}, this.afterGetNginxClusters);
+        getClusters: function(){
+            this.getData('../rest/serviceclusterlist', {}, this.afterGetUpstreams);
+        },
+
+        afterGetUpstreams: function(resp){
+            tmp = resp.data['ret'];
+            this.upstreams = tmp;
         },
 
         afterGetNginxClusters: function(resp){
@@ -534,9 +625,16 @@ vm = new Vue({
             this.siteDetailActiveTabName = "basicConfig";
         },
 
+        checkTabChange: function(){
+
+            if(this.siteDetail.id <= 0){
+                showMsg(false, "站点未创建，请先保存站点信息");
+                return false;
+            }
+            else{return true;}
+        },
+
         handleTabChange: function(tab){
-            //console.log(tab);
-            //this.tabName = "basicConfig";
         },
 
         addSite: function(){
@@ -561,76 +659,178 @@ vm = new Vue({
             tmp = resp.data;
             if(tmp.status==200){
                 showMsg(true, tmp.msg);
+                if(this.siteDetail.id<0){ this.siteDetail.id=tmp.id;}
             }
             else{ showMsg(false, tmp.msg);}
         },
 
-        jumpUp: function(row) {
+        jumpUp: function(index) {
             //console.log(row.id);
-            if(row.id==1){return;}
-            id = row.id-1;
-            previousId = id-1;
-            tmpCurrent = this.siteMPRuleList[id];
-            tmpCurrent.id = previousId+1;
+            if(index==0){return;}
+            previousId = index-1;
+            tmpCurrent = this.siteMPRuleList[index];
+            tmpCurrent.seq_no = tmpCurrent.seq_no-1;
             tmpPrevious = this.siteMPRuleList[previousId];
-            tmpPrevious.id = id+1;
+            tmpPrevious.seq_no = tmpPrevious.seq_no+1;
             this.siteMPRuleList.splice(previousId, 2, tmpCurrent, tmpPrevious);
         },
 
-        jumpDown: function(row) {
-            //console.log(row.id);
-            if(row.id==this.siteMPRuleList.length){return;}
-            id = row.id-1; //align wiht array
-            laterId = id+1;
-            tmpCurrent = this.siteMPRuleList[id];
-            tmpCurrent.id = laterId+1;
+        jumpDown: function(index) {
+            if(index==this.siteMPRuleList.length-1){return;}
+            laterId = index+1;
+            tmpCurrent = this.siteMPRuleList[index];
+            tmpCurrent.seq_no = tmpCurrent.seq_no+1;
             tmpLater = this.siteMPRuleList[laterId];
-            tmpLater.id = id+1;
-            this.siteMPRuleList.splice(id, 2, tmpLater, tmpCurrent);
+            tmpLater.seq_no = tmpLater.seq_no-1;
+            this.siteMPRuleList.splice(index, 2, tmpLater, tmpCurrent);
         },
 
-        jumpDoubleUp: function(row){
-            id = row.id-1;
-            tmp = this.siteMPRuleList[id];
-            tmp.id=1;
-            for(i=0; i<id; i++){
-                this.siteMPRuleList[i].id = this.siteMPRuleList[i].id+1;
+        jumpDoubleUp: function(index){
+            if(index==0){return;}
+            tmp = this.siteMPRuleList[index];
+            tmp.seq_no=1;
+            for(i=0; i<index; i++){
+                this.siteMPRuleList[i].seq_no = this.siteMPRuleList[i].seq_no+1;
             }
-            this.siteMPRuleList.splice(id, 1);
+            this.siteMPRuleList.splice(index, 1);
             this.siteMPRuleList.unshift(tmp);
         },
 
-        jumpDoubleDown: function(row){
-            id = row.id-1;
-            tmp = this.siteMPRuleList[id];
-            tmp.id = this.siteMPRuleList.length;
-            for(i=id+1; i<tmp.id; i++){
-                this.siteMPRuleList[i].id = this.siteMPRuleList[i].id-1;
+        jumpDoubleDown: function(index){
+            if(index==this.siteMPRuleList.length-1){return;}
+            tmp = this.siteMPRuleList[index];
+            tmp.seq_no = this.siteMPRuleList.length;
+            for(i=index+1; i<this.siteMPRuleList.length; i++){
+                this.siteMPRuleList[i].seq_no = this.siteMPRuleList[i].seq_no-1;
             }
-            this.siteMPRuleList.splice(id, 1);
+            this.siteMPRuleList.splice(index, 1);
             this.siteMPRuleList.push(tmp);
+        },
+
+        handleCmdargChange: function(val){
+            //val is dict: {input-content, scope} 
+            console.log(val);
+            this.mappingRule.cmd_list[val.s.$index].command_param = val.v;
+        },
+
+        saveMappingRuleList: function(){
+            if(this.siteDetail.id<0){
+                this.siteDetailFormSave();
+            }
+            while(this.siteDetail.id<0){}
+            data = {id: 0, mapping_rules_list: this.siteMPRuleList, nginx_site_id: this.siteDetail.id}
+            this.postData('../rest/mappingrulescreateorupdate/', data, this.afterSaveMappingRuleList);
+        },
+
+        afterSaveMappingRuleList: function(resp){
+            if(resp.data.status==200){
+                this.getMPRuleList(this.siteDetail.id);
+                showMsg(true, resp.data.msg);
+            }
+            else{
+                showMsg(false, resp.data.msg);
+            }
         },
 
         addMappingRule: function(){
             this.addMappingRuleDialogTriggle = true;
-            //this.mappingRule = JSON.parse(JSON.stringify(defaultMPRule));
-            this.cmdList = JSON.parse(JSON.stringify(defaultCmdList));
+            this.mappingRule = JSON.parse(JSON.stringify(defaultMPRule));
         },
         
-        editMappingRule: function(row){
-            console.log(row);
-            this.getCmdList(row.id);
-            this.mappingRule = this.siteMPRuleList[row.id];
+        editMappingRule: function(row, row_index){
+            //console.log(row_index);
+            this.getCmdList(row.id, row_index);
+            //this.mappingRule = this.siteMPRuleList[row.id];
+            //this.mappingRule = this.siteMPRuleList[0];
             this.addMappingRuleDialogTriggle = true;
         },
 
-        saveMappingRule: function(){
-            //this.mappingRule = this.cmdList;
+        getUpstreamName: function(cmd_param){
+            for(var i=0;i<this.upstreams.length;i++){
+                if(cmd_param==this.upstreams[i].id){
+                    return this.upstreams[i].cluster_name;
+                }
+            }
         },
 
+        fillProxyPass: function(mpRule){
+            var cluster_name = "";
+            for(var i=0;i<mpRule.cmd_list.length;i++){
+                if(mpRule.cmd_list[i].command_type=="proxy_pass"){
+                    command_param = mpRule.cmd_list[i].command_param;
+                    cluster_name = this.getUpstreamName(command_param);
+                    var tmp = mpRule.cmd_list[i];
+                    tmp['service_cluster_name'] = cluster_name;
+                    mpRule.cmd_list[i] = tmp;
+                }
+                else if(mpRule.cmd_list[i].command_type=="ifelse"){
+                    for(var j=0;j<mpRule.cmd_list[i].command_param.actions.length;j++){
+                        var statementType = mpRule.cmd_list[i].command_param.actions[j].cmdType;
+                        if(statementType=='proxy_pass'){
+                            var cluster_id = mpRule.cmd_list[i].command_param.actions[j].cmdArg;
+                            cluster_name = this.getUpstreamName(cluster_id);
+                            mpRule.cmd_list[i].command_param.actions[j]['service_cluster_name'] = cluster_name;
+                        }
+                    }
+                }
+            }
+        },
 
-        delMappingRule: function(row){
+        saveMappingRule: function(){
+            this.mappingRule.nginx_site_id = this.siteDetail.id;
+            this.fillProxyPass(this.mappingRule);
+            //console.log(this.mappingRule);
+            if(this.mappingRule.seq_no<=0){
+                this.mappingRule.seq_no = this.siteMPRuleList.length + 1;
+                var data = this.mappingRule;
+            }
+            else{
+                for(var i=0;i<this.siteMPRuleList.length;i++){
+                    this.fillProxyPass(this.siteMPRuleList[i])
+                }
+                console.log(this.siteMPRuleList);
+                var data = {id: 0, mapping_rules_list: this.siteMPRuleList, nginx_site_id: this.siteDetail.id};
+            }
+            console.log(this.mappingRule);
+            this.postData('../rest/mappingrulescreateorupdate/', data, this.afterSaveMappingRule);
+            this.addMappingRuleDialogTriggle = false;
+        },
+
+        afterSaveMappingRule: function(resp){
+            if(resp.data.status==200){
+                showMsg(true, resp.data.msg);
+                this.getMPRuleList(this.siteDetail.id);
+            }
+            else{
+                showMsg(false, resp.data.msg);
+            }
+
+        },
+
+        reseqMP: function(row_index){
+            //row_index will be removed
+            //this.siteMPRuleList.splice(row_index, 1);
+            for(i=row_index+1;i<this.siteMPRuleList.length;i++){
+                this.siteMPRuleList[i].seq_no = this.siteMPRuleList[i].seq_no-1;
+            }
+            this.siteMPRuleList[row_index].is_enabled = 0;
+        },
+
+        delMappingRule: function(row, row_index){
             //console.log(row);
+            this.reseqMP(row_index);
+            data = {id: 0, mapping_rules_list: this.siteMPRuleList, nginx_site_id: this.siteDetail.id}
+            this.postData('../rest/mappingrulescreateorupdate/', data, this.afterDelMappingRule);
+        },
+
+        afterDelMappingRule: function(resp){
+            if(resp.data.status==200){
+                this.getMPRuleList(this.siteDetail.id);
+                showMsg(true, resp.data.msg);
+            }
+            else{
+                showMsg(false, resp.data.msg);
+            }
         },
 
         //infoMappingRule: function(row){
@@ -638,52 +838,81 @@ vm = new Vue({
             //this.infoMappingRuleForm.matchType = 'prefix';
         //},
         addCmd: function(){
-            this.newMappingRuleForm.cmdList.push({});
+            this.mappingRule.cmd_list.push(JSON.parse(JSON.stringify(defaultCmdList)));
         },
 
-        delCmd: function(row){
-            //console.log(row);
-            for(i=0; i<this.siteMPRuleList.length; i++){
-                if(this.siteMPRuleList[i].id==row.mapping_rules_id){
-                    for(j=0; j<this.siteMPRuleList[i].cmdList.length; j++){
-                        if(this.siteMPRuleList[i].cmdList[j].id==row.id){
-                            this.siteMPRuleList[i].cmdList.splice(j, 1);
-                        }
-                    }
-                }
-            }
-            //this.newMappingRuleForm.cmdList.splice();
+        delCmd: function(index){
+            this.mappingRule.cmd_list.splice(index,1);
         },
 
-        cmdTypeChange: function(cmdType){
-            //console.log(a);
+        cmdTypeChange: function(cmdType, index){
+            //console.log(cmdType);
+            //console.log(index);
             if(cmdType=='access_log'){
-                this.mydefine = 'my_access_log'; }
+                this.mydefine = 'my_access_log'; 
+                this.mappingRule.cmd_list[index].command_param = "";
+            }
             else if(cmdType=='proxy_pass'){
-                this.mydefine = 'my_proxy_pass'; }
+                this.mydefine = 'my_proxy_pass';
+                this.mappingRule.cmd_list[index].command_param = "";
+            }
             else if(cmdType=='more_clear_headers'){
-                this.mydefine = 'my_more_clear_headers'; }
+                this.mydefine = 'my_more_clear_headers'; 
+                this.mappingRule.cmd_list[index].command_param = "";
+            }
             else if(cmdType=='more_set_headers'){
-                this.mydefine = 'my_more_set_headers'; }
+                this.mydefine = 'my_more_set_headers'; 
+                this.mappingRule.cmd_list[index].command_param = "";
+            }
             else if(cmdType=='static-resource'){
-                this.mydefine = 'my_static_resource'; }
+                this.mydefine = 'my_static_resource'; 
+                this.mappingRule.cmd_list[index].command_param = "";
+            }
             else if(cmdType=='rewrite'){
-                this.mydefine = 'my_rewrite'; }
+                this.mydefine = 'my_rewrite'; 
+                this.mappingRule.cmd_list[index].command_param = "";
+            }
             else if(cmdType=='return'){
-                this.mydefine = 'my_return'; }
+                this.mydefine = 'my_return'; 
+                this.mappingRule.cmd_list[index].command_param = "";
+            }
             else if(cmdType=='ifelse'){
-                this.mydefine = 'my_ifelse'; }
+                this.mydefine = 'my_ifelse'; 
+                this.mappingRule.cmd_list[index].command_param = {condition: "", actions:[]};
+            }
         },
 
         previewConfigFile: function(){
             this.previewDialogTriggle = true;
-            //this.siteDetail['cmd_list'] = this.cmdList;
-            //console.log(siteDetail);
-            //this.postData('../rest/configfile', {'siteConfig':siteDetail}, afterPreviewConfigFile);
-            this.previewContent = this.getConfig();
-            //this.editor = CodeMirror.fromTextArea(document.getElementById("previewTextArea"), {});
-            this.editor = editor;
+            var data = {siteDetail: this.siteDetail, mplist: this.siteMPRuleList}
+            this.postData('../rest/configpreview/', data, this.afterPreviewConfigFile);
         },
+
+        afterPreviewConfigFile: function(resp){
+            if (resp.data['ret'].status==200){
+                this.previewContent = resp.data['ret'].config;
+                this.editor = CodeMirror.fromTextArea(document.getElementById("previewTextArea"), {
+                    //mode:'/static/slb/mode/nginx',
+                    lineNumbers: true,
+                    readOnly: false,
+                    lineSeparator: "\n",
+                    //theme: ''
+                });
+                this.editor.setValue(this.previewContent);
+            }
+            else{
+                showMsg(false, resp.data['ret'].msg);
+            }
+        },
+
+        //previewShow: function(){
+            //this.editor = CodeMirror.fromTextArea(document.getElementById("previewTextArea"), {
+                //lineNumbers: true,
+                //readOnly: false,
+                //lineSeparator: "\r\n",
+            //});
+            //this.editor.setValue('aaa');
+        //},
 
         createDist: function(){
             //console.log(this.siteDetail);
@@ -733,7 +962,74 @@ vm = new Vue({
                 //console.log(this.deploy_url(0));
                 window.location=this.deploy_url(0);
             }
+        },
+
+        handleCommand: function(command){
+            //console.log(command);
+            var options = {access_log: 0, error_log: 1, error_page_400:2, error_page_404: 3, root: 4, include: 5, custom: 6}
+            index = options[command];
+            this.siteDetail.dynamicAttributes.push(JSON.parse(JSON.stringify(this.dynamicAttributes[index])));
+            this.dynamicAttributes[index].active = true;
+        },
+
+        freeOptionDialogSubmit: function(){
+            this.freeOptionDialog = false;
+            this.siteDetail.dynamicAttributes.push(JSON.parse(JSON.stringify(this.freeOptionKV)));
+        },
+
+        cancelFreeOptionDialog: function(){
+            this.freeOptionDialog = false;
+            this.freeOptionKV = {}
+        },
+
+        delFreeOption: function(option_name){
+            //var option_name_dict = {0: "access_log", 1: "error_log", 2: "error_page_400", 3: "error_page_404", 4: "root"}
+            //console.log(option_name);
+            for(var i=0; i<this.siteDetail.dynamicAttributes.length;i++){
+                if(this.siteDetail.dynamicAttributes[i].param_key == option_name){
+                    this.siteDetail.dynamicAttributes.splice(i, 1);
+                }
+            }
+            for(var i=0; i<this.dynamicAttributes.length;i++){
+                if(this.dynamicAttributes[i].param_key == option_name){
+                    break;
+                }
+            }
+            var tmp_dynamicAttr = this.dynamicAttributes[i];
+            tmp_dynamicAttr['active'] = false;
+            Vue.set(this.dynamicAttributes, i, tmp_dynamicAttr);
         }
+
     }
 });
+
+//cmd_list = [
+    //{
+        //command_type: 5, proxy_pass
+        //command_param: "12",
+        //service_cluster_name : "kfc_preorder_nh_pilot_idc_ng"
+    //},
+
+    //{
+        //command_type: 1, access_log
+        //command_param: "example_access",
+    //},
+    //{
+        //command_type: 3, ifelse
+        //command_param: {
+            //condition: "example_condition",
+            //actions: [
+                //{
+                    //cmdType: "proxy_pass",
+                    //cmdArg: "12",
+                    //service_cluster_name: "kfc_preorder_nh_pilot_idc_ng"
+                //},
+                //{
+                    //cmdType: "custom",
+                    //cmdArg: "example_custom"
+                //}
+            //]
+        //},
+    //},
+//]
 

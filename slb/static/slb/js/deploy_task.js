@@ -62,6 +62,7 @@ vm = new Vue({
             axios({
                 method:'POST',
                 url: url,
+                data:data
             }).then(function(resp){
                 func(resp);
             }).catch(resp => {
@@ -86,9 +87,13 @@ vm = new Vue({
         },
 
         start_publish: function(){
-            console.log()
-            this.postData('')
+            data = {id: this.task_id, hosts: this.host_list, version: this.version}
+            this.postData('/slb/rest/deployagent/', data, this.afterStartPublish)
         },
+
+        afterStartPublish: function(resp){
+            console.log(resp.data);
+        }
     }
 });
 

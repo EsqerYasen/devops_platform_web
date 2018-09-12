@@ -1,0 +1,31 @@
+{% extends 'slb/layout.html' %}
+{% block main %}
+{% load static %}
+{% verbatim myblock %}
+<el-row>
+    <el-col :span="2" :offset="22">
+        <el-button class="el-icon-circle-plus-outline" type="text"><a href="../upstream/">新增集群</a></el-button>
+    </el-col>
+</el-row>
+<el-table :data="upstreams" style="width: 100%">
+    <el-table-column prop="id" label="集群ID" width="80"> </el-table-column>
+    <el-table-column prop="cluster_name" label="集群名称" width="300"> </el-table-column>
+    <el-table-column prop="load_balancin_strategy" label="负载均衡策略"> </el-table-column>
+    <el-table-column prop="check_up_type" label="健康检查类型"> </el-table-column>
+    <el-table-column prop="created_by" label="创建人"> </el-table-column>
+    <!--<el-table-column prop="create_time" label="创建时间"> </el-table-column>-->
+    <el-table-column prop="updated_by" label="修改人"> </el-table-column>
+    <!--<el-table-column prop="update_time" label="修改时间"> </el-table-column>-->
+    <el-table-column label="操作">
+        <template slot-scope="upstreamScope">
+            <a :href="'../upstream?id='+upstreamScope.row.id"><el-button type="primary" icon="el-icon-edit" size="mini" circle ></el-button></a>
+            <el-button type="danger" icon="el-icon-delete" size="mini" circle @click="delUpstream(upstreamScope.row.id)"></el-button>
+        </template>
+    </el-table-column>
+</el-table>
+{% endverbatim myblock %}
+{% endblock %}
+
+{% block js %}
+    <script src="{% static 'slb/js/upstream_list.js' %}"></script>
+{% endblock %}

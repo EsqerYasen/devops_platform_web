@@ -1,13 +1,20 @@
 defaultUpstreamDetail = {
     id: "-1",
     cluster_name: "",
-    load_balancin_strategy: "round-robin",
-    keep_alive: 20,
-    check_up_type: "TCP",
-    check_up_timeout: 3000,
-    check_up_space: 3000,
+    load_balancin_strategy: "",
+    keep_alive: "",
+    check_up_type: "",
+    check_up_timeout: "",
+    check_up_space: "",
     cluster_nodes: []
 };
+
+defaultMultiForm = {
+    port: '',
+    max_fails: '',
+    fail_timeout: '',
+    weight: ''
+}
 
 function showMsg(boolFlag, msg){
     if(boolFlag){ vm.$message({ message:msg, type: 'success', center: true });}
@@ -89,6 +96,7 @@ var ztree = Vue.component('ztree', {
                 vm.treeNodeID = treeNode.id;
                 var tmp = treeNode.node_name1 +'_'+ treeNode.node_name2 +'_'+ treeNode.node_name3 +'_'+ treeNode.node_name4 +'_'+ treeNode.node_name5 +'_'+ treeNode.node_name6;
                 vm.cluster_name = tmp;
+                vm.upstreamNameDialogTriggle = false;
             }
             else{
                 vm.treeNodeID = '';
@@ -114,14 +122,26 @@ vm = new Vue({
         navIndex: "2",
         activeIndex: "1",
         upstreams: [],
-        upstreamDetail: {},
+        upstreamDetail: JSON.parse(JSON.stringify(defaultUpstreamDetail)),
         editNodeDialogTriggle: false,
         nodeFormInline: {nodeName: '', ip: '', port: 80, weight: 1, maxFail: 3, timeout: 30, status: 'enable'},
-        selectTreeDialogTriggle: false,
-        treeNodeID: ''
+        clusterTreeDialogTriggle: false,
+        upstreamNameDialogTriggle: false,
+        treeNodeID: '',
+        multiForm: JSON.parse(JSON.stringify(defaultMultiForm)),
+        multiModifyTriggle: false,
+        selected: []
     },
     created: function(){
-        this.getUpstreams();
+        //this.getUpstreams();
+        window_url = window.location.href;
+        upstream_id = parseInt(window_url.split("=")[1]);
+        if(upstream_id){
+            this.getUpstreamDetail(upstream_id);
+        }
+        else{
+            this.upstreamNameDialogTriggle = true;
+        }
     },
     methods:{
         getData: function(url, params, func){
@@ -152,14 +172,14 @@ vm = new Vue({
             });
         },
         
-        handleNavSelect: function(key, keyPath){
-        },
+        //handleNavSelect: function(key, keyPath){
+        //},
 
-        handleUpstreamSelect: function(key, keyPath){
-            console.log(key);
-            this.getUpstreamDetail(key);
-            //this.upstreamDetail.load_balancin_strategy = this.upstreamDetail.load_balancin_strategy.toString();
-        },
+        //handleUpstreamSelect: function(key, keyPath){
+            //console.log(key);
+            //this.getUpstreamDetail(key);
+            ////this.upstreamDetail.load_balancin_strategy = this.upstreamDetail.load_balancin_strategy.toString();
+        //},
 
         upstreamDetailFormSave: function(){
             //console.log(this.upstreamDetail);
@@ -187,11 +207,11 @@ vm = new Vue({
             this.nodeFormInline = row;
         },
 
-        delNode: function(row){
-            //console.log(row);
-            id = row.id - 1;
-            this.upstreamDetail.nodes.splice(id, 1);
-        },
+        //delNode: function(row){
+            ////console.log(row);
+            //id = row.id - 1;
+            //this.upstreamDetail.nodes.splice(id, 1);
+        //},
 
         submitNode: function(){
             this.editNodeDialogTriggle = false;
@@ -214,21 +234,12 @@ vm = new Vue({
 
         getUpstreamDetail: function(upstreamID){
             params = {id: upstreamID}
-            this.getData('../rest/serviceclusterbyid', params, this.afterGetUpstreamsDetail);
+            this.getData('/slb/rest/serviceclusterbyid', params, this.afterGetUpstreamsDetail);
         },
 
         afterGetUpstreamsDetail: function(resp){
             tmp = resp.data['ret'];
             this.upstreamDetail = tmp;
-        },
-
-        selectTreeNode: function(){
-            if(this.treeNodeID){
-                this.selectTreeDialogTriggle = false;
-                this.getHosts(this.treeNodeID);
-            }
-            //else{
-            //}
         },
 
         getHosts: function(treeNodeID){
@@ -255,7 +266,44 @@ vm = new Vue({
                 //this.upstreamDetail['cluster_nodes']= [{host_ip: '1.1.11.1', port:'80'}];
                 this.upstreamDetail['cluster_nodes'] = ret;
             }
-        }
+        },
 
+        handleCloseUpstreamName: function(){
+            if(this.cluster_name.length==0){
+                showMsg(false, '请输入集群名称');
+                this.upstreamNameDialogTriggle = true;
+            }
+            else{
+                this.upstreamDetail.cluster_name = this.cluster_name;
+                this.selectTreeDialogTriggle = false;
+                this.getHosts(this.treeNodeID);
+            }
+        },
+
+        multiModify: function(){
+            this.multiModifyTriggle = !this.multiModifyTriggle;
+            this.multiForm = JSON.parse(JSON.stringify(defaultMultiForm)); 
+        },
+
+        syn2nodes: function(key){
+            for(var i=0;i<this.selected.length;i++){
+                var id = this.selected[i];
+                //console.log(this.upstreamDetail.cluster_nodes[id][key]);
+                for(var j=0; j<this.upstreamDetail.cluster_nodes.length; j++){
+                    if(this.upstreamDetail.cluster_nodes[j].id == id){
+                        this.upstreamDetail.cluster_nodes[j][key]=this.multiForm[key];
+                        break;
+                    }
+                }
+            }
+        },
+
+        handleSelectionChange: function(val){
+            ret = [];
+            for(i=0;i<val.length;i++){
+                ret.push(val[i].id);
+            }
+            this.selected = ret;
+        }
     }
 });
