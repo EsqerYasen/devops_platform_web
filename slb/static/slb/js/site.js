@@ -929,7 +929,12 @@ vm = new Vue({
                 var task_id = tmp['task_id'];
                 var version = tmp['version'];
                 var data = {version: version, task_id: task_id, name: this.siteDetail.site_name};
-                if(this.siteVersions[0]['version']<version){
+                if(this.siteVersions.length!=0){
+                    if(this.siteVersions[0]['version']<version){
+                        this.siteVersions.unshift(data);
+                    }
+                }
+                else{
                     this.siteVersions.unshift(data);
                 }
             }
@@ -1013,6 +1018,9 @@ vm = new Vue({
         handleVa: function(va){
         },
 
+        handleVb: function(va){
+        },
+
         startCompare: function(){
             if(this.versionA.length!=0 && this.versionB.length!=0){
                 //if(!(this.versionA in this.versionContent) || !(this.versionB in this.versionContent)){
@@ -1029,11 +1037,12 @@ vm = new Vue({
         },
 
         doCompare: function(data1, data2){
-            if(this.compareEditor == null){
+            document.getElementById("compare").innerHTML = ""
+            //if(this.compareEditor == null){
                 this.compareEditor = CodeMirror.MergeView(document.getElementById('compare'), {
                     value: data1,
-                    origLeft: null,
-                    orig: data2,
+                    //origLeft: 'left',
+                    origRight: data2,
                     lineNumbers: true, 
                     mode: "nginx",
                     styleActiveLine: true,
@@ -1043,11 +1052,11 @@ vm = new Vue({
                     collapseIdentical: false,
                     revertButtons:false,
                 });
-            }
-            else{
-                this.compareEditor.orig=data1;
-                this.compareEditor.orig=data2;
-            }
+            //}
+            //else{
+                //this.compareEditor.value=data1;
+                //this.compareEditor.orig=data2;
+            //}
         },
 
         afterStartCompare: function(resp){
@@ -1058,13 +1067,7 @@ vm = new Vue({
                 this.doCompare(this.versionContent[this.versionA], this.versionContent[this.versionB]);
             }
             else{showMsg(false, tmp.msg)}
-        },
-
-        handleVb: function(va){
-            console.log(va);
-            console.log(this.versionA);
         }
-
     }
 });
 

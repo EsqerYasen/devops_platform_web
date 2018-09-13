@@ -3,6 +3,7 @@ from django.http import HttpResponse, JsonResponse, HttpResponseNotAllowed
 from common.utils.HttpUtils import *
 from common.utils.redis_utils import RedisBase
 from django.views.decorators.csrf import csrf_exempt
+from dwebsocket.decorators import accept_websocket
 import logging
 
 logger = logging.getLogger('devops_platform_log')
@@ -200,7 +201,7 @@ def serviceClusterByID(request):
         setListResult = hu.post(serivceName="p_job", restName=restName, datas=cluster_data)
         #print(json.loads(setListResult.content))
         #{'service_cluster_id': 12, 'status': 200, 'msg': '新增成功'}
-        ret = json.loads(setListResult.content)
+        ret = setListResult.json()
         return JsonResponse(data=ret)
 
 def del_servicecluster(request):
@@ -601,3 +602,7 @@ def config_version_diff(request):
         except Exception as e:
             logger.error(e,exc_info=1)
         return JsonResponse(data=results)
+
+@accept_websocket
+def rtlog(request):
+    a = request.is_websocket()

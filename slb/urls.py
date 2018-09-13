@@ -45,4 +45,7 @@ urlpatterns = [
 
     #deploy
     url(r'^rest/deployagent', views.deploy_agent, name='deploy_agent'),
+
+    #ws
+    url(r'^ws/rtlog', views.rtlog, name='realtime_log'),
 ]
