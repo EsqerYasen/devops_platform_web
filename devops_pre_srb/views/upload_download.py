@@ -14,17 +14,23 @@ from django.http import StreamingHttpResponse
 from common.utils.redis_utils import *
 import os
 from django.conf import settings
+import logging
 
+logger = logging.getLogger('devops_platform_log')
 
 class DownloadFile(APIView):
     def get(self, request):
-        req = self.request.GET
-        filename = req['filename']
-        filepath = os.path.join(settings.FILES_DIR, filename)
-        response = StreamingHttpResponse(readFile(filepath))
-        response['Content-Type'] = 'application/octet-stream'
-        response['Content-Disposition'] = 'attachment;filename="{0}"'.format(
-            filename.encode('utf-8').decode('ISO-8859-1'))
+        try:
+            req = self.request.GET
+            filename = req['filename']
+            filepath = os.path.join(settings.FILES_DIR, filename)
+            response = StreamingHttpResponse(readFile(filepath))
+            response['Content-Type'] = 'application/octet-stream'
+            response['Content-Disposition'] = 'attachment;filename="{0}"'.format(
+                filename.encode('utf-8').decode('ISO-8859-1'))
+
+        except Exception as e:
+            logger.error(e,exc_info=1)
 
         return response
 
@@ -46,16 +52,22 @@ class UploadFile(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, View):
 
 
 def handle_uploaded_file(f):
-    dst_path = os.path.join(settings.FILES_DIR, f.name)
-    with open(dst_path, 'wb+') as destination:
-        for chunk in f.chunks():
-            destination.write(chunk)
+    try:
+        dst_path = os.path.join(settings.FILES_DIR, f.name)
+        with open(dst_path, 'wb+') as destination:
+            for chunk in f.chunks():
+                destination.write(chunk)
+    except Exception as e:
+        logger.error(e, exc_info=1)
 
 def readFile(filename, chunk_size=512):
-    with open(filename, 'rb') as f:
-        while True:
-            c = f.read(chunk_size)
-            if c:
-                yield c
-            else:
-                break
+    try:
+        with open(filename, 'rb') as f:
+            while True:
+                c = f.read(chunk_size)
+                if c:
+                    yield c
+                else:
+                    break
+    except Exception as e:
+        logger.error(e, exc_info=1)
