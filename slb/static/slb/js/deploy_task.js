@@ -92,6 +92,11 @@ vm = new Vue({
         },
 
         afterStartPublish: function(resp){
+            var ws = new WebSocket("ws://localhost:8000/slb/ws/rtlog/");
+            ws.onopen = function() {
+              console.log("open");
+              ws.send("hello");
+            };
             console.log(resp.data);
         }
     }

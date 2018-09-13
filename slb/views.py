@@ -3,6 +3,7 @@ from django.http import HttpResponse, JsonResponse, HttpResponseNotAllowed
 from common.utils.HttpUtils import *
 from common.utils.redis_utils import RedisBase
 from django.views.decorators.csrf import csrf_exempt
+from dwebsocket.decorators import accept_websocket
 import logging
 
 logger = logging.getLogger('devops_platform_log')
@@ -185,8 +186,8 @@ def serviceClusterByID(request):
         data = trans_cluster_detail(setListResult)
         return JsonResponse(data=dict(ret=data))
     elif request.method == 'POST':
-        #print('request.body: %s' % request.body)
-        data = json.loads(request.body)
+        #print('str(request.body, 'utf-8'): %s' % str(request.body, 'utf-8'))
+        data = json.loads(str(request.body, 'utf-8'))
         #try:
             #assert operation in ['create', 'update']
         #except AssertionError:
@@ -200,7 +201,7 @@ def serviceClusterByID(request):
         setListResult = hu.post(serivceName="p_job", restName=restName, datas=cluster_data)
         #print(json.loads(setListResult.content))
         #{'service_cluster_id': 12, 'status': 200, 'msg': '新增成功'}
-        ret = json.loads(setListResult.content)
+        ret = setListResult.json()
         return JsonResponse(data=ret)
 
 def del_servicecluster(request):
@@ -409,7 +410,7 @@ def create_site_version(request):
 def MngSiteCreateOrUpdate(request):
     results = {}
     try:
-        input_param = json.loads(request.body)
+        input_param = json.loads(str(request.body, 'utf-8'))
         if input_param:
             id = input_param['id']
             hu = HttpUtils(request)
@@ -448,7 +449,7 @@ def MngSiteCreateOrUpdate(request):
 def MappingRulesCreateOrUpdate(request):
     results = {}
     try:
-        input_param = json.loads(request.body)
+        input_param = json.loads(str(request.body, 'utf-8'))
         if input_param:
             id = input_param['id']
             hu = HttpUtils(request)
@@ -550,7 +551,7 @@ def NginxClusterHostById(request):
 @csrf_exempt
 def deploy_agent(request):
     if request.method == 'POST':
-        data = json.loads(request.body)
+        data = json.loads(str(request.body, 'utf-8'))
         task_id = data['id']
         host_list = data['hosts']
         version = data['version']
@@ -569,7 +570,8 @@ def trans4configpreview(config_data):
 @csrf_exempt
 def config_preview(request):
     if request.method == 'POST':
-        data = json.loads(request.body)
+        data = str(request.body, 'utf-8')
+        data = json.loads(data)
         siteDetail = data['siteDetail']
         siteDetail = trans_siteInfo(siteDetail)
         siteDetail = trans4configpreview(siteDetail)
@@ -578,7 +580,7 @@ def config_preview(request):
         hu = HttpUtils(request)
         siteDetail.update({'locations': mplist})
         result = hu.post(serivceName='p_job',restName='/rest/slb/configpreview/', datas=siteDetail)
-        result = json.loads(result.content)
+        result = result.json()
         return JsonResponse(data=dict(ret=result))
 
 def config_version_diff(request):
@@ -600,3 +602,7 @@ def config_version_diff(request):
         except Exception as e:
             logger.error(e,exc_info=1)
         return JsonResponse(data=results)
+
+@accept_websocket
+def rtlog(request):
+    a = request.is_websocket()
