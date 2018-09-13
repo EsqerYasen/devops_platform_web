@@ -167,3 +167,15 @@ class RedisBase(object):
 
 
 
+    @staticmethod
+    def hgetAll(redisKey, db=0):
+        redisConn = None
+        try:
+            redisConn = RedisBase.getConnection(db)
+            result = redisConn.hgetall(redisKey)
+            return result
+        except Exception as ex:
+            logger.error(msg="hgetAll redis key failed: {ex}".format(ex=str(ex)))
+            return False
+        finally:
+            redisConn = None
