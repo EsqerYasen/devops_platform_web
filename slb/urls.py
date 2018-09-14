@@ -43,9 +43,11 @@ urlpatterns = [
     url(r'^rest/nginxclustertree/', views.NginxClusterTree, name='nginxclustertree'),
     url(r'^rest/gethostlistbygrupid/', views.GetHostListByGrupId, name='gethostlistbygrupid'),
 
+
     #deploy
     url(r'^rest/deployagent', views.deploy_agent, name='deploy_agent'),
-
+    url(r'^rest/nginxdeploylogsbyip/', views.get_nginx_log, name='gethostlistbygrupid'),
+    url(r'^rest/deploytaskslist/', views.get_deploytaskslist, name='gethostlistbygrupid'),
     #ws
     url(r'^ws/rtlog', views.rtlog, name='realtime_log'),
 ]

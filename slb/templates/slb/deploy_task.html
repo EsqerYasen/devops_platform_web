@@ -22,6 +22,12 @@
                     <el-table-column prop="host_id" label="序号" width="100"> </el-table-column>
                     <el-table-column prop="host_ip" label="IP"> </el-table-column>
                     <el-table-column prop="version" label="版本"> </el-table-column>
+                    <el-table-column prop="status" label="状态"> </el-table-column>
+                    <el-table-column label="日志">
+                        <template slot-scope="server_list">
+                            <el-button type="primary" size="mini" icon="el-icon-document" @click="getLog(server_list.row)"></el-button>
+                        </template>
+                    </el-table-column>
                     <!--<el-table-column prop="time" label="修改时间" > </el-table-column>-->
                 </el-table>
             </el-card>

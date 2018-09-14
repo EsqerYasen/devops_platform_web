@@ -8,18 +8,30 @@
     </el-col>
 </el-row>
 <el-table :data="tasks" style="width: 100%">
-    <el-table-column prop="task_id" label="任务ID" width="80"> </el-table-column>
-    <el-table-column prop="task_name" label="任务名称" width="300"> </el-table-column>
-    <el-table-column prop="status" label="状态"> </el-table-column>
+    <el-table-column prop="id" label="任务ID" width="80"> </el-table-column>
+    <el-table-column prop="site_name" label="站点名称"> </el-table-column>
+    <el-table-column label="版本"> 
+        <template slot-scope="taskListScope">
+            <span class="badge">{{taskListScope.row.version}}</span>
+        </template> 
+    </el-table-column>
+    <el-table-column label="状态">
+        <template slot-scope="taskListScope">
+            <span :class="taskListScope.row.tagClass">{{taskListScope.row.status}}</span>
+        </template> 
+    </el-table-column>
+    <el-table-column prop="updated_by" label="更新人"> </el-table-column>
+    <el-table-column prop="update_time" label="更新时间" width="200"> </el-table-column>
     <el-table-column prop="created_by" label="创建人"> </el-table-column>
-    <el-table-column prop="create_time" label="创建时间"> </el-table-column>
+    <el-table-column prop="create_time" label="创建时间" width="200"> </el-table-column>
     <el-table-column label="操作">
         <template slot-scope="taskScope">
             <el-button type="primary" icon="el-icon-edit" size="mini" circle >查看</el-button>
-            <el-button type="danger" icon="el-icon-delete" size="mini" circle @click="delTask(taskScope.row.id)"></el-button>
+            <!--<el-button type="danger" icon="el-icon-delete" size="mini" circle @click="delTask(taskScope.row.id)"></el-button>-->
         </template>
     </el-table-column>
 </el-table>
+
 {% endverbatim myblock %}
 {% endblock %}
 

@@ -953,7 +953,7 @@ vm = new Vue({
         },
 
         deploy_url: function(i){
-            url = "/slb/deploy/deploy_task?site_name="+this.siteDetail.site_name+"&nginx_cluster_id="+this.siteDetail.nginx_cluster_id+"&version="+this.siteVersions[i].version+"&task_id="+this.siteVersions[i].task_id;
+            url = "/slb/deploy/deploy_task?site_name="+this.siteDetail.site_name+"&site_id="+this.siteDetail.id+"&nginx_cluster_id="+this.siteDetail.nginx_cluster_id+"&version="+this.siteVersions[i].version+"&task_id="+this.siteVersions[i].task_id;
             return url;
         },
 

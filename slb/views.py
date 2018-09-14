@@ -4,7 +4,10 @@ from common.utils.HttpUtils import *
 from common.utils.redis_utils import RedisBase
 from django.views.decorators.csrf import csrf_exempt
 from dwebsocket.decorators import accept_websocket
+from dwebsocket import require_websocket
+import threading
 import logging
+import time
 
 logger = logging.getLogger('devops_platform_log')
 # Create your views here.
@@ -603,6 +606,52 @@ def config_version_diff(request):
             logger.error(e,exc_info=1)
         return JsonResponse(data=results)
 
-@accept_websocket
+def get_server_status(site_id):
+    server_status_dict = RedisBase.hgetAll(site_id, db=5)
+    ret_server_status_list = [{'ip': str(k, 'utf-8'), 'status': str(v, 'utf-8')} for k,v in server_status_dict.items() ]
+    return ret_server_status_list
+
+@require_websocket
 def rtlog(request):
-    a = request.is_websocket()
+    message = request.websocket.wait()
+    message = json.loads(str(message, 'utf-8'))
+    tmp_msg = message['ip_list']
+    site_id = int(message['site_id'])
+    server_list = [m['host_ip'] for m in tmp_msg]
+    while(message):
+        data = get_server_status(1)
+        data = json.dumps(data)
+        datab = data.encode(encoding='utf-8', errors = 'strict')
+        request.websocket.send(datab)
+        message = request.websocket.wait()
+        time.sleep(3)
+    return HttpResponse('close') 
+
+def get_nginx_log(request):
+    ip = request.GET.get('ip', None)
+    deployId = request.GET.get('deployId', None)
+    version = request.GET.get('version', None)
+    siteId = request.GET.get('siteId', None)
+    result = {'log':''}
+    if all([ip, deployId, version, siteId]):
+        hu = HttpUtils(request)
+        data={'ip':ip, 'siteId':siteId, 'deployId': deployId, 'version': version}
+        result = hu.get(serivceName='p_job',restName='/rest/slb/nginxdeploylogsbyip', datas=data)
+    return JsonResponse(data=result)
+
+def trans_deploytask(task):
+    task_status_dict = {0: 'running', 1: 'success', 2: 'fail'}
+    status = task['status']
+    new_status = task_status_dict[status]
+    task.update({'status': new_status})
+    return task
+
+def get_deploytaskslist(request):
+    hu = HttpUtils(request)
+    result = hu.get(serivceName='p_job',restName='/rest/slb/deploytaskslist/')
+    for index, task in enumerate(result['results']):
+        task = trans_deploytask(task)
+        result['results'][index] = task
+    return JsonResponse(data=dict(ret=result))
+
+
