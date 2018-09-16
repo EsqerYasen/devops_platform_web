@@ -12,7 +12,7 @@ from braces.views import *
 from django.views.generic import *
 from django.http import StreamingHttpResponse
 from common.utils.redis_utils import *
-import os
+import os,ctypes,platform
 from django.conf import settings
 import logging
 
@@ -35,11 +35,28 @@ class DownloadFile(APIView):
         return response
 
 
+def get_free_space_gb(folder):
+    """ Return folder/drive free space (in Gbytes)
+    """
+    if platform.system() == 'Windows':
+        free_bytes = ctypes.c_ulonglong(0)
+        ctypes.windll.kernel32.GetDiskFreeSpaceExW(ctypes.c_wchar_p(folder), None, None, ctypes.pointer(free_bytes))
+        return free_bytes.value / 1024 / 1024 / 1024
+    else:
+        st = os.statvfs(folder)
+        return st.f_bavail * st.f_frsize / 1024 / 1024 / 1024
+
+
 class UploadFile(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, View):
 
     def post_ajax(self, request, *args, **kwargs):
 
         try:
+
+            free_space = get_free_space_gb(settings.FILES_DIR)
+            if free_space < 0.2:
+                result_json = {"status": 500, "msg": "磁盘空间不足"}
+                return self.render_json_response(result_json)
             username = request.user.username
             file_handle = request.FILES.get('files', None)
             handle_uploaded_file(file_handle)
