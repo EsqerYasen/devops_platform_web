@@ -53,12 +53,16 @@ class UploadFile(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, View):
 
 def handle_uploaded_file(f):
     try:
+        if not os.path.exists(settings.FILES_DIR):
+            os.makedirs(settings.FILES_DIR)
         dst_path = os.path.join(settings.FILES_DIR, f.name)
         with open(dst_path, 'wb+') as destination:
             for chunk in f.chunks():
                 destination.write(chunk)
     except Exception as e:
         logger.error(e, exc_info=1)
+
+
 
 def readFile(filename, chunk_size=512):
     try:
