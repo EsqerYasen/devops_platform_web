@@ -52,7 +52,8 @@ class UploadFile(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, View):
     def post_ajax(self, request, *args, **kwargs):
 
         try:
-
+            if not os.path.exists(settings.FILES_DIR):
+                os.makedirs(settings.FILES_DIR)
             free_space = get_free_space_gb(settings.FILES_DIR)
             if free_space < 0.2:
                 result_json = {"status": 500, "msg": "磁盘空间不足"}
@@ -70,8 +71,6 @@ class UploadFile(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, View):
 
 def handle_uploaded_file(f):
     try:
-        if not os.path.exists(settings.FILES_DIR):
-            os.makedirs(settings.FILES_DIR)
         dst_path = os.path.join(settings.FILES_DIR, f.name)
         with open(dst_path, 'wb+') as destination:
             for chunk in f.chunks():
