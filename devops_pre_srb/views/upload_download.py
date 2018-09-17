@@ -34,6 +34,20 @@ class DownloadFile(APIView):
 
         return response
 
+class DeleteFile( JSONResponseMixin,AjaxResponseMixin, View):
+    def get(self, request):
+        try:
+            req = self.request.GET
+            filename = req['filename']
+            filepath = os.path.join(settings.FILES_DIR, filename)
+            os.remove(filepath)
+            result_json = {"status": 200, "msg": "删除成功"}
+
+        except Exception as e:
+            result_json = {"status": 500, "msg": "删除失败"}
+            logger.error(e, exc_info=1)
+        return self.render_json_response(result_json)
+
 
 def get_free_space_gb(folder):
     """ Return folder/drive free space (in Gbytes)
