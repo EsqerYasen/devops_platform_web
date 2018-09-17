@@ -50,7 +50,7 @@
                     </el-row>
                         <el-form :model="siteDetail" label-width="120px">
                             <el-row>
-                            <el-col :span="10" >
+                            <el-col :span="12" >
                                 <el-form-item label="状态控制">
                                     <el-radio-group v-model="siteDetail.state_control">
                                         <el-radio label="enable" value="enable"></el-radio>
@@ -67,7 +67,7 @@
                                 </el-form-item>
                                 <el-form-item label="使用HTTPS"><el-switch v-model="siteDetail.is_https"></el-switch></el-form-item>
                             </el-col>
-                            <el-col :span="14">
+                            <el-col :span="12">
                                 <el-form-item v-for="item in siteDetail.dynamicAttributes" :key="item.param_key" :label="item.param_key">
                                     <!--<el-input v-if="item.is_inner==1" v-model="item.param_value">-->
                                     <el-input v-model="item.param_value">
