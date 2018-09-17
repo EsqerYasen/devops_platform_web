@@ -51,6 +51,8 @@
                         <el-form :model="siteDetail" label-width="120px">
                             <el-row>
                             <el-col :span="12" >
+                                <el-form-item label="Domain"><el-input v-model="siteDetail.domain_name"></el-input></el-form-item>
+                                <el-form-item label="Port"><el-input v-model="siteDetail.port"></el-input></el-form-item>
                                 <el-form-item label="状态控制">
                                     <el-radio-group v-model="siteDetail.state_control">
                                         <el-radio label="enable" value="enable"></el-radio>
@@ -58,8 +60,6 @@
                                         <el-radio label="force_offline" value="force_offline"></el-radio>
                                     </el-radio-group>
                                 </el-form-item>
-                                <el-form-item label="Domain"><el-input v-model="siteDetail.domain_name"></el-input></el-form-item>
-                                <el-form-item label="Port"><el-input v-model="siteDetail.port"></el-input></el-form-item>
                                 <el-form-item label="目标Nginx集群">
                                     
                                     {{siteDetail.nginx_cluster_name}} <el-button v-if="siteDetail.nginx_cluster_id" class="el-icon-circle-plus-outline" type="text" @click="selectCluster">重新选择集群节点</el-button>
