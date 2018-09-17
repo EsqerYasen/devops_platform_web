@@ -4,7 +4,8 @@ from common.utils.HttpUtils import *
 from django.http import HttpResponse
 from django.core.paginator import Paginator
 from devops_platform_web.settings import DEVOPSGROUP,PRE_SRB_ADDITIONAL,PRE_SRB_ADDITIONAL_PERCENT
-import logging
+import logging,os
+from django.conf import settings
 
 logger = logging.getLogger('devops_platform_log')
 
@@ -33,6 +34,12 @@ class PreSrbListView(LoginRequiredMixin, OrderableListMixin, ListView):
             context['is_paginated'] = count > 0
             context['page_obj'] = paginator.page(req.offset)
             context['paginator'] = paginator
+            file_list = []
+            for parent, dirnames, filenames in os.walk(settings.FILES_DIR):
+                for filename in filenames:
+                    file_list.append(filename)
+
+            context['file_list'] = file_list
         except Exception as e:
             logger.error(e,exc_info=1)
         return context
