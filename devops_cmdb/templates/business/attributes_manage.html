@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <!-- import CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+  {% load static %}
+</head>
+<body>
+  <div id="app">
+    <div id="business_id" style="visibility:hidden">{{business_id}}</div>
+    <el-tabs v-model="activeNameTab" type="card" @tab-click="handleClick">
+    <el-tab-pane label="Attribute" name="attribute">
+      {% verbatim myblock %}
+      <el-row>
+      <el-col :span="10">
+      <div>Total:<el-tag size="mini">{{attrTotal}}</el-tag></div>
+      </el-col>
+      {% endverbatim myblock %}
+      <el-col :span="8" :offset="4">
+          <el-input size="mini" placeholder="filter" v-model="attrFilter" prefix-icon="el-icon-search"></el-input>
+      </el-col>
+      <el-col :span="1" :offset="1">
+      <div><el-button class="el-icon-circle-plus-outline" type="text" @click="triggleNew('attr')"></el-button></div>
+      </el-col>
+      </el-row>
+      <el-table border :data="attrTableData | pagination(attrCurrentPage, attrPagesize) | contentFilter(attrFilter)" style="width: 100%">
+      <!--<el-table-column prop="id" label="id" width="180">-->
+      <!--</el-table-column>-->
+        <el-table-column prop="name" label="Key" width="180"></el-table-column>
+        <el-table-column prop="value" label="Value"></el-table-column>
+        <el-table-column prop="version" label="Version"></el-table-column>
+        <el-table-column prop="creator" label="Creator"></el-table-column>
+        <el-table-column prop="create_time" label="Create Time"></el-table-column>
+        <el-table-column prop="updator" label="Updated By"></el-table-column>
+        <el-table-column prop="update_time" label="Update Time"></el-table-column>
+        <el-table-column label="Button">
+        <template slot-scope="scopeAttr">
+          <el-button type="primary" icon="el-icon-edit" size="mini" circle @click="triggleUpdate(scopeAttr.row, 'attr')"> </el-button>
+          <el-button type="danger" icon="el-icon-delete" size="mini" circle @click="delRecord(scopeAttr.row, 'attr')"> </el-button>
+          <el-button type="danger" icon="el-icon-info" size="mini" circle @click="history(scopeAttr.row, 'attr')"> </el-button>
+        </template>
+	  </el-table-column>
+      </el-table>
+	  <el-pagination
+        @size-change="attrHandleSizeChange"
+        @current-change="attrHandleCurrentChange"
+        :current-page.sync="attrCurrentPage"
+        :page-sizes="[2, 3, 4]"
+        :page-size="attrPagesize"
+        layout="sizes, prev, pager, next"
+        :total="attrTotal">
+      </el-pagination>
+    </el-tab-pane>
+    <el-tab-pane label="Interface" name="interface">
+      {% verbatim myblock %}
+      <el-row>
+      <el-col :span="10">
+      <div>Total:<el-tag size="mini">{{intTotal}}</el-tag></div>
+      </el-col>
+      {% endverbatim myblock %}
+      <el-col :span="8" :offset="4">
+          <el-input size="mini" placeholder="filter" v-model="intFilter" prefix-icon="el-icon-search"></el-input>
+      </el-col>
+      <el-col :span="1" :offset="1">
+      <div><el-button class="el-icon-circle-plus-outline" type="text" @click="triggleNew('int')"></el-button></div>
+      </el-col>
+      </el-row>
+	  <el-table border :data="intTableData| pagination(intCurrentPage, intPagesize) | contentFilter(intFilter)" style="width: 100%">
+        <el-table-column prop="name" label="Key" width="180"></el-table-column>
+        <el-table-column prop="value" label="Value"></el-table-column>
+        <el-table-column prop="version" label="Version"></el-table-column>
+        <el-table-column prop="creator" label="Creator"></el-table-column>
+        <el-table-column prop="create_time" label="Create Time"></el-table-column>
+        <el-table-column prop="updator" label="Updated By"></el-table-column>
+        <el-table-column prop="update_time" label="Update Time"></el-table-column>
+        <el-table-column label="Button">
+          <template slot-scope="scopeInt">
+            <el-button type="primary" icon="el-icon-edit" size="mini" circle @click="triggleUpdate(scopeInt.row, 'int')"> </el-button>
+            <el-button type="danger" icon="el-icon-delete" size="mini" circle @click="delRecord(scopeInt.row, 'int')"> </el-button>
+          <el-button type="danger" icon="el-icon-info" size="mini" circle @click="history(scopeInt.row, 'int')"> </el-button>
+          </template>
+	    </el-table-column>
+      </el-table>
+	  <el-pagination
+        @size-change="intHandleSizeChange"
+        @current-change="intHandleCurrentChange"
+        :current-page.sync="intCurrentPage"
+        :page-sizes="[2, 3, 4]"
+        :page-size="intPagesize"
+        layout="sizes, prev, pager, next"
+        :total="intTotal">
+      </el-pagination>
+    </el-tab-pane>
+    <el-tab-pane label="Monitor" name="monitor">
+      <el-button @click="visible = true">Button</el-button>
+      <el-dialog :visible.sync="visible" title="Hello world">
+      <p>Try Element</p>
+      </el-dialog>
+    </el-tab-pane>
+    <el-tab-pane label="Topology" name="topology">
+      <el-tabs v-model="actvieTop" type="card">
+      <el-tab-pane label="IDC1" name="idc1Top">
+        <el-carousel indicator-position="outside">
+          <el-carousel-item name="1">
+            <img src="{% static '/img/overall-architecture.png' %}" />
+          </el-carousel-item>
+          <el-carousel-item name="2">
+            <img src="{% static '/img/2.jpg' %}" />
+          </el-carousel-item>
+          <el-carousel-item name="3">
+            <img src="{% static '/img/3.jpg' %}" />
+          </el-carousel-item>
+        </el-carousel>
+      </el-tab-pane>
+      <el-tab-pane label="IDC2" name="idc2Top">
+        <el-carousel indicator-position="outside">
+          <el-carousel-item name="1">
+            <img src="{% static '/img/overall-architecture.png' %}" />
+          </el-carousel-item>
+          <el-carousel-item name="2">
+            <img src="{% static '/img/2.jpg' %}" />
+          </el-carousel-item>
+          <el-carousel-item name="3">
+            <img src="{% static '/img/3.jpg' %}" />
+          </el-carousel-item>
+        </el-carousel>
+      </el-tabs>
+    </el-tab-pane>
+    <el-tab-pane label="Comment" name="comment">
+      <el-col :span=1 :offset="23">
+      <el-button class="el-icon-circle-plus-outline" type="text" @click="cmtInputTriggle = true"></el-button>
+      </el-col>
+      {% verbatim myblock %}
+      <el-col :span="15" :offset="2">
+
+      <div v-for="c in comment" style=" padding: 8px 16px; background-color: #ecf8ff; border-radius: 4px; border-left: 5px solid #50bfff; margin: 20px 0; ">
+          <p v-show="cmtP">
+            {{c.content}}</br>
+            <el-button sytle="margin: 100px" icon="el-icon-edit-outline" type="text" @click="cmtEditTriggle = true; cmtP=false"></el-button>
+            <el-button sytle="margin: 100px" icon="el-icon-delete" type="text" @click="cmtDel"></el-button>
+          </p>
+        <el-form  v-show="cmtEditTriggle" :model="c" :key="c.id">
+          <el-form-item> <el-input type="textarea" placeholder="comment" v-model="c.content"> </el-form-item>
+          <el-form-item> <el-button type="text" icon="el-icon-circle-check-outline" @click="submitCmt(c)"></el-button></el-form-item>
+        </el-form >
+      </div>
+      <div v-for="c in commentOthers" style=" padding: 8px 16px; background-color: #40ffa3; border-radius: 4px; border-left: 5px solid #50bfff; margin: 20px 0; ">
+          {{c.content}}
+      </div>
+      {% endverbatim myblock %}
+      </el-col>
+    </el-tab-pane>
+    </el-tabs>
+    <el-dialog :visible.sync="editTriggle" :title="editMethod">
+      <el-form :inline="true" v-if="editTriggle" :model="formInline">
+      <el-form-item label="name">
+        <el-input v-model="formInline.name"></el-input>
+      </el-form-item>
+      <el-form-item label="value">
+        <el-input v-model="formInline.value"></el-input>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" @click="onSubmit(formInline)">Save</el-button>
+      </el-form-item>
+      </el-form>
+    </el-dialog>
+    <el-dialog :visible.sync="cmtInputTriggle" title="Post a new comment">
+      <el-form v-show="cmtInputTriggle" :model="cmtFormInline">
+        <el-form-item> <el-input type="textarea" :autosize="{ minRows: 8, maxRows: 50}" v-model="cmtFormInline.content" placeholder="comment">
+        </el-form-item>
+        <el-form-item><el-button type="primary" @click="submitCmt">Add a comment</el-button></el-form-item>
+      </el-form>
+    </el-dialog>
+    <el-dialog :visible.sync="historyDialogTriggle" title="History" width="90%">
+      <el-table border :data="historyTableData" >
+        <el-table-column prop="name" label="Key"></el-table-column>
+        <el-table-column prop="value" label="Value"></el-table-column>
+        <el-table-column prop="version" label="Version"></el-table-column>
+        <el-table-column prop="creator" label="Creator"></el-table-column>
+        <el-table-column prop="create_time" label="Create Time"></el-table-column>
+        <el-table-column prop="updator" label="Updated By"></el-table-column>
+        <el-table-column prop="update_time" label="Update Time"></el-table-column>
+      </el-table>
+    </el-dialog>
+    <el-row>
+        <div>
+            <yum-comment-topics
+                ref="yum_topics"
+                :userid="userId"
+                :siteid="siteId"
+                @change="changeTopic"
+                @topic:changed="changeTopic"
+                @topic:showPopup="showTopicPopup"
+
+            />
+        </div>
+        <div>
+            <yum-comment-timeline
+                v-show="topicId>0"
+                ref="yum_timeline"
+                :userid="userId"
+                :siteid="siteId"
+                :topicid="topicId"
+                v-on:show:commmet:popup="showCommentPopup"
+                />
+        </div>
+    </el-row>
+  </div>
+</body>
+  <!-- import Vue before Element -->
+  <script src="https://unpkg.com/vue/dist/vue.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <!-- import JavaScript -->
+  <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+  <script src="{% static '/js/attr_demo_1.js' %}"></script>
+</html>
