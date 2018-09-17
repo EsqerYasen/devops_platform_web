@@ -113,9 +113,12 @@
                 showPreview: false,
                 showUpload: false,
                 elErrorContainer: '#kartik-file-errors',
+                showCaption: true,
                 allowedFileExtensions: ['xls', 'xlsx','ppt','doc','docx','pptx','pdf'],
+                maxFileSize:50000,
+                msgSizeTooLarge: 'File "{name}" ({size} KB) exceeds maximum allowed upload size of {maxSize} KB',
                 maxFilesNum:1,
-                language:'zh'
+                language:'zh',
             });
         }
 
