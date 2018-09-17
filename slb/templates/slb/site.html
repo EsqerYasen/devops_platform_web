@@ -177,7 +177,7 @@
                     </el-select>
                 </el-form-item>
                 <el-form-item label="路径表达式"><el-input v-model="mappingRule.regular_expression"></el-input></el-form-item>
-                <el-form-item label="大小写是否敏感"><el-switch v-model="mappingRule.case_sensitive"  active-text="大小写敏感" inactive-text="大小写不敏感"></el-switch></el-form-item>
+                <el-form-item label="大小写敏感"><el-switch v-model="mappingRule.case_sensitive"  active-text="是" inactive-text="否"></el-switch></el-form-item>
                 <el-table border :data="mappingRule.cmd_list">
                     <!--<el-table-column prop="id" label="序号"> </el-table-column>-->
                     <el-table-column type="index" prop="id" label="ID"></el-table-column>
