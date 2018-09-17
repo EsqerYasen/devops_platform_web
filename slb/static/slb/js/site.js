@@ -6,7 +6,7 @@
     ////theme: "eclipse"
 //});
 Vue.component('my_access_log',{
-    template: '<el-input v-model="cmdcmdarg" @change="argUpdated($event, row)"></el-input></div>',
+    template: '<el-input v-model="cmdcmdarg" @change="argUpdated($event, row)"></el-input>',
     props: ['cmdarg', 'row', 'cmd'],
     methods: {
         argUpdated: function(w, r){
@@ -40,7 +40,7 @@ Vue.component('my_proxy_pass',{
     },
     methods: {
         argUpdated: function(w, r){
-            console.log(w);
+            //console.log(w);
             this.$emit('updatecmdarg', {v:w, s:r});
         },
     }
@@ -50,7 +50,7 @@ Vue.component('action_proxy_pass',{
     template: `
     <div>
         <el-form-item label="pool name">
-            <el-select v-model="cmdcmdarg" placeholder="请选择" @change="argUpdated($event)">
+            <el-select v-model="cmdcmdarg" placeholder="请选择" clearable @clear="actionDelete" @change="argUpdated($event)">
                 <el-option v-for="item in upstreams" :key="item.id" :label="item.cluster_name" :value="item.id"> </el-option> 
             </el-select>
         </el-form-item>
@@ -75,8 +75,11 @@ Vue.component('action_proxy_pass',{
             //console.log(w);
             //console.log(this.cmdarg);
             //console.log(this.index);
-            this.$emit('innerUpdateAction', {v:w, index: this.index});
+            this.$emit('innerUpdateAction', {v:w, is_delete: false, index: this.index});
         },
+        actionDelete: function(){
+            this.$emit('innerUpdateAction', {v:"", is_delete: true, index:this.index});
+        }
     }
 });
 
@@ -84,7 +87,13 @@ Vue.component('action_custom',{
     template:`
     <div>
         <el-form-item label="custom">
-            <el-input v-model="cmdcmdarg" v-on:input="argUpdated($event)"> </el-input>
+            <el-row>
+            <el-col :span="20">
+            <el-input v-model="cmdcmdarg" v-on:input="argUpdated($event)">
+                <el-button slot="append" icon="el-icon-close" @click="actionDelete"></el-button>
+            </el-input>
+            </el-col>
+            </el-row>
         </el-form-item>
     </div>
     `,
@@ -98,9 +107,12 @@ Vue.component('action_custom',{
     methods: {
         argUpdated: function(val){
             //console.log(val);
-            //console.log(this.row);
+            //console.log(this.index);
             this.$emit('innerUpdateAction', {v:val, index: this.index});
         },
+        actionDelete: function(){
+            this.$emit('innerUpdateAction', {v:"", is_delete: true, index:this.index});
+        }
     },
 });
 
@@ -117,7 +129,7 @@ Vue.component('my_ifelse',{
               </el-dropdown>
         </el-input>
         statements:
-        <component v-for="action,index in cmdcmdarg.actions" v-on:innerUpdateAction="handleUpdateActions" :index="index" :is="'action_'+action.cmdType" :cmdarg="action.cmdArg" :key="index"></component>
+        <component v-for="action,index in cmdcmdarg.actions" :key="index" v-on:innerUpdateAction="handleUpdateActions" :index="index" :is="'action_'+action.cmdType" :cmdarg="action.cmdArg" ></component>
     </div>
     `,
     props: ['cmdarg', 'row', 'cmd'],
@@ -145,8 +157,11 @@ Vue.component('my_ifelse',{
         handleUpdateActions: function(v){
             index = v['index'];
             val = v['v'];
-            this.cmdcmdarg.actions[index].cmdArg = val;
-            console.log(this.cmdcmdarg);
+            if(index == "" && v['is_delete']){
+                this.cmdcmdarg.actions.splice(index,1); 
+            }
+            else{ this.cmdcmdarg.actions[index].cmdArg = val; }
+            //console.log(this.cmdcmdarg);
             this.$emit('updatecmdarg', {v:this.cmdcmdarg, s:this.row});
         },
         addAction: function(val){
@@ -708,8 +723,7 @@ vm = new Vue({
         },
 
         handleCmdargChange: function(val){
-            //val is dict: {input-content, scope} 
-            console.log(val);
+            //console.log(val);
             this.mappingRule.cmd_list[val.s.$index].command_param = val.v;
         },
 
@@ -788,10 +802,10 @@ vm = new Vue({
                 for(var i=0;i<this.siteMPRuleList.length;i++){
                     this.fillProxyPass(this.siteMPRuleList[i])
                 }
-                console.log(this.siteMPRuleList);
+                //console.log(this.siteMPRuleList);
                 var data = {id: 0, mapping_rules_list: this.siteMPRuleList, nginx_site_id: this.siteDetail.id};
             }
-            console.log(this.mappingRule);
+            //console.log(this.mappingRule);
             this.postData('../rest/mappingrulescreateorupdate/', data, this.afterSaveMappingRule);
             this.addMappingRuleDialogTriggle = false;
         },
@@ -1078,6 +1092,10 @@ vm = new Vue({
                 this.doCompare(this.versionContent[this.versionA], this.versionContent[this.versionB]);
             }
             else{showMsg(false, tmp.msg)}
+        },
+
+        delStatement: function(row){
+            //console(row);
         }
     }
 });

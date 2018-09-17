@@ -200,8 +200,8 @@
                         <template slot-scope="scopeCmd">
                             <!--<component :is="mydefine" :cmdarg="scopeCmd.row.command_param"></component>-->
                             <!--<component :is="'my_'+scopeCmd.row.command_type" :cmdarg="scopeCmd.row.command_param"></component>-->
-                            <component :is="'my_'+scopeCmd.row.command_type" :row="scopeCmd" :cmd="scopeCmd" :cmdarg="scopeCmd.row.command_param" v-on:updatecmdarg="handleCmdargChange">
-                            </component>
+                                <component :is="'my_'+scopeCmd.row.command_type" :row="scopeCmd" :cmd="scopeCmd" :cmdarg="scopeCmd.row.command_param" v-on:updatecmdarg="handleCmdargChange">
+                                </component>
                         </template>
                     </el-table-column>
                     <el-table-column label="操作" width="80px">
