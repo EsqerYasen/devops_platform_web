@@ -13,7 +13,7 @@
             <el-col :span="5">
                 <div v-if="siteDetail.site_name"> 当前站点名称：{{siteDetail.site_name}} </div>
             </el-col>
-            <el-col :offset="10" :span="7">
+            <el-col :offset="10" :span="8">
                 <el-button type="warning" size="mini" icon="el-icon-document" @click="previewConfigFile">预览</el-button>
                 <el-button type="success" size="mini" icon="el-icon-edit-outline" @click="createDist">创建</el-button>
                 <el-button type="info" size="mini" icon="el-icon-d-arrow-left" @click="rollback">回滚</el-button>
@@ -146,7 +146,7 @@
                 </el-form-item>
             </el-form>
         </el-dialog>
-        <el-dialog :visible.sync="addMappingRuleDialogTriggle" title="编辑规则" width="80%">
+        <el-dialog :visible.sync="addMappingRuleDialogTriggle" title="编辑规则" width="90%">
             此处填写基本的信息，详细规则的信息，可以在添加规则后，点击"编辑"进行详细补充。
             <el-form :model="mappingRule" label-width="120px">
                 <el-form-item label="匹配类型">
