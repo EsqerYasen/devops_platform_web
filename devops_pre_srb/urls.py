@@ -17,7 +17,8 @@ urlpatterns = [
 
         url(r'^upload/$',UploadFile.as_view(),name='upload'),
         url(r'^download/$',DownloadFile.as_view(),name='download'),
-        url(r'^filelist/$',GetFileList.as_view(),name='download'),
+        url(r'^delete_file/$',DeleteFile.as_view(),name='delete_file'),
+        url(r'^filelist/$',GetFileList.as_view(),name='filelist'),
 
 
     ]))
