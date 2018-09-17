@@ -3,6 +3,7 @@
 	<div class="processbox row" id="vm4">
 
         <h1 class="totaldis" style="font-size:15px">
+            <br />
             项目名: <span v-html="name" style="margin-right:100px"></span>项目上线时间: <span v-html="estimated_pilot_date"></span>
         </h1>
         <h1 class="totaldis" style="font-size:15px">
@@ -13,7 +14,7 @@
 			硬盘: <span v-html="disk_sum"></span>G
 			（系统自动计算）
 		</h1>
-
+        <br />
 		<div class="row col-md-6 line_24 mb10" v-for="item in items">
 			<div class="col-md-12 sc" :class="{'sc':item.env==1,'zb':item.env==2,'hd':item.env==3}">
 				<h4 class="fl_title" v-if="item.env==1">生产环境:</h4>
@@ -44,7 +45,7 @@
 				<div class="clear"></div>
 			</div>
 		</div>
-
+        <br />
         <h3 class="totaldis">
             评级:
             <span v-if="level=='S'">
@@ -109,11 +110,11 @@
 {#				</tbody>#}
 {#			</table>#}
 {#		</div>#}
-		<div class="col-md-6" style="margin-top: 22px">
+		<div class="col-md-6" style="margin-top: 22px;width: 500px">
 			<div class="row">
 		         <div class="col-md-12">
 		            <div class="alert alert-success" style="margin-bottom: 10px">
-		                S级 : 主站节点全部高可用 有备份机房全部高可用  5星
+		                S级 : 主站节点全部高可用 有备份机房全部高可用(灾备环境如果非1:1,请注意风险)  5星
 		            </div>
 		         </div>
 		    </div>
@@ -166,7 +167,7 @@
 {##}
 {#		</div>#}
 
-
+        <br />
 		<div class="checkbox" style="clear: both;line-height: 8px;text-align: right;margin-right: 15px;">
 		    <label>
 		       <input id="isReadCheckbox" type="checkbox"> 我已阅读运维标准文档
