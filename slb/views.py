@@ -224,9 +224,9 @@ def trans_siteList(siteList):
 
 def trans_siteInfo(site_info):
     state_control_dict = { 1:'enable', 0:'disable', 2:'force_offline','enable':1,'disable':0 ,'force_offline':2}
-    is_https_dict = { 0: False, 1: True,'true':1,'false':0 }
+    #is_https_dict = { 0: False, 1: True,'true':1,'false':0 }
     tmp_id = str(site_info['id'])
-    tmp_is_https = is_https_dict[site_info['is_https']]
+    tmp_is_https = int(site_info['is_https']) if type(site_info['is_https']) is bool else bool(site_info['is_https'])
     tmp_state_control = state_control_dict[site_info['state_control']]
     tmp = {'id': tmp_id, 'is_https': tmp_is_https, 'state_control': tmp_state_control}
     site_info.update(tmp)
@@ -259,11 +259,12 @@ def del_site(request):
     return JsonResponse(data=dict(ret=setListResult))
 
 def trans_mappingRule(mpr):
-    case_sensitive_dict = {1: True, 0: False, True: 1, False: 0}
+    #case_sensitive_dict = {1: True, 0: False, True: 1, False: 0}
     https_type_dict = { 1: 'all', 2: 'http', 3: 'https', 'all': 1, 'http': 2, 'https': 3}
     matching_type_dict = { 1: 'prefix', 2: 'regex', 3:'common', 4:'exact', 'prefix':1, 'regex': 2, 'common': 3, 'exact':4 }
 
-    tmp_case_sensitive = case_sensitive_dict[mpr['case_sensitive']]
+    #tmp_case_sensitive = case_sensitive_dict[mpr['case_sensitive']]
+    tmp_case_sensitive = int(mpr['case_sensitive']) if type(mpr['case_sensitive']) is bool else bool(mpr['case_sensitive'])
     tmp_https_type = https_type_dict[mpr['https_type']]
     tmp_matching_type = matching_type_dict[mpr['matching_type']]
     mpr.update(
@@ -278,7 +279,7 @@ def trans_mappingRule(mpr):
     return mpr
 
 def trans_mappingRuleList(mprulelist, cmd_list_flag=False):
-    case_sensitive_dict = {1: True, 0: False, True: 1, False: 0}
+    #case_sensitive_dict = {1: True, 0: False, True: 1, False: 0}
     https_type_dict = { 1: 'all', 2: 'http', 3: 'https', 'all': 1, 'http': 2, 'https': 3 }
     matching_type_dict = {
         1: 'prefix',
@@ -295,7 +296,8 @@ def trans_mappingRuleList(mprulelist, cmd_list_flag=False):
         tmp_id = str(mpr['id'])
         tmp_nginx_site_id = str(mpr['nginx_site_id'])
 
-        tmp_case_sensitive = case_sensitive_dict[mpr['case_sensitive']]
+        #tmp_case_sensitive = case_sensitive_dict[mpr['case_sensitive']]
+        tmp_case_sensitive = int(mpr['case_sensitive']) if type(mpr['case_sensitive']) is bool else bool(mpr['case_sensitive'])
         tmp_https_type = https_type_dict[mpr['https_type']]
         tmp_matching_type = matching_type_dict[mpr['matching_type']]
         mpr.update(
@@ -577,7 +579,7 @@ def config_preview(request):
         data = json.loads(data)
         siteDetail = data['siteDetail']
         siteDetail = trans_siteInfo(siteDetail)
-        siteDetail = trans4configpreview(siteDetail)
+        #siteDetail = trans4configpreview(siteDetail)
         mplist = data['mplist']
         mplist = trans_mappingRuleList(mplist, cmd_list_flag=True)
         hu = HttpUtils(request)

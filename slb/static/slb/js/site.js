@@ -497,7 +497,7 @@ vm = new Vue({
             for(var i=0; i<this.siteDetail.dynamicAttributes.length; i++){
                 var tmp_key = this.siteDetail.dynamicAttributes[i].param_key;
                 for(var j=0; j<this.dynamicAttributes.length; j++){
-                    if(tmp_key==this.dynamicAttributes[j].param_key){
+                    if(tmp_key==this.dynamicAttributes[j].param_key && tmp_key.indexOf("custom")<0){
                         this.dynamicAttributes[j]['active'] = true; //disable this key
                     }
                 }
@@ -984,7 +984,18 @@ vm = new Vue({
             var options = {access_log: 0, error_log: 1, error_page_400:2, error_page_404: 3, root: 4, include: 5, custom: 6}
             index = options[command];
             this.siteDetail.dynamicAttributes.push(JSON.parse(JSON.stringify(this.dynamicAttributes[index])));
-            this.dynamicAttributes[index].active = true;
+            if(index != 6){
+                this.dynamicAttributes[index].active = true;
+            }
+            //else{
+                //var count=0;
+                //for(var i=0;i<this.siteDetail.dynamicAttributes.length;i++){
+                    //if(this.siteDetail.dynamicAttributes[i].param_key.indexOf("custom")>=0){ count++; }
+                //}
+                //var custom_key = "custom"+count;
+            
+                //this.siteDetail.dynamicAttributes.push({param_key: custom_key, param_value: "", is_inner: 0});
+            //}
         },
 
         freeOptionDialogSubmit: function(){

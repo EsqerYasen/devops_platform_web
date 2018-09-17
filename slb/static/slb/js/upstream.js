@@ -290,7 +290,7 @@ vm = new Vue({
                 var id = this.selected[i];
                 //console.log(this.upstreamDetail.cluster_nodes[id][key]);
                 for(var j=0; j<this.upstreamDetail.cluster_nodes.length; j++){
-                    if(this.upstreamDetail.cluster_nodes[j].id == id){
+                    if(this.upstreamDetail.cluster_nodes[j].host_id == id){
                         this.upstreamDetail.cluster_nodes[j][key]=this.multiForm[key];
                         break;
                     }
@@ -301,7 +301,7 @@ vm = new Vue({
         handleSelectionChange: function(val){
             ret = [];
             for(i=0;i<val.length;i++){
-                ret.push(val[i].id);
+                ret.push(val[i].host_id);
             }
             this.selected = ret;
         }
