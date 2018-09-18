@@ -30,6 +30,19 @@ function startWS(ip_list, site_id){
     }
 }
 
+function parserUrlParams(paramStr){
+    params = paramStr.split("&");
+    param_dict = {}
+    for(var i=0;i<params.length;i++){
+        var param = params[i];
+        var tmp = param.split("=");
+        param_key = tmp[0];
+        param_value = tmp[1];
+        param_dict[param_key] = param_value;
+    }
+    return param_dict;
+}
+
 vm = new Vue({
     el: "#app",
     data: {
@@ -38,31 +51,24 @@ vm = new Vue({
         site_name: "siteA",
         site_id: "",
         nginx_cluster_id: "",
-        version: "3",
         host_list:[],
         pre_hosts: [],
-        log: "aaaaaaaaaaaa\naaaaaaaaaaaaaaaaa\naaaaaaaaaaaaaaaaaaaaaaaa\naaaaaaaaaaaaaaaaaaaaaaaaaa",
-        loading: true
+        log: "",
+        loading: true,
+        currentVersion: "",
+        versions: []
 
     },
     created: function(){
-        window_href = window.location.href;
-        //console.log(window_href);
-        tmp1 = window_href.split("?"); //args_str
-        tmp2 = tmp1[1].split("&"); //args
-        tmp3 = tmp2[0].split("="); //site_name: k-v
-        tmp7 = tmp2[1].split("="); //site_id： k-v
-        tmp4 = tmp2[2].split("="); //nginx_cluster_id： k-v
-        tmp5 = tmp2[3].split("="); //version： k-v
-        tmp6 = tmp2[4].split("="); //task_id： k-v
-        this.site_name = tmp3[1]; 
-        this.nginx_cluster_id = tmp4[1];
-        this.version = tmp5[1];
-        this.task_id = tmp6[1];
-        this.site_id= tmp7[1];
+        var params_dict = parserUrlParams(window.location.search.substr(1));
+        this.site_name = params_dict['site_name']; 
+        this.nginx_cluster_id = params_dict['nginx_cluster_id'];
+        //this.task_id = params_dict['task_id'];
+        this.site_id= params_dict['site_id'];
         //console.log(site_name);
         //console.log(nginx_cluster_id);
         this.getHosts(this.site_name, this.nginx_cluster_id);
+        this.getVersion();
     },
     methods:{
         getData: function(url, params, func){
@@ -74,7 +80,6 @@ vm = new Vue({
             }).then(function(resp){
                 func(resp);
             }).catch(function(resp){
-                console.log(resp);
                 console.log('Fail:'+resp.status+','+resp.statusText);
             });
         },
@@ -93,7 +98,7 @@ vm = new Vue({
         },
 
         handleSelectionChange: function(val){
-            console.log(val);
+            //console.log(val);
             this.pre_hosts = val;
         },
 
@@ -103,7 +108,7 @@ vm = new Vue({
         },
 
         afterGetHosts: function(resp){
-            console.log(resp.data);
+            //console.log(resp.data);
             this.host_list = resp.data.data;
             this.loading = false;
             for(var i=0;i<this.host_list.length;i++){
@@ -116,24 +121,39 @@ vm = new Vue({
             }
         },
 
+        getVersion: function(id){
+            this.getData('/slb/rest/deployversionbysiteid', {id:this.site_id}, this.afterGetVersion);
+        },
+
+        afterGetVersion: function(resp){
+            var tmp = resp.data['ret'];
+            //console.log(tmp);
+            this.currentVersion = tmp[0];
+            this.versions = tmp;
+        },
+
         start_publish: function(){
-            data = {id: this.task_id, hosts: this.host_list, version: this.version}
+            data = {id: this.site_id, hosts: this.pre_hosts, version: this.currentVersion}
             this.postData('/slb/rest/deployagent/', data, this.afterStartPublish)
         },
 
         afterStartPublish: function(resp){
-            console.log(resp.data);
-            startWS(this.host_list, this.version);
+            //console.log(resp.data);
+            startWS(this.host_list, this.site_id);
         },
 
         getLog: function(row){
-            console.log(row.host_ip);
-            data={'ip':row.host_ip, 'siteId':this.site_id, 'deployId': this.task_id, 'version': this.version};
+            //console.log(row.host_ip);
+            data={'ip':row.host_ip, 'siteId':this.site_id, 'deployId': this.task_id, 'version': this.currentVersion};
             this.getData('/slb/rest/nginxdeploylogsbyip', data, this.afterGetLog);
         },
 
         afterGetLog: function(resp){
             this.log = resp.data['log'];
+        },
+
+        handleCommand: function(command){
+            this.currentVersion = command;
         }
     }
 });

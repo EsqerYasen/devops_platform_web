@@ -400,7 +400,7 @@ def site_versions(request):
     hu = HttpUtils(request)
     setListResult = hu.get(serivceName="p_job", restName="/rest/slb/deployversionbysiteid/", datas={'site_id':id})
     #print(setListResult)
-    setListResult = trans_versions(setListResult)
+    #setListResult = trans_versions(setListResult)
     return JsonResponse(data={'ret':setListResult})
     
 @csrf_exempt
@@ -557,11 +557,12 @@ def NginxClusterHostById(request):
 def deploy_agent(request):
     if request.method == 'POST':
         data = json.loads(str(request.body, 'utf-8'))
-        task_id = data['id']
+        site_id = data['id']
+        #site_name = data['site_name']
         host_list = data['hosts']
         version = data['version']
         hu = HttpUtils(request)
-        result = hu.post(serivceName='p_job', restName='/rest/slb/deployagent/', datas={"id": task_id, "version": version, 'hosts':host_list})
+        result = hu.post(serivceName='p_job', restName='/rest/slb/deployagent/', datas={"id": site_id, "version": version, 'hosts':host_list})
         return JsonResponse(data=result.json())
 
 def trans4configpreview(config_data):
@@ -621,7 +622,7 @@ def rtlog(request):
     site_id = int(message['site_id'])
     server_list = [m['host_ip'] for m in tmp_msg]
     while(message):
-        data = get_server_status(1)
+        data = get_server_status(site_id)
         data = json.dumps(data)
         datab = data.encode(encoding='utf-8', errors = 'strict')
         request.websocket.send(datab)

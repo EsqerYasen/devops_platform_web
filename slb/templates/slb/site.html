@@ -24,14 +24,6 @@
             </el-col>
         </el-row>
         <hr style="height:1px;border:none;border-top:1px solid #e5e5e5;" />
-        <!--<el-row>-->
-            <!--<el-col :span="12">-->
-            <!--<el-button type="warning" size="mini" icon="el-icon-document" @click="previewConfigFile">预览</el-button>-->
-            <!--<el-button type="success" size="mini" icon="el-icon-edit-outline" @click="createDist">创建</el-button>-->
-            <!--<el-button type="info" size="mini" icon="el-icon-d-arrow-left" @click="rollback">回滚</el-button>-->
-            <!--<el-button type="primary" size="mini" icon="el-icon-upload" @click="deploy">发布</el-button>-->
-            <!--</el-col>-->
-        <!--</el-row>-->
         <el-row>
             <div>
                 <el-tabs v-model="siteDetailActiveTabName" type="border-card" :before-leave="checkTabChange" @tab-click="handleTabChange">

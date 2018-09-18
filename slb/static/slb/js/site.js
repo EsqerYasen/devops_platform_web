@@ -524,7 +524,7 @@ vm = new Vue({
             //console.log(tmp);
             this.siteDetail = tmp;
             this.mergeDynamicAttr();
-            this.getSiteVersion(this.siteDetail.id);
+            //this.getSiteVersion(this.siteDetail.id);
             this.getMPRuleList(this.siteDetail.id);
         },
 
@@ -536,7 +536,7 @@ vm = new Vue({
             var tmp = resp.data['ret'];
             //console.log(tmp);
             this.siteVersions = tmp;
-            this.selectedVersion = tmp[0].k;
+            //this.selectedVersion = tmp[0].k;
         },
 
         getMPRuleList: function(nginx_site_id){
@@ -940,9 +940,9 @@ vm = new Vue({
             tmp = resp.data['ret'];
             if(tmp.status==200){
                 showMsg(true, tmp.msg);
-                var task_id = tmp['task_id'];
+                //var task_id = tmp['task_id'];
                 var version = tmp['version'];
-                var data = {version: version, task_id: task_id, name: this.siteDetail.site_name};
+                var data = {version: version, name: this.siteDetail.site_name};
                 if(this.siteVersions.length!=0){
                     if(this.siteVersions[0]['version']<version){
                         this.siteVersions.unshift(data);
@@ -967,7 +967,7 @@ vm = new Vue({
         },
 
         deploy_url: function(i){
-            url = "/slb/deploy/deploy_task?site_name="+this.siteDetail.site_name+"&site_id="+this.siteDetail.id+"&nginx_cluster_id="+this.siteDetail.nginx_cluster_id+"&version="+this.siteVersions[i].version+"&task_id="+this.siteVersions[i].task_id;
+            url = "/slb/deploy/deploy_task?site_name="+this.siteDetail.site_name+"&site_id="+this.siteDetail.id+"&nginx_cluster_id="+this.siteDetail.nginx_cluster_id;
             return url;
         },
 
@@ -983,14 +983,14 @@ vm = new Vue({
         },
 
         deploy: function(){
-            if(this.siteVersions.length==0){
-                showMsg(false, '请先创建版本后再发布');
-            }
-            else{
+            //if(this.siteVersions.length==0){
+                //showMsg(false, '请先创建版本后再发布');
+            //}
+            //else{
                 //goto deploy page
                 //console.log(this.deploy_url(0));
                 window.location=this.deploy_url(0);
-            }
+            //}
         },
 
         handleCommand: function(command){
