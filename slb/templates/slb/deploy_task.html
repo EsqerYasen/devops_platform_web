@@ -2,43 +2,39 @@
 {% block main %}
 {% load static %}
 {% verbatim myblock %}
-    <!--<el-row>-->
-        <!--[><el-col :span="20"><]-->
-        <!--[></el-col><]-->
-        <!--[><el-col :span="1" ><]-->
-            <!--[><el-button class="fa fa-play">启动</el-button><]-->
-        <!--[></el-col><]-->
-    <!--</el-row>-->
     <el-row>
-        <el-col :span="20">
-            <el-card class="box-card">
-                <div slot="header" class="clearfix">
-                    <!--<span>任务ID: {{task_id}} 任务状态: {{task_status}} 站点名称{{site_name}} 版本名称:{{site_name}}-{{version}}</span>-->
-                    <span>站点名称{{site_name}}</span>
+        <el-card class="box-card">
+            <div slot="header" class="clearfix">
+                <!--<span>任务ID: {{task_id}} 任务状态: {{task_status}} 站点名称{{site_name}} 版本名称:{{site_name}}-{{version}}</span>-->
+                <span style="padding: 3px 10px">站点名称:</span><span class="badge" >{{site_name}}</span>
+                <el-button v-if="loading" icon="el-icon-loading"></el-button>
+                <div style="float: right">
+                    <span>选择发布版本号:</span>
                     <el-dropdown @command="handleCommand">
-                        <span class="el-dropdown-link"> {{currentVersion}}<i class="el-icon-arrow-down el-icon--right"></i> </span>
+                        <el-button size="mini" type="primary">
+                        <span class="el-dropdown-link">{{currentVersion}}<i class="el-icon-arrow-down el-icon--right"></i> </span>
+                        </el-button>
                         <el-dropdown-menu slot="dropdown">
-                            <el-dropdown-item v-for="version, index in versions" :key="index">{{version}}</el-dropdown-item>
+                            <el-dropdown-item v-for="version, index in versions" :key="index" :command="version">{{version}}</el-dropdown-item>
                         </el-dropdown-menu>
                     </el-dropdown>
-                    <el-button v-if="loading" icon="el-icon-loading"></el-button>
-                    <el-button style="float: right; padding: 3px 0" type="text" @click="start_publish">开始发布</el-button>
+                    <el-button style="padding: 3px 10px" type="text" @click="start_publish">开始发布</el-button>
                 </div>
-                <el-table ref="multipleTable" border :data="host_list" tooltip-effect="dark" style="width: 100%" @selection-change="handleSelectionChange">
-                    <el-table-column type="selection" width="55"> </el-table-column>
-                    <el-table-column prop="host_id" label="序号" width="100"> </el-table-column>
-                    <el-table-column prop="host_ip" label="IP"> </el-table-column>
-                    <el-table-column prop="version" label="版本"> </el-table-column>
-                    <el-table-column prop="status" label="状态"> </el-table-column>
-                    <el-table-column label="日志">
-                        <template slot-scope="server_list">
-                            <el-button type="primary" size="mini" icon="el-icon-document" @click="getLog(server_list.row)"></el-button>
-                        </template>
-                    </el-table-column>
-                    <!--<el-table-column prop="time" label="修改时间" > </el-table-column>-->
-                </el-table>
-            </el-card>
-        </el-col>
+            </div>
+            <el-table ref="multipleTable" border :data="host_list" tooltip-effect="dark" style="width: 100%" @selection-change="handleSelectionChange">
+                <el-table-column type="selection" width="55"> </el-table-column>
+                <el-table-column prop="host_id" label="序号" width="100"> </el-table-column>
+                <el-table-column prop="host_ip" label="IP"> </el-table-column>
+                <el-table-column prop="version" label="版本"> </el-table-column>
+                <el-table-column prop="status" label="状态"> </el-table-column>
+                <el-table-column label="日志">
+                    <template slot-scope="server_list">
+                        <el-button type="primary" size="mini" icon="el-icon-document" @click="getLog(server_list.row)"></el-button>
+                    </template>
+                </el-table-column>
+                <!--<el-table-column prop="time" label="修改时间" > </el-table-column>-->
+            </el-table>
+        </el-card>
         <!--<el-col :span="12">-->
         <!--</el-col>-->
     </el-row>
