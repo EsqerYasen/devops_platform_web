@@ -55,6 +55,10 @@
                 <span class="glyphicon glyphicon-star" aria-hidden="true" style="color: orange"></span>
                 <span class="glyphicon glyphicon-star" aria-hidden="true" style="color: orange"></span>
                 <span class="glyphicon glyphicon-star" aria-hidden="true" style="color: orange"></span>
+                <span v-if="env_level=='S-'">
+                    (灾备环境和生产环境比例非1:1, 请注意风险)
+                </span>
+
             </span>
             <span v-if="level=='B'">
                 <span v-html="level" style="color: #8a6d3b"></span>
@@ -72,6 +76,14 @@
                 <span class="glyphicon glyphicon-star-empty" aria-hidden="true" style="color: orange"></span>
                 <span class="glyphicon glyphicon-star-empty" aria-hidden="true" style="color: orange"></span>
             </span>
+
+            {% if  result.id  %}
+            <span>
+                <button id="submit_report" type='button' class='btn btn-sm btn-success' style="float:right;"
+                        onclick="window.open('/presrb/project/generate_ppt/?id={{ result.id }}&devopsgroup={{ devopsgroup }}')">
+                    <i class="fa fa-save"></i> 生成报告</button>
+            </span>
+            {% endif %}
 
         </h3>
 
@@ -217,6 +229,7 @@
                             _this.disk_sum=parseInt(res.disk_sum);
                             _this.server_sum=parseInt(res.server_sum);
                             _this.level = res.level;
+                            _this.env_level = res.env_level;
                             _this.name = res.name;
                             _this.estimated_pilot_date = res.estimated_pilot_date;
                             _this.items=res.items;

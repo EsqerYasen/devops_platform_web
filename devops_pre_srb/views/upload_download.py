@@ -4,6 +4,7 @@
 # @Author: Xuan.Chen
 # @Date  : 2018/9/10
 # @Desc  :
+import datetime
 
 from rest_framework.views import APIView
 
@@ -105,3 +106,16 @@ def readFile(filename, chunk_size=512):
                     break
     except Exception as e:
         logger.error(e, exc_info=1)
+
+
+def remove_old_files(dir_to_be_clean):
+    delta = datetime.timedelta(minutes=10)
+    now = datetime.datetime.now()
+
+    for parent, dirnames, filenames in os.walk(dir_to_be_clean):
+        for filename in filenames:
+            filepath= os.path.join(dir_to_be_clean,filename)
+            ctime = datetime.datetime.fromtimestamp(os.path.getctime(filepath))
+            if ctime < (now - delta):
+                os.remove(filepath)
+

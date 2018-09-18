@@ -19,7 +19,7 @@ urlpatterns = [
         url(r'^download/$',DownloadFile.as_view(),name='download'),
         url(r'^delete_file/$',DeleteFile.as_view(),name='delete_file'),
         url(r'^filelist/$',GetFileList.as_view(),name='filelist'),
-
+		url(r'^generate_ppt/$', ProjectPptReportView.as_view(), name='generate_ppt'),
 
     ]))
 ]
