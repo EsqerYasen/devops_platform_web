@@ -628,7 +628,6 @@ def rtlog(request):
         datab = data.encode(encoding='utf-8', errors = 'strict')
         request.websocket.send(datab)
         message = request.websocket.wait()
-
         time.sleep(3)
 
 def get_nginx_log(request):

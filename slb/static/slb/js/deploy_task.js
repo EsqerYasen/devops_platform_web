@@ -3,7 +3,8 @@ function showMsg(boolFlag, msg){
     else{ vm.$message.error(msg);}
 };
 
-status_dict = {'0': 'running', '1': 'ok', '2': 'failed'}
+var ws=null;
+
 function startWS(ip_list, site_id){
     ws = new WebSocket("ws://localhost:8000/slb/ws/rtlog/");
 
@@ -29,6 +30,8 @@ function startWS(ip_list, site_id){
         }
     }
 }
+
+status_dict = {'0': 'running', '1': 'ok', '2': 'failed'}
 
 function parserUrlParams(paramStr){
     params = paramStr.split("&");
@@ -56,7 +59,8 @@ vm = new Vue({
         log: "",
         loading: true,
         currentVersion: "",
-        versions: []
+        versions: [],
+        ws: null
 
     },
     created: function(){
@@ -140,7 +144,12 @@ vm = new Vue({
         afterStartPublish: function(resp){
             //console.log(resp.data);
             this.task_id = resp.data.task_id;
-            startWS(this.pre_hosts, this.site_id);
+            //if(ws == null){
+                startWS(this.pre_hosts, this.site_id); 
+            //}
+            //else{ 
+                //ws.close(); 
+                //startWS(this.pre_hosts, this.site_id); }
         },
 
         getLog: function(row){
