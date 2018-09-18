@@ -9,12 +9,12 @@ function startWS(ip_list, site_id){
 
     ws.onopen = function() {
         console.log("open");
-        data = JSON.stringify({ip_list: ip_list, site_id: site_id});
+        data = JSON.stringify({ip_list: ip_list, site_id: site_id, cmd: "start"});
         ws.send(data);
     };
 
     ws.onmessage = function(msg){
-        ws.send('ok')
+        ws.send(JSON.stringify({cmd: "ack"}));
         console.log(msg.data);
         tmp_list = JSON.parse(msg.data);
         for(var i=0;i<tmp_list.length;i++){
@@ -46,7 +46,7 @@ function parserUrlParams(paramStr){
 vm = new Vue({
     el: "#app",
     data: {
-        task_id: "100",
+        task_id: 100,
         task_status: "created",
         site_name: "siteA",
         site_id: "",
@@ -139,16 +139,18 @@ vm = new Vue({
 
         afterStartPublish: function(resp){
             //console.log(resp.data);
-            startWS(this.host_list, this.site_id);
+            this.task_id = resp.data.task_id;
+            startWS(this.pre_hosts, this.site_id);
         },
 
         getLog: function(row){
             //console.log(row.host_ip);
-            data={'ip':row.host_ip, 'siteId':this.site_id, 'deployId': this.task_id, 'version': this.currentVersion};
+            data={ip:row.host_ip, siteId:this.site_id, deployId: this.task_id, version: this.currentVersion};
             this.getData('/slb/rest/nginxdeploylogsbyip', data, this.afterGetLog);
         },
 
         afterGetLog: function(resp){
+            //console.log(resp);
             this.log = resp.data['log'];
         },
 

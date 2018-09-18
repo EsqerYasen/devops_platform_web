@@ -614,21 +614,22 @@ def get_server_status(site_id):
     ret_server_status_list = [{'ip': str(k, 'utf-8'), 'status': str(v, 'utf-8')} for k,v in server_status_dict.items() ]
     return ret_server_status_list
 
-@require_websocket
+@accept_websocket
 def rtlog(request):
     message = request.websocket.wait()
-    message = json.loads(str(message, 'utf-8'))
-    tmp_msg = message['ip_list']
-    site_id = int(message['site_id'])
-    server_list = [m['host_ip'] for m in tmp_msg]
     while(message):
+        message = json.loads(str(message, 'utf-8'))
+        if message['cmd']=='start':
+            site_id = int(message['site_id'])
+            #tmp_list = message['ip_list']
+            #server_list = [tmp['host_ip'] for tmp in tmp_list]
         data = get_server_status(site_id)
         data = json.dumps(data)
         datab = data.encode(encoding='utf-8', errors = 'strict')
         request.websocket.send(datab)
         message = request.websocket.wait()
+
         time.sleep(3)
-    return HttpResponse('close') 
 
 def get_nginx_log(request):
     ip = request.GET.get('ip', None)
