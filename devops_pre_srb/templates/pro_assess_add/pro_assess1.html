@@ -125,7 +125,7 @@
 	<div class="row" style="margin-bottom: 20px">
          <div class="col-md-6">
              <label class="col-sm-5 control-label" style="text-align: right">
-                 需要运维接入时间
+                 需要运维介入时间
              </label>
              <div class="col-sm-7">
 	             <div class='input-group date'  id='datetimepicker2'>
@@ -280,7 +280,7 @@
         }
         saveJson['estimated_pilot_date'] = estimated_pilot_date;
         if(!estimated_online_date){
-            Alertwin.alert({ message: "需要运维接入时间"});
+            Alertwin.alert({ message: "需要运维介入时间"});
             bool = false;
             return bool;
         }
