@@ -50,7 +50,7 @@
 	<div class="row" style="margin-bottom: 20px">
          <div class="col-md-6">
              <label class="col-sm-5 control-label" style="text-align: right">
-                 项目简书
+                 项目简述
              </label>
              <div class="col-sm-7">
                 <textarea id="description" maxlength="200" class="form-control" style="width: 100%;height: 70px;resize: none;background: white;color: black;" {{ readonly }}>{{ result.description }}</textarea>
@@ -244,7 +244,7 @@
         }
         saveJson['name_en'] = nameEn;
         if(!description){
-            Alertwin.alert({ message: "项目简书为空"});
+            Alertwin.alert({ message: "项目简述为空"});
             bool = false;
             return bool;
         }
