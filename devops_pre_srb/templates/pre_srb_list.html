@@ -124,20 +124,32 @@
             });
         }
 
-        function project_change(id,status){
-            $.ajax({
-                type: "GET",
-                url: '/presrb/project/projectupdatestatus/',
-                data:{"p_id":id,"status":status},
-                error: function (request) {},
-                success: function (data) {
-                    if(data.status == 200){
-                        window.location.reload();
-                        Alertwin.alert({ message: "提交成功"});
-                    }else{
-                        Alertwin.alert({ message: "提交失败"});
-                    }
+         function project_change(id,status) {
+            Alertwin.confirm({message: "将重置为'等待审核'状态"}).on(function (flag) {
+
+                if (flag) {
+                       $.ajax({
+                        type: "GET",
+                        url: '/presrb/project/projectupdatestatus/',
+                        data: {"p_id": id, "status": status},
+                        error: function (request) {
+                        },
+                        success: function (data) {
+                            if (data.status == 200) {
+                                Alertwin.alert({message: "重置成功"}).on(function () {
+                                    window.location.reload();
+                                });
+                            } else {
+                                Alertwin.alert({message: "重置失败"}).on(function () {
+                                    window.location.reload();
+                                });
+                            }
+                        }
+                    })
+                } else {
+                    window.location.reload();
                 }
+
             })
         }
     </script>

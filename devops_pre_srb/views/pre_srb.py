@@ -23,6 +23,7 @@ class PreSrbListView(LoginRequiredMixin, OrderableListMixin, ListView):
             req = self.request
             hu = HttpUtils(req)
             reqData = hu.getRequestParam()
+            reqData['is_auditor'] = 1
             resultJson = hu.get(serivceName="presrb", restName="/rest/presrb/project_list/", datas=reqData)
             list = resultJson.get("results", [])
             paginator = Paginator(list, req.limit)
