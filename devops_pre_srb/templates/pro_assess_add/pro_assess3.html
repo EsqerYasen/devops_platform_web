@@ -4,8 +4,8 @@
 			typekey="production"
 			:show_checkbox="False"
 			:show_add="True"
-			discribe="描述"
-			title="用于生产">
+			discribe="正式提供对外服务，确保安全稳定"
+			title="生产">
 	</evn-component>
 	<evn-component
 			typekey="disaster_recovery"
@@ -28,9 +28,9 @@
 			discribe="默认 运维 = 生产 * 10% （最小1台）"
 			title="运维">
 	</evn-component>
-	<level level="S"> S级 : 主站节点全部高可用 有备份机房全部高可用(灾备环境如果非1:1,请注意风险)  5星</level>
-	<level level="A"> A级 : 主站存在单节点 有备份机房 /  主站节点全部高可用 无备份机房  4星</level>
-	<level level="B"> B级: 主站存在单节点 无备份机房 /  主站节点全部单节点 有备份机房  3星</level>
+	<level level="S"> S级 : 5星 主站节点全部高可用,有备份机房且全部高可用(灾备环境如果非1:1,请注意风险) </level>
+	<level level="B"> B级:  4星 主站存在单节点,无备份机房/主站节点全部单节点且有备份机房 </level>
+    <level level="A"> A级 : 3星 主站存在单节点,有备份机房/主站节点全部高可用但无备份机房  </level>
 </div>
 {% include "pro_assess_add/temps.html" %}
 <script>
@@ -275,7 +275,7 @@
                              item.env = 2;
                              items.push(item);
                              if(t){
-                                 info += "、灾备";
+                                 info += "灾备";
                              }
                          })
                          deploy_envs += 1;

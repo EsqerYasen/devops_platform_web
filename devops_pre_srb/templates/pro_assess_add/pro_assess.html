@@ -197,8 +197,10 @@
             success: function (data) {
                 if(data.status == 200){
                     bool = true;
-                    Alertwin.alert({ message: "提交成功"});
-                    window.location.href="/presrb/project/list/";
+
+                    Alertwin.alert({message: "提交成功"}).on(function () {
+                                    window.location.href="/presrb/project/list/";
+                                });
                 }else{
                     bool = false;
                     Alertwin.alert({ message: "提交失败"});
@@ -221,8 +223,9 @@
             success: function (data) {
                 if(data.status == 200){
                     bool = true;
-                    Alertwin.alert({ message: "提交成功"});
-                    window.location.href="/presrb/project/list/";
+                    Alertwin.alert({message: "提交成功"}).on(function () {
+                                    window.location.href="/presrb/project/list/";
+                                });
                 }else{
                     bool = false;
                     Alertwin.alert({ message: "提交失败"});
