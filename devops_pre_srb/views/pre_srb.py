@@ -29,9 +29,9 @@ class PreSrbListView(LoginRequiredMixin, OrderableListMixin, ListView):
             paginator = Paginator(list, req.limit)
             count = resultJson.get("count", 0)
             paginator.count = count
-            is_auditor = 0
-            if req.devopsgroup == DEVOPSGROUP:
-                is_auditor = 1
+            is_auditor = 1
+            # if req.devopsgroup == DEVOPSGROUP:
+            #     is_auditor = 1
             context['is_auditor'] = is_auditor
             context['result_list'] = list
             context['is_paginated'] = count > 0
@@ -62,9 +62,9 @@ class PreSrbCreateView(LoginRequiredMixin, JSONResponseMixin,AjaxResponseMixin, 
             #result = {"applicant":user.username,"applicant_email":user.email}
             result = {"applicant": user.username}
             context['result'] = result
-            is_auditor = 0
-            if self.request.devopsgroup == DEVOPSGROUP:
-                is_auditor = 1
+            is_auditor = 1
+            # if self.request.devopsgroup == DEVOPSGROUP:
+            #     is_auditor = 1
             context['is_auditor'] = is_auditor
             hu = HttpUtils(self.request)
             auditor_list = hu.get(serivceName="presrb", restName="/rest/presrb/auditor_list/", datas={})
@@ -123,9 +123,9 @@ class PreSrbUpdateView(LoginRequiredMixin, TemplateView):
             display = "none"
         context['readonly'] = readonly
         context['display'] = display
-        is_auditor = 0
-        if self.request.devopsgroup == DEVOPSGROUP:
-            is_auditor = 1
+        is_auditor = 1
+        # if self.request.devopsgroup == DEVOPSGROUP:
+        #     is_auditor = 1
         context['is_auditor'] = is_auditor
         context['pre_srb_additional'] = PRE_SRB_ADDITIONAL
         context['pre_srb_additional_percent'] = PRE_SRB_ADDITIONAL_PERCENT
