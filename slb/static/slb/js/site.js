@@ -21,6 +21,22 @@ Vue.component('my_access_log',{
     },
 });
 
+Vue.component('my_custom',{
+    template: '<el-input v-model="cmdcmdarg" @change="argUpdated($event, row)"></el-input>',
+    props: ['cmdarg', 'row', 'cmd'],
+    methods: {
+        argUpdated: function(w, r){
+            this.$emit('updatecmdarg', {v:w, s:r});
+        },
+    },
+    computed: {
+        cmdcmdarg: {
+            get: function(){return this.cmdarg;},
+            set: function(v){}
+        },
+    },
+});
+
 Vue.component('my_proxy_pass',{
     template: '<div>pool_name: <el-select v-model="cmdcmdarg" placeholder="请选择" @change="argUpdated($event, row)"> <el-option v-for="item in upstreams" :key="item.id" :label="item.cluster_name" :value="item.id"> </el-option> </el-select></div>',
     props: ['cmdarg', 'row'],
@@ -424,9 +440,9 @@ vm = new Vue({
         compareEditor: null,
         mydefine: "my_access_log",
         upstreams: [],
-        coption:"选择自定义参数",
-        free_options: [],
-        freeOptionDialog: false,
+        //coption:"选择自定义参数",
+        //free_options: [],
+        //freeOptionDialog: false,
         dynamicAttributes: [
             {param_key: "access_log", param_value: "", is_inner: 1}, 
             {param_key: "error_log", param_value: "", is_inner: 1},
@@ -524,7 +540,7 @@ vm = new Vue({
             //console.log(tmp);
             this.siteDetail = tmp;
             this.mergeDynamicAttr();
-            //this.getSiteVersion(this.siteDetail.id);
+            this.getSiteVersion(this.siteDetail.id);
             this.getMPRuleList(this.siteDetail.id);
         },
 
@@ -546,6 +562,9 @@ vm = new Vue({
         afterGetMPRuleList: function(resp){
             tmp = resp.data['ret']
             //console.log(tmp);
+            for(var i=0;i<tmp.length;i++){
+                tmp[i]['cmd_list'] = [];
+            }
             this.siteMPRuleList = tmp;
             for(i=0;i<this.siteMPRuleList.length;i++){
                 this.getCmdList(this.siteMPRuleList[i].id, i);
@@ -754,8 +773,7 @@ vm = new Vue({
         editMappingRule: function(row, row_index){
             //console.log(row_index);
             this.getCmdList(row.id, row_index);
-            //this.mappingRule = this.siteMPRuleList[row.id];
-            //this.mappingRule = this.siteMPRuleList[0];
+            this.mappingRule = this.siteMPRuleList[row_index];
             this.addMappingRuleDialogTriggle = true;
         },
 
@@ -799,13 +817,15 @@ vm = new Vue({
                 var data = this.mappingRule;
             }
             else{
+                var row = this.mappingRule.row;
+                delete this.mappingRule['row'];
                 for(var i=0;i<this.siteMPRuleList.length;i++){
-                    this.fillProxyPass(this.siteMPRuleList[i])
+                    this.fillProxyPass(this.siteMPRuleList[i]);
                 }
                 //console.log(this.siteMPRuleList);
                 var data = {id: 0, mapping_rules_list: this.siteMPRuleList, nginx_site_id: this.siteDetail.id};
             }
-            //console.log(this.mappingRule);
+            console.log(data);
             this.postData('../rest/mappingrulescreateorupdate/', data, this.afterSaveMappingRule);
             this.addMappingRuleDialogTriggle = false;
         },
@@ -856,7 +876,9 @@ vm = new Vue({
         },
 
         delCmd: function(index){
-            this.mappingRule.cmd_list.splice(index,1);
+            var tmp = JSON.parse(JSON.stringify(this.mappingRule.cmd_list));
+            tmp.splice(index, 1);
+            Vue.set(this.mappingRule, 'cmd_list', tmp);
         },
 
         cmdTypeChange: function(cmdType, index){
@@ -888,6 +910,10 @@ vm = new Vue({
             }
             else if(cmdType=='return'){
                 this.mydefine = 'my_return'; 
+                this.mappingRule.cmd_list[index].command_param = "";
+            }
+            else if(cmdType=='custom'){
+                this.mydefine = 'my_custom'; 
                 this.mappingRule.cmd_list[index].command_param = "";
             }
             else if(cmdType=='ifelse'){
@@ -932,8 +958,8 @@ vm = new Vue({
 
         createDist: function(){
             //console.log(this.siteDetail);
-            id = this.siteDetail.id;
-            this.getData('../rest/deployversioncreateview', {id:id}, this.afterCreateDist);
+            //id = this.siteDetail.id;
+            this.getData('../rest/deployversioncreateview', {id:this.siteDetail.id}, this.afterCreateDist);
         },
 
         afterCreateDist: function(resp){
@@ -942,15 +968,8 @@ vm = new Vue({
                 showMsg(true, tmp.msg);
                 //var task_id = tmp['task_id'];
                 var version = tmp['version'];
-                var data = {version: version, name: this.siteDetail.site_name};
-                if(this.siteVersions.length!=0){
-                    if(this.siteVersions[0]['version']<version){
-                        this.siteVersions.unshift(data);
-                    }
-                }
-                else{
-                    this.siteVersions.unshift(data);
-                }
+                version = parseInt(version);
+                this.siteVersions.unshift(version);
             }
             else{ showMsg(false, tmp.msg);}
         },
@@ -1012,15 +1031,15 @@ vm = new Vue({
             //}
         },
 
-        freeOptionDialogSubmit: function(){
-            this.freeOptionDialog = false;
-            this.siteDetail.dynamicAttributes.push(JSON.parse(JSON.stringify(this.freeOptionKV)));
-        },
+        //freeOptionDialogSubmit: function(){
+            //this.freeOptionDialog = false;
+            //this.siteDetail.dynamicAttributes.push(JSON.parse(JSON.stringify(this.freeOptionKV)));
+        //},
 
-        cancelFreeOptionDialog: function(){
-            this.freeOptionDialog = false;
-            this.freeOptionKV = {}
-        },
+        //cancelFreeOptionDialog: function(){
+            //this.freeOptionDialog = false;
+            //this.freeOptionKV = {}
+        //},
 
         delFreeOption: function(option_name){
             //var option_name_dict = {0: "access_log", 1: "error_log", 2: "error_page_400", 3: "error_page_404", 4: "root"}

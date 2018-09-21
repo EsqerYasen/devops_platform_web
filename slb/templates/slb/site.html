@@ -106,19 +106,21 @@
                 <el-tab-pane label="公共规则" name="publicRule">公共规则</el-tab-pane>
                 <el-tab-pane label="版本对比" name="versionCompare">
                     <el-row>
-                        <!--<el-col :span="4">-->
+                        <el-form :inline="true">
+                            <el-form-item>
                             <el-select v-model="versionA" placeholder="请选择" @change="handleVa">
-                                <el-option v-for="item in siteVersions" :key="item.version" :label="'version: '+ item.version" :value="item.version"> </el-option>
+                                <el-option v-for="item in siteVersions" :key="item" :label="'version: '+ item" :value="item"> </el-option>
                             </el-select>
-                        <!--</el-col>-->
-                        <!--<el-col :span="4" :offset="2">-->
+                            </el-form-item>
+                            <el-form-item>
                             <el-select v-model="versionB" placeholder="请选择" @change="handleVb">
-                                <el-option v-for="item in siteVersions" :key="item.version" :label="'version: '+ item.version" :value="item.version"> </el-option>
+                                <el-option v-for="item in siteVersions" :key="item" :label="'version: '+ item" :value="item"> </el-option>
                             </el-select>
-                        <!--</el-col>-->
-                        <!--<el-col >-->
+                            </el-form-item>
+                            <el-form-item>
                             <el-button type="primary" @click="startCompare">比较</el-button>
-                        <!--</el-col>-->
+                            </el-form-item>
+                        </el-form>
                     </el-row>
                     <el-row>
                         <div id="compare"></div>
@@ -128,16 +130,16 @@
             </div>
         </el-row>
         <!--</div>-->
-        <el-dialog :visible.sync="freeOptionDialog" title="自定义参数" width="50%">
-            <el-form :model="freeOptionKV" label-width="120px">
-                <el-form-item label="参数名"><el-input v-model="freeOptionKV.param_key"></el-input></el-form-item>
-                <el-form-item label="参数值"><el-input v-model="freeOptionKV.param_value"></el-input></el-form-item>
-                <el-form-item>
-                    <el-button type="primary" @click="freeOptionDialogSubmit">创建</el-button>
-                    <el-button @click="cancelFreeOptionDialog">取消</el-button>
-                </el-form-item>
-            </el-form>
-        </el-dialog>
+        <!--<el-dialog :visible.sync="freeOptionDialog" title="自定义参数" width="50%">-->
+            <!--<el-form :model="freeOptionKV" label-width="120px">-->
+                <!--<el-form-item label="参数名"><el-input v-model="freeOptionKV.param_key"></el-input></el-form-item>-->
+                <!--<el-form-item label="参数值"><el-input v-model="freeOptionKV.param_value"></el-input></el-form-item>-->
+                <!--<el-form-item>-->
+                    <!--<el-button type="primary" @click="freeOptionDialogSubmit">创建</el-button>-->
+                    <!--<el-button @click="cancelFreeOptionDialog">取消</el-button>-->
+                <!--</el-form-item>-->
+            <!--</el-form>-->
+        <!--</el-dialog>-->
         <el-dialog :visible.sync="addMappingRuleDialogTriggle" title="编辑规则" width="90%">
             此处填写基本的信息，详细规则的信息，可以在添加规则后，点击"编辑"进行详细补充。
             <el-form :model="mappingRule" label-width="120px">
@@ -170,7 +172,7 @@
                 </el-form-item>
                 <el-form-item label="路径表达式"><el-input v-model="mappingRule.regular_expression"></el-input></el-form-item>
                 <el-form-item label="大小写敏感"><el-switch v-model="mappingRule.case_sensitive"  active-text="是" inactive-text="否"></el-switch></el-form-item>
-                <el-table border :data="mappingRule.cmd_list">
+                <el-table border :data="mappingRule.cmd_list" >
                     <!--<el-table-column prop="id" label="序号"> </el-table-column>-->
                     <el-table-column type="index" prop="id" label="ID"></el-table-column>
                     <el-table-column label="指令类型" width="200px">

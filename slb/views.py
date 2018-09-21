@@ -46,8 +46,14 @@ def trans_cluster_list(cluster_list):
     check_up_type_dict = {
         1: 'TCP',
         2: 'HTTP',
+        3:'SSL_HELLO',
+        4:'MySQL',
+        5:'ajp',
         'TCP': 1,
         'HTTP': 2,
+        'SSL_HELLO': 3,
+        'MySQL': 4,
+        'ajp': 5
     }
     ret = []
     for cluster in cluster_list:
@@ -113,13 +119,13 @@ def trans_cluster_detail(cluster_detail, reverser=False):
     check_up_type_dict = {
         1: 'TCP',
         2: 'HTTP',
-        3:'ssl_hello',
-        4:'mysql',
+        3:'SSL_HELLO',
+        4:'MySQL',
         5:'ajp',
         'TCP': 1,
         'HTTP': 2,
-        'ssl_hello': 3,
-        'mysql': 4,
+        'SSL_HELLO': 3,
+        'MySQL': 4,
         'ajp': 5
     }
     node_state_dict = {
