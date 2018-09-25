@@ -290,15 +290,15 @@ def generate_ppt_report(info):
         nowTime = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S-%f')
         dst_ppt_name = nowTime + '_' + dst_ppt_name
 
-        project_summay = "项目名: %s     项目上线时间: %s \n" % (info['name'], info['estimated_pilot_date'])
+        project_name = "项目名: %s" % info['name']
+        project_online = "项目上线时间: %s " % info['estimated_pilot_date']
         project_info = "项目合计需求资源：    服务器台数:%s台 / 内存: %s G /  CPU: %s C /  硬盘: %s G (系统自动计算)" % (
-        info['server_sum'], info['memory_sum'], info['cpu_sum'], info['disk_sum'])
+            info['server_sum'], info['memory_sum'], info['cpu_sum'], info['disk_sum'])
 
         dt = get_device_dict(info)
 
         dt['level'] = '评级: %s级' % info['level']
-        dt['project_info'] = project_summay + project_info
-
+        dt['project_info'] = project_name + "\n" + project_online + "\n" + project_info
         if not is_one_2_one(dt):
             additional_info = "(灾备环境和生产环境比例非1:1, 请注意风险)"
             dt['level'] += additional_info
