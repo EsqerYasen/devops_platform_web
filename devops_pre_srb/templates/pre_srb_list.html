@@ -24,11 +24,18 @@
             {% if is_auditor == 0 or is_auditor == '0' %}
             <a href="../add/" class="btn btn-sm btn-success"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> 新增</a>
             {% endif %}
+            <button type="button" class="btn btn-sm btn-success" data-toggle='modal' data-target='#import_host_modal' style="margin-right: 10px"><i class="glyphicon glyphicon-import"></i> 文档上传</button>
+
         </div>
+
+
     </div>
 {% endblock %}
 
 {% block list_content %}
+    <script type="text/javascript" src="/static/hplus/js/fileinput.min.js"></script>
+    <script type="text/javascript" src="/static/hplus/js/fileinput.zh.js"></script>
+    <link href="/static/hplus/css/fileinput.min.css" rel="stylesheet">
     <table id="tb" class="table table-striped table-bordered table-hover dataTables-example dataTable">
         <thead>
             <tr>
@@ -98,21 +105,221 @@
         </tbody>
     </table>
     <script>
-        function project_change(id,status){
+        $(document).ready(function () {
+             importHostFile();
+         })
+
+
+        function importHostFile(){
+            $("#import_host_file").fileinput({
+                showPreview: false,
+                showUpload: false,
+                elErrorContainer: '#kartik-file-errors',
+                showCaption: true,
+                allowedFileExtensions: ['xls', 'xlsx','ppt','doc','docx','pptx','pdf'],
+                maxFileSize:50000,
+                msgSizeTooLarge: 'File "{name}" ({size} KB) exceeds maximum allowed upload size of {maxSize} KB',
+                maxFilesNum:1,
+                language:'zh',
+            });
+        }
+
+         function project_change(id,status) {
+            Alertwin.confirm({message: "将重置为'等待审核'状态"}).on(function (flag) {
+
+                if (flag) {
+                       $.ajax({
+                        type: "GET",
+                        url: '/presrb/project/projectupdatestatus/',
+                        data: {"p_id": id, "status": status},
+                        error: function (request) {
+                        },
+                        success: function (data) {
+                            if (data.status == 200) {
+                                Alertwin.alert({message: "重置成功"}).on(function () {
+                                    window.location.reload();
+                                });
+                            } else {
+                                Alertwin.alert({message: "重置失败"}).on(function () {
+                                    window.location.reload();
+                                });
+                            }
+                        }
+                    })
+                } else {
+                    window.location.reload();
+                }
+
+            })
+        }
+    </script>
+{% endblock %}
+
+{% block modal_div %}
+    <script type="text/javascript" src="/static/hplus/js/fileinput.min.js"></script>
+    <script type="text/javascript" src="/static/hplus/js/fileinput.zh.js"></script>
+    <link href="/static/hplus/css/fileinput.min.css" rel="stylesheet">
+    <div class="modal fade" id="import_host_modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content" style="width: 600px">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">文档上传</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body" style="max-height: 500px;overflow:auto">
+
+                    <div class="col-sm-12">
+                        <input id="import_host_file" type="file">
+                        <input id="index" type="hidden" value="0" />
+                    </div>
+
+
+                     <div id="import_info_div" class="col-sm-12" style="display: none; margin-top:10px">
+                         <div class="row">
+
+                         </div>
+                         <div class="row">
+                             <div id="import_pro" style="width: 100%;height:32px;margin: 5px auto;"></div>
+                         </div>
+                         <div class="row">
+
+                         </div>
+
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: none">
+                    <button type="button" id="importHostInfoBtn" class="btn btn-primary" title="确定上传" onclick="importHostInfo()">确定</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+
+                </div>
+                {% if file_list %}
+                <div class="modal-footer">
+                    <div class="col-md-6" style="padding: 20px; overflow-y: scroll; height: 150px; width:550px;">
+                        <table id="tb" class="table table-striped table-bordered table-hover dataTables-example dataTable">
+                            <thead>
+                                <th>运维标准文档列表</th>
+                                <th>操作</th>
+                            </thead>
+                            <tbody>
+
+                                {% for filename in file_list %}
+                                    <tr>
+                                        <td>
+                                             {{ filename }}
+                                        </td>
+                                    <td>
+{#                                         <a href="/presrb/project/delete_file/?filename={{ filename }}" class="link-popover" style="font-size: small">删除</a>#}
+                                        <a href="javascript:void(0);" onclick="deleteFile('{{ filename }}',this)">删除</a>
+                                    </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                     </div>
+                </div>
+            {% endif %}
+
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        function importHostInfo(){
+            $("#importHostInfoBtn").attr("disabled","disabled");
+            var files = $("#import_host_file")[0].files[0];
+            if(files){
+                layer.load();
+                var formData = new FormData();
+                formData.append("csrfmiddlewaretoken",'{{ csrf_token }}')
+                formData.append('files',files);
+                $.ajax({
+                    url: '/presrb/project/upload/',
+                    type: 'POST',
+                    processData: false,
+                    contentType: false,
+                    data:formData,
+                    beforeSend:function(){
+                        //Alertwin.alert({ message:"正在进行，请稍候"});
+                    },
+                    success:function(responseStr) {
+                        layer.closeAll('loading');
+                        if(responseStr.status===200){
+                           {#$("#import_host_modal").modal('hide');#}
+                           Alertwin.alert({ message: "上传成功！"}).on(function(){
+                            window.location.href="/presrb/project/list/";
+                             });
+                        }else{
+                            Alertwin.alert({message:responseStr.msg});
+                            $("#importHostInfoBtn").attr("disabled",false);
+                        }
+
+                    },
+                    error:function(responseStr) {
+                        layer.closeAll('loading');
+                        $("#importHostInfoBtn").attr("disabled",false);
+                        console.log(responseStr);
+                    }
+                });
+            }else{
+
+            }
+        }
+
+
+
+        function getImportStatus(){
+            var index = $("#index").val();
             $.ajax({
-                type: "GET",
-                url: '/presrb/project/projectupdatestatus/',
-                data:{"p_id":id,"status":status},
-                error: function (request) {},
-                success: function (data) {
-                    if(data.status == 200){
-                        window.location.reload();
-                        Alertwin.alert({ message: "提交成功"});
-                    }else{
-                        Alertwin.alert({ message: "提交失败"});
+                type: "get",
+                url: '../getImportInfo/',
+                data:{"index":index},
+                error: function (request) {
+                    clearInterval(host1_sh);
+                    host1_sh = null;
+                },
+                success: function (result) {
+                    {#$("#index").val(result.run_index);#}
+                    $("#import_info_total").text(result.total);
+                    {#$("#import_info_success").text(result.success_count);#}
+                    {#$("#import_info_fail").text(result.fail_count);#}
+                    {#pro.update(Math.round((result.run_index/result.total)*100))#}
+                    var tb = $("#import_info_tb tbody");
+                    $(result.data).each(function(i,item){
+                        var htmlStr = "<tr><td>"+item.host_ip+"</td><td>"+item.msg+"</td></tr>";
+                        tb.append(htmlStr);
+                    });
+                    if(result.status == 500 || result.is_run == 0){
+                        clearInterval(host1_sh);
+                        host1_sh = null;
                     }
                 }
-            })
+            });
+        }
+
+        function deleteFile(fileName,btn){
+             $.ajax({
+                type: "get",
+                url: '/presrb/project/delete_file/',
+                data:{"filename":fileName},
+                error: function (response) {
+                    console.log(response);
+                },
+                success: function (result) {
+                    if(result.status == 200){
+                        $("#import_host_modal").modal('hide');
+                        Alertwin.alert({ message: "删除成功！"}).on(function(){
+                            window.location.href="/presrb/project/list/";
+                        });
+
+
+                    }
+                }
+             })
         }
     </script>
 {% endblock %}

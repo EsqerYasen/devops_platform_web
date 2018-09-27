@@ -51,9 +51,9 @@
 {#                                {% if is_auditor == 0 and type == 2 or type == 0%}#}
 {#                                <button id="submit2" type='button' class='btn btn-sm btn-success' style="float:right;display: none" onclick="submit()"><i class="fa fa-save"></i> 提交审核</button>#}
 {#                                {% elif is_auditor == 1 or is_auditor == '2' and type == 2%}#}
-                                {% if is_auditor == 1 or is_auditor == '2' and type == 2%}
-                                <button id="agreebtn" type='button' class='btn btn-sm btn-success' style="float:right;display: none;margin-right: 10px" onclick="agreefun()"><i class="glyphicon glyphicon-ok"></i> 同意</button>
-                                <button id="disagreebtn" type='button' class='btn btn-sm btn-danger' style="float:right;display: none" onclick="disagreefun()"><i class="glyphicon glyphicon-remove"></i> 不同意</button>
+                                {% if is_auditor == 1  and type == 2%}
+                                <button id="agreebtn" type='button' class='btn btn-sm btn-success' style="float:right;display:none;margin-right: 10px" onclick="agreefun()"><i class="glyphicon glyphicon-ok"></i> 同意</button>
+                                <button id="disagreebtn" type='button' class='btn btn-sm btn-danger' style="float:right;display:none" onclick="disagreefun()"><i class="glyphicon glyphicon-remove"></i> 不同意</button>
                                 {% endif %}
                             </ul>
                         </div>
@@ -197,8 +197,10 @@
             success: function (data) {
                 if(data.status == 200){
                     bool = true;
-                    Alertwin.alert({ message: "提交成功"});
-                    window.location.href="/presrb/project/list/";
+
+                    Alertwin.alert({message: "提交成功"}).on(function () {
+                                    window.location.href="/presrb/project/list/";
+                                });
                 }else{
                     bool = false;
                     Alertwin.alert({ message: "提交失败"});
@@ -221,8 +223,9 @@
             success: function (data) {
                 if(data.status == 200){
                     bool = true;
-                    Alertwin.alert({ message: "提交成功"});
-                    window.location.href="/presrb/project/list/";
+                    Alertwin.alert({message: "提交成功"}).on(function () {
+                                    window.location.href="/presrb/project/list/";
+                                });
                 }else{
                     bool = false;
                     Alertwin.alert({ message: "提交失败"});

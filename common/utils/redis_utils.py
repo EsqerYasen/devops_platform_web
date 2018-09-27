@@ -164,9 +164,6 @@ class RedisBase(object):
         finally:
             redisConn = None
 
-
-
-
     @staticmethod
     def hgetAll(redisKey, db=0):
         redisConn = None
@@ -179,3 +176,4 @@ class RedisBase(object):
             return False
         finally:
             redisConn = None
+
