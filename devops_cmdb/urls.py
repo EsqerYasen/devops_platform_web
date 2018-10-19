@@ -6,6 +6,7 @@ from devops_cmdb.views.business_attributes import *
 from devops_cmdb.views.host_group import *
 from devops_cmdb.views.vip import *
 from devops_cmdb.views.host_dashboard import *
+from devops_cmdb.views import cell_con # add by robin
 
 app_name = 'cmdb'
 
@@ -68,6 +69,9 @@ urlpatterns = [
         url(r'^edit/', VIPUpdateView.as_view(), name='edit'),
         url(r'^bindIp/', VIPBindIPView.as_view(), name='bindIp'),
         url(r'^delete/', VIPDeleteView.as_view(), name='delete'),
-    ]))
-    #url('attr_deom', )
+    ])),
+    #add by robin
+    url(r'^cell/$', cell_con.cell_index, name='cell_generation'),
+    url(r'^cell/post/', cell_con.cell_post, name='cell_post'),
+    url(r'^runCell/', cell_con.run_cell, name='run_cell'),
 ]
