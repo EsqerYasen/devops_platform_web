@@ -6,6 +6,8 @@ launch.json
 *.swp
 *.py[cod]
 *$py.class
+*.iml
+.vscode/
 # C extensions
 *.so
 # Distribution / packaging

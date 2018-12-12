@@ -1,0 +1,267 @@
+{% extends 'cell/layout.html' %}
+{% load static %}
+{% block link %}
+
+{% endblock %}
+{% block main %}
+{% verbatim myblock %}
+<el-row :gutter="10" type="flex" justify="end">
+    <el-col :span="3">
+        <el-input placeholder="模板过滤器" v-model="filter_content" size="mini" prefix-icon="el-icon-search"></el-input>
+    </el-col>
+    <el-col :span="1">
+        <el-button icon="el-icon-plus" type="success" size="mini" circle @click="createTemplate"></el-button>
+    </el-col>
+</el-row>
+<!-- <el-table :data="templates | search(filter_content) | pagination(currentPage, pageSize)" style="width: 100%"> -->
+    <el-table :data="display_templates | pagination(currentPage, pageSize)" style="width: 100%">
+    <el-table-column prop="name" label="模板名称" width="180"></el-table-column>
+    <!-- <el-table-column prop="business" label="所属业务" width="180"></el-table-column> -->
+    <el-table-column prop="user" label="创建人" width="180"></el-table-column>
+    <el-table-column prop="update_time" label="更新时间" width="180"></el-table-column>
+    <el-table-column label="操作">
+        <template slot-scope="templatesScope">
+            <el-button size="small" @click="getTemplate(templatesScope.row.id)">查看</el-button>
+            <el-button size="small" @click="delTemplate(templatesScope.row.id)">删除</el-button>
+            <el-button size="small" @click="modifyTemplate(templatesScope.row.id)">修改</el-button>
+            <el-button size="small" @click="getTemplateLog(templatesScope.row.id)">历史</el-button>
+        </template>
+    </el-table-column>
+</el-table>
+<el-pagination
+      @size-change="handlePageSizeChange"
+      @current-change="handlePageChange"
+      :current-page="currentPage"
+      :page-sizes="[2, 3, 4]"
+      :page-size="pageSize"
+      layout="total, sizes, prev, pager, next"
+      :total="template_count">
+</el-pagination>
+</br>
+<div v-show="templateFormVisible">
+<span>有个模板</span>
+<el-row :gutter="10" type="flex" justify="end">
+    <el-col :span="3">
+            <!-- <el-button icon="el-icon-plus" type="success" size="mini" circle @click="serviceDialogVisible=true"></el-button> -->
+            <el-button :disabled="!isEditTemplate" icon="el-icon-plus" type="success" size="mini" circle @click="addANewService"></el-button>
+            <el-button :disabled="!isEditTemplate" icon="el-icon-check" type="success" size="mini" circle @click="postTemplate"></el-button>
+            <el-button icon="el-icon-close" size="mini" circle @click="cancelPostTemplate"></el-button>
+    </el-col>
+</el-row>
+<el-form :inline="true" :disabled="templateFormDisEditable" :model="templateForm" v-show="templateFormVisible" label-width="90px">
+    <!-- <el-form-item label="模板名称">
+        <el-input :disabled="templateNameDisEditable" v-model="templateForm.name"></el-input>
+    </el-form-item> -->
+    <!-- <el-form-item label="所属业务">
+        <el-cascader :options="business" v-model="templateForm.business"></el-cascader>
+    </el-form-item> -->
+    <el-form-item label="模板名称">
+        <el-cascader :options="business" v-model="templateForm.name"></el-cascader>
+    </el-form-item>
+</el-form>
+
+<el-table :data="servicesForm" size="mini" v-show="templateFormVisible" style="width: 100%">
+    <!-- <el-table-column prop="serviceName" label="组件名称" width="100px"></el-table-column> -->
+    <el-table-column
+      type="index"
+      :index="indexMethod"></el-table-column>
+    <el-table-column label="组件名称" width="150px">
+        <template slot-scope="templateFormScope">
+            <el-select 
+                v-if="isEditTemplate" 
+                v-model="templateFormScope.row.serviceName" 
+                size="mini"
+                @change="handleChangeServiceNameInTable($event, templateFormScope.row)" 
+                filterable 
+            placeholder="请选择">
+                <el-option 
+                    v-for="component in components" 
+                    :key="component.name" 
+                    :label="component.name" 
+                :value="component.name">
+                </el-option>
+            </el-select>
+            <span v-else>{{templateFormScope.row.serviceName}}</span>
+        </template>
+    </el-table-column>
+    <el-table-column prop="version" label="版本号" width="70px"></el-table-column>
+    <el-table-column prop="port" label="服务端口" width="80px"></el-table-column>
+    <!-- <el-table-column prop="serviceType" label="组件类型" width="120px"></el-table-column> -->
+    <!-- <el-table-column prop="serverSpec" label="实例规格" width="120px"></el-table-column> -->
+    <el-table-column label="实例规格" width="150px">
+        <template slot-scope="templateFormScope">
+            <el-select 
+                v-if="isEditTemplate" 
+                v-model="templateFormScope.row.serverSpec" 
+                size="mini"
+            @change="handleInstanceTypeInTable($event, templateFormScope.row)">
+                <el-option 
+                    v-for="serverSpec in serverSpecs" 
+                    :key="serverSpec.name" 
+                    :label="serverSpec.name" 
+                :value="serverSpec.name">
+                    <span style="float: left">{{ serverSpec.name }}</span>
+                    <span v-if="'info' in serverSpec" style="float: right; color: #8492a6; font-size: 13px">{{ "cpu: "+serverSpec.info.cpu+" mem: "+ serverSpec.info.mem}}</span>
+                    <span v-else style="float: right; color: #8492a6; font-size: 13px"></span>
+                </el-option>
+            </el-select>
+            <span v-else>{{templateFormScope.row.serverSpec}}</span>
+        </template>
+    </el-table-column>
+    <!-- <el-table-column prop="cpu" label="CPU" width="60px"></el-table-column> -->
+    <el-table-column label="CPU">
+        <template slot-scope="templateFormScope">
+            <!-- <el-input-number v-if="templateFormScope.row.serverSpec=='自定义'" v-model="templateFormScope.row.cpu" size="mini" :min="1" :max="32" :precision="0" :step="1"></el-input-number> -->
+            <input v-if="templateFormScope.row.serverSpec=='自定义' && isEditTemplate" v-model="templateFormScope.row.cpu" type="number" style="width:40px"/>
+            <span v-else>{{templateFormScope.row.cpu}}</span>
+        </template>
+    </el-table-column>
+    <!-- <el-table-column prop="mem" label="内存" width="60px"></el-table-column> -->
+    <el-table-column label="内存">
+        <template slot-scope="templateFormScope">
+            <!-- <el-input-number v-if="templateFormScope.row.serverSpec=='自定义'" v-model="templateFormScope.row.mem" size="mini" :min="1" :max="32" :precision="0" :step="1"></el-input-number> -->
+            <input v-if="templateFormScope.row.serverSpec=='自定义' && isEditTemplate" v-model="templateFormScope.row.mem" type="number" style="width:40px"/>
+            <span v-else>{{templateFormScope.row.mem}}</span>
+        </template>
+    </el-table-column>
+    <!-- <el-table-column prop="disk" label="磁盘" width="60px"></el-table-column> -->
+    <el-table-column label="磁盘">
+        <template slot-scope="templateFormScope">
+            <!-- <el-input-number v-if="isEditTemplate" size="mini" v-model="templateFormScope.row.disk" :min="50" :max="500" :precision="0" :step="10"></el-input-number> -->
+            <input type="number" style="width:40px" v-if="isEditTemplate" v-model="templateFormScope.row.disk" />
+            <span v-else>{{templateFormScope.row.disk}}</span>
+        </template>
+    </el-table-column>
+    <!-- <el-table-column prop="count" label="数量" width="60px"></el-table-column> -->
+    <el-table-column label="数量">
+        <template slot-scope="templateFormScope">
+            <!-- <el-input-number v-if="isEditTemplate" size="mini" v-model="templateFormScope.row.count" :min="1" :max="100" :precision="0"></el-input-number> -->
+            <input type="number" style="width:40px" v-if="isEditTemplate" v-model="templateFormScope.row.count"/>
+            <span v-else>{{templateFormScope.row.count}}</span>
+        </template>
+    </el-table-column>
+    <!-- <el-table-column prop="connections" label="连接关系"></el-table-column> -->
+    <!-- <el-table-column label="连接关系" width="250px"> -->
+        <el-table-column label="连接关系">
+        <template slot-scope="templateFormScope">
+            <el-select 
+                :disabled="!isEditTemplate"
+                v-model="templateFormScope.row.connections" 
+                @focus="select_focus(templateFormScope.$index)" 
+                size="mini" 
+                multiple
+            >
+                <el-option
+                    v-for="item, index in servicesForm"
+                    :key="item.serviceName+(index+1)"
+                    :label="item.serviceName+(index+1)"
+                    :value="item.serviceName+'_'+index"
+                    :disabled="item.disabled"
+                >
+                </el-option>
+            </el-select>
+            <!-- <el-button 
+                icon="el-icon-rank"
+                circle
+                :disabled="templateFormDisEditable" 
+                size="mini"
+                @click="setConnection" >
+            </el-button> -->
+            <span v-else>{{templateFormScope.row.connections.join(",")}}</span>
+        </template>
+    </el-table-column>
+    <el-table-column label="操作">
+        <template slot-scope="servicesScope">
+            <!-- <el-button size="small" @click="getService(servicesScope.row)">查看</el-button> -->
+            <el-button 
+                icon="el-icon-close"
+                circle
+                :disabled="templateFormDisEditable" 
+                size="mini"
+                @click="delService(servicesScope.$index)" ></el-button>
+            <el-button 
+                v-if = "templateNameDisEditable"
+                icon="el-icon-refresh"
+                circle
+                :disabled="templateFormDisEditable" 
+                size="mini"
+                @click="resetService(servicesScope.row, servicesScope.$index)"></el-button>
+        </template>
+    </el-table-column>
+</el-table>
+</div>
+
+<el-dialog title="组件" :visible.sync="serviceDialogVisible">
+    <el-form :model="serviceData" :disabled="serviceDisEditable" label-width="90px">
+        <el-form-item label="服务组件">
+            <el-select v-model="serviceData.serviceName" @change="handleChangeOnServiceName" filterable placeholder="请选择">
+                <el-option v-for="component in components" :key="component.name" :label="component.name" :value="component.name">
+                </el-option>
+            </el-select>
+        </el-form-item>
+        <el-form-item v-show="serviceData.serviceName.length!=0" label="版本号">
+            <el-input v-model="serviceData.version" disabled></el-input>
+        </el-form-item>
+        <el-form-item v-show="serviceData.serviceName.length!=0" label="服务端口">
+            <el-input v-model="serviceData.port" disabled></el-input>
+        </el-form-item>
+        <el-form-item v-show="serviceData.serviceName.length!=0" label="服务类型">
+            <el-input v-model="serviceData.serviceType" disabled></el-input>
+        </el-form-item>
+        <el-form-item label="实例规格">
+            <el-select v-model="serviceData.serverSpec" @change="handleInstanceType">
+                <el-option v-for="serverSpec in serverSpecs" :key="serverSpec.name" :label="serverSpec.name" :value="serverSpec.name">
+                    <span style="float: left">{{ serverSpec.name }}</span>
+                    <span v-if="'info' in serverSpec" style="float: right; color: #8492a6; font-size: 13px">{{ "cpu: "+serverSpec.info.cpu+" mem: "+ serverSpec.info.mem}}</span>
+                    <span v-else style="float: right; color: #8492a6; font-size: 13px"></span>
+                </el-option>
+            </el-select>
+        </el-form-item>
+        <div v-show="serviceData.serverSpec=='自定义'" >
+        <el-form-item label="CPU">
+            <el-input-number v-model="serviceData.cpu" :min="1" :max="32" :precision="0" :step="1"></el-input-number>
+        </el-form-item>
+        <el-form-item label="内存大小(G)">
+            <el-input-number v-model="serviceData.mem" :min="1" :max="512" :precision="0" :step="1"></el-input-number>
+        </el-form-item>
+        </div>
+        <div v-show="serviceData.serverSpec.length!=0" >
+        <el-form-item label="数量">
+            <el-input-number v-model="serviceData.count" :min="1" :max="100" :precision="0"></el-input-number>
+        </el-form-item>
+        <el-form-item label="磁盘大小(G)">
+            <el-input-number v-model="serviceData.disk" :min="50" :max="500" :precision="0" :step="10"></el-input-number>
+        </el-form-item>
+        </div>
+        <el-form-item v-if="serviceData.serviceType=='jar'" label="连接关系">
+            <el-select v-model="serviceData.connections" multiple>
+                <el-option
+                    v-for="item in template"
+                    :key="item.serviceName"
+                    :label="item.serviceName"
+                    :value="item.serviceName">
+                </el-option>
+            </el-select>
+        </el-form-item>
+        
+        <el-form-item>
+            <el-button type="primary" @click="addService">添加</el-button>
+            <el-button @click="serviceDialogVisible=false">取消</el-button>
+        </el-form-item>
+    </el-form>
+</el-dialog>
+
+<el-dialog title="操作历史" :visible.sync="historyVisible" width="50%">
+    <el-table :data="t_logs">
+        <el-table-column property="time" label="日期" width="300"></el-table-column>
+        <el-table-column property="user" label="用户" width="200"></el-table-column>
+        <el-table-column property="action" label="操作"></el-table-column>
+    </el-table>
+</el-dialog>
+
+{% endverbatim myblock %}
+{% endblock %}
+
+{% block js %}
+    <script src="{% static 'js/cmdb/cell/cell_template.js' %}"></script>
+{% endblock %}

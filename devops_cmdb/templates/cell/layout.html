@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    {% load static %}
+    <meta charset="utf-8">
+    <title>Cell Management</title>
+    <!-- ElementUI -->
+    <!-- <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css" /> -->
+    <link rel="stylesheet" href="{% static 'css/elementui_index.css' %}" />
+    <!-- FontAwesome -->
+    <!--<link href="/static/hplus/css/bootstrap.min14ed.css?v=3.3.6" rel="stylesheet">-->
+    <!-- zTree -->
+    <!-- <link href="/static/hplus/css/zTree/bootstrapStyle.css" rel="stylesheet"> -->
+    {% block link %}{% endblock %}
+    <!--<style>-->
+        <!--.el-textarea__inner { background-color: black; }-->
+        <!--[v-cloak] {display: none;} [>delay vue loading<]-->
+    <!--</style>-->
+    <style>
+        [v-cloak] {display: none;}
+    </style>
+</head>
+<body>
+    <div id="app" v-cloak>
+        <el-container>
+            <el-main>{% block main %}main{% endblock %}</el-main>
+        </el-container>
+    </div>
+</body>
+<!-- import Vue before Element -->
+<!--<script src="/static/hplus/js/jquery.min.js?v=2.1.4"></script> -->
+<!-- <script src="/static/hplus/js/bootstrap.min.js?v=3.3.6"></script> -->
+<script src="{% static 'js/vue.min.js' %}"></script>
+<script src="{% static 'js/elementui_index.js' %}"></script>
+<script src="{% static 'js/axios.min.js' %}"></script>
+<!-- import self-defined JavaScript -->
+{% block js %}{% endblock %}
+</html>

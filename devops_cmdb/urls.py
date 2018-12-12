@@ -71,7 +71,10 @@ urlpatterns = [
         url(r'^delete/', VIPDeleteView.as_view(), name='delete'),
     ])),
     #add by robin
-    url(r'^cell/$', cell_con.cell_index, name='cell_generation'),
+    url(r'^cell/template/index/$', cell_con.template_index, name='template_index'),
+    url(r'^cell/template/$', cell_con.cell_template, name='template'),
+    url(r'^cell/template/log/$', cell_con.template_log, name='template_log'),
+    url(r'^cell/index/$', cell_con.cell_index, name='cell_import'),
     url(r'^cell/post/', cell_con.cell_post, name='cell_post'),
-    url(r'^runCell/', cell_con.run_cell, name='run_cell'),
+    url(r'^cell/runCell/', cell_con.run_cell, name='run_cell'),
 ]

@@ -4,7 +4,8 @@ from common.utils.HttpUtils import *
 from django.http import HttpResponse, StreamingHttpResponse
 from django.core.paginator import Paginator
 from devops_platform_web.settings import DEVOPSGROUP,PRE_SRB_ADDITIONAL,PRE_SRB_ADDITIONAL_PERCENT
-import logging,os,datetime,pptx
+import logging,os,datetime
+# import pptx
 from django.conf import settings
 from rest_framework.views import APIView
 from .upload_download import readFile,remove_old_files

@@ -1,0 +1,97 @@
+{% extends 'cell/layout.html' %}
+{% load static %}
+{% block link %}
+
+{% endblock %}
+{% block main %}
+{% verbatim myblock %}
+<el-form v-show="step=='import'" :model="cellForm" label-width="120px">
+    <el-form-item label="模板">
+        <el-select  v-model="cellForm.templateId">
+            <el-option v-for="template in templates" :label="template.name" :value="template.id"></el-option>
+        </el-select>
+    </el-form-item>
+    <el-form-item label="部署环境">
+        <el-cascader :options="locations" v-model="cellForm.location"></el-cascader>
+    </el-form-item>
+    <el-form-item label="服务器交付方式" >
+        <el-switch 
+            v-model="cellForm.is_API_deploy" 
+            active-text="API交付"
+            inactive-text="Excel交付"
+            active-color="#13ce66" 
+            inactive-color="#ff4949">
+        </el-switch>
+    </el-form-item>
+    <el-form-item v-show="cellForm.is_API_deploy==false" label="服务器交付方式">
+        <el-upload ref="upload" action="./post/" show-file-list 
+            :file-list="fileList"
+            :auto-upload="false"
+            :http-request="uploadReq"
+        >
+            <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
+            <div slot="tip" class="el-upload__tip">只能上传xls,xlsx文件</div>
+        </el-upload>
+    </el-form-item>
+    <el-form-item>
+        <el-button size="small" type="primary" @click="genCell">创建Cell</el-button>
+        <!-- <el-button size="small" type="primary" @click="submitFile">submit</el-button> -->
+    </el-form-item>
+</el-form>
+<div v-show="step=='show_list' || step=='run'">
+    <p>已创建如下Cell节点</p>
+    <el-button size="small" type="primary" @click="startWS">startWS</el-button>
+    <el-button size="small" type="warnning" @click="stopWS">stopWS</el-button>
+    <div v-if="push_key_not_finish"><i class="el-icon-loading"></i>正在对cell中的服务器进行初始化操作，初始化完成后，您才可以部署该cell</div>
+    <div v-else>服务器初始化完成：{{success_count}}台成功，{{fail_count}}台失败</div>
+    <el-button :disabled="unReadyForDeploy" size="small" type="primary" @click="runCell">部署</el-button>
+    <el-table :data="cell_config" style="width: 100%">
+        <el-table-column label="步骤" width="180">
+            <template slot-scope="hostsScope">
+                {{hosts[hostsScope.$index].step}}
+            </template>
+        </el-table-column>
+        <el-table-column label="状态" width="180">
+            <template slot-scope="hostsScope">
+                <el-tag v-if="hosts[hostsScope.$index].status=='init'" type="info">正在初始化</el-tag>
+                <el-tag v-else-if="hosts[hostsScope.$index].status=='success'" type="success">初始化完成</el-tag>
+                <el-tag v-else="hosts[hostsScope.$index].status=='fail'" type="danger">初始化失败</el-tag>
+            </template>
+        </el-table-column>
+        <el-table-column prop="ip" label="IP" width="180"> </el-table-column>
+        <el-table-column prop="cpu" label="CPU"> </el-table-column>
+        <el-table-column prop="mem" label="内存"> </el-table-column>
+        <el-table-column prop="disk" label="存储"> </el-table-column>
+        <el-table-column prop="node_name" label="节点名称"> </el-table-column>
+        <el-table-column prop="node_name" label="日志">
+            <template slot-scope="hostsScope">
+                <el-button 
+                    :disabled="hosts[hostsScope.$index].status=='init'" 
+                    size="small" type="primary" 
+                    @click="getLog('authorized_key', hostsScope.row.ip)">查看
+                </el-button> 
+            </template>
+        </el-table-column>
+    </el-table>
+</div>
+<el-steps v-show="step=='1run'" :active="activeStep" align-center>
+    <el-step title="传输文件" @click="getLog('transport_file')" description="传输文件"></el-step>
+    <el-step title="检查环境" description="检查环境"></el-step>
+    <el-step title="初始化参数" description="初始化参数"></el-step>
+    <el-step title="安装组件" description="安装组件"></el-step>
+    <el-step title="部署app" description="部署app"></el-step>
+    <el-step title="注册配置中心" description="注册配置中心"></el-step>
+    <el-step title="启动app" description="启动app"></el-step>
+</el-steps>
+<el-input v-show="step=='run'" type="textarea" :rows="50" v-model="logs"> </el-input>
+<!-- <el-button v-show="step=='run'" size="small" type="primary" @click="startws">startws</el-button> -->
+<el-dialog title="日志" :visible.sync="logVisible" width="80%">
+    <el-input type="textarea" :rows="50" placeholder="运行日志" v-model="authorized_log">
+    </el-input>
+</el-dialog>
+{% endverbatim myblock %}
+{% endblock %}
+
+{% block js %}
+    <script src="{% static 'js/cmdb/cell/cell.js' %}"></script>
+{% endblock %}

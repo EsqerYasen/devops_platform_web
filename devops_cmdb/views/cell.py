@@ -1,53 +1,7 @@
 # -*-coding: utf8 -*-
 import uuid
 import copy
-
-template  = {
-    "jar1": {
-        "count" : 4,
-        "cpu": 4,
-        "mem": 8,
-        "disk": 50,
-        "type": "jar",
-        "middle_ware": ["nginx-1", "mysql-1"]
-    },
-    "jar2": {
-        "count" : 4,
-        "cpu": 2,
-        "mem": 4,
-        "disk": 50,
-        "type": "jar",
-        "middle_ware": ["nginx-2", "mysql-2"]
-    },
-    "nginx-1": {
-        "count": 1,
-        "cpu": 4,
-        "mem": 8,
-        "disk": 50,
-        "type": "middle_ware",
-    },
-    "nginx-2": {
-        "count": 1,
-        "cpu": 2,
-        "mem": 4,
-        "disk": 50,
-        "type": "middle_ware",
-    },
-    "mysql-1": {
-        "count": 1,
-        "cpu": 2,
-        "mem": 4,
-        "disk": 50,
-        "type": "middle_ware",
-    },
-    "mysql-2":{
-        "count": 1,
-        "cpu": 2,
-        "mem": 4,
-        "disk": 50,
-        "type": "middle_ware",
-    }
-}
+from .Template import Template
 
 def generate_short_uuid():
     # 生成8位码
@@ -75,9 +29,9 @@ COL_COUNT = len(SHEET_COL_DICT)
 class Cell():
     """
     """
-    def __init__(self, template, parents):
+    def __init__(self, template, location):
         self.template = template
-        self.parents = parents
+        self.location = location
         self.cell_id = self.__get_id()
         self.cell = dict(cell_id=self.cell_id, cell_config=[])
         self.__xls = None
@@ -90,7 +44,10 @@ class Cell():
         self.__connection()
         assert self.__exist_rest_server() == False
 
-    def from_sheet_dict(self, sheet_dict):
+    def from_api(self):
+        pass
+
+    def from_db(self, cell_id):
         pass
 
     def __connection(self):
@@ -112,19 +69,24 @@ class Cell():
 
     def __pair(self):
         for obj_name in self.template.keys():
+            if isinstance(self.template[obj_name], (str, int)):
+                continue
             obj_attr = self.template[obj_name]
             count = obj_attr["count"]
             while count>0:
                 index = self.__find_server(obj_attr)
                 assert index>=0
-                node_name = '{parents}_{cell_id}_{obj_name}'.format(
-                        parents = '_'.join(self.parents), 
-                        cell_id = self.cell_id, 
-                        obj_name = obj_name
+                node_name = '{business}_{location}_{cell_id}_{obj_name}'.format(
+                    business=self.template['name'],
+                    location = '_'.join(self.location), 
+                    cell_id = self.cell_id, 
+                    obj_name = obj_name
                 )
-                self.__xls[index].update(dict(node_name=node_name, node_type=obj_attr["type"]))
-                if 'middle_ware' in obj_attr.keys():
-                    self.connections.update({self.__xls[index]['ip']:obj_attr['middle_ware']})
+                self.__xls[index].update(dict(node_name=node_name, node_type=obj_attr["serviceType"]))
+                # if 'middle_ware' in obj_attr.keys():
+                connections = obj_attr.get('connections', [])
+                if connections:
+                    self.connections.update({self.__xls[index]['ip']:connections})
                 count = count - 1
         self.cell["cell_config"] = self.__xls
 
@@ -177,12 +139,11 @@ if __name__ == "__main__":
     import pprint
     workbook = xlrd.open_workbook('D:/Book1.xlsx')
     sheet = workbook.sheet_by_index(0) # read first sheet
+    # template = Template()
+    # cc = Cell(template, ['kfc', 'preorder', 'nh', 'pilot'])
 
-    cc = Cell(template, ['kfc', 'preorder', 'nh', 'pilot'])
-
-    cc.from_sheet(sheet)
+    # cc.from_sheet(sheet)
 
     # pprint.pprint(cc.cell)
     # pprint.pprint(cc.connections)
-    pprint.pprint(cc.test_connection())
 
